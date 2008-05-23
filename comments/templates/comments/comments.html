@@ -1,0 +1,12 @@
+{% load i18n %}
+{% if display_comments %}
+<div id="comments"><a name="comments"></a>
+	<h4>{{ comments_count }} {% trans "comments" %}</h4>
+	<ul>
+	{% for c in comments %}
+    <li class="post {% cycle row1,row2 %}"><div class="ucomment"><a href="/user/{{ c.user.username }}">{{ c.user.username }}</a></div><div class="dcomment">{{ c.pub_date|date:"F jS Y" }} {% trans "at" %}  {{ c.pub_date|date:"H:i" }}</div><div class="comment_post">{{ c.comment_html }}</div></li>
+	{% endfor %}
+	</ul>
+</div>
+{% endif %}
+

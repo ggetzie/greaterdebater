@@ -1,0 +1,28 @@
+{% load i18n %}
+{% if logged_in %}
+<script type="text/javascript" charset="utf-8">
+	function displayFormComment() {
+		c=document.getElementById('add-comment')
+		if (c.style.display == "none") {
+			c.style.display="block"
+		} else {
+			c.style.display = "none"
+		}
+	}		
+</script>
+<a href="#" onclick="displayFormComment(); return false;">Click here to add a new comment &raquo;</a>
+<div id="add-comment">
+<form action="/comments{{ next }}add/" method="post" accept-charset="utf-8">
+{% comment %}
+	{{ form_comment.object_id }}
+	{{ form_comment.content_type }}
+	{{ form_comment.redirect }}
+{% endcomment %}
+	<div class="form-row"><label for="id_comment">{% trans "Posting as" %} {{ user }} {% trans "(you can use <a href='http://en.wikipedia.org/wiki/Markdown'>markdown</a> in your comments" %}, <a href="/help/comments/">{% trans "use {{{ }}} wish shebang to embed code" %}) :</a></label><br />{{ form_comment.comment }}</div>
+	<div><input type="submit" value="{% trans "Add Comment" %}"></div>
+</form>
+</div>
+<script type="text/javascript" charset="utf-8">
+	document.getElementById('add-comment').style.display="none"
+</script>
+{% endif %}
