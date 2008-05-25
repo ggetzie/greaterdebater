@@ -1,9 +1,7 @@
-<a href=/>Home</a>
-{% if logged_in %}
-<p>You're logged in! Welcome {{ user }}! <a href=/logout>Log out</a></p>
-{% else %}
-<p><a href=/login?next={{ next }}>Log in</a> or create an account to post comments</p>
-{% endif %}
+{% extends "base.html" %}
+{% block title %}{{ object.title }}{% endblock %}
+
+{% block content %}
 <strong><a href={{ object.url }}>{{ object.title }}</a></strong><br>
 {% if first_c %}
 {% for comment in first_c %}
@@ -22,4 +20,4 @@ by {{ comment.user }} on {{ comment.pub_date }}
 {% else %}
 <p>No comments</p>
 {% endif %}
-
+{% endblock %}

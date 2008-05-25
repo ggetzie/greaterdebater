@@ -48,11 +48,6 @@ def add(request, topic_id):
     if request.POST:
         form=CommentForm(request.POST)
         if form.is_valid():
-#             if 'redirect' in form.cleaned_data:
-#                 redirect_to=form.cleaned_data['redirect']
-#             else:
-#                 redirect_to=COMMENT_REDIRECT_TO
-
             if not request.user.is_authenticated():
                 msg = _("In order to post a comment you should have an account.")
                 msg = urlquote_plus(msg)
@@ -60,24 +55,14 @@ def add(request, topic_id):
                     redirect_to=reverse(COMMENT_SIGNIN_VIEW) + "?next=" + redirect_to + "&msg=" + msg
                 else:
                     redirect_to='/'
-#                 if not request.user.is_authenticated():
-#                     return HttpResponseRedirect(redirect_to)
 	    else:		    
-#             try:    
-#                 content_type=ContentType.objects.get(id=form.cleaned_data['content_type'])
-#             except:
-#                 pass
-#             if content_type:		    
 		    top = get_object_or_404(Topic, pk=topic_id)
 		    redirect_to = reverse('tcd.items.views.comments', args=(topic_id))
 		    params = {
-		    #'headline':form.cleaned_data['headline'],
 		    'comment':form.cleaned_data['comment'],
 		    'user':request.user,
 		    'pub_date': datetime.datetime.now(),
 		    'topic': top
-		    #'content_type':content_type,
-		    #'object_id':form.cleaned_data['object_id'],
 		    }
 		    c = Comment(**params)
 		    c.save()

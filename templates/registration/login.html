@@ -1,13 +1,22 @@
+{% extends "base.html" %}
+{% block title %}TCD Login{% endblock%}
+
+{% block content %}
 {% if form.errors %}
 <p class="error">Sorry, that's not a valid username or password</p>
 {% endif %}
+{% if message %}
+<p>{{ message }}</p>
+{% endif %}
 
 <form action='.' method='post'>
-  <label for="username">User name:</label>
-  <input type="text" name="username" value="" id="username">
-  <label for="password">Password:</label>
-  <input type="password" name="password" value="" id="password">
-  
-    <input type="submit" value="login" />
-    <input type="hidden" name="next" value={{ next|escape }} />
-  <form action='.' method='post'>
+  <table>
+    {{ form }}
+        <tr>
+      <td></td>
+      <td></td>
+      <td><input type="submit" value="Login" /></td>
+      <td><input type="hidden" name="next" value={{ next|escape }} /></td></tr>
+  </table>
+</form>
+{% endblock %}

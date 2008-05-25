@@ -1,0 +1,5 @@
+{% if logged_in %}
+<p>You're logged in! Welcome {{ user }}! <a href=/logout>Log out</a></p>
+{% else %}
+<p><a href=/login?next={{ next }}>Log in</a> or <a href=/register?next={{ next }}>create an account</a></p>
+{% endif %}

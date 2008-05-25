@@ -1,0 +1,24 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html lang="en">
+<head>
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+  {% block header %}
+  <table>
+    <tr>
+      <td><a href="/">Home</a></td> 
+      <td><a href="/submit">Submit</a></td>
+      <td>
+	{% if logged_in %}
+	Welcome {{ user }}! <a href=/logout>Log out</a>
+	{% else %}
+	<a href=/login?next={{ next }}>Log in</a> or <a href=/register?next={{ next }}>create an account</a>
+	{% endif %}</td></tr></table>
+  <br>
+  {% endblock %}
+
+  {% block content %}
+  {% endblock %}
+</body>
+</html>
