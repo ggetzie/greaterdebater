@@ -13,5 +13,6 @@ urlpatterns = patterns('',
                        (r'^comments/', include('tcd.comments.urls')),                       
                        (r'^login/', 'tcd.items.views.login'),
                        (r'^logout/', logout, {'next_page': "/"}),
-                       (r'^register/$', 'tcd.items.views.register')
+                       (r'^register/$', 'tcd.items.views.register'),
+                       (r'^submit/$', 'tcd.items.views.submit')
 )

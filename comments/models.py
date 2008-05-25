@@ -58,12 +58,9 @@ lexers_aliases = ['aconf', 'apache', 'apacheconf', 'bash', 'bat', 'bbcode', 'bef
 
 
 class Comment(models.Model):
-#    headline = models.CharField(blank=True, max_length=100)
     comment = models.TextField()
     comment_html = models.TextField(blank=True)
     user = models.ForeignKey(User)
-#    content_type = models.ForeignKey(ContentType)
-#    object_id = models.IntegerField()
     pub_date = models.DateTimeField(blank=True, null=True)
     is_removed = models.BooleanField(default=False)
     is_first = models.BooleanField(default=False)

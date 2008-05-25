@@ -1,4 +1,3 @@
-from django.core.exceptions import ObjectDoesNotExist
 from django import newforms as forms
 from django.contrib.auth.models import User
 from django.contrib import auth
@@ -36,13 +35,13 @@ class tcdUserCreationForm(forms.Form):
 class tcdLoginForm(forms.Form):
     email = forms.EmailField(label="Email")
     password = forms.CharField(widget=forms.widgets.PasswordInput(),
-                               label="Password")    
-    def clean_email(self):
-        email = self.cleaned_data.get('email', '')
-        try:
-            user = User.objects.get(email=email)
-        except ObjectDoesNotExist:
-            raise forms.ValidationError("A user with that email address does not exist")
-        return email
+                               label="Password")
 
-
+class tcdTopicSubmitForm(forms.Form):
+    title = forms.CharField(max_length=140, label="Title")
+    url = forms.URLField(label="URL", required=False)
+    comment = forms.CharField(label="Text",
+                              widget=forms.widgets.Textarea(attrs={'class': 'required icomment',
+                                                                   'rows': 5,
+                                                                   'cols': 50}))
+    

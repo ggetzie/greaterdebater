@@ -18,12 +18,9 @@
 from django import newforms as forms
 attrs_dict = { 'class': 'required' }
 class CommentForm(forms.Form):
-#    headline = forms.CharField(max_length=100,required=False)
     comment =  forms.CharField(widget=forms.widgets.Textarea(attrs={'class': 'required icomment',
                                                                     'rows': 5,
                                                                     'cols': 50}))
-#    object_id = forms.IntegerField(widget=forms.widgets.HiddenInput())
-#    content_type = forms.CharField(max_length=100, widget=forms.widgets.HiddenInput())
     redirect = forms.CharField(max_length=255, widget=forms.widgets.HiddenInput(), required=False)
     
     

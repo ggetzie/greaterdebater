@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Submit a topic{% endblock %}
+
+{% block content %}
+<form action='.' method='post'>
+  <table>
+    {{ form }}
+    <tr>
+      <td></td>
+      <td></td>
+      <td><input type="submit" value="Submit" /></td>
+      <td><input type="hidden" name="next" value={{ next|escape }} /></td></tr>
+  </table>
+</form>
+{% endblock %}

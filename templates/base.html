@@ -10,8 +10,8 @@
       <td><a href="/">Home</a></td> 
       <td><a href="/submit">Submit</a></td>
       <td>
-	{% if logged_in %}
-	Welcome {{ user }}! <a href=/logout>Log out</a>
+	{% if user.is_authenticated %}
+	Welcome {{ user.username }}! <a href=/logout>Log out</a>
 	{% else %}
 	<a href=/login?next={{ next }}>Log in</a> or <a href=/register?next={{ next }}>create an account</a>
 	{% endif %}</td></tr></table>

@@ -1,13 +1,15 @@
+from django import oldforms as forms
 from django.contrib.auth.models import User
 from django.contrib import auth
-from django import oldforms as forms
-from django.shortcuts import render_to_response, get_object_or_404
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
+from django.shortcuts import render_to_response, get_object_or_404
+from django.template import RequestContext
 from django.views.generic import list_detail
 
 from tcd.items.models import Topic
-from tcd.items.forms import tcdUserCreationForm, tcdLoginForm
+from tcd.items.forms import *
 from tcd.comments.models import Comment
 from tcd.comments.forms import CommentForm
 
@@ -20,19 +22,18 @@ def comments(request, topic_id):
     rest_c = comments.filter(is_first=False)
     form_comment = CommentForm()
     if request.user.is_authenticated():
-        logged_in = True
         user = request.user.username
     else:
         logged_in = False
         user = None
-    return render_to_response('items/topic_detail.html', {'object': top,
-                                                          'first_c': first_c,
-                                                          'rest_c': rest_c,
-                                                          'logged_in': logged_in,
-                                                          'user': user,
-                                                          'next': request.path,
-                                                          'form_comment': form_comment
-                                                          })
+    return render_to_response('items/topic_detail.html', 
+                              {'object': top,
+                               'first_c': first_c,
+                               'rest_c': rest_c,
+                               'next': request.path,
+                               'form_comment': form_comment},
+                              context_instance=RequestContext(request)
+                              )
 
 def register(request):
     if request.method == 'POST':
@@ -46,8 +47,11 @@ def register(request):
             new_user.is_staff=False
             new_user.is_superuser=False
             new_user.is_active=True
-            new_user.save()                        
-            return HttpResponseRedirect("/login?next=" + request.POST['next'])
+            new_user.save()
+            new_user = auth.authenticate(username=new_user.username,
+                                         password=data['password1'])
+            auth.login(request, new_user)
+            return HttpResponseRedirect(next)
     else:
         form = tcdUserCreationForm()
         if 'next' in request.GET:
@@ -66,12 +70,16 @@ def login(request):
         next = request.POST['next']
         if form.is_valid():
             email = form.cleaned_data['email']
-            user = User.objects.get(email=email)
-            user = auth.authenticate(username=user.username, password=data['password'])
-            if user is not None and user.is_active:
-                auth.login(request, user)
-                return HttpResponseRedirect(next)                
-            else:
+            try:
+                user = User.objects.get(email=email)
+                user = auth.authenticate(username=user.username, password=data['password'])
+                if user is not None and user.is_active:
+                    auth.login(request, user)
+                    return HttpResponseRedirect(next)                
+                else:
+                    form = tcdLoginForm()
+                    message = "Sorry, that's not a valid username or password"
+            except ObjectDoesNotExist:
                 form = tcdLoginForm()
                 message = "Sorry, that's not a valid username or password"
     else:
@@ -85,18 +93,46 @@ def login(request):
                                'next': next,
                                'message': message})
 
-def topics(request):
+def submit(request):
     if request.user.is_authenticated():
-        logged_in = True
         user = request.user.username
+        if request.method == 'POST':
+            data = request.POST.copy()
+            form = tcdTopicSubmitForm(data)
+            if form.is_valid():
+                topic = Topic(user=request.user,
+                              title=form.cleaned_data['title'],
+                              score=1,
+                              sub_date=datetime.datetime.now())
+                topic.save()
+                next = "/" + str(topic.id) + "/"
+                if data['url']:
+                    topic.url = data['url']
+                else:
+                    topic.url = next
+                topic.save()
+                comment = Comment(user=request.user,
+                                  topic=topic,
+                                  pub_date=datetime.datetime.now(),
+                                  comment=form.cleaned_data['comment'],
+                                  is_first=True)
+                comment.save()
+                return HttpResponseRedirect(next)
+        else:
+            form = tcdTopicSubmitForm()
+            return render_to_response("items/submit.html",
+                                      {'form': form},
+                                      context_instance=RequestContext(request))
+
     else:
-        logged_in = False
-        user = None
-    return list_detail.object_list(
-        request,
-        queryset=Topic.objects.all(),
-        template_name= "items/topic_list.html",
-        template_object_name = "object",
-        extra_context = {"logged_in": logged_in,
-                         "user": user,
-                         "next": "/"})
+        return HttpResponseRedirect("/login?next=/submit")
+
+                                  
+def topics(request):
+    return render_to_response("items/topic_list.html",
+                              {'object_list': Topic.objects.all()[:25]},
+                              context_instance=RequestContext(request))
+                               
+
+
+

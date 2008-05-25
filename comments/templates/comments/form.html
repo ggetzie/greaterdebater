@@ -12,7 +12,7 @@
 </script>
 <a href="#" onclick="displayFormComment(); return false;">Click here to add a new comment &raquo;</a>
 <div id="add-comment">
-<form action="/comments/{{ next }}/add/" method="post" accept-charset="utf-8">
+<form action="/comments{{ next }}add/" method="post" accept-charset="utf-8">
 {% comment %}
 	{{ form_comment.object_id }}
 	{{ form_comment.content_type }}
