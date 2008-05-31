@@ -64,17 +64,20 @@ class Comment(models.Model):
     pub_date = models.DateTimeField(blank=True, null=True)
     is_removed = models.BooleanField(default=False)
     is_first = models.BooleanField(default=False)
-    topic = models.ForeignKey(Topic)    
+    topic = models.ForeignKey(Topic)
+    parent_id = models.IntegerField()
+#    parent = models.ForeignKey('self', related_name='parent_comment', blank=True, null=True)
+    nesting = models.IntegerField()
     
     class Meta:
-        #verbose_name = _('comment')
+        verbose_name = 'comment'
         verbose_name_plural = 'comments'
         ordering = ('pub_date',)
         
     class Admin:
         list_display = ('user', 'pub_date')
         fields=(
-        (None, {'fields': ('topic', 'is_removed', 'is_first')}),
+        (None, {'fields': ('topic', 'parent_id', 'nesting', 'is_removed', 'is_first', 'pub_date')}),
         ('Content', {'fields': ('user', 'comment')}),
         )
         search_fields = ('comment','user__username')
@@ -84,6 +87,7 @@ class Comment(models.Model):
         if not self.id:
             self.pub_date = datetime.now()          
         self.comment_html=self.hilight(self.comment)
+        self.comment_html = self.comment_html.replace('\n', "<br />")
         super(Comment , self).save()
 
     def __unicode__(self):

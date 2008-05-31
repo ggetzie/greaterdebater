@@ -18,6 +18,7 @@
 from django.conf.urls.defaults import patterns
 
 urlpatterns = patterns('',
-    ('^(?P<topic_id>\d+)/add/$', 'comments.views.add'),
-    ('^$', 'comments.views.list'),
-)
+                       ('^(?P<topic_id>\d+)/add/$', 'comments.views.add'),
+                       ('^(?P<topic_id>\d+)/edit/$', 'comments.views.edit'),                       
+                       ('^$', 'comments.views.list'),
+                       )

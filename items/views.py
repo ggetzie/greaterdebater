@@ -15,11 +15,24 @@ from tcd.comments.forms import CommentForm
 
 import datetime
 
+image_url="http://localhost/static/s.gif"
+
+def build_list(comments, p_id):
+    comment_list = []
+    for comment in comments.filter(parent_id=p_id):
+        children = comments.filter(parent_id=comment.id)
+        if not children:
+            comment_list.append(comment)
+        else:
+            comment_list.append(comment)
+            comment_list.extend(build_list(comments, comment.id))
+    return comment_list
+
 def comments(request, topic_id):
     top = get_object_or_404(Topic, pk=topic_id)
     comments = top.comment_set
     first_c = comments.filter(is_first=True)
-    rest_c = comments.filter(is_first=False)
+    rest_c = build_list(comments.filter(is_first=False), 0)
     form_comment = CommentForm()
     if request.user.is_authenticated():
         user = request.user.username
@@ -31,7 +44,8 @@ def comments(request, topic_id):
                                'first_c': first_c,
                                'rest_c': rest_c,
                                'next': request.path,
-                               'form_comment': form_comment},
+                               'form_comment': form_comment,
+                               'image_url': image_url},
                               context_instance=RequestContext(request)
                               )
 
@@ -107,7 +121,7 @@ def submit(request):
                 topic.save()
                 next = "/" + str(topic.id) + "/"
                 if data['url']:
-                    topic.url = data['url']
+                    topic.url = form.cleaned_data['url']
                 else:
                     topic.url = next
                 topic.save()
@@ -115,7 +129,9 @@ def submit(request):
                                   topic=topic,
                                   pub_date=datetime.datetime.now(),
                                   comment=form.cleaned_data['comment'],
-                                  is_first=True)
+                                  is_first=True,
+                                  parent_id=0,
+                                  nesting=0)
                 comment.save()
                 return HttpResponseRedirect(next)
         else:
@@ -125,7 +141,11 @@ def submit(request):
                                       context_instance=RequestContext(request))
 
     else:
-        return HttpResponseRedirect("/login?next=/submit")
+        return render_to_response("registration/login.html",
+                                  {'next': '/submit/',
+                                   'message': "Please log in to submit a topic",
+                                   'form': tcdLoginForm()},
+                                  context_instance=RequestContext(request))
 
                                   
 def topics(request):

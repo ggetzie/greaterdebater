@@ -22,6 +22,6 @@ class CommentForm(forms.Form):
                                                                     'rows': 5,
                                                                     'cols': 50}))
     redirect = forms.CharField(max_length=255, widget=forms.widgets.HiddenInput(), required=False)
-    
-    
-    
+    parent_id = forms.IntegerField(widget=forms.widgets.HiddenInput(), required=False)
+    nesting = forms.IntegerField(widget=forms.widgets.HiddenInput(), required=False)
+    toplevel = forms.IntegerField(widget=forms.widgets.HiddenInput(), required=False)

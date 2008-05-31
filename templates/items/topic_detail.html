@@ -11,12 +11,22 @@
 <br>
 {% include "comments/form.html" %}<br>
 {% if rest_c %}
-{% for comment in rest_c %}
-{{ comment.comment_html|safe }}
-by {{ comment.user }} on {{ comment.pub_date }}
-<br><br>
+<table>
+  {% for comment in rest_c %}
+  <tr>
+    <td>
+      <table>
+	<tr>
+	  <td><img width={{ comment.nesting }} height=1 src={{ image_url }} /></td>
+	  <td>{{ comment.comment_html|safe }}
+	    <span> by {{ comment.user }} on {{ comment.pub_date }} 
+	      {% include "comments/reply_form.html" %}
+	      {% include "comments/edit_form.html" %}
+	    </span>
+	</td></tr>
+	</table></td></tr>
 {% endfor %}
-
+</table>
 {% else %}
 <p>No comments</p>
 {% endif %}

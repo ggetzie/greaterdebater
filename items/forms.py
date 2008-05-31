@@ -44,4 +44,10 @@ class tcdTopicSubmitForm(forms.Form):
                               widget=forms.widgets.Textarea(attrs={'class': 'required icomment',
                                                                    'rows': 5,
                                                                    'cols': 50}))
-    
+
+    def clean_url(self):
+        url = self.cleaned_data.get('url', '')
+        if url and not url.startswith(('http://', 'https://')):
+            return 'http://' + url
+        else:
+            return url

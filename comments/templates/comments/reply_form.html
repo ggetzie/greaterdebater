@@ -1,0 +1,18 @@
+{% if user.is_authenticated %}
+<a href='#' onclick="displayFormComment('reply{{ comment.id }}'); return false;">reply</a>
+<div id="reply{{ comment.id }}">
+  <form action="/comments{{ next }}add/" method="post" accept-charset="utf-8">
+    <div class="form-row">
+      <label for="id_comment">Posting as {{ user }}</label>
+      <br /><textarea rows=5 cols=50 name="comment"></textarea>
+      <div><input type="hidden" name="parent_id" value={{ comment.id }}></div>
+      <div><input type="hidden" name="nesting" value={{ comment.nesting }}></div>
+      <div><input type="hidden" name="toplevel" value=0></div>
+      <div><input type="submit" value= "Reply"></div>
+    </div>
+  </form>
+  <script type="text/javascript" charset="utf-8">
+    document.getElementById('reply{{ comment.id }}').style.display="none"
+  </script>
+</div>
+{% endif %}

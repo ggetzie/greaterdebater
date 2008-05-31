@@ -44,7 +44,7 @@ except AttributeError:
 
 
 def add(request, topic_id):
-    redirect_to=COMMENT_REDIRECT_TO
+    redirect_to=request.path
     if request.POST:
         form=CommentForm(request.POST)
         if form.is_valid():
@@ -58,27 +58,40 @@ def add(request, topic_id):
 	    else:		    
 		    top = get_object_or_404(Topic, pk=topic_id)
 		    redirect_to = reverse('tcd.items.views.comments', args=(topic_id))
-		    params = {
-		    'comment':form.cleaned_data['comment'],
-		    'user':request.user,
-		    'pub_date': datetime.datetime.now(),
-		    'topic': top
-		    }
+		    params = {'comment': form.cleaned_data['comment'],
+			      'user': request.user,
+			      'pub_date': datetime.datetime.now(),
+			      'topic': top}
+		    if form.cleaned_data['toplevel'] == 1:
+			    params['parent_id'] = 0
+			    params['nesting'] = 0
+		    else:
+			    params['parent_id'] = form.cleaned_data['parent_id']
+			    params['nesting'] = form.cleaned_data['nesting'] + 40
 		    c = Comment(**params)
-		    c.save()
-    
+		    c.save()		    
     return HttpResponseRedirect(redirect_to)    
-    
-def tip(request):
-    from pygments import lexers
-    tlexers=lexers.get_all_lexers()
-    c = RequestContext(request, {
-		'lexers': tlexers,
-		
-	})
 
-    t = loader.get_template('comments/tipcode.html')
-    return HttpResponse(t.render(c))
+def edit(request, topic_id):
+	redirect_to = (reverse('tcd.items.views.comments', args=(topic_id)))
+	if request.POST:
+		form=CommentForm(request.POST)
+		if form.is_valid():
+			top = get_object_or_404(Topic, pk=topic_id)
+			c = get_object_or_404(Comment, pk=form.cleaned_data['parent_id'])
+			c.comment = form.cleaned_data['comment']
+			c.save()
+	return HttpResponseRedirect(redirect_to)
+
+		
+def tip(request):	
+	from pygments import lexers
+	tlexers=lexers.get_all_lexers()
+	c = RequestContext(request, {
+			'lexers': tlexers,			
+			})
+	t = loader.get_template('comments/tipcode.html')
+	return HttpResponse(t.render(c))
     
     
 def list(request):
