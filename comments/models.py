@@ -26,7 +26,7 @@ from markdown import markdown
 import re
 from datetime import datetime
 
-from tcd.items.models import Topic
+from tcd.items.models import Topic, Argument
 
 """
 We cache lexer aliases to speed parsing. To update them, get lexers_aliases like this :
@@ -66,8 +66,8 @@ class Comment(models.Model):
     is_first = models.BooleanField(default=False)
     topic = models.ForeignKey(Topic)
     parent_id = models.IntegerField()
-#    parent = models.ForeignKey('self', related_name='parent_comment', blank=True, null=True)
     nesting = models.IntegerField()
+    argument = models.ForeignKey(Argument, blank=True, null=True)
     
     class Meta:
         verbose_name = 'comment'

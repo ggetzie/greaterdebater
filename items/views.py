@@ -152,7 +152,20 @@ def topics(request):
     return render_to_response("items/topic_list.html",
                               {'object_list': Topic.objects.all()[:25]},
                               context_instance=RequestContext(request))
-                               
 
+def challenge(request, df_id, c_id):
+    user = get_object_or_404(User, username=df_id)
+    c = get_object_or_404(Comment, pk=c_id)
+    if user.is_authenticated():
+        user.message_set.create(
+            message= user.username + " has challenged you to an argument <a href=" +
+            "'/argue/accept/(?P<pl_id>)[a-z]+$'>Accept</a> or <a href=" +
+            "'/argue/decline/(?P<pl_id>)[a-z]+$'>Decline</a>"
+            )
+    return HttpResponseRedirect("/" + str(c.topic_id) + "/")
 
-
+def profile(request, user_id):
+    user = get_object_or_404(User, username=user_id)
+    return render_to_response("registration/profile.html",
+                              {'user_id': user},
+                              context_instance=RequestContext(request))

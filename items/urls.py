@@ -14,5 +14,9 @@ urlpatterns = patterns('',
                        (r'^login/', 'tcd.items.views.login'),
                        (r'^logout/', logout, {'next_page': "/"}),
                        (r'^register/$', 'tcd.items.views.register'),
-                       (r'^submit/$', 'tcd.items.views.submit')
+                       (r'^submit/$', 'tcd.items.views.submit'),
+                       (r'^(?P<user_id>[a-z\d]+)/$', 'tcd.items.views.profile'),
+                       (r'^argue/challenge/(?P<df_id>[a-z\d]+)/(?P<c_id>\d+)/$', 'tcd.items.views.challenge'),
+#                       (r'^argue/accept/(?P<pl_id>)[a-z\d]+$', 'tcd.items.views.accept'),                       
+#                       (r'^argue/decline/(?P<pl_id>)[a-z\d]+$', 'tcd.items.views.decline'),                       
 )

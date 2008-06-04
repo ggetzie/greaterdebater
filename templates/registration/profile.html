@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{{ user }}'s profile{% endblock %}
+
+{% block content %}
+{% ifequal user user_id %}
+{% if messages %}
+<ul>
+  {% for message in messages %}
+  <li>{{ message }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% else %}
+<h3>This is {{ user_id }}'s profile</h3>
+{% endifequal %}
+{% endblock %}

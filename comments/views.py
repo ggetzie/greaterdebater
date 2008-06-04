@@ -76,12 +76,21 @@ def edit(request, topic_id):
 	redirect_to = (reverse('tcd.items.views.comments', args=(topic_id)))
 	if request.POST:
 		form=CommentForm(request.POST)
-		if form.is_valid():
-			top = get_object_or_404(Topic, pk=topic_id)
-			c = get_object_or_404(Comment, pk=form.cleaned_data['parent_id'])
+		c = get_object_or_404(Comment, pk=form.cleaned_data['parent_id'])
+		if form.is_valid() and c.user == request.user:
+#			top = get_object_or_404(Topic, pk=topic_id)
 			c.comment = form.cleaned_data['comment']
 			c.save()
 	return HttpResponseRedirect(redirect_to)
+
+def delete(request, comment_id):
+	comment = get_object_or_404(Comment, pk=comment_id)
+	redirect_to = '/' + str(comment.topic_id) + '/'
+	if comment.user == request.user:
+		comment.is_removed = True
+		comment.save()
+	return HttpResponseRedirect(redirect_to)
+		
 
 		
 def tip(request):	
