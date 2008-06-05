@@ -8,7 +8,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.views.generic import list_detail
 
-from tcd.items.models import Topic
+from tcd.items.models import Topic, Argument
 from tcd.items.forms import *
 from tcd.comments.models import Comment
 from tcd.comments.forms import CommentForm
@@ -154,18 +154,28 @@ def topics(request):
                               context_instance=RequestContext(request))
 
 def challenge(request, df_id, c_id):
-    user = get_object_or_404(User, username=df_id)
+    defendant = get_object_or_404(User, username=df_id)
     c = get_object_or_404(Comment, pk=c_id)
-    if user.is_authenticated():
-        user.message_set.create(
-            message= user.username + " has challenged you to an argument <a href=" +
-            "'/argue/accept/(?P<pl_id>)[a-z]+$'>Accept</a> or <a href=" +
-            "'/argue/decline/(?P<pl_id>)[a-z]+$'>Decline</a>"
-            )
-    return HttpResponseRedirect("/" + str(c.topic_id) + "/")
+    if Argument.objects.filter(plaintiff=request.user,
+                               comment=c_id):
+        request.user.message_set.create(message="Already started this argument")
+    else:
+        arg = Argument(plaintiff=request.user,
+                       defendant=defendant,
+                       start_date=datetime.datetime.now(),
+                       topic=c.topic,
+                       title= ''.join([c.comment[:20], '...']),
+                       status=0)
+        arg.save()
+        c.arguments.add(arg)
+        c.save()
+        request.user.message_set.create(message= ''.join(["Challenged ", arg.defendant.username, " to an argument"]))
+    return HttpResponseRedirect(''.join(['/', str(c.topic_id), '/']))
 
 def profile(request, user_id):
     user = get_object_or_404(User, username=user_id)
+    args = Argument.objects.filter(defendant=user, status=0)
     return render_to_response("registration/profile.html",
-                              {'user_id': user},
+                              {'user_id': user,
+                               'args': args},
                               context_instance=RequestContext(request))

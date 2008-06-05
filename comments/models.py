@@ -67,8 +67,8 @@ class Comment(models.Model):
     topic = models.ForeignKey(Topic)
     parent_id = models.IntegerField()
     nesting = models.IntegerField()
-    argument = models.ForeignKey(Argument, blank=True, null=True)
-    
+    arguments = models.ManyToManyField(Argument, blank=True, null=True)
+
     class Meta:
         verbose_name = 'comment'
         verbose_name_plural = 'comments'

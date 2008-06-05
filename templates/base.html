@@ -11,11 +11,19 @@
       <td><a href="/submit">Submit</a></td>
       <td>
 	{% if user.is_authenticated %}
-	Welcome {{ user.username }}! <a href=/logout>Log out</a>
+	Welcome <a href="/{{ user.username }}">{{ user.username }}</a>! <a href=/logout>Log out</a>
 	{% else %}
 	<a href=/login?next={{ next }}>Log in</a> or <a href=/register?next={{ next }}>create an account</a>
 	{% endif %}</td></tr></table>
   <br>
+  <p>
+    {% if messages %}
+    <ul>
+      {% for message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
   {% endblock %}
 
   {% block content %}

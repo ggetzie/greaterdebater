@@ -3,10 +3,13 @@
 
 {% block content %}
 {% ifequal user user_id %}
-{% if messages %}
+{% if args %}
 <ul>
-  {% for message in messages %}
-  <li>{{ message }}</li>
+  {% for arg in args %}
+  <li>{{ arg.plaintiff }} has challenged you to an argument<br />
+  <a href="argue/accept/{{ arg.plaintiff }}">accept</a> or
+  <a href="argue/decline/{{ arg.plaintiff }}">decline</a>
+  </li>
   {% endfor %}
 </ul>
 {% endif %}
