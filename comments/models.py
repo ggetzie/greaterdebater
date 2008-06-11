@@ -64,10 +64,11 @@ class Comment(models.Model):
     pub_date = models.DateTimeField(blank=True, null=True)
     is_removed = models.BooleanField(default=False)
     is_first = models.BooleanField(default=False)
-    topic = models.ForeignKey(Topic)
+    topic = models.ForeignKey(Topic, null=True)
     parent_id = models.IntegerField()
     nesting = models.IntegerField()
     arguments = models.ManyToManyField(Argument, blank=True, null=True)
+    arg_proper = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'comment'
@@ -139,3 +140,9 @@ class Comment(models.Model):
                 in_tag = not in_tag      
         return hilighted
         
+class tcdMessage(Comment):
+    recipient = models.ForeignKey(User)
+    is_read = models.BooleanField(default=False)
+    
+    class Admin:
+        pass

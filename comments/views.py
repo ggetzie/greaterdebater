@@ -85,7 +85,7 @@ def edit(request, topic_id):
 
 def delete(request, comment_id):
 	comment = get_object_or_404(Comment, pk=comment_id)
-	redirect_to = '/' + str(comment.topic_id) + '/'
+	redirect_to = ''.join(['/', str(comment.topic_id), '/'])
 	if comment.user == request.user:
 		comment.is_removed = True
 		comment.save()
@@ -105,3 +105,9 @@ def tip(request):
     
 def list(request):
     pass
+
+def comment_detail(request, comment_id):
+	comment = get_object_or_404(Comment, pk=comment_id)
+	return render_to_response("comments/comment_detail.html",
+				  {'comment': comment},
+				  context_instance=RequestContext(request))

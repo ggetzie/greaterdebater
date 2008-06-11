@@ -8,7 +8,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.views.generic import list_detail
 
-from tcd.items.models import Topic, Argument
+from tcd.items.models import Topic, Argument, Profile
 from tcd.items.forms import *
 from tcd.comments.models import Comment
 from tcd.comments.forms import CommentForm
@@ -18,6 +18,11 @@ import datetime
 image_url="http://localhost/static/s.gif"
 
 def build_list(comments, p_id):
+    """Takes a query set of comments and a parent id and
+    returns a list of comments sorted in the appropriate parent-child
+    order such that first comment = first toplevel comment, second commend = first
+    child of first comment, third comment = first child of second comment or second 
+    child of first comment and so on"""
     comment_list = []
     for comment in comments.filter(parent_id=p_id):
         children = comments.filter(parent_id=comment.id)
@@ -65,6 +70,9 @@ def register(request):
             new_user = auth.authenticate(username=new_user.username,
                                          password=data['password1'])
             auth.login(request, new_user)
+            new_user_profile = Profile(user=new_user,
+                                       score=1)
+            new_user_profile.save()
             return HttpResponseRedirect(next)
     else:
         form = tcdUserCreationForm()
@@ -172,10 +180,19 @@ def challenge(request, df_id, c_id):
         request.user.message_set.create(message= ''.join(["Challenged ", arg.defendant.username, " to an argument"]))
     return HttpResponseRedirect(''.join(['/', str(c.topic_id), '/']))
 
-def profile(request, user_id):
-    user = get_object_or_404(User, username=user_id)
-    args = Argument.objects.filter(defendant=user, status=0)
-    return render_to_response("registration/profile.html",
+def profile(request, username):
+    user = get_object_or_404(User, username=username)
+    user_info = get_object_or_404(Profile, user=user)
+    return render_to_response("registration/profile/profile_home.html",
                               {'user_id': user,
-                               'args': args},
+                               'user_info': user_info},
                               context_instance=RequestContext(request))
+
+def profile_args(request, username):
+    user = get_object_or_404(User, username=username)
+    args = user.defendant_set.all() | user.plaintiff_set.all()
+    return render_to_response("registration/profile/profile_args.html",
+                              {'user_id': user,
+                               'args': args.order_by('start_date')},
+                              context_instance=RequestContext(request))
+

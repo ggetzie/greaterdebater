@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}{{ user }}'s profile{% endblock %}
+
+{% block sub_header %}
+{% ifequal user user_id %}
+<a href=/{{ user.username}}/messages>Messages</a>
+{% endifequal %}
+<a href=/{{ user.username}}/arguments>Arguments</a>
+<a href=/{{ user.username}}/submissions>Submissions</a>
+<a href=/{{ user.username}}/comments>Comments</a>
+<br />
+<h3>{{ user_id }}'s profile </h3>
+<br />
+{% endblock %}
+
+{% block content %}
+{% endblock %}

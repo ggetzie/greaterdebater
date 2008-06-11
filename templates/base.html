@@ -15,15 +15,19 @@
 	{% else %}
 	<a href=/login?next={{ next }}>Log in</a> or <a href=/register?next={{ next }}>create an account</a>
 	{% endif %}</td></tr></table>
-  <br>
-  <p>
+  <br />
     {% if messages %}
+  <p>
     <ul>
       {% for message in messages %}
       <li>{{ message }}</li>
       {% endfor %}
     </ul>
+  </p>
     {% endif %}
+  {% endblock %}
+
+  {% block sub_header %}
   {% endblock %}
 
   {% block content %}
