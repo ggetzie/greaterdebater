@@ -1,0 +1,33 @@
+{% extends "registration/profile/profile_base.html" %}
+
+{% block title %}{{ username }}'s comments{% endblock %}
+
+
+{% block content %}
+<h4>Comments</h4><br />
+<table>
+  {% for comment in comments_list %}
+  <tr>
+    <td>
+      <table>
+	<tr>      
+	  {% if comment.is_removed %}	  
+	  <td><i>Comment deleted</i></td></tr>
+	{% else %} 
+	<td>{{ comment.comment_html|safe }}</td></tr>
+  <tr>
+    <td>
+      <span> by {{ comment.user }} on {{ comment.pub_date }} 
+	{% if user.is_authenticated %}
+	{% include "comments/reply_form.html" %}
+	{% include "comments/edit_form.html" %}
+	<a href="/argue/challenge/{{ comment.user }}/{{ comment.id }}">argue</a>
+	{% endif %}
+      </span>
+      {% endif %}
+  </td></tr>
+  </table>
+</td></tr>
+{% endfor %}
+</table>
+{% endblock %}

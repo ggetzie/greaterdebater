@@ -3,9 +3,10 @@ from django.contrib.auth.models import User
 from django.contrib import auth
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
+from django.db import models
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
-from django.template import RequestContext
+from django.template import loader, RequestContext
 from django.views.generic import list_detail
 
 from tcd.items.models import Topic, Argument, Profile
@@ -180,19 +181,70 @@ def challenge(request, df_id, c_id):
         request.user.message_set.create(message= ''.join(["Challenged ", arg.defendant.username, " to an argument"]))
     return HttpResponseRedirect(''.join(['/', str(c.topic_id), '/']))
 
-def profile(request, username):
-    user = get_object_or_404(User, username=username)
+def profile(request, value):
+    user = get_object_or_404(User, username=value)
     user_info = get_object_or_404(Profile, user=user)
     return render_to_response("registration/profile/profile_home.html",
-                              {'user_id': user,
+                              {'username': user,
                                'user_info': user_info},
                               context_instance=RequestContext(request))
 
-def profile_args(request, username):
-    user = get_object_or_404(User, username=username)
+def profile_args(request, value):
+    user = get_object_or_404(User, username=value)
     args = user.defendant_set.all() | user.plaintiff_set.all()
     return render_to_response("registration/profile/profile_args.html",
-                              {'user_id': user,
+                              {'username': user,
                                'args': args.order_by('start_date')},
                               context_instance=RequestContext(request))
+
+def profile_subs(request, username):
+    user = get_object_or_404(User, username=username)
+    subs = user.topic_set.order_by('sub_date')
+    return render_to_response("registration/profile/profile_subs.html",
+                              {'user_id': user,
+                               'subs': subs},
+                              context_instance=RequestContext(request))
+
+def object_list_field(request, model, field, value, paginate_by=None, page=None,
+                      allow_empty=True, template_name=None, template_loader=loader,
+                      extra_context=None, context_processors=None,
+                      template_object_name='object', mimetype=None):
+    """Extends generic view object_list to display a list of objects filtered 
+    by an arbitrary field.
+    Works only for fields that are not ForeignKey or ManyToMany. 
+    See object_list_foreign_field for ForeignKey fields"""
+
+    obj_list = model.objects.filter(**{field: value})    
+    return list_detail.object_list(request=request, queryset=obj_list, 
+                                   paginate_by=paginate_by, page=page, 
+                                   allow_empty=allow_empty, template_name=template_name,
+                                   template_loader=template_loader, extra_context=extra_context,
+                                   context_processors=context_processors,
+                                   template_object_name=template_object_name,
+                                   mimetype=mimetype)
+
+#     return render_to_response(template_name, {template_object_name: obj_list},
+#                               context_instance=RequestContext(request))
+
+def object_list_foreign_field(request, model, field, value, foreign_model, foreign_field,
+                              paginate_by=None, page=None, allow_empty=True,
+                              template_name=None, template_loader=loader,
+                              extra_context=None, context_processors=None,
+                              template_object_name='object', mimetype=None):
+    """Generic view to display a list of objects filtered by an arbitary foreign key field"""
+
+    foreign_obj = get_object_or_404(foreign_model, **{foreign_field: value})
+    obj_list = model.objects.filter(**{field: foreign_obj.id})
+    return list_detail.object_list(request=request, queryset=obj_list, 
+                                   extra_context={foreign_field: foreign_obj},
+                                   paginate_by=paginate_by, page=page, 
+                                   allow_empty=allow_empty, template_name=template_name,
+                                   template_loader=template_loader, 
+                                   context_processors=context_processors,
+                                   template_object_name=template_object_name,
+                                   mimetype=mimetype)
+#     return render_to_response(template_name, {template_object_name: obj_list,
+#                                               foreign_field: foreign_obj},
+#                               context_instance=RequestContext(request))
+    
 
