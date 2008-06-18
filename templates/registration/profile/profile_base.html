@@ -3,7 +3,7 @@
 
 {% block sub_header %}
 {% ifequal user username %}
-<a href=/{{ user.username}}/messages>Messages</a>
+<a href=/{{ username }}/messages>Messages</a>
 {% endifequal %}
 <a href=/{{ username }}/arguments>Arguments</a>
 <a href=/{{ username }}/submissions>Submissions</a>

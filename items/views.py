@@ -11,7 +11,7 @@ from django.views.generic import list_detail
 
 from tcd.items.models import Topic, Argument, Profile
 from tcd.items.forms import *
-from tcd.comments.models import Comment
+from tcd.comments.models import *
 from tcd.comments.forms import CommentForm
 
 import datetime
@@ -36,7 +36,8 @@ def build_list(comments, p_id):
 
 def comments(request, topic_id):
     top = get_object_or_404(Topic, pk=topic_id)
-    comments = top.comment_set
+    comments = top.comment_set.filter(is_msg=False, 
+                                      arg_proper=False)
     first_c = comments.filter(is_first=True)
     rest_c = build_list(comments.filter(is_first=False), 0)
     form_comment = CommentForm()
@@ -162,24 +163,101 @@ def topics(request):
                               {'object_list': Topic.objects.all()[:25]},
                               context_instance=RequestContext(request))
 
-def challenge(request, df_id, c_id):
-    defendant = get_object_or_404(User, username=df_id)
-    c = get_object_or_404(Comment, pk=c_id)
-    if Argument.objects.filter(plaintiff=request.user,
-                               comment=c_id):
-        request.user.message_set.create(message="Already started this argument")
+def challenge(request, c_id):
+    if request.POST:
+        form = CommentForm(request.POST)
+        c = get_object_or_404(Comment, pk=c_id)
+        defendant = c.user
+        redirect = ''.join(['/', str(c.topic_id), '/']) 
+        if form.is_valid():
+            if not request.user.is_authenticated():
+                request.user.message_set.create(message="Log in to start an argument")
+            else:
+                if Argument.objects.filter(plaintiff=request.user,
+                                           comment=c_id):
+                    request.user.message_set.create(message="You may only start one argument per comment")
+                else:
+                    arg = Argument(plaintiff=request.user,
+                                   defendant=defendant,
+                                   start_date=datetime.datetime.now(),
+                                   topic=c.topic,
+                                   title= ''.join([c.comment[:20], '...']),
+                                   status=0)
+                    arg.save()
+                    c.arguments.add(arg)
+                    c.save()
+                    params = {'comment': form.cleaned_data['comment'],
+                              'user': request.user,
+                              'topic': c.topic,
+                              'parent_id': form.cleaned_data['parent_id'],
+                              'nesting': 40,
+                              'arg_proper': True}
+                    opener = Comment(**params)
+                    opener.save()
+                    opener.arguments.add(arg)
+                    msg_txt = ''.join([request.user.username, 
+                                       " has challenged you to an argument.\n [Click here](/argue/",
+                                       str(arg.id), ") to view the argument and accept or decline"])
+                    msg = tcdMessage(user=request.user,
+                                     recipient=defendant,
+                                     comment=msg_txt,
+                                     subject="Challenge!",
+                                     parent_id=0,
+                                     nesting=0)
+                    msg.save()
+                    request.user.message_set.create(message= ''.join(["Challenged ", 
+                                                                      arg.defendant.username, 
+                                                                      " to an argument"]))
     else:
-        arg = Argument(plaintiff=request.user,
-                       defendant=defendant,
-                       start_date=datetime.datetime.now(),
-                       topic=c.topic,
-                       title= ''.join([c.comment[:20], '...']),
-                       status=0)
-        arg.save()
-        c.arguments.add(arg)
-        c.save()
-        request.user.message_set.create(message= ''.join(["Challenged ", arg.defendant.username, " to an argument"]))
-    return HttpResponseRedirect(''.join(['/', str(c.topic_id), '/']))
+        request.user.message_set.create(message="wtf not a POST")
+        redirect = '/'
+    return HttpResponseRedirect(redirect)
+
+def respond(request, response, a_id):
+    arg = get_object_or_404(Argument, pk=a_id)
+    if request.user == arg.defendant:
+        if arg.status == 0:
+            if response == 'accept':
+                arg.status = 2
+                message = ''.join([arg.defendant.username, 
+                               " has accepted your challenge. [View this argument](/argue/",
+                                   str(arg.id), ")"])
+                msg = tcdMessage(user=request.user,
+                                 recipient=arg.plaintiff,
+                                 comment=message,
+                                 subject="Challenge accepted",
+                                 parent_id=0,
+                                 pub_date=datetime.datetime.now(),
+                                 nesting=0)
+                msg.save()
+                redirect = ''.join(['/argue/', str(arg.id)])
+            elif response == 'decline':
+                arg.status = 6
+                message = ''.join([arg.defendant.username, 
+                                   " has declined your challenge."])
+                msg = tcdMessage(user=request.user,
+                                 recipient=arg.plaintiff,
+                                 comment=message,
+                                 subject="Challenge declined",
+                                 parent_id=0,
+                                 pub_date=datetime.datetime.now(),
+                                 nesting=0)
+                msg.save()
+                redirect = request.path
+            else:
+                request.user.message_set.create(message="Badly formed URL")
+                redirect = request.path
+                arg.save()
+        else:
+            request.user.message_set.create(message="Challenge already accepted or declined")
+            redirect = request.path
+    else:
+        request.user.message_set.create(message="Can't respond to a challenge that's not for you!")
+        redirect=request.path
+            
+    return HttpResponseRedirect(redirect)
+
+
 
 def profile(request, value):
     user = get_object_or_404(User, username=value)
@@ -197,24 +275,17 @@ def profile_args(request, value):
                                'args': args.order_by('start_date')},
                               context_instance=RequestContext(request))
 
-def profile_subs(request, username):
-    user = get_object_or_404(User, username=username)
-    subs = user.topic_set.order_by('sub_date')
-    return render_to_response("registration/profile/profile_subs.html",
-                              {'user_id': user,
-                               'subs': subs},
-                              context_instance=RequestContext(request))
-
 def object_list_field(request, model, field, value, paginate_by=None, page=None,
-                      allow_empty=True, template_name=None, template_loader=loader,
-                      extra_context=None, context_processors=None,
+                      fv_dict={}, allow_empty=True, template_name=None, 
+                      template_loader=loader, extra_context=None, context_processors=None,
                       template_object_name='object', mimetype=None):
     """Extends generic view object_list to display a list of objects filtered 
     by an arbitrary field.
     Works only for fields that are not ForeignKey or ManyToMany. 
     See object_list_foreign_field for ForeignKey fields"""
 
-    obj_list = model.objects.filter(**{field: value})    
+    fv_dict[field] = value
+    obj_list = model.objects.filter(**fv_dict)
     return list_detail.object_list(request=request, queryset=obj_list, 
                                    paginate_by=paginate_by, page=page, 
                                    allow_empty=allow_empty, template_name=template_name,
@@ -223,10 +294,8 @@ def object_list_field(request, model, field, value, paginate_by=None, page=None,
                                    template_object_name=template_object_name,
                                    mimetype=mimetype)
 
-#     return render_to_response(template_name, {template_object_name: obj_list},
-#                               context_instance=RequestContext(request))
-
-def object_list_foreign_field(request, model, field, value, foreign_model, foreign_field,
+def object_list_foreign_field(request, model, field, value, foreign_model,
+                              foreign_field, fv_dict={},
                               paginate_by=None, page=None, allow_empty=True,
                               template_name=None, template_loader=loader,
                               extra_context=None, context_processors=None,
@@ -234,7 +303,8 @@ def object_list_foreign_field(request, model, field, value, foreign_model, forei
     """Generic view to display a list of objects filtered by an arbitary foreign key field"""
 
     foreign_obj = get_object_or_404(foreign_model, **{foreign_field: value})
-    obj_list = model.objects.filter(**{field: foreign_obj.id})
+    fv_dict[field] = foreign_obj.id
+    obj_list = model.objects.filter(**fv_dict)
     return list_detail.object_list(request=request, queryset=obj_list, 
                                    extra_context={foreign_field: foreign_obj},
                                    paginate_by=paginate_by, page=page, 
@@ -243,8 +313,14 @@ def object_list_foreign_field(request, model, field, value, foreign_model, forei
                                    context_processors=context_processors,
                                    template_object_name=template_object_name,
                                    mimetype=mimetype)
-#     return render_to_response(template_name, {template_object_name: obj_list,
-#                                               foreign_field: foreign_obj},
-#                               context_instance=RequestContext(request))
-    
 
+def message_detail(request, value, object_id):
+    message = tcdMessage.objects.get(comment_ptr=object_id)
+    user = User.objects.get(username=value)
+    if not message.is_read:
+        message.is_read = True
+        message.save()
+    return render_to_response("registration/profile/message_detail.html",
+                              {'message': message,
+                               'username': user},
+                              context_instance=RequestContext(request))

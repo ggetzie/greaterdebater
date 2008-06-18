@@ -1,13 +1,14 @@
-{% extends "base.html" %}
-{% block title %}TCD{% endblock %}
+{% extends "registration/profile/profile_base.html" %}
+
+{% block title %}{{ username }}'s submissions{% endblock %}
 
 {% block content %}
-{% if object_list %}
+<h4>Submissions</h4><br />
+{% if topics_list %}
 <ol>
-  {% for object in object_list %}
+  {% for object in topics_list %}
   <li><p><a href={{ object.url }}>{{ object.title }}</a> <br>
-      {{ object.sub_date }} {{ object.score }} 
-      <a href= /{{ object.user }}>{{ object.user }}</a>
+      {{ object.sub_date }} {{ object.score }} {{ object.user }}
       <a href = {{ object.id }}>({{ object.comment_set.count }}) comments</a>
       </p>
   </li>
@@ -17,3 +18,6 @@
 <p>No topics are available</p>
 {% endif %}
 {% endblock %}
+
+
+

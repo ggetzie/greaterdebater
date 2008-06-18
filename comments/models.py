@@ -64,11 +64,12 @@ class Comment(models.Model):
     pub_date = models.DateTimeField(blank=True, null=True)
     is_removed = models.BooleanField(default=False)
     is_first = models.BooleanField(default=False)
-    topic = models.ForeignKey(Topic, null=True)
+    topic = models.ForeignKey(Topic, null=True, blank=True)
     parent_id = models.IntegerField()
-    nesting = models.IntegerField()
+    nesting = models.IntegerField(null=True, blank=True)
     arguments = models.ManyToManyField(Argument, blank=True, null=True)
     arg_proper = models.BooleanField(default=False)
+    is_msg = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'comment'
@@ -78,7 +79,8 @@ class Comment(models.Model):
     class Admin:
         list_display = ('user', 'pub_date')
         fields=(
-        (None, {'fields': ('topic', 'parent_id', 'nesting', 'is_removed', 'is_first', 'pub_date')}),
+        (None, {'fields': ('topic', 'parent_id', 'nesting', 'is_removed', 
+                           'is_first', 'pub_date', 'arg_proper')}),
         ('Content', {'fields': ('user', 'comment')}),
         )
         search_fields = ('comment','user__username')
@@ -143,6 +145,20 @@ class Comment(models.Model):
 class tcdMessage(Comment):
     recipient = models.ForeignKey(User)
     is_read = models.BooleanField(default=False)
+    subject = models.CharField(max_length=200)
+    
+    def save(self):
+        self.is_msg = True
+        super(tcdMessage , self).save()
     
     class Admin:
-        pass
+        list_display = ('user', 'pub_date')
+        fields=(
+        (None, {'fields': ('parent_id', 'pub_date', 'is_read')}),
+        ('Content', {'fields': ('user', 'recipient', 'comment')}),
+        )
+        search_fields = ('comment','user__username', 'recipient__username')
+
+        
+    class Meta:
+        ordering = ('-pub_date',)

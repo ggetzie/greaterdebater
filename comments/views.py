@@ -44,23 +44,18 @@ except AttributeError:
 
 
 def add(request, topic_id):
-    redirect_to=request.path
+    redirect_to='/'
     if request.POST:
         form=CommentForm(request.POST)
         if form.is_valid():
             if not request.user.is_authenticated():
-                msg = _("In order to post a comment you should have an account.")
-                msg = urlquote_plus(msg)
-                if COMMENT_SIGNIN_VIEW:
-                    redirect_to=reverse(COMMENT_SIGNIN_VIEW) + "?next=" + redirect_to + "&msg=" + msg
-                else:
-                    redirect_to='/'
+		    request.user.message_set.create(message="Log in to post a comment")
+		    redirect_to = ''.join(['/login?next=', str(topic_id)])
 	    else:		    
 		    top = get_object_or_404(Topic, pk=topic_id)
-		    redirect_to = reverse('tcd.items.views.comments', args=(topic_id))
+		    redirect_to = ''.join(['/', str(top.id), '/'])
 		    params = {'comment': form.cleaned_data['comment'],
 			      'user': request.user,
-			      'pub_date': datetime.datetime.now(),
 			      'topic': top}
 		    if form.cleaned_data['toplevel'] == 1:
 			    params['parent_id'] = 0
@@ -78,7 +73,6 @@ def edit(request, topic_id):
 		form=CommentForm(request.POST)
 		c = get_object_or_404(Comment, pk=form.cleaned_data['parent_id'])
 		if form.is_valid() and c.user == request.user:
-#			top = get_object_or_404(Topic, pk=topic_id)
 			c.comment = form.cleaned_data['comment']
 			c.save()
 	return HttpResponseRedirect(redirect_to)

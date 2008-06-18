@@ -26,7 +26,7 @@
 	      {% if user.is_authenticated %}
 	      {% include "comments/reply_form.html" %}
 	      {% include "comments/edit_form.html" %}
-	      <a href="/argue/challenge/{{ comment.user }}/{{ comment.id }}">argue</a>
+	      {% include "comments/argue_form.html" %}
 	      {% endif %}
 	    </span>
 	  {% endif %}

@@ -17,7 +17,6 @@ urlpatterns = patterns('',
                        (r'^register/$', 'tcd.items.views.register'),
                        (r'^submit/$', 'tcd.items.views.submit'),
                        (r'^(?P<value>[A-Za-z\d]+)/', include('tcd.items.profile_urls')),
-                       (r'^argue/challenge/(?P<df_id>[A-Za-z\d]+)/(?P<c_id>\d+)/$', 'tcd.items.views.challenge'),
-#                       (r'^argue/accept/(?P<arg_id>\d+)$', 'tcd.items.views.accept'),                       
-#                       (r'^argue/decline/(?P<pl_id>)[A-Za-z\d]+$', 'tcd.items.views.decline'),                       
+                       (r'^argue/', include('tcd.items.argue_urls')),
+
 )
