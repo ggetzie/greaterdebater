@@ -9,7 +9,7 @@
   {% for object in topics_list %}
   <li><p><a href={{ object.url }}>{{ object.title }}</a> <br>
       {{ object.sub_date }} {{ object.score }} {{ object.user }}
-      <a href = {{ object.id }}>({{ object.comment_set.count }}) comments</a>
+      <a href="/{{ object.id }}">({{ object.comment_set.count }}) comments</a>
       </p>
   </li>
   {% endfor %}

@@ -1,14 +1,5 @@
 {% load i18n %}
 {% if user.is_authenticated %}
-<script type="text/javascript" charset="utf-8">
-	function displayFormComment(form_id) {
-		c=document.getElementById(form_id)
-		if (c.style.display == "none") {
-			c.style.display="block"
-		} else {
-			c.style.display = "none"
-		}
-	}		
 </script>
 <a href="#" onclick="displayFormComment('add-comment'); return false;">Click here to add a new comment &raquo;</a>
 <div id="add-comment">

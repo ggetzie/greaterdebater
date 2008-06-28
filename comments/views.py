@@ -59,7 +59,7 @@ def add(request, topic_id):
 			      'topic': top}
 		    if form.cleaned_data['toplevel'] == 1:
 			    params['parent_id'] = 0
-			    params['nesting'] = 0
+			    params['nesting'] = 10
 		    else:
 			    params['parent_id'] = form.cleaned_data['parent_id']
 			    params['nesting'] = form.cleaned_data['nesting'] + 40

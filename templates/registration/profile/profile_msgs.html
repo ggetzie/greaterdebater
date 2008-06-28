@@ -9,19 +9,26 @@
   <tr>
     <td width=50>From</td>
     <td width=200>Subject</td>
-    <td width=50>Date</td></tr>
+    <td width=150>Date</td></tr>
+  {% if messages_list %}
   {% for msg in messages_list %}
-
-    <tr>
+    <tr class="{% ifequal msg.is_read 0 %}unread_msg{% else %}read_msg{% endifequal %}">
       <td>
 	{{ msg.user }}</td>
       <td>
-	{% ifequal msg.is_read 0 %}<strong>{% endifequal %}
-	<a href=/{{ user.username }}/messages/{{ msg.comment_ptr_id }}>{{ msg.subject }}</a></td>
-        {% ifequal msg.is_read 0 %}</strong>{% endifequal %}    
+	<a href="/{{ user.username }}/messages/{{ msg.comment_ptr_id }}">{{ msg.subject }}</a></td>
       <td>
-	{{ msg.pub_date }}</td></tr>
-
-{% endfor %}
+	{% ifequal msg.pub_date.date msg.pub_date.today.date %}
+	{{ msg.pub_date.time }} Today
+        {% else %}
+	{{ msg.pub_date.date }}
+        {% endifequal %}
+	</td></tr>
+    {% endfor %}
+    {% else %}
+    </table>
+<p>No messages</p>
+    {% endif %}
 </table>
+
 {% endblock %}

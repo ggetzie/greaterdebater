@@ -11,30 +11,12 @@
 <br>
 {% include "comments/form.html" %}<br>
 {% if rest_c %}
-<table>
-  {% for comment in rest_c %}
-  <tr>
-    <td>
-      <table>
-	<tr>
-	  <td><img width={{ comment.nesting }} height=1 src={{ image_url }} /></td>
-	  {% if comment.is_removed %}	  
-	  <td><i>Comment deleted</i>
-	  {% else %}
-	  <td>{{ comment.comment_html|safe }}
-	    <span> by {{ comment.user }} on {{ comment.pub_date }} 
-	      {% if user.is_authenticated %}
-	      {% include "comments/reply_form.html" %}
-	      {% include "comments/edit_form.html" %}
-	      {% include "comments/argue_form.html" %}
-	      {% endif %}
-	    </span>
-	  {% endif %}
-	</td></tr>
-	</table>
-  </td></tr>
+{% for comment in rest_c %}
+<div id="comment_div{{ comment.id }}" style="margin-left: {{ comment.nesting }}px">
+  <br />
+  {% include "comments/one_comment.html" %}
+</div>
 {% endfor %}
-</table>
 {% else %}
 <p>No comments</p>
 {% endif %}

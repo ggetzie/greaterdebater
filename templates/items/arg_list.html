@@ -1,0 +1,10 @@
+<ul>
+  {% for arg in args_list %}
+  <li>Title: <a class="arg_title" href="/argue/{{ arg.id }}">{{ arg.title }}</a><br />
+    Status: {{ arg.get_status }}<br />
+    Plaintiff: {{ arg.plaintiff.username }}<br />
+    Defendant: {{ arg.defendant.username }}<br /></li>
+  {% endfor %}
+</ul>
+
+

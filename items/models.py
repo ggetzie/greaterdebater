@@ -30,8 +30,8 @@ class Argument(models.Model):
     # status codes: 0 = challenge made, response pending
     #               1 = argument in progress, plaintiff's turn
     #               2 = argument in progress, defendant's turn
-    #               3 = argument over, plaintiff won
-    #               4 = argument over, defendant won
+    #               3 = argument over, defendant won
+    #               4 = argument over, plaintiff won
     #               5 = argument over, draw
     #               6 = plaintiff declined challenge
     #               others invalid
@@ -52,16 +52,31 @@ class Argument(models.Model):
         elif self.status == 2:
             return "in progress, defendant's turn"
         elif self.status == 3:
-            return ''.join(["winner: ", self.plaintiff.username])
-        elif self.status == 4:
             return ''.join(["winner: ", self.defendant.username])
+        elif self.status == 4:
+            return ''.join(["winner: ", self.plaintiff.username])
         elif self.status == 5:
             return "opponents agreed to a draw"
         elif self.status == 6:
             return "plaintiff declined challenge"
         else:
             return "invalid status"        
+    
+    def whos_up(self):
+        if self.status in [0, 2]:
+            return self.defendant
+        elif self.status == 1:
+            return self.plaintiff
+        else:
+            return None
 
+    def get_opponent(self, user):
+        if user == self.defendant:
+            return self.plaintiff
+        elif user == self.plaintiff:
+            return self.defendant
+        else:
+            return None
 
 class Profile(models.Model):
     user = models.ForeignKey(User, unique=True)

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ object.title }}{% endblock %}
+
+{% block content %}
+{% if new_arg %}
+<div class="arg_query">
+<a href="/argue/accept/{{ object.id }}">Accept</a> or <a href="/argue/decline/{{ object.id }}">Decline</a>
+</div>
+{% endif %}
+{% if object.comment_set.all %}
+{% for comment in object.comment_set.all %}
+<div id="comment_div{{ comment.id }}" style="margin-left: {% ifequal comment.user object.defendant %}10{% else %}50{% endifequal %}px">
+  <br />
+  {% include "comments/one_comment.html" %}
+</div>
+{% endfor %}
+{% else %}
+<p>No comments</p>
+{% endif %}
+{% ifequal user object.whos_up %}
+<p>
+<ul class="flat-list">
+<li>
+<a href='#' onclick="displayFormComment('rebut{{ object.id }}'); return false;">Rebut</a>
+</li>
+<li>
+<a href="/argue/draw/{{ object.id }}/">Offer a draw</a>
+</li>
+<li>
+<a href="/argue/concede/{{ object.id }}/">Concede</a>
+</li>
+</ul><br />
+{% include "comments/rebut_form.html" %}
+</p>
+{% endifequal %}
+{% endblock %}

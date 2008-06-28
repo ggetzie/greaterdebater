@@ -5,12 +5,5 @@
 
 {% block content %}
 <h3>Arguments</h3><br />
-<ul>
-  {% for arg in args %}
-  <li>Title: <i>{{ arg.title }}</i><br />
-    Status: {{ arg.get_status }}<br />
-    Plaintiff: {{ arg.plaintiff.username }}<br />
-    Defendant: {{ arg.defendant.username }}<br /></li>
-  {% endfor %}
-</ul>
+{% include "items/arg_list.html" %}
 {% endblock %}

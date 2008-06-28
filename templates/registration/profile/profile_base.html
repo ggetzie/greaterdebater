@@ -2,13 +2,16 @@
 {% block title %}{{ username }}'s profile{% endblock %}
 
 {% block sub_header %}
-{% ifequal user username %}
-<a href=/{{ username }}/messages>Messages</a>
-{% endifequal %}
-<a href=/{{ username }}/arguments>Arguments</a>
-<a href=/{{ username }}/submissions>Submissions</a>
-<a href=/{{ username }}/comments>Comments</a>
-<br />
+<span class="sub_header">
+  <ul class="flat-list">
+    {% ifequal user username %}
+    <li><a href="/{{ username }}/messages">Messages</a></li>
+    {% endifequal %}
+    <li><a href="/{{ username }}/arguments">Arguments</a></li>
+    <li><a href="/{{ username }}/submissions">Submissions</a></li>
+    <li><a href="/{{ username }}/comments">Comments</a></li>
+  </ul>
+</span>
 <h3>{{ username }}'s profile </h3>
 <br />
 {% endblock %}

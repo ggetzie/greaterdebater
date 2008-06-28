@@ -3,7 +3,7 @@
 
 {% block content %}
 {% if object_list %}
-<ol>
+<ol start = {{ start }}>
   {% for object in object_list %}
   <li><p><a href={{ object.url }}>{{ object.title }}</a> <br>
       {{ object.sub_date }} {{ object.score }} 
@@ -15,5 +15,11 @@
 </ol>
 {% else %}
 <p>No topics are available</p>
+{% endif %}
+{% if has_previous %}
+<a href="/?page={{ previous }}">Previous</a>
+{% endif %}
+{% if has_next %}
+<a href="/?page={{ next }}">Next</a>
 {% endif %}
 {% endblock %}

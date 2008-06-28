@@ -91,6 +91,7 @@ class Comment(models.Model):
             self.pub_date = datetime.now()          
         self.comment_html=self.hilight(self.comment)
         self.comment_html = self.comment_html.replace('\n', "<br />")
+        self.comment_html = self.comment_html.replace('<p>', """<p class="commentp">""")
         super(Comment , self).save()
 
     def __unicode__(self):

@@ -2,23 +2,35 @@
 <html lang="en">
 <head>
     <title>{% block title %}{% endblock %}</title>
+<script type="text/javascript" charset="utf-8">
+	function displayFormComment(form_id) {
+		c=document.getElementById(form_id)
+		if (c.style.display == "none") {
+			c.style.display="block"
+		} else {
+			c.style.display = "none"
+		}
+	}		
+</script>
+<link rel="stylesheet" type="text/css" href="http://localhost/static/tcdstyle.css" />
 </head>
 <body>
   {% block header %}
-  <table>
-    <tr>
-      <td><a href="/">Home</a></td> 
-      <td><a href="/submit">Submit</a></td>
-      <td>
-	{% if user.is_authenticated %}
-	Welcome <a href="/{{ user.username }}">{{ user.username }}</a>! <a href=/logout>Log out</a>
-	{% else %}
-	<a href=/login?next={{ next }}>Log in</a> or <a href=/register?next={{ next }}>create an account</a>
-	{% endif %}</td></tr></table>
+  <ul class="flat-list">
+    <li><a href="/">Home</a></li>
+    <li><a href="/submit">Submit</a></li>
+    <li><a href="/argue">Arguments</a></li>
+    {% if user.is_authenticated %}
+    <li>Welcome <a href="/{{ user.username }}">{{ user.username }}</a>!</li> 
+    <li><a href="/logout">Log out</a></li>
+    {% else %}
+    <li><a href="/login?next={{ next }}">Log in</a> or <a href="/register?next={{ next }}">create an account</a></li>
+    {% endif %}
+  </ul>
   <br />
     {% if messages %}
-  <p>
-    <ul>
+  <p class="sys_messages">
+    <ul class="sys_msg_lst">
       {% for message in messages %}
       <li>{{ message }}</li>
       {% endfor %}

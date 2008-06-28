@@ -9,14 +9,14 @@ info_dict = {
 
 urlpatterns = patterns('',
                        (r'^$', 'tcd.items.views.topics'),
-#                       (r'^$', 'django.views.generic.list_detail.object_list', info_dict),
+#                         (r'^$', 'django.views.generic.list_detail.object_list', dict(info_dict, 
+#                                                                                      paginate_by = 5,)),
                        (r'^(?P<topic_id>\d+)/$', 'tcd.items.views.comments'),
                        (r'^comments/', include('tcd.comments.urls')),                       
                        (r'^login/', 'tcd.items.views.login'),
                        (r'^logout/', logout, {'next_page': "/"}),
                        (r'^register/$', 'tcd.items.views.register'),
                        (r'^submit/$', 'tcd.items.views.submit'),
-                       (r'^(?P<value>[A-Za-z\d]+)/', include('tcd.items.profile_urls')),
                        (r'^argue/', include('tcd.items.argue_urls')),
-
+                       (r'^(?P<value>[A-Za-z\d]+)/', include('tcd.items.profile_urls')),
 )

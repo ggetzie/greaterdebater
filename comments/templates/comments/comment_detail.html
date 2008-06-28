@@ -2,23 +2,5 @@
 {$ block title %}Comment {{ comment.id }}{% endblock %}
 
 {% block content %}
-<table>
-  <tr>
-    <td><img width={{ comment.nesting }} height=1 src={{ image_url }} /></td>
-    {% if comment.is_removed %}	  
-    <td><i>Comment deleted</i>
-      {% else %}
-    <td>{{ comment.comment_html|safe }}</td></tr>
-  <tr>
-    <td>
-      <span> by {{ comment.user }} on {{ comment.pub_date }} 
-	{% if user.is_authenticated %}
-	{% include "comments/reply_form.html" %}
-	{% include "comments/edit_form.html" %}
-	<a href="/argue/challenge/{{ comment.user }}/{{ comment.id }}">argue</a>
-	{% endif %}
-      </span>
-      {% endif %}
-  </td></tr>
-</table>
+{% include "comments/one_comment.html" %}
 {% endblock %}

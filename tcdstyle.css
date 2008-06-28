@@ -1,0 +1,39 @@
+p.commentp {
+margin-top: 5px;
+margin-bottom: 5px;
+margin-left: 5px;
+}
+
+tr.unread_msg {
+font-weight: bold
+}
+
+tr.read_msg {
+font-weight: normal
+}
+
+ul.flat-list {
+list-style-type: none;
+margin: 0;
+padding: 0;
+}
+
+ul.flat-list li {
+padding-left: 10px;
+display: inline;
+}
+
+ul.comment-action-list {
+list-style-type: none;
+margin: 0;
+padding: 0;
+}
+
+ul.comment-action-list li {
+padding-right: 5px;
+display: inline;
+}
+
+ul.comment-action-list a {
+text-decoration: none;
+}

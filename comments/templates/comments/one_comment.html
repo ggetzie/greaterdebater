@@ -1,0 +1,22 @@
+<div id=commentdiv{{ comment.id }}>
+{% if comment.is_removed %}	  
+<p><i>Comment deleted</i></p>
+{% else %}
+<span class="comment_info"> by {{ comment.user }} on {{ comment.pub_date.ctime }}</span>
+{{ comment.comment_html|safe }}
+<ul class="comment-action-list">
+  {% if user.is_authenticated %}
+  {% if comment.arg_proper %}
+  {% else %}
+  <li>{% include "comments/reply_form.html" %}</li>
+  <li>{% include "comments/edit_form.html" %}</li>
+  <li><a href='/comments/{{ comment.id }}/delete'>delete</a></li>
+  {% endif %}
+  {% if participants %}
+  {% else %}
+  <li>{% include "comments/argue_form.html" %}</li>
+  {% endif %}
+  {% endif %}
+</ul>
+{% endif %}
+</div>
