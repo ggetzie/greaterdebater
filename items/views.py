@@ -75,7 +75,7 @@ def register(request):
             new_user_profile = Profile(user=new_user,
                                        score=1)
             new_user_profile.save()
-            return HttpResponseRedirect(''.join(['/', next]))
+            return HttpResponseRedirect(next)
     else:
         form = tcdUserCreationForm()
         if 'next' in request.GET:
