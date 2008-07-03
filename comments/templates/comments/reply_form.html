@@ -1,6 +1,5 @@
-<a href='#' onclick="displayFormComment('reply{{ comment.id }}'); return false;">reply</a>
 <div id="reply{{ comment.id }}">
-  <form action="/comments{{ next }}add/" method="post" accept-charset="utf-8">
+  <form action="/comments{{ redirect }}add/" method="post" accept-charset="utf-8">
     <div class="form-row">
       <label for="id_comment">Posting as {{ user }}</label>
       <br /><textarea rows=5 cols=50 name="comment"></textarea>

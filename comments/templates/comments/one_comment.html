@@ -8,15 +8,23 @@
   {% if user.is_authenticated %}
   {% if comment.arg_proper %}
   {% else %}
-  <li>{% include "comments/reply_form.html" %}</li>
-  <li>{% include "comments/edit_form.html" %}</li>
+  <li><a href='#' onclick="displayFormComment('reply{{ comment.id }}'); return false;">reply</a></li>
+  {% ifequal user comment.user %}
+  <li><a href='#' onclick="displayFormComment('edit{{ comment.id }}'); return false;">edit</a></li>
   <li><a href='/comments/{{ comment.id }}/delete'>delete</a></li>
+  {% endifequal %}
   {% endif %}
   {% if participants %}
   {% else %}
-  <li>{% include "comments/argue_form.html" %}</li>
+  {% ifequal user comment.user %}
+  {% else %}
+  <li><a href='#' onclick="displayFormComment('argue{{ comment.id }}'); return false;">argue</a></li>
+  {% endifequal %}
   {% endif %}
   {% endif %}
 </ul>
+{% include "comments/reply_form.html" %}
+{% include "comments/edit_form.html" %}
+{% include "comments/argue_form.html" %}
 {% endif %}
 </div>

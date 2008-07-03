@@ -12,19 +12,19 @@
 		}
 	}		
 </script>
-<link rel="stylesheet" type="text/css" href="http://zoidberg/static/tcdstyle.css" />
+<link rel="stylesheet" type="text/css" href="http://localhost/static/tcdstyle.css" />
 </head>
 <body>
   {% block header %}
   <ul class="flat-list">
-    <li><a href="/">Home</a></li>
+    <li><a href="/">Topics</a></li>
     <li><a href="/submit">Submit</a></li>
     <li><a href="/argue">Arguments</a></li>
     {% if user.is_authenticated %}
     <li>Welcome <a href="/{{ user.username }}">{{ user.username }}</a>!</li> 
     <li><a href="/logout">Log out</a></li>
     {% else %}
-    <li><a href="/login?next={{ next }}">Log in</a> or <a href="/register?next={{ next }}">create an account</a></li>
+    <li><a href="/login?next={{ redirect }}">Log in</a> or <a href="/register?next={{ redirect }}">create an account</a></li>
     {% endif %}
   </ul>
   <br />

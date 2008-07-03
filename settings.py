@@ -36,17 +36,17 @@ USE_I18N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = '/usr/local/src/tcd/media/'
+MEDIA_ROOT = '/home/gabe/python/tcd/media/'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = 'http://zoidberg/media/'
+MEDIA_URL = 'http://localhost:8000/media/'
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/media/'
+# ADMIN_MEDIA_PREFIX = ""
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'g_d%yapqnaz0w745xg(0%82vc#n5mrj5y!2w8b$1l!=anocb_d'

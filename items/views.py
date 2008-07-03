@@ -50,7 +50,7 @@ def comments(request, topic_id):
                               {'object': top,
                                'first_c': first_c,
                                'rest_c': rest_c,
-                               'next': request.path,
+                               'redirect': ''.join(["/", str(topic_id), "/"]),
                                'form_comment': form_comment,
                                'image_url': image_url},
                               context_instance=RequestContext(request)
@@ -84,7 +84,7 @@ def register(request):
             next = "/"    
     return render_to_response("registration/register.html", 
                               {'form' : form,
-                               'next' : next})
+                               'redirect' : next})
 
 def login(request):
     message = None
@@ -114,7 +114,7 @@ def login(request):
             next = "/"
     return render_to_response("registration/login.html",
                               {'form': form,
-                               'next': next,
+                               'redirect': next,
                                'message': message})
 
 def submit(request):
@@ -129,7 +129,7 @@ def submit(request):
                               score=1,
                               sub_date=datetime.datetime.now())
                 topic.save()
-                next = "/" + str(topic.id) + "/"
+                next = ''.join(["/", str(topic.id), "/"])
                 if data['url']:
                     topic.url = form.cleaned_data['url']
                 else:
@@ -152,7 +152,7 @@ def submit(request):
 
     else:
         return render_to_response("registration/login.html",
-                                  {'next': '/submit/',
+                                  {'redirect': '/submit/',
                                    'message': "Please log in to submit a topic",
                                    'form': tcdLoginForm()},
                                   context_instance=RequestContext(request))
