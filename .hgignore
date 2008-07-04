@@ -1,3 +1,4 @@
 syntax: glob
 settings.*
 urls.*
+templates/specific_base.html
