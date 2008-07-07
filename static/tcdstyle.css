@@ -37,3 +37,7 @@ display: inline;
 ul.comment-action-list a {
 text-decoration: none;
 }
+
+a.unread {
+font-weight: bold
+}

@@ -39,7 +39,8 @@ class tcdLoginForm(forms.Form):
 
 class tcdTopicSubmitForm(forms.Form):
     title = forms.CharField(max_length=140, label="Title")
-    url = forms.URLField(label="URL", required=False)
+    url = forms.URLField(label="URL", required=False,
+                         help_text="Leave the URL field blank to submit a self-referential topic.")
     comment = forms.CharField(label="Text",
                               widget=forms.widgets.Textarea(attrs={'class': 'required icomment',
                                                                    'rows': 5,

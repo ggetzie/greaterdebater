@@ -1,4 +1,3 @@
-#trivial change again!
 from django import oldforms as forms
 from django.contrib.auth.models import User
 from django.contrib import auth
@@ -10,30 +9,12 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import loader, RequestContext
 from django.views.generic import list_detail
 
-from tcd.items.models import Topic, Argument, Profile
-from tcd.items.forms import *
-from tcd.comments.models import *
 from tcd.comments.forms import CommentForm
-
+from tcd.comments.models import *
+from tcd.items.forms import *
+from tcd.items.models import *
+from tcd.utils import *
 import datetime
-
-image_url="http://localhost/static/s.gif"
-
-def build_list(comments, p_id):
-    """Takes a query set of comments and a parent id and
-    returns a list of comments sorted in the appropriate parent-child
-    order such that first comment = first toplevel comment, second commend = first
-    child of first comment, third comment = first child of second comment or second 
-    child of first comment and so on"""
-    comment_list = []
-    for comment in comments.filter(parent_id=p_id):
-        children = comments.filter(parent_id=comment.id)
-        if not children:
-            comment_list.append(comment)
-        else:
-            comment_list.append(comment)
-            comment_list.extend(build_list(comments, comment.id))
-    return comment_list
 
 def comments(request, topic_id):
     top = get_object_or_404(Topic, pk=topic_id)
@@ -52,8 +33,7 @@ def comments(request, topic_id):
                                'first_c': first_c,
                                'rest_c': rest_c,
                                'redirect': ''.join(["/", str(topic_id), "/"]),
-                               'form_comment': form_comment,
-                               'image_url': image_url},
+                               'form_comment': form_comment},
                               context_instance=RequestContext(request)
                               )
 
@@ -171,6 +151,11 @@ def topics(request):
     else:
         page = 1
         start = 1
+    user = request.user
+    if user.is_authenticated():
+        if tcdMessage.objects.filter(recipient=user, is_read=False):
+            user.message_set.create(message=''.join(["<a href='/", user.username,
+                                                     "/messages/'>You have unread messages</a>"]))
     return list_detail.object_list(request=request, 
                                    queryset=Topic.objects.all(), 
                                    paginate_by=paginate_by, 
@@ -376,7 +361,7 @@ def profile(request, value):
     user_info = get_object_or_404(Profile, user=user)
     return render_to_response("registration/profile/profile_home.html",
                               {'username': user,
-                               'user_info': user_info},
+                               'user_info': user_info,},
                               context_instance=RequestContext(request))
 
 def profile_args(request, value):

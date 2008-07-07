@@ -4,6 +4,7 @@
 
 
 {% block content %}
+{% ifequal user.username username %}
 <h4>Messages</h4><br />
 <table>
   <tr>
@@ -30,5 +31,8 @@
 <p>No messages</p>
     {% endif %}
 </table>
+{% else %}
+<h1>Not your messages</h1>
+{% endifequal %}
 
 {% endblock %}
