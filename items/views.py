@@ -198,7 +198,7 @@ def challenge(request, c_id):
                     opener.arguments.add(arg)
                     msg_txt = ''.join([request.user.username, 
                                        " has challenged you to an argument.\n [Click here](/argue/",
-                                       str(arg.id), ") to view the argument and accept or decline"])
+                                       str(arg.id), "/) to view the argument and accept or decline"])
                     msg = tcdMessage(user=request.user,
                                      recipient=defendant,
                                      comment=msg_txt,
@@ -307,17 +307,19 @@ def draw(request, a_id):
 def respond_draw(request, response, a_id):
     arg = Argument.objects.get(pk=a_id)
     redirect = ''.join(["/argue/", str(arg.id), "/"])
-    if arg.whos_up() == request.user:
+    if request.user == arg.get_opponent(arg.whos_up()):
         recipient = arg.get_opponent(request.user)
         if response == "accept":
             message = ''.join([request.user.username, " has accepted your offer of a draw",
                                " regarding \n[", arg.title, "](/argue/", str(arg.id), "/)"])
             subject = "Draw Accepted"
+            request.user.message_set.create(message="Accepted draw")
             arg.status = 5            
         elif response == "decline":
             message = ''.join([request.user.username, " has declined your offer of a draw",
                                " regarding \n[", arg.title, "](/argue/", str(arg.id), "/)"])
             subject = "Draw Declined"
+            request.user.message_set.create(message="Rejected draw")
         else:
             request.user.message_set.create(message="Badly formed URL")
             return HttpResponseRedirect(redirect)
