@@ -40,6 +40,9 @@ class Argument(models.Model):
     
     class Admin:
         pass
+
+    class Meta:
+        ordering = ['-start_date']
     
     def __unicode__(self):
         return str(self.id)

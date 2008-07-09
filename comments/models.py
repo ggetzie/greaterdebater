@@ -163,3 +163,13 @@ class tcdMessage(Comment):
         
     class Meta:
         ordering = ('-pub_date',)
+
+class Draw(models.Model):
+    offeror = models.ForeignKey(User, related_name='offeror')
+    recipient = models.ForeignKey(User, related_name='recipient')
+    offer_date = models.DateTimeField()
+    argument = models.ForeignKey(Argument)
+
+    def __unicode__(self):
+        return ''.join(["Argument ", str(self.argument.id)])
+

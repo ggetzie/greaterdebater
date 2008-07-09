@@ -23,11 +23,6 @@ def comments(request, topic_id):
     first_c = comments.filter(is_first=True)
     rest_c = build_list(comments.filter(is_first=False), 0)
     form_comment = CommentForm()
-    if request.user.is_authenticated():
-        user = request.user.username
-    else:
-        logged_in = False
-        user = None
     return render_to_response('items/topic_detail.html', 
                               {'object': top,
                                'first_c': first_c,
@@ -219,8 +214,17 @@ def rebut(request, a_id):
         form = CommentForm(request.POST)
         arg = get_object_or_404(Argument, pk=a_id)
         redirect = ''.join(['/argue/', str(arg.id), '/'])
-        if form.is_valid():
+        if form.is_valid():            
             if arg.whos_up() == request.user:
+                if arg.status == 2:
+                    arg.status = 1
+                elif arg.status == 1:
+                    arg.status = 2
+                elif arg.status == 0:
+                    arg.status = 1
+                else:
+                    request.user.message_set.create(message="Argument not active!")
+                    return HttpResponseRedirect(redirect)                
                 params = {'comment': form.cleaned_data['comment'],
                           'user': request.user,
                           'topic': arg.topic,
@@ -230,11 +234,10 @@ def rebut(request, a_id):
                 c = Comment(**params)
                 c.save()
                 arg.comment_set.add(c)
-                arg.status += pow(-1, arg.status-1)
                 arg.save()
                 request.user.message_set.create(message="Argument Rebutted!")
             else:
-                request.user.message_set.create(message="Not your turn!")
+                request.user.message_set.create(message="Not your turn")
         else:
             request.user.message_set.create(message="Invalid form")
     else:
@@ -243,14 +246,15 @@ def rebut(request, a_id):
     return HttpResponseRedirect(redirect)
 
 def respond(request, response, a_id):
+    """Potential opponent accepts or rejects a challenge to an argument."""    
     arg = get_object_or_404(Argument, pk=a_id)
     if request.user == arg.defendant:
+        redirect = ''.join(["/argue/", str(arg.id), "/"])
         if arg.status == 0:
             if response == 'accept':
                 arg.status = 2
                 message = ''.join([arg.defendant.username, 
-                                   " has accepted your challenge. [View this argument](/argue/", 
-                                   str(arg.id), "/"])
+                                   " has accepted your challenge. [View this argument](", redirect, ")"])
                 msg = tcdMessage(user=request.user,
                                  recipient=arg.plaintiff,
                                  comment=message,
@@ -279,18 +283,16 @@ def respond(request, response, a_id):
         request.user.message_set.create(message="Can't respond to a challenge that's not for you!")
 
     arg.save()
-    redirect = ''.join(["/argue/", str(arg.id), "/"])
     return HttpResponseRedirect(redirect)
 
 def draw(request, a_id):
     arg = Argument.objects.get(pk=a_id)
     redirect = ''.join(['/argue/', str(arg.id), '/'])
-    if arg.whos_up() == request.user:
+    if arg.whos_up() == request.user and not arg.draw_set.all():
         message = ''.join([request.user.username, 
                            " has offered a draw regarding argument\n "
-                           "[",  arg.title, "]", "(/argue/", str(arg.id), "/)",
-                           "\n[Accept](/argue/draw/accept/", str(arg.id), "/)",
-                           " or [Decline](/argue/draw/decline/", str(arg.id),"/)"])
+                           "[",  arg.title, "]", "(", redirect, ")",
+                           "\nView the argument to accept or decline."])
         recipient = arg.get_opponent(request.user)
         msg = tcdMessage(user=request.user,
                          recipient=recipient,
@@ -299,36 +301,43 @@ def draw(request, a_id):
                          parent_id=0,
                          nesting=0)
         msg.save()
+        draw = Draw(offeror=request.user,
+                    recipient=arg.get_opponent(request.user),
+                    offer_date=datetime.datetime.now(),
+                    argument=arg)
+        draw.save()
         request.user.message_set.create(message=''.join(["Offered a draw to ", recipient.username]))
+        return rebut(request, a_id)
     else:
-        request.user.message_set.create(message="Can't offer draw when it's not your turn or your argument")
+        request.user.message_set.create(message="Not your turn, not your argument, or there's already a draw offer outstanding")
     return HttpResponseRedirect(redirect)
 
 def respond_draw(request, response, a_id):
     arg = Argument.objects.get(pk=a_id)
+    draw = Draw.objects.get(argument=arg)
     redirect = ''.join(["/argue/", str(arg.id), "/"])
-    if request.user == arg.get_opponent(arg.whos_up()):
-        recipient = arg.get_opponent(request.user)
+    if request.user == draw.recipient:
         if response == "accept":
             message = ''.join([request.user.username, " has accepted your offer of a draw",
-                               " regarding \n[", arg.title, "](/argue/", str(arg.id), "/)"])
+                               " regarding \n[", arg.title, "](", redirect, ")"])
             subject = "Draw Accepted"
             request.user.message_set.create(message="Accepted draw")
             arg.status = 5            
         elif response == "decline":
             message = ''.join([request.user.username, " has declined your offer of a draw",
-                               " regarding \n[", arg.title, "](/argue/", str(arg.id), "/)"])
+                               " regarding \n[", arg.title, "](", redirect, ")"])
             subject = "Draw Declined"
-            request.user.message_set.create(message="Rejected draw")
+            request.user.message_set.create(message="Draw Rejected")
         else:
             request.user.message_set.create(message="Badly formed URL")
             return HttpResponseRedirect(redirect)
         msg = tcdMessage(user=request.user,
-                             recipient = recipient,
+                             recipient = draw.offeror,
                              comment = message,
                              subject = subject,
                              parent_id = 0,
                              nesting = 0)
+        draw.delete()
         msg.save()
         arg.save()
     return HttpResponseRedirect(redirect)

@@ -19,18 +19,27 @@
 {% endif %}
 {% ifequal user object.whos_up %}
 <p>
+{% if object.draw_set.all %}
+A draw has been offered <br />
+<ul class="flat-list">
+<li><a href="/argue/draw/accept/{{ object.id }}">Accept</a></li>
+<li><a href="/argue/draw/decline/{{ object.id }}">Decline</a></li>
+</ul>
+{% else %}
 <ul class="flat-list">
 <li>
 <a href='#' onclick="displayFormComment('rebut{{ object.id }}'); return false;">Rebut</a>
 </li>
 <li>
-<a href="/argue/draw/{{ object.id }}/">Offer a draw</a>
+<a href='#' onclick="displayFormComment('draw{{ object.id }}'); return false;">Offer a draw</a>
 </li>
 <li>
 <a href="/argue/concede/{{ object.id }}/">Concede</a>
 </li>
 </ul><br />
 {% include "comments/rebut_form.html" %}
+{% include "comments/draw_form.html" %}
 </p>
+{% endif %}
 {% endifequal %}
 {% endblock %}

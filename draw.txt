@@ -1,0 +1,11 @@
+How a draw should work:
+You can offer a draw only when it's your turn.
+You submit a comment explaining why you want a draw.
+Offering a draw uses your turn.
+Responding to a draw offer also uses your turn.
+Response requires a comment as well.
+An offer of a draw must be declined before an argument can continue.
+
+	 	    	    	 	     User B accepts, (status: Arg over, draw)
+User A offers draw (status: User B's turn) <
+       	      	          	      	     User B rejects, posts reply to A's reasoning (status: User A's turn)

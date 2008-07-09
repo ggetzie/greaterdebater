@@ -1,0 +1,16 @@
+<div id="draw{{ object.id }}">
+  <form action="/argue/draw/{{ object.id }}/" method="post" accept-charset="utf-8">
+    <div class="form-row">
+      <label for="id_comment">Posting as {{ user }}</label>
+      <br /><textarea rows=5 cols=50 name="comment"></textarea>
+      <div><input type="hidden" name="parent_id" value={{ last_c.id }}></div>
+      <div><input type="hidden" name="nesting" value={{ last_c.nesting }}></div>
+      <div><input type="hidden" name="toplevel" value=0></div>
+      <div><input type="submit" value= "Offer Draw"></div>
+    </div>
+  </form>
+  <script type="text/javascript" charset="utf-8">
+    document.getElementById('draw{{ object.id }}').style.display="none"
+  </script>
+</div>
+
