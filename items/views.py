@@ -177,7 +177,7 @@ def challenge(request, c_id):
                                    defendant=defendant,
                                    start_date=datetime.datetime.now(),
                                    topic=c.topic,
-                                   title= ''.join([c.comment[:20], '...']),
+                                   title= ''.join([c.comment[:20].replace('\r', ' '), '...']),
                                    status=0)
                     arg.save()
                     c.arguments.add(arg)

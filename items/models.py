@@ -45,7 +45,7 @@ class Argument(models.Model):
         ordering = ['-start_date']
     
     def __unicode__(self):
-        return str(self.id)
+        return self.title
     
     def get_status(self):
         if self.status == 0:
