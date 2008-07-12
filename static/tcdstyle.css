@@ -1,4 +1,4 @@
-body {
+nbody {
 font-family: verdana;
 margin-left: 5px;
 }
@@ -24,7 +24,7 @@ padding: 0;
 }
 
 ul.flat-list li {
-padding-left: 10px;
+padding-right: 10px;
 display: inline;
 }
 
@@ -37,6 +37,7 @@ padding: 0;
 ul.comment-action-list li {
 padding-right: 5px;
 display: inline;
+font-size: small;
 }
 
 ul.comment-action-list a {
@@ -46,3 +47,11 @@ text-decoration: none;
 a.unread {
 font-weight: bold
 }
+
+span.comment_info {
+font-size: small;
+}    
+
+span.comment_info a {
+text-decoration: none;
+}    

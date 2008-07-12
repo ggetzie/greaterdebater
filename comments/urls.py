@@ -20,9 +20,10 @@ from django.conf.urls.defaults import patterns
 # This url file is included from items.urls with the prefix /comments/
 
 urlpatterns = patterns('',
-                       ('^(?P<comment_id>\d+)/$', 'comments.views.comment_detail'),
+                       ('^$', 'comments.views.list'),
                        ('^(?P<topic_id>\d+)/add/$', 'comments.views.add'),
                        ('^(?P<topic_id>\d+)/edit/$', 'comments.views.edit'),
+                       ('^(?P<comment_id>\d+)/$', 'comments.views.comment_detail'),
                        ('^(?P<comment_id>\d+)/delete/$', 'comments.views.delete'),
-                       ('^$', 'comments.views.list'),
+                       ('^(?P<comment_id>\d+)/arguments/$', 'comments.views.arguments'),                        
                        )

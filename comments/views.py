@@ -105,3 +105,11 @@ def comment_detail(request, comment_id):
 	return render_to_response("comments/comment_detail.html",
 				  {'comment': comment},
 				  context_instance=RequestContext(request))
+
+def arguments(request, comment_id):
+	comment = get_object_or_404(Comment, pk=comment_id)
+	args_list = comment.arguments.order_by('-start_date')
+	return render_to_response("comments/comment_args.html",
+				  {'comment': comment,
+				   'args_list': args_list},
+				  context_instance=RequestContext(request))
