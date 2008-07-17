@@ -13,7 +13,7 @@ a reply for more than seven days"""
 
     args = Argument.objects.filter(status__range=(1,2))
     for arg in args:
-        last_comment = arg.comment_set.latest('-pub_date')
+        last_comment = arg.comment_set.latest('pub_date')
         elapsed = datetime.datetime.now() - last_comment.pub_date
         if elapsed.days >= 7:
             loser = arg.whos_up()
