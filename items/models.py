@@ -1,13 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import User
+import datetime
 
 class Topic(models.Model):
     title = models.CharField(max_length=200)
     sub_date = models.DateTimeField('date submitted')
-    score = models.IntegerField()
+    score = models.FloatField()
     url = models.URLField()
     user = models.ForeignKey(User)
-
+    comment_length = models.IntegerField()
     
     class Admin:
         pass
@@ -18,7 +19,14 @@ class Topic(models.Model):
 
     def __unicode__(self):
         return self.title
+    
+    def get_elapsed(self):
+        return elapsed_time(self.sub_date)
 
+    def recalculate(self):
+        delta = datetime.datetime.now() - self.sub_date
+        time = (delta.days * 1440) + (delta.seconds / 60) + 1
+        self.score = self.comment_length / float(time)
 
 class Argument(models.Model):
     plaintiff = models.ForeignKey(User, related_name='plaintiff_set')
@@ -90,3 +98,18 @@ class Profile(models.Model):
 
     def __unicode__(self):
         return self.user.username
+
+def elapsed_time(dtime):
+    delta = datetime.datetime.now() - dtime
+    if delta.days > 0:
+        return ''.join([str(delta.days), " days"])
+    elif delta.seconds > 3600:
+        return ''.join([str(delta.seconds / 3600), " hours"])
+    elif 3600 > delta.seconds >= 60:
+        return ''.join([str(delta.seconds / 60), " minutes"])
+    elif 60 > delta.seconds >= 1:
+        return ''.join([str(delta.seconds), " seconds"])
+    elif delta.seconds == 0:
+        return ''.join([str(delta.microseconds / 1000), " milliseconds"])
+    else:
+        return "0 milliseconds"

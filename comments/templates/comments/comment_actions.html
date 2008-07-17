@@ -1,0 +1,15 @@
+<ul class="comment-action-list">
+  <li><a href="/comments/{{ comment.id }}/arguments/">({{ comment.arguments.count }}) arguments</a></li>
+  {% if user.is_authenticated %}
+  <li><a href='#' onclick="displayFormComment('reply{{ comment.id }}'); return false;">reply</a></li>
+  {% ifequal user comment.user %}
+  <li><a href='#' onclick="displayFormComment('edit{{ comment.id }}'); return false;">edit</a></li>
+  <li><a href='/comments/{{ comment.id }}/delete'>delete</a></li>
+  {% else %}
+  <li><a href='#' onclick="displayFormComment('argue{{ comment.id }}'); return false;">argue</a></li>
+  {% endifequal %}
+  {% endif %}
+</ul>
+{% include "comments/reply_form.html" %}
+{% include "comments/edit_form.html" %}
+{% include "comments/argue_form.html" %}

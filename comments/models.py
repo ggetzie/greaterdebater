@@ -26,7 +26,7 @@ from markdown import markdown
 import re
 from datetime import datetime
 
-from tcd.items.models import Topic, Argument
+from tcd.items.models import *
 
 """
 We cache lexer aliases to speed parsing. To update them, get lexers_aliases like this :
@@ -88,14 +88,21 @@ class Comment(models.Model):
         
     def save(self):
         if not self.id:
-            self.pub_date = datetime.now()          
+            self.pub_date = datetime.datetime.now()          
         self.comment_html=self.hilight(self.comment)
         self.comment_html = self.comment_html.replace('\n', "<br />")
         self.comment_html = self.comment_html.replace('<p>', """<p class="commentp">""")
+        if self.topic:
+            self.topic.comment_length += len(self.comment)
+            self.topic.recalculate()
+            self.topic.save()
         super(Comment , self).save()
 
     def __unicode__(self):
         return str(self.id)
+
+    def get_elapsed(self):
+        return elapsed_time(self.pub_date)
         
     def hilight(self, content):
         CODE_TAG_START = "{{{"

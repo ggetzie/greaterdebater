@@ -4,9 +4,10 @@ margin-left: 5px;
 }
 
 p.commentp {
-margin-top: 5px;
-margin-bottom: 5px;
+margin-top: 0px;
+margin-bottom: 0px;
 margin-left: 5px;
+width: 40%;
 }
 
 tr.unread_msg {
@@ -54,4 +55,13 @@ font-size: small;
 
 span.comment_info a {
 text-decoration: none;
+}    
+
+div.comment_div {
+margin-bottom: 10px;
+}
+
+div.topic_info {
+margin-bottom: 10px;
+font-size: small;
 }    

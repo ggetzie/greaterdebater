@@ -5,7 +5,19 @@
 <strong><a href={{ object.url }}>{{ object.title }}</a></strong><br>
 {% if first_c %}
 {% for comment in first_c %}
-{{ comment.comment_html|safe }}
+{% include "comments/one_comment.html" %}
+<ul class="comment-action-list">
+  <li><a href="/comments/{{ comment.id }}/arguments/">({{ comment.arguments.count }}) arguments</a></li>
+  {% if user.is_authenticated %}
+  {% ifequal user object.user %}
+  {% else %}
+  <li><a href='#' onclick="displayFormComment('argue{{ comment.id }}'); return false;">argue</a></li>  
+{% include "comments/argue_form.html" %}
+{% endifequal %}
+</ul>
+{% else %}
+</ul>
+{% endif %}
 {% endfor %}
 {% endif %}
 <br>
@@ -15,6 +27,7 @@
 <div id="comment_div{{ comment.id }}" style="margin-left: {{ comment.nesting }}px">
   <br />
   {% include "comments/one_comment.html" %}
+  {% include "comments/comment_actions.html" %}
 </div>
 {% endfor %}
 <p>

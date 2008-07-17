@@ -7,13 +7,17 @@
 {% if topics_list %}
 <ol>
   {% for object in topics_list %}
-  <li><p><a href={{ object.url }}>{{ object.title }}</a> <br>
+  <li><p><a href={{ object.url }}>{{ object.title }}</a> <br />
       {{ object.sub_date }} {{ object.score }} {{ object.user }}
       <a href="/{{ object.id }}">({{ object.comment_set.count }}) comments</a>
+      {% ifequal user object.user %}
+      <a href="/edit/{{ object.id }}">Edit</a>
+      {% endifequal %}
       </p>
   </li>
   {% endfor %}
 </ol>
+
 {% else %}
 <p>No topics are available</p>
 {% endif %}

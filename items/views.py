@@ -158,9 +158,9 @@ def submit(request):
                 return HttpResponseRedirect(next)
         else:
             form = tcdTopicSubmitForm()
-            return render_to_response("items/submit.html",
-                                      {'form': form},
-                                      context_instance=RequestContext(request))
+        return render_to_response("items/submit.html",
+                                  {'form': form},
+                                  context_instance=RequestContext(request))
 
     else:
         return render_to_response("registration/login.html",
@@ -168,6 +168,54 @@ def submit(request):
                                    'message': "Please log in to submit a topic",
                                    'form': tcdLoginForm()},
                                   context_instance=RequestContext(request))
+
+def edit_topic(request, topic_id):
+    top = get_object_or_404(Topic, pk=topic_id)
+    c = Comment.objects.filter(topic=top, is_first=True)
+    redirect = ''.join(['/', request.user.username, '/submissions/'])    
+    if request.user == top.user and request.method == 'POST':
+        data = request.POST.copy()
+        form = tcdTopicSubmitForm(data)
+        if form.is_valid():
+            if form.cleaned_data['comment']:
+                if c:
+                    c = c[0]
+                    c.comment = form.cleaned_data['comment']
+                else:
+                    c = Comment(user=top.user,
+                                topic=top,
+                                comment = form.cleaned_data['comment'],
+                                pub_date=datetime.datetime.now(),
+                                is_first=True,
+                                parent_id=0,
+                                nesting=0)
+                c.save()
+            top.title = form.cleaned_data['title']
+            if form.cleaned_data['url']:
+                if top.url[0:4] == 'http':
+                    top.url = form.cleaned_data['url']
+                else:
+                    request.user.message_set.create(message="Can't change url of self-referential topic.")
+            top.save()
+            return HttpResponseRedirect(redirect)
+    else:
+        if top.url[0:4] == 'http':
+            url = top.url
+        else:
+            url = ''
+        if c:
+            comment = c[0].comment
+        else:
+            comment = ''
+        data = {'title': top.title,
+                'url': url,
+                'comment': comment}
+        form = tcdTopicSubmitForm(data)
+    return render_to_response("items/edit_topic.html",
+                              {'form': form,
+                               'username': top.user.username},
+                              context_instance=RequestContext(request))
+        
 
                                   
 def topics(request):
@@ -483,3 +531,6 @@ def arg_detail(request, object_id):
                                'participants': participants,
                                'last_c': last_c},
                               context_instance=RequestContext(request))
+
+
+    

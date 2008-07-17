@@ -1,6 +1,6 @@
 {% ifequal user comment.user %}
 <div id="edit{{ comment.id }}">
-  <form action="/comments{{ redirect }}edit/" method="post" accept-charset="utf-8">
+  <form action="/comments/{{ comment.topic.id }}/edit/" method="post" accept-charset="utf-8">
     <div class="form-row">
       <label for="id_comment">Posting as {{ user }}</label>
       <br /><textarea rows=5 cols=50 name="comment">{{ comment.comment }}</textarea>

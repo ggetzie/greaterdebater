@@ -17,6 +17,7 @@ urlpatterns = patterns('',
                        (r'^logout/', logout, {'next_page': "/"}),
                        (r'^register/$', 'tcd.items.views.register'),
                        (r'^submit/$', 'tcd.items.views.submit'),
+                       (r'^edit/(?P<topic_id>\d+)/$', 'tcd.items.views.edit_topic'),
                        (r'^argue/', include('tcd.items.argue_urls')),
                        (r'^(?P<value>[A-Za-z\d]+)/', include('tcd.items.profile_urls')),
 )

@@ -5,12 +5,10 @@
 
 {% block content %}
 <h4>Comments</h4><br />
-<table>
-  {% for comment in comments_list %}
-  <tr>
-    <td>
-      {% include "comments/one_comment.html" %}
-</td></tr>
+{% for comment in comments_list %}
+<div id="comment{{ comment.id }}" class="comment_div">
+  {% include "comments/one_comment.html" %}
+  {% include "comments/comment_actions.html" %}
+</div>
 {% endfor %}
-</table>
 {% endblock %}

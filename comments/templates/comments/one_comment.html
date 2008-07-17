@@ -1,31 +1,7 @@
-<div id=commentdiv{{ comment.id }}>
 {% if comment.is_removed %}	  
 <p><i>Comment deleted</i></p>
 {% else %}
-<span class="comment_info"> by <a href="/{{ comment.user }}">{{ comment.user }}</a> on {{ comment.pub_date.ctime }}</span>
+<span class="comment_info"> by <a href="/{{ comment.user }}">{{ comment.user }}</a> {{ comment.get_elapsed }} ago</span>
 {{ comment.comment_html|safe }}
-<ul class="comment-action-list">
-  {% if user.is_authenticated %}
-  {% if comment.arg_proper %}
-  {% else %}
-  <li><a href="/comments/{{ comment.id }}/arguments/">({{ comment.arguments.count }}) arguments</a></li>
-  <li><a href='#' onclick="displayFormComment('reply{{ comment.id }}'); return false;">reply</a></li>
-  {% ifequal user comment.user %}
-  <li><a href='#' onclick="displayFormComment('edit{{ comment.id }}'); return false;">edit</a></li>
-  <li><a href='/comments/{{ comment.id }}/delete'>delete</a></li>
-  {% endifequal %}
-  {% endif %}
-  {% if participants %}
-  {% else %}
-  {% ifequal user comment.user %}
-  {% else %}
-  <li><a href='#' onclick="displayFormComment('argue{{ comment.id }}'); return false;">argue</a></li>
-  {% endifequal %}
-  {% endif %}
-  {% endif %}
-</ul>
-{% include "comments/reply_form.html" %}
-{% include "comments/edit_form.html" %}
-{% include "comments/argue_form.html" %}
 {% endif %}
-</div>
+

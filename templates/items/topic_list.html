@@ -5,11 +5,12 @@
 {% if object_list %}
 <ol start = {{ start }}>
   {% for object in object_list %}
-  <li><p><a href={{ object.url }}>{{ object.title }}</a> <br>
-      {{ object.sub_date }} {{ object.score }} 
+  <li><a href={{ object.url }}>{{ object.title }}</a> <br>
+      <div id="topic_info{{ object.id }}" class="topic_info">
+      {{ object.get_elapsed }} ago Score: {{ object.score }} 
       <a href= /{{ object.user }}>{{ object.user }}</a>
       <a href = {{ object.id }}>({{ object.comment_set.count }}) comments</a>
-      </p>
+      </div>      
   </li>
   {% endfor %}
 </ol>

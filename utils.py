@@ -16,3 +16,4 @@ def build_list(comments, p_id):
             comment_list.extend(build_list(comments, comment.id))
     return comment_list
 
+
