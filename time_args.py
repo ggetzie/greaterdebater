@@ -12,10 +12,12 @@ def time_args():
 a reply for more than seven days"""
 
     args = Argument.objects.filter(status__range=(1,2))
+    count = 0
     for arg in args:
         last_comment = arg.comment_set.latest('pub_date')
         elapsed = datetime.datetime.now() - last_comment.pub_date
         if elapsed.days >= 7:
+            count += 1
             loser = arg.whos_up()
             winner = arg.get_opponent(loser)
             prof = Profile.objects.get(user=winner)
@@ -45,6 +47,11 @@ a reply for more than seven days"""
             prof.save()
             win_msg.save()
             lose_msg.save()
+    log = LogItem(date=datetime.datetime.now(),
+                  message="time_args success. %i args ended." % count)
+    log.save()
 
 if __name__ == "__main__":
     time_args()
+
+    

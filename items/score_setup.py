@@ -1,4 +1,10 @@
+import sys
+import os
+
+os.environ['DJANGO_SETTINGS_MODULE'] = 'tcd.settings'
+
 from tcd.imports import *
+import datetime
 
 def calculate_scores():
     tops = Topic.objects.all()
@@ -11,8 +17,22 @@ def calculate_scores():
     print "fin"
 
 def recalc_all():
-    tops = Topic.objects.all()
+    minus1h = datetime.datetime.now() - datetime.timedelta(seconds=3600)
+    tops = Topic.objects.filter(last_calc__lt=minus1h)
     for top in tops:
         top.recalculate()
         top.save()
-    print "recalculated all scores"
+    log = LogItem(date=datetime.datetime.now(),
+                  message= ''.join(["recalc_all success ", str(tops.count()), " updated"]))
+    log.save()
+
+def setback():
+    minus2h = datetime.datetime.now() - datetime.timedelta(seconds=7200)
+    tops = Topic.objects.all()
+    for top in tops:
+        top.last_calc = minus2h
+        top.save()
+
+if __name__ == "__main__":
+    recalc_all()
+

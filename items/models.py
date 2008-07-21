@@ -9,6 +9,7 @@ class Topic(models.Model):
     url = models.URLField()
     user = models.ForeignKey(User)
     comment_length = models.IntegerField()
+    last_calc = models.DateTimeField('last score calculation')
     
     class Admin:
         pass
@@ -27,6 +28,7 @@ class Topic(models.Model):
         delta = datetime.datetime.now() - self.sub_date
         time = (delta.days * 1440) + (delta.seconds / 60) + 1
         self.score = self.comment_length / float(time)
+        self.last_calc = datetime.datetime.now()
 
 class Argument(models.Model):
     plaintiff = models.ForeignKey(User, related_name='plaintiff_set')
@@ -113,3 +115,12 @@ def elapsed_time(dtime):
         return ''.join([str(delta.microseconds / 1000), " milliseconds"])
     else:
         return "0 milliseconds"
+
+class LogItem(models.Model):
+    date = models.DateTimeField()
+    message = models.CharField(max_length=200)
+
+    def __unicode__(self):
+        return self.message
+
+
