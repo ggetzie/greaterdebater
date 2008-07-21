@@ -17,7 +17,7 @@ def calculate_scores():
     print "fin"
 
 def recalc_all():
-    minus1h = datetime.datetime.now() - datetime.timedelta(seconds=3600)
+    minus1h = datetime.datetime.now() - datetime.timedelta(seconds=3540)
     tops = Topic.objects.filter(last_calc__lt=minus1h)
     for top in tops:
         top.recalculate()
