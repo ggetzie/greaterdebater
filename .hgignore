@@ -2,4 +2,5 @@ syntax: glob
 settings.*
 urls.*
 *.pyc
+*.orig
 templates/specific_base.html
