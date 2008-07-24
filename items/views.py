@@ -139,7 +139,9 @@ def submit(request):
                 topic = Topic(user=request.user,
                               title=form.cleaned_data['title'],
                               score=1,
-                              sub_date=datetime.datetime.now())
+                              sub_date=datetime.datetime.now(),
+                              comment_length=0,
+                              last_calc=datetime.datetime.now())
                 topic.save()
                 next = ''.join(["/", str(topic.id), "/"])
                 if data['url']:
