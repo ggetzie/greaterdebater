@@ -2,6 +2,8 @@
 {% block title %}{{ object.title }}{% endblock %}
 
 {% block content %}
+<h4>{{ object.title }}</h4>
+<p>{{ object.get_status }}</p>
 {% if object.comment_set.all %}
 {% for comment in object.comment_set.all %}
 <div id="comment_div{{ comment.id }}" style="margin-left: {% ifequal comment.user object.defendant %}10{% else %}50{% endifequal %}px">

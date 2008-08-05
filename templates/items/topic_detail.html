@@ -2,17 +2,18 @@
 {% block title %}{{ object.title }}{% endblock %}
 
 {% block content %}
-<strong><a href={{ object.url }}>{{ object.title }}</a></strong><br>
+<strong><a href={{ object.url }}>{{ object.title }}</a></strong><br />
+<span class="comment_info">submitted by <a href="/{{ object.user }}">{{ object.user }}</a> {{ object.get_elapsed }} ago<br /></span>
 {% if first_c %}
 {% for comment in first_c %}
-{% include "comments/one_comment.html" %}
+{{ comment.comment_html|safe }}
 <ul class="comment-action-list">
   <li><a href="/comments/{{ comment.id }}/arguments/">({{ comment.arguments.count }}) arguments</a></li>
   {% if user.is_authenticated %}
   {% ifequal user object.user %}
   {% else %}
   <li><a href='#' onclick="displayFormComment('argue{{ comment.id }}'); return false;">argue</a></li>  
-{% include "comments/argue_form.html" %}
+  {% include "comments/argue_form.html" %}
 {% endifequal %}
 </ul>
 {% else %}
@@ -32,10 +33,10 @@
 {% endfor %}
 <p>
 {% if has_previous %}
-<a href="/{{ object.id }}/?page={{ previous }}">Previous</a>
+<a href="/{{ object.id }}/{{ previous }}">Previous</a>
 {% endif %}
 {% if has_next %}
-<a href="/{{ object.id }}/?page={{ next }}">Next</a>
+<a href="/{{ object.id }}/{{ next }}">Next</a>
 {% endif %}
 </p>
 {% else %}

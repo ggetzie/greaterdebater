@@ -2,20 +2,6 @@
 {% block title %} {{ message.subject }} {% endblock %}
 
 {% block content %}
-<table>
-  <tr>
-    {% if message.is_removed %}	  
-    <td><i>Comment deleted</i>
-      {% else %}
-    <td>{{ message.comment_html|safe }}</td></tr>
-  <tr>
-    <td>
-      <span> by {{ message.user }} on {{ message.pub_date }} 
-	{% if user.is_authenticated %}
-	{% comment %}{% include "messages/reply_form.html" %}{% endcomment %}
-	{% endif %}
-      </span>
-      {% endif %}
-  </td></tr>
-</table>
+<h4>{{ comment.subject }}</h4>
+{% include "comments/one_comment.html" %}
 {% endblock %}

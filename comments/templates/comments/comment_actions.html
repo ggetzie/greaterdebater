@@ -1,5 +1,5 @@
 <ul class="comment-action-list">
-  <li><a href="/comments/{{ comment.id }}/arguments/">({{ comment.arguments.count }}) arguments</a></li>
+  <li><a href="/comments/{{ comment.id }}/arguments/">({{ comment.arguments.count }}) argument{{ comment.arguments.count|pluralize }}</a></li>
   {% if user.is_authenticated %}
   <li><a href='#' onclick="displayFormComment('reply{{ comment.id }}'); return false;">reply</a></li>
   {% ifequal user comment.user %}

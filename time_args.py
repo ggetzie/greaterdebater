@@ -51,6 +51,11 @@ a reply for more than seven days"""
                   message="time_args success. %i args ended." % count)
     log.save()
 
+    # Clear all log items older than 30 days
+    cutoff = datetime.datetime.now() - datetime.timedelta(days=30)
+    expired_logs = LogItem.objects.filter(date__lt=cutoff)
+    expired_logs.delete()
+
 if __name__ == "__main__":
     time_args()
 

@@ -61,9 +61,9 @@ class Argument(models.Model):
         if self.status == 0:
             return "challenge pending"
         elif self.status == 1:
-            return "in progress, plaintiff's turn"
+            return ''.join(["in progress, ", self.plaintiff.username, "'s turn"])
         elif self.status == 2:
-            return "in progress, defendant's turn"
+            return ''.join(["in progress, ", self.defendant.username, "'s turn"])
         elif self.status == 3:
             return ''.join(["winner: ", self.defendant.username])
         elif self.status == 4:

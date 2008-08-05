@@ -16,7 +16,7 @@ from tcd.items.models import *
 from tcd.utils import *
 import datetime
 
-def comments(request, topic_id):
+def comments(request, topic_id, page=1):
     paginate_by = 100
     has_previous = False
     has_next = True
@@ -30,18 +30,16 @@ def comments(request, topic_id):
         last_page = (len(rest_c) / paginate_by) + 1
     else:
         last_page = len(rest_c) / paginate_by
-    if 'page' in request.GET.keys():
-        if request.GET['page'] == 'last':
-            page = last_page
-        elif request.GET['page'] == 'first':
+    if page == 'last':
+        page = last_page
+    elif page == 'first':
             page = 1
-        else:
-            try:
-                page = int(request.GET['page'])
-            except:
-                raise Http404
     else:
-        page = 1    
+        try:
+            page = int(page)
+        except:
+            raise Http404
+
     start = (page - 1) * paginate_by
     end = page * paginate_by
     previous = page - 1
@@ -67,6 +65,22 @@ def comments(request, topic_id):
                                'form_comment': form_comment},
                               context_instance=RequestContext(request)
                               )
+
+def topics(request, page=1):
+    paginate_by = 25
+    if page == 'last':
+        start = paginate_by * (Topic.objects.count() / paginate_by) + 1
+    else:
+        start = paginate_by * (int(page) - 1) + 1        
+    user = request.user
+    if user.is_authenticated() and tcdMessage.objects.filter(recipient=user, is_read=False):        
+        user.message_set.create(message=''.join(["<a href='/", user.username,
+                                                 "/messages/'>You have unread messages</a>"]))
+    return list_detail.object_list(request=request, 
+                                   queryset=Topic.objects.all(), 
+                                   paginate_by=paginate_by, 
+                                   page=page,
+                                   extra_context={'start': start,})
 
 def register(request):
     if request.method == 'POST':
@@ -218,29 +232,6 @@ def edit_topic(request, topic_id):
                                'username': top.user.username},
                               context_instance=RequestContext(request))
         
-
-                                  
-def topics(request):
-    paginate_by = 25
-    if 'page' in request.GET.keys():
-        if request.GET['page'] == 'last':
-            start = paginate_by * (Topic.objects.count() / paginate_by) + 1
-        else:
-            start = paginate_by * (int(request.GET['page']) - 1) + 1        
-        page = request.GET['page']
-    else:
-        page = 1
-        start = 1
-    user = request.user
-    if user.is_authenticated() and tcdMessage.objects.filter(recipient=user, is_read=False):        
-        user.message_set.create(message=''.join(["<a href='/", user.username,
-                                                 "/messages/'>You have unread messages</a>"]))
-    return list_detail.object_list(request=request, 
-                                   queryset=Topic.objects.all(), 
-                                   paginate_by=paginate_by, 
-                                   page=page,
-                                   extra_context={'start': start,})
-
 def challenge(request, c_id):
     if request.POST:
         form = CommentForm(request.POST)
@@ -336,7 +327,7 @@ def respond(request, response, a_id):
             if response == 'accept':
                 arg.status = 2
                 message = ''.join([arg.defendant.username, 
-                                   " has accepted your challenge. [View this argument](", redirect, ")"])
+                                   " has accepted your challenge. \n[View this argument](", redirect, ")"])
                 msg = tcdMessage(user=request.user,
                                  recipient=arg.plaintiff,
                                  comment=message,
@@ -511,7 +502,7 @@ def message_detail(request, value, object_id):
         message.is_read = True
         message.save()
     return render_to_response("registration/profile/message_detail.html",
-                              {'message': message,
+                              {'comment': message,
                                'username': user},
                               context_instance=RequestContext(request))
 

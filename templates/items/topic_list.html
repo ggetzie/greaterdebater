@@ -7,9 +7,11 @@
   {% for object in object_list %}
   <li><a href={{ object.url }}>{{ object.title }}</a> <br>
       <div id="topic_info{{ object.id }}" class="topic_info">
-      {{ object.get_elapsed }} ago Score: {{ object.score }} 
-      <a href= /{{ object.user }}>{{ object.user }}</a>
-      <a href = {{ object.id }}>({{ object.comment_set.count }}) comments</a>
+      submitted by <a href= /{{ object.user }}>{{ object.user }}</a>
+      {{ object.get_elapsed }} ago
+      {% with object.comment_set.count as num %}
+      <a href = {{ object.id }}>({{ num }}) comment{{ num|pluralize }}</a>
+      {% endwith %}
       </div>      
   </li>
   {% endfor %}
@@ -18,10 +20,10 @@
 <p>No topics are available</p>
 {% endif %}
 {% if has_previous %}
-<a href="/?page={{ previous }}">Previous</a>
+<a href="/page/{{ previous }}">Previous</a>
 {% endif %}
 {% if has_next %}
-<a href="/?page={{ next }}">Next</a>
+<a href="/page/{{ next }}">Next</a>
 {% endif %}
 {{ last_page }}
 {% endblock %}

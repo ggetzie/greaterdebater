@@ -9,9 +9,9 @@ info_dict = {
 
 urlpatterns = patterns('',
                        (r'^$', 'tcd.items.views.topics'),
-#                         (r'^$', 'django.views.generic.list_detail.object_list', dict(info_dict, 
-#                                                                                      paginate_by = 5,)),
+                       (r'^page/(?P<page>\d+)$', 'tcd.items.views.topics'),                       
                        (r'^(?P<topic_id>\d+)/$', 'tcd.items.views.comments'),
+                       (r'^(?P<topic_id>\d+)/(?P<page>\d+)$', 'tcd.items.views.comments'),
                        (r'^comments/', include('tcd.comments.urls')),                       
                        (r'^login/', 'tcd.items.views.login'),
                        (r'^logout/', logout, {'next_page': "/"}),
