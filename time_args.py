@@ -54,6 +54,8 @@ a reply for more than seven days"""
     # Clear all log items older than 30 days
     cutoff = datetime.datetime.now() - datetime.timedelta(days=30)
     expired_logs = LogItem.objects.filter(date__lt=cutoff)
+    log = LogItem(date=datetime.datetime.now()
+                  message="deleted %i expired log items" % expired_logs.count())
     expired_logs.delete()
 
 if __name__ == "__main__":
