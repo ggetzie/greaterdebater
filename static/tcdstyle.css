@@ -65,3 +65,7 @@ div.topic_info {
 margin-bottom: 10px;
 font-size: small;
 }    
+
+div.arg_list {
+margin-left: 10px;
+}   

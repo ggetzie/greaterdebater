@@ -1,4 +1,4 @@
-# This url file is included in tcd.items.urls with the prefix '^(?P<user_id>>[A-Za-z\d]+/'
+# This url file is included in tcd.items.urls with the prefix '^(?P<value>>[A-Za-z\d]+/'
 # all views called here in will be passed a user id from the prefix above
 
 from django.conf.urls.defaults import *
@@ -28,14 +28,6 @@ urlpatterns = patterns('',
                          'template_name': "registration/profile/profile_tops.html",
                          'template_object_name': 'topics'
                          }),
-                       (r'^messages/$', 'tcd.items.views.object_list_foreign_field',
-                        {'model': tcdMessage,
-                         'field': 'recipient',
-                         'fv_dict': {'is_msg': True},
-                         'foreign_model': User,
-                         'foreign_field': 'username',
-                         'template_name': "registration/profile/profile_msgs.html",
-                         'template_object_name': 'messages'
-                         }),
+                       (r'^messages/$', 'tcd.items.views.profile_msgs'), 
                        (r'^messages/(?P<object_id>[\d]+)$', 'tcd.items.views.message_detail'),
 )

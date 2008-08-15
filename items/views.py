@@ -4,7 +4,7 @@ from django.contrib import auth
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import loader, RequestContext
 from django.views.generic import list_detail
@@ -455,6 +455,22 @@ def profile_args(request, value):
                               {'username': user,
                                'args_list': args.order_by('start_date')},
                               context_instance=RequestContext(request))
+
+def profile_msgs(request, value):
+    user = get_object_or_404(User, username=value)
+    if request.user == user:
+        args = {'request': request,
+                'value': value,
+                'model': tcdMessage,
+                'field': 'recipient',
+                'fv_dict': {'is_msg': True},
+                'foreign_model': User,
+                'foreign_field': 'username',
+                'template_name': "registration/profile/profile_msgs.html",
+                'template_object_name': 'messages'}
+        return object_list_foreign_field(**args)
+    else:
+        return HttpResponseForbidden("<h1>Unauthorized</h1>")
 
 def object_list_field(request, model, field, value, paginate_by=None, page=None,
                       fv_dict={}, allow_empty=True, template_name=None, 

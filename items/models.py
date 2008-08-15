@@ -71,7 +71,7 @@ class Argument(models.Model):
         elif self.status == 5:
             return "opponents agreed to a draw"
         elif self.status == 6:
-            return "plaintiff declined challenge"
+            return ''.join([ self.plaintiff.username, " declined challenge"])
         else:
             return "invalid status"        
     
