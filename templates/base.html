@@ -15,7 +15,7 @@
     <li>Welcome <a href="/{{ user.username }}">{{ user.username }}</a>!</li> 
     <li><a href="/logout">Log out</a></li>
     {% else %}
-    <li><a href="/login?next={{ redirect }}">Log in</a> or <a href="/register?next={{ redirect }}">create an account</a></li>
+    <li><a href="/login?next={{ request.path }}">Log in</a> or <a href="/register?next={{ redirect }}">create an account</a></li>
     {% endif %}
   </ul>
   <br />
