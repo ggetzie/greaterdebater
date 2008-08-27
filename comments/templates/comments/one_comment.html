@@ -1,5 +1,5 @@
 {% if comment.is_removed %}	  
-<p><i>Comment deleted</i></p>
+<p class="commentp"><i>Comment deleted</i></p>
 {% else %}
 <span class="comment_info"> by <a href="/{{ comment.user }}">{{ comment.user }}</a> {{ comment.get_elapsed }} ago</span>
 {{ comment.comment_html|safe }}

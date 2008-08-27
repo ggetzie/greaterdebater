@@ -5,18 +5,27 @@
 {% block content %}
 <h4>Submissions</h4><br />
 {% if topics_list %}
-<ol>
+<ul>
   {% for object in topics_list %}
-  <li><p><a href={{ object.url }}>{{ object.title }}</a> <br />
-      {{ object.sub_date }} {{ object.score }} {{ object.user }}
-      <a href="/{{ object.id }}">({{ object.comment_set.count }}) comments</a>
-      {% ifequal user object.user %}
-      <a href="/edit/{{ object.id }}">Edit</a>
-      {% endifequal %}
-      </p>
+  <li><a href={{ object.url }}>{{ object.title }}</a> <br>
+      <ul id="topic_info{{ object.id }}" class="comment-action-list">
+	<li>submitted by <a href= /{{ object.user }}>{{ object.user }}</a></li>
+	<li>{{ object.get_elapsed }} ago</li>
+	<li>{% with object.comment_set.count as num %}
+	  <a href = {{ object.id }}>({{ num }}) comment{{ num|pluralize }}</a>
+	  {% endwith %}</li>
+      </ul>      
   </li>
   {% endfor %}
-</ol>
+</ul>
+
+{% if has_previous %}
+<a href="/{{ username }}/submissions/{{ previous }}">prev</a>
+{% endif %}
+
+{% if has_next %}
+<a href="/{{ username }}/submissions/{{ next }}">next</a>
+{% endif %}
 
 {% else %}
 <p>No topics are available</p>

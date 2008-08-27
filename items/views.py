@@ -1,4 +1,3 @@
-from django import oldforms as forms
 from django.contrib.auth.models import User
 from django.contrib import auth
 from django.core.exceptions import ObjectDoesNotExist
@@ -78,6 +77,22 @@ def topics(request, page=1):
                                                  "/messages/'>You have unread messages</a>"]))
     return list_detail.object_list(request=request, 
                                    queryset=Topic.objects.all(), 
+                                   paginate_by=paginate_by, 
+                                   page=page,
+                                   extra_context={'start': start,})
+
+def new_topics(request, page=1):
+    paginate_by = 25
+    if page == 'last':
+        start = paginate_by * (Topic.objects.count() / paginate_by) + 1
+    else:
+        start = paginate_by * (int(page) - 1) + 1        
+    user = request.user
+    if user.is_authenticated() and tcdMessage.objects.filter(recipient=user, is_read=False):        
+        user.message_set.create(message=''.join(["<a href='/", user.username,
+                                                 "/messages/'>You have unread messages</a>"]))
+    return list_detail.object_list(request=request, 
+                                   queryset=Topic.objects.order_by('-sub_date'), 
                                    paginate_by=paginate_by, 
                                    page=page,
                                    extra_context={'start': start,})
@@ -448,13 +463,16 @@ def profile(request, value):
                                'user_info': user_info,},
                               context_instance=RequestContext(request))
 
-def profile_args(request, value):
+def profile_args(request, value, page=1):
     user = get_object_or_404(User, username=value)
     args = user.defendant_set.all() | user.plaintiff_set.all()
-    return render_to_response("registration/profile/profile_args.html",
-                              {'username': user,
-                               'args_list': args.order_by('start_date')},
-                              context_instance=RequestContext(request))
+    return list_detail.object_list(request=request,
+                                   queryset=args,
+                                   paginate_by=3,
+                                   page=page,
+                                   template_name="registration/profile/profile_args.html",
+                                   template_object_name='args',
+                                   extra_context={'username': user})
 
 def profile_msgs(request, value):
     user = get_object_or_404(User, username=value)
@@ -540,6 +558,3 @@ def arg_detail(request, object_id):
                                'participants': participants,
                                'last_c': last_c},
                               context_instance=RequestContext(request))
-
-
-    

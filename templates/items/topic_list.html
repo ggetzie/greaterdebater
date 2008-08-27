@@ -3,16 +3,16 @@
 
 {% block content %}
 {% if object_list %}
-<ol start = {{ start }}>
+<ol start={{ start }} class="topic-list">
   {% for object in object_list %}
   <li><a href={{ object.url }}>{{ object.title }}</a> <br>
-      <div id="topic_info{{ object.id }}" class="topic_info">
-      submitted by <a href= /{{ object.user }}>{{ object.user }}</a>
-      {{ object.get_elapsed }} ago
-      {% with object.comment_set.count as num %}
-      <a href = {{ object.id }}>({{ num }}) comment{{ num|pluralize }}</a>
-      {% endwith %}
-      </div>      
+      <ul id="topic_info{{ object.id }}" class="comment-action-list">
+	<li>submitted by <a href= /{{ object.user }}>{{ object.user }}</a></li>
+	<li>{{ object.get_elapsed }} ago</li>
+	<li>{% with object.comment_set.count as num %}
+	  <a href="/{{ object.id }}">{{ num }} comment{{ num|pluralize }}</a>
+	  {% endwith %}</li>
+      </ul>      
   </li>
   {% endfor %}
 </ol>

@@ -6,4 +6,13 @@
 {% block content %}
 <h3>Arguments</h3><br />
 {% include "items/arg_list.html" %}
+
+{% if has_previous %}
+<a href="/{{ username }}/arguments/{{ previous }}">prev</a>
+{% endif %}
+
+{% if has_next %}
+<a href="/{{ username }}/arguments/{{ next }}">next</a>
+{% endif %}
+
 {% endblock %}

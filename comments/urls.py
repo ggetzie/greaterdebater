@@ -24,6 +24,6 @@ urlpatterns = patterns('',
                        ('^(?P<topic_id>\d+)/add/$', 'comments.views.add'),
                        ('^(?P<topic_id>\d+)/edit/$', 'comments.views.edit'),
                        ('^(?P<comment_id>\d+)/$', 'comments.views.comment_detail'),
-                       ('^(?P<comment_id>\d+)/delete/$', 'comments.views.delete'),
+                       ('[delete|undelete]/$', 'comments.views.delete'),
                        ('^(?P<comment_id>\d+)/arguments/$', 'comments.views.arguments'),                        
                        )

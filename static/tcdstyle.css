@@ -10,6 +10,13 @@ margin-left: 5px;
 width: 40%;
 }
 
+p.comment_topic {
+margin-top: 0px;
+margin-bottom: 0px;
+margin-left: 5px;
+font-size: small;
+}  
+
 tr.unread_msg {
 font-weight: bold
 }
@@ -36,7 +43,7 @@ padding: 0;
 }
 
 ul.comment-action-list li {
-padding-right: 5px;
+margin-right: 5px;
 display: inline;
 font-size: small;
 }
@@ -69,3 +76,7 @@ font-size: small;
 div.arg_list {
 margin-left: 10px;
 }   
+
+ol.topic-list li{
+margin-bottom: 10px;
+}

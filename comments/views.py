@@ -18,14 +18,14 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render_to_response
-from django.core.paginator import ObjectPaginator, InvalidPage
+#from django.core.paginator import ObjectPaginator, InvalidPage
 from django.template import loader, RequestContext
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib.contenttypes.models import ContentType
 from django.utils.http import urlquote_plus, urlquote
 
-from forms import CommentForm
+from forms import CommentForm, DeleteForm
 from models import Comment
 
 from tcd.items.models import Topic
@@ -78,12 +78,25 @@ def edit(request, topic_id):
                 c.save()
     return HttpResponseRedirect(redirect_to)
                                 
-def delete(request, comment_id):
-    comment = get_object_or_404(Comment, pk=comment_id)
-    redirect_to = ''.join(['/', str(comment.topic_id), '/'])
-    if comment.user == request.user:
-        comment.is_removed = True
-        comment.save()
+def delete(request):
+    redirect_to = '/'
+    if request.POST:
+        form=DeleteForm(request.POST)
+        if form.is_valid():
+            comment = get_object_or_404(Comment, pk=form.cleaned_data['comment_id'])
+            redirect_to = form.cleaned_data['referring_page']
+            if comment.user == request.user:
+                if comment.is_removed:
+                    comment.is_removed = False
+                else:
+                    comment.is_removed = True
+                comment.save()
+            else:
+                request.user.message_set.create(message="Can't delete a comment that isn't yours")
+        else:
+            request.user.message_set.create(message="Invalid Form")
+    else:
+        request.user.message_set.create(message="Not a POST request")
     return HttpResponseRedirect(redirect_to)
                                     
 def tip(request):	

@@ -15,7 +15,9 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-from django import newforms as forms
+#from django import newforms as forms
+from django import forms
+
 attrs_dict = { 'class': 'required' }
 class CommentForm(forms.Form):
     comment =  forms.CharField(widget=forms.widgets.Textarea(attrs={'class': 'required icomment',
@@ -27,3 +29,7 @@ class CommentForm(forms.Form):
     nesting = forms.IntegerField(widget=forms.widgets.HiddenInput(), required=False)
     toplevel = forms.IntegerField(widget=forms.widgets.HiddenInput(), required=False)
     
+
+class DeleteForm(forms.Form):
+    comment_id = forms.IntegerField(widget=forms.widgets.HiddenInput())
+    referring_page = forms.CharField(max_length=255, widget=forms.widgets.HiddenInput())

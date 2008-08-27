@@ -9,7 +9,9 @@ info_dict = {
 
 urlpatterns = patterns('',
                        (r'^$', 'tcd.items.views.topics'),
-                       (r'^page/(?P<page>\d+)$', 'tcd.items.views.topics'),                       
+                       (r'^page/(?P<page>\d+)/$', 'tcd.items.views.topics'),   
+                       (r'^new/$', 'tcd.items.views.new_topics'),                    
+                       (r'^new/(?P<page>\d+)/$', 'tcd.items.views.new_topics'),
                        (r'^(?P<topic_id>\d+)/$', 'tcd.items.views.comments'),
                        (r'^(?P<topic_id>\d+)/(?P<page>\d+)$', 'tcd.items.views.comments'),
                        (r'^comments/', include('tcd.comments.urls')),                       

@@ -1,10 +1,17 @@
+{% ifequal user comment.user %}
+<form action="/comments/delete/" name="delete{{ comment.id }}" method="post" accept-charset="utf-8">
+  <div><input type="hidden" name="comment_id" value={{ comment.id }}></div>
+  <div><input type="hidden" name="referring_page" value="{{ request.path }}"></div>
+</form>
+{% endifequal %}
+{% if not comment.is_removed %}
 <ul class="comment-action-list">
   <li><a href="/comments/{{ comment.id }}/arguments/">({{ comment.arguments.count }}) argument{{ comment.arguments.count|pluralize }}</a></li>
   {% if user.is_authenticated %}
   <li><a href='#' onclick="displayFormComment('reply{{ comment.id }}'); return false;">reply</a></li>
   {% ifequal user comment.user %}
   <li><a href='#' onclick="displayFormComment('edit{{ comment.id }}'); return false;">edit</a></li>
-  <li><a href='/comments/{{ comment.id }}/delete'>delete</a></li>
+  <li><a href='#' onclick="displayFormComment('confirm_delete{{ comment.id }}'); return false;">delete</a></li>
   {% else %}
   <li><a href='#' onclick="displayFormComment('argue{{ comment.id }}'); return false;">argue</a></li>
   {% endifequal %}
@@ -13,3 +20,10 @@
 {% include "comments/reply_form.html" %}
 {% include "comments/edit_form.html" %}
 {% include "comments/argue_form.html" %}
+<div id="confirm_delete{{ comment.id }}">
+  are you sure? <a href='#' onclick="document.delete{{ comment.id }}.submit(); return false;">yes</a> <a href='#' onclick="displayFormComment('confirm_delete{{ comment.id }}'); return false;">no</a>
+</div>
+<script type="text/javascript" charset="utf-8">
+  document.getElementById('confirm_delete{{ comment.id }}').style.display="none"
+</script>
+{% endif %}
