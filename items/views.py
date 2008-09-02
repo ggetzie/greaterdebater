@@ -13,9 +13,12 @@ from tcd.comments.models import *
 from tcd.items.forms import *
 from tcd.items.models import *
 from tcd.utils import *
+
 import datetime
 
 def comments(request, topic_id, page=1):
+    """The view for topic_detail.html 
+    Displays the list of comments associated with a topic."""
     paginate_by = 100
     has_previous = False
     has_next = True
@@ -25,10 +28,12 @@ def comments(request, topic_id, page=1):
     first_c = comments.filter(is_first=True)
     rest_c = build_list(comments.filter(is_first=False), 0)
     form_comment = CommentForm()
+
     if len(rest_c) % paginate_by:
         last_page = (len(rest_c) / paginate_by) + 1
     else:
         last_page = len(rest_c) / paginate_by
+
     if page == 'last':
         page = last_page
     elif page == 'first':
@@ -43,6 +48,7 @@ def comments(request, topic_id, page=1):
     end = page * paginate_by
     previous = page - 1
     next = page + 1
+
     if start > 0:
         has_previous = True
 
@@ -54,7 +60,6 @@ def comments(request, topic_id, page=1):
     return render_to_response('items/topic_detail.html', 
                               {'object': top,
                                'first_c': first_c,
-                               'rest_c': rest_c,
                                'rest_c': rest_c[start:end],
                                'redirect': ''.join(["/", str(topic_id), "/"]),
                                'has_previous': has_previous,
@@ -66,6 +71,7 @@ def comments(request, topic_id, page=1):
                               )
 
 def topics(request, page=1):
+    """Display the list of topics on the front page. Order by highest score"""
     paginate_by = 25
     if page == 'last':
         start = paginate_by * (Topic.objects.count() / paginate_by) + 1
@@ -82,15 +88,12 @@ def topics(request, page=1):
                                    extra_context={'start': start,})
 
 def new_topics(request, page=1):
+    """Display the list of topics in order from newest to oldest"""
     paginate_by = 25
     if page == 'last':
         start = paginate_by * (Topic.objects.count() / paginate_by) + 1
     else:
         start = paginate_by * (int(page) - 1) + 1        
-    user = request.user
-    if user.is_authenticated() and tcdMessage.objects.filter(recipient=user, is_read=False):        
-        user.message_set.create(message=''.join(["<a href='/", user.username,
-                                                 "/messages/'>You have unread messages</a>"]))
     return list_detail.object_list(request=request, 
                                    queryset=Topic.objects.order_by('-sub_date'), 
                                    paginate_by=paginate_by, 
@@ -98,6 +101,7 @@ def new_topics(request, page=1):
                                    extra_context={'start': start,})
 
 def register(request):
+    """Create an account for a new user"""
     if request.method == 'POST':
         data = request.POST.copy()
         form = tcdUserCreationForm(data)
@@ -118,7 +122,7 @@ def register(request):
             new_user_profile.save()
             return HttpResponseRedirect(next)
     else:
-        form = tcdUserCreationForm()
+        form = tcdUserCreationForm()        
         if 'next' in request.GET:
             next = request.GET['next']
         else:
@@ -128,6 +132,7 @@ def register(request):
                                'redirect' : next})
 
 def login(request):
+    """Log in a user"""
     message = None
     if request.method == 'POST':
         data = request.POST.copy()
@@ -140,6 +145,8 @@ def login(request):
                 user = auth.authenticate(username=user.username, password=data['password'])
                 if user is not None and user.is_active:
                     auth.login(request, user)
+                    # redirect the user to the page they were looking at
+                    # before they tried to log in
                     return HttpResponseRedirect(next)                
                 else:
                     form = tcdLoginForm()
@@ -159,6 +166,7 @@ def login(request):
                                'message': message})
 
 def submit(request):
+    """Add a new topic submitted by the user"""
     if request.user.is_authenticated():
         user = request.user.username
         if request.method == 'POST':
@@ -201,6 +209,7 @@ def submit(request):
                                   context_instance=RequestContext(request))
 
 def edit_topic(request, topic_id):
+    """Allow the submitter of a topic to edit its title or url"""
     top = get_object_or_404(Topic, pk=topic_id)
     c = Comment.objects.filter(topic=top, is_first=True)
     redirect = ''.join(['/', request.user.username, '/submissions/'])    
@@ -248,6 +257,7 @@ def edit_topic(request, topic_id):
                               context_instance=RequestContext(request))
         
 def challenge(request, c_id):
+    """Create a pending argument as one user challenges another."""
     if request.POST:
         form = CommentForm(request.POST)
         c = get_object_or_404(Comment, pk=c_id)
@@ -298,6 +308,7 @@ def challenge(request, c_id):
     return HttpResponseRedirect(redirect)
 
 def rebut(request, a_id):
+    """Add a new post to an argument."""
     if request.POST:
         form = CommentForm(request.POST)
         arg = get_object_or_404(Argument, pk=a_id)
@@ -374,6 +385,7 @@ def respond(request, response, a_id):
     return HttpResponseRedirect(redirect)
 
 def draw(request, a_id):
+    """A user offers that the argument be resolved as a draw."""
     arg = Argument.objects.get(pk=a_id)
     redirect = ''.join(['/argue/', str(arg.id), '/'])
     if arg.whos_up() == request.user and not arg.draw_set.all():
@@ -401,6 +413,7 @@ def draw(request, a_id):
     return HttpResponseRedirect(redirect)
 
 def respond_draw(request, response, a_id):
+    """Opponent responds to an offer of a draw"""
     arg = Argument.objects.get(pk=a_id)
     draw = Draw.objects.get(argument=arg)
     redirect = ''.join(["/argue/", str(arg.id), "/"])
@@ -431,6 +444,7 @@ def respond_draw(request, response, a_id):
     return HttpResponseRedirect(redirect)
 
 def concede(request, a_id):
+    """User concedes an argument, opponent wins"""
     arg = Argument.objects.get(pk=a_id)
     redirect = ''.join(["/argue/", str(arg.id), "/"])
     if request.user in (arg.defendant, arg.plaintiff):
@@ -456,6 +470,9 @@ def concede(request, a_id):
     return HttpResponseRedirect(redirect)
 
 def profile(request, value):
+    """Display a users profile"""
+    
+    # The user whose profile we wish to display (not necessarily the user viewing it)
     user = get_object_or_404(User, username=value)
     user_info = get_object_or_404(Profile, user=user)
     return render_to_response("registration/profile/profile_home.html",
@@ -464,6 +481,8 @@ def profile(request, value):
                               context_instance=RequestContext(request))
 
 def profile_args(request, value, page=1):
+    """Display a list of all arguments a user has been involved in."""
+    
     user = get_object_or_404(User, username=value)
     args = user.defendant_set.all() | user.plaintiff_set.all()
     return list_detail.object_list(request=request,
@@ -475,6 +494,9 @@ def profile_args(request, value, page=1):
                                    extra_context={'username': user})
 
 def profile_msgs(request, value):
+    """ Display a list of all the users messages. Only display if the user
+    trying to view them is the user they belong to."""
+    
     user = get_object_or_404(User, username=value)
     if request.user == user:
         args = {'request': request,

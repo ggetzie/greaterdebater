@@ -12,8 +12,11 @@
 	<li>submitted by <a href= /{{ object.user }}>{{ object.user }}</a></li>
 	<li>{{ object.get_elapsed }} ago</li>
 	<li>{% with object.comment_set.count as num %}
-	  <a href = {{ object.id }}>({{ num }}) comment{{ num|pluralize }}</a>
+	  <a href = "/{{ object.id }}">({{ num }}) comment{{ num|pluralize }}</a>
 	  {% endwith %}</li>
+	{% ifequal request.user object.user %}
+	<li><a href="/edit/{{ object.id }}/">Edit</a></li>
+	{% endifequal %}
       </ul>      
   </li>
   {% endfor %}
