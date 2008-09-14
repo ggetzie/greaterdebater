@@ -78,9 +78,11 @@ def topics(request, page=1):
     else:
         start = paginate_by * (int(page) - 1) + 1        
     user = request.user
+    
     if user.is_authenticated() and tcdMessage.objects.filter(recipient=user, is_read=False):        
         user.message_set.create(message=''.join(["<a href='/", user.username,
                                                  "/messages/'>You have unread messages</a>"]))
+    
     return list_detail.object_list(request=request, 
                                    queryset=Topic.objects.all(), 
                                    paginate_by=paginate_by, 
@@ -303,7 +305,7 @@ def challenge(request, c_id):
                                                                       arg.defendant.username, 
                                                                       " to an argument"]))
     else:
-        request.user.message_set.create(message="wtf not a POST")
+        request.user.message_set.create(message="Not a POST")
         redirect = '/'
     return HttpResponseRedirect(redirect)
 
@@ -340,7 +342,7 @@ def rebut(request, a_id):
         else:
             request.user.message_set.create(message="Invalid form")
     else:
-        request.user.message_set.create(message="wtf not a POST")
+        request.user.message_set.create(message="Not a POST")
         redirect = '/'
     return HttpResponseRedirect(redirect)
 
@@ -569,14 +571,9 @@ def arg_detail(request, object_id):
         new_arg = True
     else:
         new_arg = False
-    if request.user in [arg.defendant, arg.plaintiff]:
-        participants = True
-    else:
-        participants = False
     last_c = arg.comment_set.order_by('-pub_date')[0]
     return render_to_response("items/arg_detail.html",
                               {'object': arg,
                                'new_arg': new_arg,
-                               'participants': participants,
-                               'last_c': last_c},
+                                'last_c': last_c},
                               context_instance=RequestContext(request))

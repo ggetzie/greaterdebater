@@ -68,6 +68,10 @@ div.comment_div {
 margin-bottom: 10px;
 }
 
+/* div.comment_action { */
+/* display: none; */
+/* }    */
+
 div.topic_info {
 margin-bottom: 10px;
 font-size: small;

@@ -1,18 +1,16 @@
-function comment_action(div_id, action) {
-    div = document.getElementById(div_id)
-    if (action == "edit") {
-	div.innerHTML = "{% include \"comment/edit_form.html\"%}" }
-    else {
-	div.innerHTML = ""}
-}
+$(document).ready(function() {
+
+    $("div[@class=comment_action]").hide()
+
+});
 
 function displayFormComment(form_id) {
-    c=document.getElementById(form_id)
-    if (c.style.display == "none") {
-	c.style.display="block"
-    } else {
-	c.style.display = "none"
-    }
+
+    $(form_id).parents("div.action_block").find("div.comment_action").
+    not(form_id).each(function() {
+	$(this).hide();
+    });
+
+    $(form_id).slideToggle();
 }		
 
-	

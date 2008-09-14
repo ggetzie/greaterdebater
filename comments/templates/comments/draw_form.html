@@ -1,4 +1,4 @@
-<div id="draw{{ object.id }}">
+<div id="draw{{ object.id }}" class="comment_action">
   <form action="/argue/draw/{{ object.id }}/" method="post" accept-charset="utf-8">
     <div class="form-row">
       <label for="id_comment">Posting as {{ user }}</label>
@@ -9,8 +9,5 @@
       <div><input type="submit" value= "Offer Draw"></div>
     </div>
   </form>
-  <script type="text/javascript" charset="utf-8">
-    document.getElementById('draw{{ object.id }}').style.display="none"
-  </script>
 </div>
 

@@ -1,4 +1,5 @@
-<div id="argue{{ comment.id }}">
+{% ifnotequal user comment.user %}
+<div id="argue{{ comment.id }}" class="comment_action">
   <form action="/argue/challenge/{{ comment.id }}/" method="post" accept-charset="utf-8">
     <div class="form-row">
       <label for="id_comment">Posting as {{ user }}</label>
@@ -9,8 +10,5 @@
       <div><input type="submit" value= "Argue"></div>
     </div>
   </form>
-  <script type="text/javascript" charset="utf-8">
-    document.getElementById('argue{{ comment.id }}').style.display="none"
-  </script>
 </div>
-
+{% endifnotequal %}

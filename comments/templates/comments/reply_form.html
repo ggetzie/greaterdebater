@@ -1,4 +1,4 @@
-<div id="reply{{ comment.id }}">
+<div id="reply{{ comment.id }}" class="comment_action">
   <form action="/comments/{{ comment.topic_id }}/add/" method="post" accept-charset="utf-8">
     <div class="form-row">
       <label for="id_comment">Posting as {{ user }}</label>
@@ -9,8 +9,5 @@
       <div><input type="submit" value= "Reply"></div>
     </div>
   </form>
-  <script type="text/javascript" charset="utf-8">
-    document.getElementById('reply{{ comment.id }}').style.display="none"
-  </script>
 </div>
 

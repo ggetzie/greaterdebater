@@ -1,4 +1,4 @@
-<div id="rebut{{ object.id }}">
+<div id="rebut{{ object.id }}" class="comment_action">
   <form action="/argue/rebut/{{ object.id }}/" method="post" accept-charset="utf-8">
     <div class="form-row">
       <label for="id_comment">Posting as {{ user }}</label>
@@ -9,8 +9,5 @@
       <div><input type="submit" value= "Rebut"></div>
     </div>
   </form>
-  <script type="text/javascript" charset="utf-8">
-    document.getElementById('rebut{{ object.id }}').style.display="none"
-  </script>
 </div>
 
