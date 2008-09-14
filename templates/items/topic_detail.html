@@ -12,10 +12,13 @@
   {% if user.is_authenticated %}
   {% ifequal user object.user %}
   {% else %}
-  <li><a href='#' onclick="displayFormComment('argue{{ comment.id }}'); return false;">argue</a></li>  
-  {% include "comments/argue_form.html" %}
-{% endifequal %}
+  <li><a href='#' onclick="displayFormComment('#argue{{ comment.id }}'); return false;">argue</a></li>  
 </ul>
+<div class="action_block">
+  {% include "comments/argue_form.html" %}
+</div>
+{% endifequal %}
+
 {% else %}
 </ul>
 {% endif %}

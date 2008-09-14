@@ -33,15 +33,19 @@
   </ul>
   {% else %}
   <ul class="flat-list">
+
     <li>
       <a href='#' onclick="displayFormComment('#rebut{{ object.id }}'); return false;">Rebut</a>
     </li>
+
     <li>
       <a href='#' onclick="displayFormComment('#draw{{ object.id }}'); return false;">Offer a draw</a>
     </li>
+
     <li>
       <a href='#' onclick="displayFormComment('#concede{{ object.id }}'); return false;">Concede</a>
     </li>
+
   </ul><br />
   <div class="action_block">
     {% include "comments/rebut_form.html" %}
