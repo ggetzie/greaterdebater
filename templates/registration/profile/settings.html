@@ -1,0 +1,7 @@
+{% extends "registration/profile/profile_base.html" %}
+
+{% block title %}User Settings{% endblock %}
+
+{% block content %}
+<a href="/{{ request.user }}/reset/">Reset Password</a>
+{% endblock %}
