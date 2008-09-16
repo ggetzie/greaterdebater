@@ -5,6 +5,7 @@
 <span class="sub_header">
   <ul class="flat-list">
     {% ifequal user username %}    
+    <li><a href="/{{ username }}/settings">Settings</a></li>
     <li><a href="/{{ username }}/messages">Messages</a></li>
     {% endifequal %}
     <li><a href="/{{ username }}/arguments">Arguments</a></li>

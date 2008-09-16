@@ -39,4 +39,6 @@ urlpatterns = patterns('',
                         submissions_dict),
                        (r'^messages/$', 'tcd.items.views.profile_msgs'), 
                        (r'^messages/(?P<object_id>[\d]+)$', 'tcd.items.views.message_detail'),
+                       (r'^settings/$', 'tcd.items.views.profile_stgs'), 
+                       (r'^reset/$', 'tcd.items.views.reset_password'), 
 )

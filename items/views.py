@@ -54,7 +54,7 @@ def comments(request, topic_id, page=1):
 
     try:
         rest_c[end]
-    except:
+    except IndexError:
         has_next = False
 
     return render_to_response('items/topic_detail.html', 
@@ -514,6 +514,64 @@ def profile_msgs(request, value):
     else:
         return HttpResponseForbidden("<h1>Unauthorized</h1>")
 
+def message_detail(request, value, object_id):
+    message = tcdMessage.objects.get(comment_ptr=object_id)
+    user = User.objects.get(username=value)
+    if not message.is_read:
+        message.is_read = True
+        message.save()
+    return render_to_response("registration/profile/message_detail.html",
+                              {'comment': message,
+                               'username': user},
+                              context_instance=RequestContext(request))
+
+def profile_stgs(request, value):
+    """ Display the users current settings and allow them to be modified """
+    
+    user = get_object_or_404(User, username=value)
+    if request.user == user:
+        return render_to_response("registration/profile/settings.html",
+                                  {'username': user},
+                                  context_instance=RequestContext(request))
+    else:
+        return HttpResponseForbidden("<h1>Unauthorized</h1>")
+
+def reset_password(request, value):
+    """ Reset a user's password """
+    user = get_object_or_404(User, username=value)
+    redirect_to = ''.join(['/', user.username, '/settings/'])
+    if user == request.user:
+        if request.POST:
+            data = request.POST.copy()
+            form = tcdPasswordResetForm(data)
+            if form.is_valid():
+                user.set_password(form.cleaned_data['new_password1'])
+                user.save()
+                user.message_set.create(message="Password Changed!")
+                return HttpResponseRedirect(redirect_to)
+        else:
+            form = tcdPasswordResetForm()
+        return render_to_response("registration/profile/reset.html",
+                                  {'form': form,
+                                   'username': user},
+                                  context_instance=RequestContext(request))
+    else:
+        return HttpResponseForbidden("<h1>Unauthorized</h1>")
+
+def arg_detail(request, object_id):
+    arg = Argument.objects.get(pk=object_id)
+    turn = False
+    if request.user == arg.defendant and arg.status == 0:
+        new_arg = True
+    else:
+        new_arg = False
+    last_c = arg.comment_set.order_by('-pub_date')[0]
+    return render_to_response("items/arg_detail.html",
+                              {'object': arg,
+                               'new_arg': new_arg,
+                                'last_c': last_c},
+                              context_instance=RequestContext(request))
+
 def object_list_field(request, model, field, value, paginate_by=None, page=None,
                       fv_dict={}, allow_empty=True, template_name=None, 
                       template_loader=loader, extra_context=None, context_processors=None,
@@ -553,27 +611,3 @@ def object_list_foreign_field(request, model, field, value, foreign_model,
                                    template_object_name=template_object_name,
                                    mimetype=mimetype)
 
-def message_detail(request, value, object_id):
-    message = tcdMessage.objects.get(comment_ptr=object_id)
-    user = User.objects.get(username=value)
-    if not message.is_read:
-        message.is_read = True
-        message.save()
-    return render_to_response("registration/profile/message_detail.html",
-                              {'comment': message,
-                               'username': user},
-                              context_instance=RequestContext(request))
-
-def arg_detail(request, object_id):
-    arg = Argument.objects.get(pk=object_id)
-    turn = False
-    if request.user == arg.defendant and arg.status == 0:
-        new_arg = True
-    else:
-        new_arg = False
-    last_c = arg.comment_set.order_by('-pub_date')[0]
-    return render_to_response("items/arg_detail.html",
-                              {'object': arg,
-                               'new_arg': new_arg,
-                                'last_c': last_c},
-                              context_instance=RequestContext(request))

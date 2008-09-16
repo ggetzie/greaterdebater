@@ -2,6 +2,8 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib import auth
+from django.shortcuts import get_object_or_404
+
 attrs_dict = {'class': 'required'}
 
 class tcdUserCreationForm(forms.Form):
@@ -33,6 +35,32 @@ class tcdUserCreationForm(forms.Form):
             raise forms.ValidationError("Password fields must match")
         return self.cleaned_data
 
+class tcdPasswordResetForm(forms.Form):
+    old_password = forms.CharField(min_length=8,
+                                   widget=forms.widgets.PasswordInput(),
+                                   label="Old Password:")
+    new_password1 = forms.CharField(min_length=8,
+                                    widget=forms.widgets.PasswordInput(),
+                                    label="New Password:")
+    new_password2 = forms.CharField(min_length=8,
+                                    widget=forms.widgets.PasswordInput(),
+                                    label="New Password (again):")
+    username = forms.CharField(widget=forms.widgets.HiddenInput())
+
+    def clean_old_password(self):
+        user = get_object_or_404(User, username=self.data.get('username', ''))
+        if user.check_password(self.data['old_password']):
+            return self.cleaned_data
+        else:
+            raise forms.ValidationError("The old password you entered is not correct")
+
+    def clean(self):
+        pass1 = self.cleaned_data.get('new_password1', '')
+        pass2 = self.cleaned_data.get('new_password2', '')
+        if not pass1 == pass2:
+            raise forms.ValidationError("New password fields must match.")
+        return self.cleaned_data
+
 class tcdLoginForm(forms.Form):
     email = forms.EmailField(label="Email")
     password = forms.CharField(widget=forms.widgets.PasswordInput(),
@@ -50,6 +78,6 @@ class tcdTopicSubmitForm(forms.Form):
     def clean_url(self):
         url = self.cleaned_data.get('url', '')
         if url and not url.startswith(('http://', 'https://')):
-            return 'http://' + url
+            return ''.join(['http://', url])
         else:
             return url
