@@ -16,7 +16,7 @@
       <td>
 	{{ msg.user }}</td>
       <td>
-	<a href="/{{ user.username }}/messages/{{ msg.comment_ptr_id }}">{{ msg.subject }}</a></td>
+	<a href="/users/{{ user.username }}/messages/{{ msg.comment_ptr_id }}">{{ msg.subject }}</a></td>
       <td>
 	{% ifequal msg.pub_date.date msg.pub_date.today.date %}
 	{{ msg.pub_date.time }} Today

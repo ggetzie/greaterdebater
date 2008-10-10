@@ -9,14 +9,12 @@
 <p>{{ message }}</p>
 {% endif %}
 
-<form action='/login/' method='post'>
+<form action='/users/login/' method='post'>
   <table>
     {{ form }}
     <tr>
-      <td></td>
-      <td></td>
-      <td><input type="submit" value="Login" /></td>
-      <td><input type="hidden" name="next" value={{ redirect|escape }} /></td></tr>
+      <td><input type="hidden" name="next" value={{ redirect|escape }} /></td>
+      <td><input type="submit" value="Login" /></td></tr>
   </table>
 </form>
 {% endblock %}

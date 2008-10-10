@@ -1,4 +1,5 @@
-from tcd.comments.models import *
+from tcd.comments.models import Comment
+import random
 
 def build_list(comments, p_id):
     """Takes a query set of comments and a parent id and
@@ -17,3 +18,7 @@ def build_list(comments, p_id):
     return comment_list
 
 
+def random_string(length):
+    """Returns an alphanumeric string of random characters with the given length"""
+    alphanumeric = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    return ''.join([random.choice(alphanumeric) for x in range(length)])

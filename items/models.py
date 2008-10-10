@@ -91,16 +91,6 @@ class Argument(models.Model):
         else:
             return None
 
-class Profile(models.Model):
-    user = models.ForeignKey(User, unique=True)
-    score = models.IntegerField()
-    
-    class Admin:
-        pass
-
-    def __unicode__(self):
-        return self.user.username
-
 def elapsed_time(dtime):
     delta = datetime.datetime.now() - dtime
     if delta.days > 0:

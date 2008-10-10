@@ -7,7 +7,7 @@
   {% for object in object_list %}
   <li><a href={{ object.url }}>{{ object.title }}</a> <br>
       <ul id="topic_info{{ object.id }}" class="comment-action-list">
-	<li>submitted by <a href= /{{ object.user }}>{{ object.user }}</a></li>
+	<li>submitted by <a href="/users/{{ object.user }}/profile/">{{ object.user }}</a></li>
 	<li>{{ object.get_elapsed }} ago</li>
 	<li>{% with object.comment_set.count as num %}
 	  <a href="/{{ object.id }}">{{ num }} comment{{ num|pluralize }}</a>
