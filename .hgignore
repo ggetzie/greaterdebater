@@ -1,6 +1,5 @@
 syntax: glob
 settings.*
-urls.*
 *.pyc
 */*.pyc
 *.orig
