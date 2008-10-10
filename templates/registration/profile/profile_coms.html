@@ -19,11 +19,11 @@ on <a href="/{{ comment.topic_id }}/">{{ comment.topic.title }}</a>
 {% endfor %}
 
 {% if has_previous %}
-<a href="/{{ username }}/comments/{{ previous }}">prev</a>
+<a href="/users/{{ username }}/comments/{{ previous }}">prev</a>
 {% endif %}
 
 {% if has_next %}
-<a href="/{{ username }}/comments/{{ next }}">next</a>
+<a href="/users/{{ username }}/comments/{{ next }}">next</a>
 {% endif %}
 
 {% endblock %}

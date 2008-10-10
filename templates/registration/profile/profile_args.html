@@ -8,11 +8,11 @@
 {% include "items/arg_list.html" %}
 
 {% if has_previous %}
-<a href="/{{ username }}/arguments/{{ previous }}">prev</a>
+<a href="/users/{{ username }}/arguments/{{ previous }}">prev</a>
 {% endif %}
 
 {% if has_next %}
-<a href="/{{ username }}/arguments/{{ next }}">next</a>
+<a href="/users/{{ username }}/arguments/{{ next }}">next</a>
 {% endif %}
 
 {% endblock %}
