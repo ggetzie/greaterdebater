@@ -12,7 +12,7 @@
     <li><a href="/submit">Submit</a></li>
     <li><a href="/argue">Arguments</a></li>
     {% if user.is_authenticated %}
-    <li>Welcome <a href="/users/{{ user.username }}/profile/">{{ user.username }}</a>!</li> 
+    <li>Welcome <a href="/users/u/{{ user.username }}/profile/">{{ user.username }}</a>!</li> 
     <li><a href="/users/logout">Log out</a></li>
     {% else %}
     <li><a href="/users/login?next={{ request.path }}">Log in</a> or <a href="/users/register?next={{ redirect }}">create an account</a></li>

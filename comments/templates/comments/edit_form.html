@@ -11,6 +11,6 @@
 </div>
 
 <div id="confirm_delete{{ comment.id }}" class="comment_action">
-  are you sure? <a href='#' onclick="document.delete{{ comment.id }}.submit(); return false;">yes</a> <a href='#' onclick="displayFormComment('confirm_delete{{ comment.id }}'); return false;">no</a>
+  are you sure? <a href='#' onclick="document.delete{{ comment.id }}.submit(); return false;">yes</a> <a href='#' onclick="displayFormComment('#confirm_delete{{ comment.id }}'); return false;">no</a>
 </div>
 {% endifequal %}

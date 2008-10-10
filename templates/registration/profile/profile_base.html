@@ -5,12 +5,12 @@
 <span class="sub_header">
   <ul class="flat-list">
     {% ifequal user username %}    
-    <li><a href="/users/{{ username }}/settings">Settings</a></li>
-    <li><a href="/users/{{ username }}/messages">Messages</a></li>
+    <li><a href="/users/u/{{ username }}/settings">Settings</a></li>
+    <li><a href="/users/u/{{ username }}/messages">Messages</a></li>
     {% endifequal %}
-    <li><a href="/users/{{ username }}/arguments">Arguments</a></li>
-    <li><a href="/users/{{ username }}/submissions">Submissions</a></li>
-    <li><a href="/users/{{ username }}/comments">Comments</a></li>
+    <li><a href="/users/u/{{ username }}/arguments">Arguments</a></li>
+    <li><a href="/users/u/{{ username }}/submissions">Submissions</a></li>
+    <li><a href="/users/u/{{ username }}/comments">Comments</a></li>
   </ul>
 </span>
 <h3>{{ username }}'s profile </h3>

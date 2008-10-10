@@ -1,7 +1,7 @@
 {% if comment.is_removed %}	  
 <p class="commentp"><i>Comment deleted</i></p>
 {% else %}
-<span class="comment_info"> by <a href="/users/{{ comment.user }}/profile/">{{ comment.user }}</a> {{ comment.get_elapsed }} ago</span>
+<span class="comment_info"> by <a href="/users/u/{{ comment.user }}/profile/">{{ comment.user }}</a> {{ comment.get_elapsed }} ago</span>
 {{ comment.comment_html|safe }}
 {% endif %}
 

@@ -3,7 +3,7 @@
 
 {% block content %}
 <strong><a href={{ object.url }}>{{ object.title }}</a></strong><br />
-<span class="comment_info">submitted by <a href="/users/{{ object.user }}/profile/">{{ object.user }}</a> {{ object.get_elapsed }} ago<br /></span>
+<span class="comment_info">submitted by <a href="/users/u/{{ object.user }}/profile/">{{ object.user }}</a> {{ object.get_elapsed }} ago<br /></span>
 
 {% if first_c %}
 {% for comment in first_c %}
