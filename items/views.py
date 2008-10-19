@@ -10,8 +10,9 @@ from django.views.generic import list_detail
 
 from tcd.comments.forms import CommentForm
 from tcd.comments.models import Comment, tcdMessage, Draw
-from tcd.items.forms import tcdLoginForm, tcdTopicSubmitForm
+from tcd.items.forms import tcdTopicSubmitForm
 from tcd.items.models import Topic, Argument
+from tcd.profiles.forms import tcdLoginForm
 from tcd.profiles.models import Profile
 from tcd.utils import build_list
 
@@ -152,7 +153,7 @@ def edit_topic(request, topic_id):
     """Allow the submitter of a topic to edit its title or url"""
     top = get_object_or_404(Topic, pk=topic_id)
     c = Comment.objects.filter(topic=top, is_first=True)
-    redirect = ''.join(['/', request.user.username, '/submissions/'])    
+    redirect = ''.join(['/users/u/', request.user.username, '/submissions/'])    
     if request.user == top.user and request.method == 'POST':
         data = request.POST.copy()
         form = tcdTopicSubmitForm(data)

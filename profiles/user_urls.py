@@ -42,4 +42,5 @@ urlpatterns = patterns('',
                         (r'^messages/(?P<object_id>[\d]+)$', 'tcd.profiles.views.message_detail'),
                         (r'^settings/$', 'tcd.profiles.views.profile_stgs'), 
                         (r'^reset/$', 'tcd.profiles.views.reset_password'), 
+                        (r'^reset/(?P<code>[A-Za-z0-9]{32})$', 'tcd.profiles.views.reset_password'), 
 )

@@ -11,6 +11,7 @@ urlpatterns = patterns('',
                        (r'^login/', 'tcd.profiles.views.login'),
                        (r'^logout/', logout, {'next_page': "/"}),                       
                        (r'^register/$', 'tcd.profiles.views.register'),
+                       (r'^forgot/$', 'tcd.profiles.views.forgot_password'),
                        (r'^u/(?P<value>[A-Za-z\d]+)/', include('tcd.profiles.user_urls')),
                        )
 

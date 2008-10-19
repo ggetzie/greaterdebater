@@ -50,7 +50,7 @@ def add(request, topic_id):
         if form.is_valid():
             if not request.user.is_authenticated():
                 request.user.message_set.create(message="Log in to post a comment")
-                redirect_to = ''.join(['/login?next=', str(topic_id)])
+                redirect_to = ''.join(['/login?next=/', str(topic_id)])
             else:		    
                 top = get_object_or_404(Topic, pk=topic_id)
                 redirect_to = ''.join(['/', str(top.id), '/'])

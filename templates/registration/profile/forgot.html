@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Forgot Password{% endblock%}
+
+{% block content %}
+
+{% if message %}
+<p>{{ message }}</p>
+{% endif %}
+
+<form action='.' method='post'>
+  <table>
+    {{ form }}
+    <tr>
+      <td><input type="submit" value="Submit" /></td></tr>
+  </table>
+</form>
+{% endblock %}

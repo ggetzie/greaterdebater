@@ -1,18 +1,21 @@
 from django.contrib import auth
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import send_mail
 from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import loader, RequestContext
 from django.views.generic import list_detail
 
 from tcd.comments.models import Comment, tcdMessage
-from tcd.items.forms import tcdUserCreationForm, tcdPasswordResetForm, tcdLoginForm
 from tcd.items.models import Topic, Argument
 from tcd.items.views import object_list_field, object_list_foreign_field
-from tcd.profiles.models import Profile
+from tcd.profiles.forms import tcdUserCreationForm, tcdPasswordResetForm, tcdLoginForm, forgotForm
+from tcd.profiles.models import Profile, Forgotten
 from tcd.utils import random_string
 
 import datetime
+import MySQLdb
 
 def register(request):
     """Create an account for a new user"""
@@ -56,15 +59,21 @@ def login(request):
             email = form.cleaned_data['email']
             try:
                 user = User.objects.get(email=email)
-                user = auth.authenticate(username=user.username, password=data['password'])
-                if user is not None and user.is_active:
-                    auth.login(request, user)
-                    # redirect the user to the page they were looking at
-                    # before they tried to log in
-                    return HttpResponseRedirect(next)                
-                else:
-                    form = tcdLoginForm()
-                    message = "Sorry, that's not a valid username or password"
+                try:
+                    # check whether an active request for this user to reset his password exists
+                    temp = Forgotten.objects.get(user=user)
+                    message = """A forgotten password request has been submitted for this
+account. Please check your email and follow the link provided to reset your password"""
+                except ObjectDoesNotExist:
+                    user = auth.authenticate(username=user.username, password=data['password'])
+                    if user is not None and user.is_active:
+                        auth.login(request, user)
+                        # redirect the user to the page they were looking at
+                        # before they tried to log in
+                        return HttpResponseRedirect(next)                
+                    else:
+                        form = tcdLoginForm()
+                        message = "Sorry, that's not a valid username or password"
             except ObjectDoesNotExist:
                 form = tcdLoginForm()
                 message = "Sorry, that's not a valid username or password"
@@ -143,24 +152,75 @@ def profile_stgs(request, value):
     else:
         return HttpResponseForbidden("<h1>Unauthorized</h1>")
 
-def reset_password(request, value):
+def reset_password(request, value, code=None):
     """ Reset a user's password """
     user = get_object_or_404(User, username=value)
-    redirect_to = ''.join(['/', user.username, '/settings/'])
-    if user == request.user:
-        if request.POST:
+    redirect_to = ''.join(['/users/u/', user.username, '/settings/'])
+    temp = None    
+    if request.POST:
             data = request.POST.copy()
             form = tcdPasswordResetForm(data)
             if form.is_valid():
-                user.set_password(form.cleaned_data['new_password1'])
-                user.save()
-                user.message_set.create(message="Password Changed!")
-                return HttpResponseRedirect(redirect_to)
-        else:
-            form = tcdPasswordResetForm()
-        return render_to_response("registration/profile/reset.html",
-                                  {'form': form,
-                                   'username': user},
-                                  context_instance=RequestContext(request))
+                code = form.cleaned_data.get('code', '')
+                if code and len(code) == 32:
+                    temp = get_object_or_404(Forgotten, code=code)
+                if user == request.user or temp:
+                    user.set_password(form.cleaned_data['new_password1'])
+                    user.save()
+                    user.message_set.create(message="Password Changed!")                    
+                    if temp:
+                        user = auth.authenticate(username=user.username, password=form.cleaned_data['new_password1'])
+                        if user is not None and user.is_active:
+                            auth.login(request, user)
+                        temp.delete()
+                    return HttpResponseRedirect(redirect_to)
     else:
-        return HttpResponseForbidden("<h1>Unauthorized</h1>")
+        if code and len(code) == 32:
+            temp = get_object_or_404(Forgotten, code=code)
+        if user == request.user or temp:
+            form = tcdPasswordResetForm()
+        else:
+            return HttpResponseForbidden("<h1>Unauthorized</h1>")
+    return render_to_response("registration/profile/reset.html",
+                              {'form': form,
+                               'username': user,
+                               'code': code},
+                              context_instance=RequestContext(request))
+
+def forgot_password(request):
+    if request.POST:
+        data = request.POST.copy()
+        form = forgotForm(data)
+        if form.is_valid():
+            # store the user and a randomly generated code in the database
+            user = User.objects.get(email=form.cleaned_data['email'])
+            code = save_forgotten(user)
+            message = ''.join(["To reset your password, visit the address below:\nhttp://kotsf.com/users/u/",
+                               user.username, "/reset/", code])
+            send_mail('Reset your password at kotsf.com', message, 'admin@kotsf.com', [user.email], 
+                      fail_silently=False)
+            return render_to_response("registration/profile/forgot.html",
+                                      {'form': form,
+                                       'message': "An email with instructions for resetting your password has been sent to the address you provided."},
+                                      context_instance=RequestContext(request))
+
+    else:
+        form = forgotForm()
+    return render_to_response("registration/profile/forgot.html",
+                              {'form': form},
+                              context_instance=RequestContext(request))
+
+def save_forgotten(user):
+    """When saving a temporary entry to the forgotten password table, there is a 
+_very_ small chance that we will randomly generate a code that is already in the
+table. To deal with that we catch an integrity error from the database, and try to 
+resubmit with a new randomly generated code."""
+    try:
+        code = random_string(32)
+        temp = Forgotten(user=user, code=code)
+        temp.save()
+        # return the randomly generated code so it can be sent in an email
+        # to the user
+        return code
+    except MySQLdb.IntegrityError:
+        save_forgotten(user)
