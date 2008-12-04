@@ -13,7 +13,6 @@ class tcdTopicSubmitForm(forms.Form):
                               widget=forms.widgets.Textarea(attrs={'class': 'required icomment',
                                                                    'rows': 5,
                                                                    'cols': 50}))
-    referring_page = forms.CharField(max_length=255, widget=forms.widgets.HiddenInput(), required=False)    
 
     def clean_url(self):
         url = self.cleaned_data.get('url', '')
