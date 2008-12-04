@@ -87,18 +87,21 @@
 	<p>
 	  The first step is to setup a public and private key for
 	  yourself so that you can access the server via ssh without
-	  logging in. This will make it much easier to push and pull
-	  changes from the source code repository on the server.
-	  
+	  entering your password. This will make it much easier to
+	  push and pull changes from the source code repository on the
+	  server.
+	</p>
+
+	<p>	  
 	  Open a terminal and type:
 	</p>
 		
 	<pre class="command">ssh -p 19999 matt@kotsf.dynip.com</pre>
 
 	<p>
-	  Enter your password when prompted. You're now logged the
-	  server.  Commands entered in this terminal window will be
-	  executed on the server instead of on your laptop.  The
+	  Enter your password when prompted. You're now logged in to
+	  the server.  Commands entered in this terminal window will
+	  be executed on the server instead of on your laptop.  The
 	  command prompt should change to show something like this:
 	</p>	  
 	<pre class="command">matt@zoidberg:~$</pre>
@@ -110,7 +113,8 @@
 	<pre class="command">matt@matt-laptop:~$</pre>
 	<p>
 	  (Assuming "matt-laptop"
-	  is what your computer is named)
+	  is what your computer is named)<br />
+	  Very importantly:
 	</p>
 	<p id="important">
 	  Take care to enter commands into the correct terminal.
@@ -139,7 +143,7 @@ cd ~/.ssh</pre>
 	  anyone. The other file <b>id_rsa.pub</b> is your public
 	  key. You'll put a copy of this on the server. When
 	  connecting to the the server from your laptop the server
-	  will compare you public and private keys and verify that
+	  will compare your public and private keys and verify that
 	  you're actually you without needing you to enter your login
 	  and password. 
 	</p>
@@ -157,8 +161,8 @@ cd ~/.ssh</pre>
 	  files back and forth. Take note that the argument <b>-P</b>
 	  specifying the port to use to connect to the server is a
 	  CAPITAL "P". I'm not sure why this is different
-	  than <b>ssh</b>, but it's the kind of thing that can produce
-	  bizarre errors.
+	  than <b>ssh</b>, but it's the kind of thing that can trip
+	  you up.
 	</p>
 
 	<p>
@@ -247,7 +251,7 @@ mkdir python</pre>
 sudo ln -s /home/matt/python/</pre>
 
 	<p>
-	  We'll use this method in the next step to set up django.
+	  You'll use this method in the next step when setting up Django.
 	</p>  
       </li>
 
@@ -279,11 +283,11 @@ sudo ln -s /home/matt/python/</pre>
 	</p>
 
 	<p>
-	  The django project has some excellent documentation. I
+	  The Django project has some excellent documentation. I
 	  highly recommend checking out the tutorial
 	  starting <a href="http://docs.djangoproject.com/en/dev/intro/tutorial01/#intro-tutorial01">here</a>. This
 	  will walk you through setting up and programming a simple
-	  django app. It should help the rest of these instructions
+	  Django app. It should help the rest of these instructions
 	  make more sense, though I'll do my best to keep them as
 	  simple as possible.
 	</p>
@@ -293,8 +297,8 @@ sudo ln -s /home/matt/python/</pre>
 	<h3>Setup the tcd database in MySQL</h3>
 	
 	<p>
-	  This code depends on having a MySql database set up with a
-	  certain name, as well as a mysql user defined with the
+	  This program depends on having a MySql database set up with a
+	  certain name, as well as a MySql user defined with the
 	  correct login name and password. MySql should be installed
 	  on your system and set up to run the database server program
 	  automatically when the computer starts. To access the
@@ -308,18 +312,23 @@ sudo ln -s /home/matt/python/</pre>
 	<pre class="command">mysql -u root -p</pre>
 
 	<p>
-	  This starts the mysql client program and tells it you wish
+	  This starts the MySql client program and tells it you wish
 	  to login as the root user and to be prompted for a
 	  password. Enter your password at the prompt. If all goes
-	  well you'll find yourself at a mysql prompt. Enter the
-	  command below to create a new database.
+	  well you'll find yourself at a MySql prompt, which looks like this:
+	</p>
+	
+	<pre class="command">mysql> </pre>
+	
+	<p>
+	  Enter the command below to create a new database.
 	</p>
 
 	<pre class="command">CREATE DATABASE tcd;</pre>
 	
 	<p>
-	  Now we need a user named "tcd". Our django app will login to
-	  the mysql server as this user to shuffle data back and forth
+	  Now we need a user named "tcd". Our Django app will login to
+	  the MySql server as this user to shuffle data back and forth
 	  from the database. Create that user with the command below.
 	</p>
 	
@@ -328,9 +337,11 @@ sudo ln -s /home/matt/python/</pre>
 	<p>
 	  The clause "IDENTIFIED BY..." defines the password for this
 	  user. This needs to be the same password stored in
-	  the <b>settings.py</b> file for our django app, which we'll
-	  get to in a little bit.
+	  the <b>settings.py</b> file for our Django app, which gets
+	  set up in step 8. Once this is done, you can leave the MySql
+	  client program by typing "exit" at the command prompt.
 	</p>
+
       </li>
 
       <li>
@@ -345,9 +356,9 @@ sudo ln -s /home/matt/python/</pre>
 	
 	<p>
 	  Once this program is installed you'll need to change a
-	  couple of settings for it to work best. The global settings
-	  for mercurial are located in a file
-	  called <b>/etc/mercurial/hgrc</b>. Open this file with emacs:
+	  couple of settings. The global settings for mercurial are
+	  located in a file called <b>/etc/mercurial/hgrc</b>. Open
+	  this file with emacs:
 	</p>
 	
 	<pre class="command">sudo emacs /etc/mercurial/hgrc</pre>
@@ -361,6 +372,12 @@ sudo ln -s /home/matt/python/</pre>
 username= Matt Quinn &lt;mquinn1@gmail.com&gt;
 editor=emacs
 merge=meld</pre>
+
+	<p>
+	  This can go anywhere in the file. If there are already lines
+	  with these variables that have different values, replace
+	  them with the above.
+	</p>
       </li>
 
       <li>
@@ -368,27 +385,30 @@ merge=meld</pre>
 	
 	<p>
 	  Pygments is a python program that provides syntax
-	  highlighting for code samples. In theory at least, I haven't
-	  actually tried this yet. But you'll need to download and
-	  install it so python doesn't complain that it's not there.
-	  You can find the directions at the
+	  highlighting for code samples. In theory, someone could
+	  submit a comment with a snippet of code in it to the
+	  website, and it would display properly highlighted, but I
+	  haven't actually tried this yet. You'll need to download and
+	  install it though, or TCD won't run corrently because the
+	  Python interpreter will complain that it has a dependency
+	  that can't be found.  You can find the directions at the
 	  Pygments <a href="http://pygments.org/">website</a>, but
 	  I'll reproduce them here.
 	</p>
 
 	<p>
 	  First, navigate to the python directory that you added to
-	  the PYTHON_PATH. It's important to install this here, so
-	  that the interpreter knows how to find it. So, navigate to
-	  that directory, then use mercurial to clone the source code
-	  repository there.
+	  the PYTHON_PATH, the one at <b>/home/matt/python</b>. It's
+	  important to install this here, so that the interpreter
+	  knows how to find it. So, once there, use mercurial to clone
+	  the source code repository for Pygments.
 	</p>
 	
 	<pre class="command">cd /home/matt/python/
 hg clone http://dev.pocoo.org/hg/pygments-main pygments</pre>
 	
 	<p>
-	  Next, run the included setup script to install pygments.
+	  Next, run the included setup script to install Pygments.
 	</p>
 	
 	<pre class="command">sudo python setup.py</pre>
@@ -409,10 +429,10 @@ hg clone http://dev.pocoo.org/hg/pygments-main pygments</pre>
 	  it <a href="http://en.wikipedia.org/wiki/Markdown">here</a>. TCD
 	  uses this python script to parse user comments for markdown
 	  syntax and translate it to HTML so it can be displayed
-	  correctly on the page. You can read all about
-	  it on the <a href="http://www.freewisdom.org/projects/python-markdown/">python markdown site</a>,
-	  but I'll include all the necessary steps for
-	  installation below.
+	  correctly on the page.
+	  The <a href="http://www.freewisdom.org/projects/python-markdown/">python
+	  markdown site</a>, has all the information about it, but
+	  I'll include all the necessary steps for installation below.
 	</p>
 	
 	<p>
@@ -497,13 +517,74 @@ TEMPLATE_DIRS= (
       </li>
 
       <li>
-	<h3>Set up Apache</h3>
+	<h3>Serve static data with Apache</h3>
 	
 	<p>
 	  Hopefully you were able to set up the Apache web server from
-	  the previous set of instructions.
+	  the previous set of instructions. If so, go to the directory
+	  where apache is installed. In here there should be a folder
+	  called <b>htdocs</b>. This is the default place where Apache
+	  goes to look for files to serve, and it should be the
+	  current place unless you've changed it. In here make a new
+	  directory named static. Inside this directory we're going to
+	  make some symbolic links to the CSS stylesheet and
+	  javascript files for TCD.
+	</p>
+	
+	<pre class="command">cd APACHE_INSTALL_DIR/htdocs/
+sudo mkdir static && cd static
+sudo ln -s /home/matt/python/tcd/static/tcd.js
+sudo ln -s /home/matt/python/tcd/static/tcdstyle.css</pre>
+
+	<p>
+	  Since Django is not really intended to serve static data,
+	  it requires a seperate server set up for it. When starting
+	  the development server, it will be necessary to start Apache
+	  first for the webpage to display properly.
 	</p>
       </li>
+
+      <li>
+	<h3>Download jQuery</h3>
+
+	<p>
+	  jQuery is a javascript library that TCD uses. It makes
+	  writing javascript that works in multiple browsers much
+	  easier. It's also really easy to
+	  install. First, <a href="http://code.google.com/p/jqueryjs/downloads/detail?name=jquery-1.2.6.min.js&downloadBtn=">download
+	  the javascript file</a>. Then, simply move it to
+	  the <b>htdocs/static</b> directory mentioned in the previous
+	  step. This will be a command something like this:
+	</p>
+	
+	<pre class="command">mv /home/matt/downloads/jquery-1.2.6.min.js APACHE_INSTALL_DIR/htdocs/static/jquery-1.2.6.min.js</pre>
+	
+	<p>
+	  Assuming that /home/matt/downloads is where firefox stores
+	  your downloads, and that APACHE_INSTALL_DIR is replaced with
+	  the name of the actual directory where Apache is installed.
+	</p>
+      </li>
+
+      <li>
+	<h3>Start the development server</h3>
+	<p>
+	  If everything has been set up correctly so far, then we
+	  should be ready to start the development server. This is a
+	  simple server program included with Django for testing
+	  programs. First we'll need to start Apache to serve the
+	  static pages, then we can start the development server. This
+	  must be done from within the TCD directory.
+	</p>
+	<pre class="command">cd /home/matt/python/tcd/
+sudo httpd
+python manage.py runserver</pre>
+	<p>
+	  Now open your web browser and go
+	  to <a href="http://localhost:8000">http://localhost:8000</a>. You
+	  should see the TCD front page (though without any
+	  submissions on it).
+	</p>
     </ol>
   </body>
 </html>
