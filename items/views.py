@@ -178,6 +178,7 @@ def edit_topic(request, topic_id):
                 else:
                     request.user.message_set.create(message="Can't change url of self-referential topic.")
             top.save()
+            redirect = form.cleaned_data['referring_page']
             return HttpResponseRedirect(redirect)
     else:
         if top.url[0:4] == 'http':

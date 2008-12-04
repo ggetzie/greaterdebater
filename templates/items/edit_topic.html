@@ -8,7 +8,7 @@
     {{ form }}
     <tr>
       <td></td>
-      <td></td>
+      <td><input type="hidden" name="referring_page" value="{{ request.path }}"></td>
       <td><input type="submit" value="Edit" /></td></tr>
   </table>
 </form>
