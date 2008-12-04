@@ -1,6 +1,10 @@
 body {
-font-family: verdana;
+font-family: Verdana;
 margin-left: 5px;
+}
+
+body a{
+text-decoration: none;
 }
 
 p.commentp {
