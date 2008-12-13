@@ -15,7 +15,7 @@ urlpatterns = patterns('',
                        (r'^(?P<topic_id>\d+)/(?P<page>\d+)$', 'tcd.items.views.comments'),
                        (r'^comments/', include('tcd.comments.urls')),                                              
                        (r'^submit/$', 'tcd.items.views.submit'),
-                       (r'^edit/(?P<topic_id>\d+)/$', 'tcd.items.views.edit_topic'),
+                       (r'^edit/(?P<topic_id>\d+)/(?P<page>\d+)$', 'tcd.items.views.edit_topic'),
                        (r'^argue/', include('tcd.items.argue_urls')),
                        (r'^users/', include('tcd.profiles.urls')),                       
 )

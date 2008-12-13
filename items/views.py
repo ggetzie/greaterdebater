@@ -149,11 +149,11 @@ def submit(request):
                                    'form': tcdLoginForm()},
                                   context_instance=RequestContext(request))
 
-def edit_topic(request, topic_id):
+def edit_topic(request, topic_id, page):
     """Allow the submitter of a topic to edit its title or url"""
     top = get_object_or_404(Topic, pk=topic_id)
     c = Comment.objects.filter(topic=top, is_first=True)
-    redirect = ''.join(['/users/u/', request.user.username, '/submissions/'])    
+    redirect = ''.join(['/users/u/', request.user.username, '/submissions/', page])    
     if request.user == top.user and request.method == 'POST':
         data = request.POST.copy()
         form = tcdTopicSubmitForm(data)

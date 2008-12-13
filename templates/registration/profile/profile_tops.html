@@ -15,7 +15,7 @@
 	  <a href = "/{{ object.id }}">({{ num }}) comment{{ num|pluralize }}</a>
 	  {% endwith %}</li>
 	{% ifequal request.user object.user %}
-	<li><a href="/edit/{{ object.id }}/">Edit</a></li>
+	<li><a href="/edit/{{ object.id }}/{{ page }}">Edit</a></li>
 	{% endifequal %}
       </ul>      
   </li>

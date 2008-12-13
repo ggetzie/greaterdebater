@@ -3,11 +3,10 @@
 {% block title %}Edit topic{% endblock %}
 
 {% block content %}
-<form action='.' method='post'>
+<form action="{{ request.path }}" method='post'>
   <table>
     {{ form }}
     <tr>
-      <td></td>
       <td></td>
       <td><input type="submit" value="Edit" /></td></tr>
   </table>
