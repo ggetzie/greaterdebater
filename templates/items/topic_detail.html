@@ -7,7 +7,9 @@
 
 {% if first_c %}
 {% for comment in first_c %}
-{{ comment.comment_html|safe }}
+<div class="firstcomment">
+  {{ comment.comment_html|safe }}
+</div>
 <ul class="comment-action-list">
   <li><a href="/comments/{{ comment.id }}/arguments/">({{ comment.arguments.count }}) arguments</a></li>
   {% if user.is_authenticated %}
@@ -20,13 +22,13 @@
 </div>
 {% endifequal %}
 
+
 {% else %}
 </ul>
 {% endif %}
 {% endfor %}
 {% endif %}
-<br />
-<hr class="topic" />
+
 <br />
 {% include "comments/form.html" %}<br>
 {% if rest_c %}

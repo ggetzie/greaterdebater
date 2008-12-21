@@ -82,7 +82,7 @@ def topics(request, page=1):
     user = request.user
     
     if user.is_authenticated() and tcdMessage.objects.filter(recipient=user, is_read=False):        
-        user.message_set.create(message=''.join(["<a href='/", user.username,
+        user.message_set.create(message=''.join(["<a href='/users/u/", user.username,
                                                  "/messages/'>You have unread messages</a>"]))
     
     return list_detail.object_list(request=request, 

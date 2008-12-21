@@ -511,8 +511,7 @@ TEMPLATE_DIRS= (
 	  contents to the following.
 	</p>
 	
-	<pre class="command">&lt;script type="text/javascript" charset="utf-8" src="http://localhost/static/jquery-1.2.6.min.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" charset="utf-8" src="http://localhost/static/tcd.js"&gt;&lt;/script&gt;
+	<pre class="command">&lt;script type="text/javascript" charset="utf-8" src="http://localhost/static/tcd.js"&gt;&lt;/script&gt;
 &lt;link rel="stylesheet" type="text/css" href="http://localhost/static/tcdstyle.css" /&gt;</pre>
       </li>
 
@@ -541,28 +540,6 @@ sudo ln -s /home/matt/python/tcd/static/tcdstyle.css</pre>
 	  it requires a seperate server set up for it. When starting
 	  the development server, it will be necessary to start Apache
 	  first for the webpage to display properly.
-	</p>
-      </li>
-
-      <li>
-	<h3>Download jQuery</h3>
-
-	<p>
-	  jQuery is a javascript library that TCD uses. It makes
-	  writing javascript that works in multiple browsers much
-	  easier. It's also really easy to
-	  install. First, <a href="http://code.google.com/p/jqueryjs/downloads/detail?name=jquery-1.2.6.min.js&downloadBtn=">download
-	  the javascript file</a>. Then, simply move it to
-	  the <b>htdocs/static</b> directory mentioned in the previous
-	  step. This will be a command something like this:
-	</p>
-	
-	<pre class="command">mv /home/matt/downloads/jquery-1.2.6.min.js APACHE_INSTALL_DIR/htdocs/static/jquery-1.2.6.min.js</pre>
-	
-	<p>
-	  Assuming that /home/matt/downloads is where firefox stores
-	  your downloads, and that APACHE_INSTALL_DIR is replaced with
-	  the name of the actual directory where Apache is installed.
 	</p>
       </li>
 
