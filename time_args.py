@@ -5,6 +5,7 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'tcd.settings'
 
 from tcd.comments.models import *
 from tcd.items.models import *
+from tcd.profiles.models import Profile
 import datetime
 
 def time_args():

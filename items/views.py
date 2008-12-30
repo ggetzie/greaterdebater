@@ -215,8 +215,7 @@ def challenge(request, c_id):
                     arg = Argument(plaintiff=request.user,
                                    defendant=defendant,
                                    start_date=datetime.datetime.now(),
-                                   topic=c.topic,
-                                   title= ''.join([c.comment[:20].replace('\r', ' '), '...']),
+                                   topic=c.topic,                                   
                                    status=0)
                     arg.save()
                     c.arguments.add(arg)
@@ -230,6 +229,8 @@ def challenge(request, c_id):
                     opener = Comment(**params)
                     opener.save()
                     opener.arguments.add(arg)
+                    arg.title= ''.join([opener.comment[:20].replace('\r', ' '), '...'])
+                    arg.save()
                     msg_txt = ''.join([request.user.username, 
                                        " has challenged you to an argument.\n [Click here](/argue/",
                                        str(arg.id), "/) to view the argument and accept or decline"])
