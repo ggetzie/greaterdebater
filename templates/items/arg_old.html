@@ -4,4 +4,13 @@
 {% block content %}
 <h3>Argument Archive</h3>
 {% include "items/arg_list.html" %}
+
+{% if has_previous %}
+<a href="/argue/archive/page/{{ previous }}">Previous</a>
+{% endif %}
+{% if has_next %}
+<a href="/argue/archive/page/{{ next }}">Next</a>
+{% endif %}
+{{ last_page }}
+
 {% endblock %}

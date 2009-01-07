@@ -30,4 +30,13 @@
 <p>No messages</p>
     {% endif %}
 </table>
+
+{% if has_previous %}
+<a href="/users/u/{{ username }}/messages/page/{{ previous }}">prev</a>
+{% endif %}
+
+{% if has_next %}
+<a href="/users/u/{{ username }}/messages/page/{{ next }}">next</a>
+{% endif %}
+
 {% endblock %}

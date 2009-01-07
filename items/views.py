@@ -28,7 +28,7 @@ def comments(request, topic_id, page=1):
     comments = top.comment_set.filter(is_msg=False, 
                                       arg_proper=False)
     first_c = comments.filter(is_first=True)
-    rest_c = build_list(comments.filter(is_first=False), 0)
+    rest_c = build_list(comments.filter(is_first=False).order_by('-pub_date'), 0)
     form_comment = CommentForm()
 
     if len(rest_c) % paginate_by:
@@ -427,7 +427,7 @@ def arg_detail(request, object_id):
                               context_instance=RequestContext(request))
 
 def object_list_field(request, model, field, value, paginate_by=None, page=None,
-                      fv_dict={}, allow_empty=True, template_name=None, 
+                      fv_dict=None, allow_empty=True, template_name=None, 
                       template_loader=loader, extra_context=None, context_processors=None,
                       template_object_name='object', mimetype=None):
     """Extends generic view object_list to display a list of objects filtered 
@@ -435,8 +435,16 @@ def object_list_field(request, model, field, value, paginate_by=None, page=None,
     Works only for fields that are not ForeignKey or ManyToMany. 
     See object_list_foreign_field for ForeignKey fields"""
 
+    if not fv_dict:
+        fv_dict = {}
     fv_dict[field] = value
     obj_list = model.objects.filter(**fv_dict)
+
+    # calculate the number of the first object on this page
+    # in case the objects are paginated and want to be displayed as 
+    # a numbered list
+    extra_context = {'start': calc_start(page, paginate_by, obj_list.count())}
+
     return list_detail.object_list(request=request, queryset=obj_list, 
                                    paginate_by=paginate_by, page=page, 
                                    allow_empty=allow_empty, template_name=template_name,
@@ -446,16 +454,24 @@ def object_list_field(request, model, field, value, paginate_by=None, page=None,
                                    mimetype=mimetype)
 
 def object_list_foreign_field(request, model, field, value, foreign_model,
-                              foreign_field, fv_dict={},
+                              foreign_field, fv_dict=None,
                               paginate_by=None, page=None, allow_empty=True,
                               template_name=None, template_loader=loader,
                               extra_context=None, context_processors=None,
                               template_object_name='object', mimetype=None):
     """Generic view to display a list of objects filtered by an arbitary foreign key field"""
 
+    if not fv_dict:
+        fv_dict = {}
     foreign_obj = get_object_or_404(foreign_model, **{foreign_field: value})
     fv_dict[field] = foreign_obj.id
     obj_list = model.objects.filter(**fv_dict)
+
+    # calculate the number of the first object on this page
+    # in case the objects are paginated and want to be displayed as 
+    # a numbered list
+    extra_context = {'start': calc_start(page, paginate_by, obj_list.count())}
+
     return list_detail.object_list(request=request, queryset=obj_list, 
                                    extra_context={foreign_field: foreign_obj},
                                    paginate_by=paginate_by, page=page, 
@@ -465,3 +481,12 @@ def object_list_foreign_field(request, model, field, value, foreign_model,
                                    template_object_name=template_object_name,
                                    mimetype=mimetype)
 
+def calc_start(page, paginate_by, count):
+    """Calculate the first number in a section of a list of objects to be displayed as a numbered list"""
+    if page is not None:
+        if page == 'last':
+            return paginate_by * (count / paginate_by) + 1
+        else:
+            return paginate_by * (int(page) - 1) + 1                
+    else:
+        return 1

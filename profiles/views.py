@@ -9,7 +9,7 @@ from django.views.generic import list_detail
 
 from tcd.comments.models import Comment, tcdMessage
 from tcd.items.models import Topic, Argument
-from tcd.items.views import object_list_field, object_list_foreign_field
+from tcd.items.views import object_list_field, object_list_foreign_field, calc_start
 from tcd.profiles.forms import tcdUserCreationForm, tcdPasswordResetForm, tcdLoginForm, forgotForm
 from tcd.profiles.models import Profile, Forgotten
 from tcd.utils import random_string
@@ -100,18 +100,19 @@ def profile(request, value):
 
 def profile_args(request, value, page=1):
     """Display a list of all arguments a user has been involved in."""
-    
+    paginate_by = 10
     user = get_object_or_404(User, username=value)
     args = user.defendant_set.all() | user.plaintiff_set.all()
     return list_detail.object_list(request=request,
                                    queryset=args,
-                                   paginate_by=3,
+                                   paginate_by=paginate_by,
                                    page=page,
                                    template_name="registration/profile/profile_args.html",
                                    template_object_name='args',
-                                   extra_context={'username': user})
+                                   extra_context={'username': user,
+                                                  'start': calc_start(page, paginate_by, args.count())})
 
-def profile_msgs(request, value):
+def profile_msgs(request, value, page=1):
     """ Display a list of all the user's messages. Only display if the user
     trying to view them is the user they belong to."""
     
@@ -125,7 +126,10 @@ def profile_msgs(request, value):
                 'foreign_model': User,
                 'foreign_field': 'username',
                 'template_name': "registration/profile/profile_msgs.html",
-                'template_object_name': 'messages'}
+                'template_object_name': 'messages',
+                'paginate_by': 25,
+                'page': page
+                }
         return object_list_foreign_field(**args)
     else:
         return HttpResponseForbidden("<h1>Unauthorized</h1>")

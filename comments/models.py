@@ -24,9 +24,9 @@ from pygments import highlight, lexers, formatters
 from markdown import markdown
 
 import re
-from datetime import datetime
+import datetime
 
-from tcd.items.models import *
+from tcd.items.models import Topic, Argument, elapsed_time
 
 """
 We cache lexer aliases to speed parsing. To update them, get lexers_aliases like this :
