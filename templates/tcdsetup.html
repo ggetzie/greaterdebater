@@ -3,76 +3,76 @@
   <head>
     <title>Setting up TCD</title>
     <style type="text/css">
-      body {
-      font-family: verdana;
-      text-align: left;
-      width: 75%;
-      }
+    body {
+	font-family: verdana;
+	text-align: left;
+	width: 75%;
+    }
 
-      pre.command {
-      font-family: monospace;
-      font-weight: bold;
-      font-size: 110%;
-      text-align: left;
-      border: thin solid rgb(0,0,0);
-      width: 100%;
-      line-height: normal;
-      padding: 1%;
-      margin: 1% 0 1% 2%;
-      text-align: left;
-      background-color: #CCCCCC;
-      }
-      
-      li {
-      margin-bottom: 40px;
-      }
+    pre.command {
+	font-family: monospace;
+	font-weight: bold;
+	font-size: 110%;
+	text-align: left;
+	border: thin solid rgb(0,0,0);
+	width: 100%;
+	line-height: normal;
+	padding: 1%;
+	margin: 1% 0 1% 2%;
+	text-align: left;
+	background-color: #CCCCCC;
+    }
+    
+    li {
+	margin-bottom: 40px;
+    }
 
-      ol.toc li {
-      margin-bottom: 10px;
-      }
-      
-      p#important {
-      background-color: red;
-      text-align: center;
-      font-weight: bold;
-      }      
-      
-      a.btt {
-      font-size: small;
-      }
+    ol.toc li {
+	margin-bottom: 10px;
+    }
+    
+    p#important {
+	background-color: red;
+	text-align: center;
+	font-weight: bold;
+    }      
+    
+    a.btt {
+	font-size: small;
+    }
     </style>
 
     <script type="text/javascript">
-      function maketoc() {
-      allh3 = document.getElementsByTagName('h3');
-      insBefore = document.getElementById("start");
-      toc = document.createElement('ol');
-      toc.setAttribute("class", "toc");
-      for (var i = 0; i < allh3.length; i++) {
-			  sectionnumber = i + 1;
-			  // make a bookmark anchor at the h3 heading
-			  sectionlink = document.createElement('a');
-			  sectionlink.name = "section" + sectionnumber;
-			  allh3[i].parentNode.insertBefore(sectionlink, allh3[i]);			  
-			  
-			  // add a "Back to Top" link
-			  btt = document.createElement('a');
-			  btt.href = "#top";
-			  btt.innerHTML = "Back To Top";
-			  btt.setAttribute("class", "btt");
-			  allh3[i].parentNode.appendChild(btt);
-			  
-			  
-			  // add a link to the bookmark to the table of contents
-			  thisli = document.createElement('li')
-			  toclink = document.createElement('a');
-			  toclink.href = "#section" + sectionnumber;
-			  toclink.innerHTML = allh3[i].innerHTML;
-			  thisli.appendChild(toclink);
-			  toc.appendChild(thisli);
-			  }
-      insBefore.parentNode.insertBefore(toc, insBefore);
-      }
+    function maketoc() {
+	allh3 = document.getElementsByTagName('h3');
+	insBefore = document.getElementById("start");
+	toc = document.createElement('ol');
+	toc.setAttribute("class", "toc");
+	for (var i = 0; i < allh3.length; i++) {
+	    sectionnumber = i + 1;
+	    // make a bookmark anchor at the h3 heading
+	    sectionlink = document.createElement('a');
+	    sectionlink.name = "section" + sectionnumber;
+	    allh3[i].parentNode.insertBefore(sectionlink, allh3[i]);			  
+	    
+	    // add a "Back to Top" link
+	    btt = document.createElement('a');
+	    btt.href = "#top";
+	    btt.innerHTML = "Back To Top";
+	    btt.setAttribute("class", "btt");
+	    allh3[i].parentNode.appendChild(btt);
+	    
+	    
+	    // add a link to the bookmark to the table of contents
+	    thisli = document.createElement('li')
+	    toclink = document.createElement('a');
+	    toclink.href = "#section" + sectionnumber;
+	    toclink.innerHTML = allh3[i].innerHTML;
+	    thisli.appendChild(toclink);
+	    toc.appendChild(thisli);
+	}
+	insBefore.parentNode.insertBefore(toc, insBefore);
+    }
     </script>
   </head>
 

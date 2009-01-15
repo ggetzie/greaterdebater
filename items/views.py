@@ -3,20 +3,22 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden
+from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import loader, RequestContext
 from django.views.generic import list_detail
 
 from tcd.comments.forms import CommentForm
 from tcd.comments.models import Comment, tcdMessage, Draw
-from tcd.items.forms import tcdTopicSubmitForm
-from tcd.items.models import Topic, Argument
+from tcd.items.forms import tcdTopicSubmitForm, Ballot
+from tcd.items.models import Topic, Argument, Vote
 from tcd.profiles.forms import tcdLoginForm
 from tcd.profiles.models import Profile
-from tcd.utils import build_list
+from tcd.utils import build_list, calc_start, xml_vote
 
 import datetime
+import random
+import pyfo
 
 def comments(request, topic_id, page=1):
     """The view for topic_detail.html 
@@ -196,7 +198,12 @@ def edit_topic(request, topic_id, page):
                               {'form': form,
                                'username': top.user.username},
                               context_instance=RequestContext(request))
-        
+
+def ajax(request):
+    prefixes = ['Mashup', '2.0', 'Tagging', 'Folksonomy']
+    suffixes = ['Web', 'Push', 'Media', 'GUI']
+    return HttpResponse(''.join([random.choice(prefixes), " is the new ", random.choice(suffixes)]))
+
 def challenge(request, c_id):
     """Create a pending argument as one user challenges another."""
     if request.POST:
@@ -248,6 +255,51 @@ def challenge(request, c_id):
         request.user.message_set.create(message="Not a POST")
         redirect = '/'
     return HttpResponseRedirect(redirect)
+
+def vote(request):
+    """Cast a vote for either the plaintiff or defendant in an argument"""
+    if request.POST:
+        redirect = '/'
+        form = Ballot(request.POST)
+        if form.is_valid():
+            arg = get_object_or_404(Argument, pk=form.cleaned_data['argument'])
+            voter = get_object_or_404(User, pk=form.cleaned_data['voter'])
+            redirect = ''.join(['/argue/', str(arg.id)])
+            if voter == request.user:
+                vote = Vote(argument=arg,
+                            voter=voter,
+                            voted_for=form.cleaned_data['voted_for'])
+                vote.save()
+                all_votes = Vote.objects.filter(argument=arg)
+                if vote.voted_for == "P":
+                    voted_name = arg.plaintiff.username
+                else:
+                    voted_name = arg.defendant.username
+                
+                response = ('response', [('voted_for', voted_name),
+                                         ('pvotes', str(all_votes.filter(voted_for="P").count())),
+                                         ('dvotes', str(all_votes.filter(voted_for="D").count())),
+                                         ('plaintiff', arg.plaintiff.username),
+                                         ('defendant', arg.defendant.username)])
+                
+                response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')
+                return HttpResponse(response)
+#                 return HttpResponse(xml_vote(voted_name,
+#                                              str(all_votes.filter(voted_for="P").count()),
+#                                              str(all_votes.filter(voted_for="D").count()),
+#                                              arg.plaintiff.username,
+#                                              arg.defendant.username))                                             
+            else:
+                request.user.message_set.create(message="Can't cast vote as another user")
+        else:
+            request.user.message_set.create(message="Invalid vote")
+                
+    else:
+        request.user.message_set.create(message="Not a POST")
+        redirect = '/'
+    
+    return HttpResponseRedirect(redirect)
+                            
 
 def rebut(request, a_id):
     """Add a new post to an argument."""
@@ -413,17 +465,40 @@ def concede(request, a_id):
 
 
 def arg_detail(request, object_id):
-    arg = Argument.objects.get(pk=object_id)
-    turn = False
+    arg = get_object_or_404(Argument, pk=object_id)
+    voted_for = None
+    votes = Vote.objects.filter(argument=arg)
+    try: 
+        vote = votes.get(voter=request.user)
+        if vote.voted_for == "P":
+            voted_for = arg.plaintiff
+        elif vote.voted_for == "D":
+            voted_for = arg.defendant
+        else:                
+            request.user.message_set.create(message="Something funky about your vote")
+    except Vote.DoesNotExist:
+        pass
+
+    if arg.status in range(1,3):
+        current = True
+    else:
+        current = False
+
     if request.user == arg.defendant and arg.status == 0:
         new_arg = True
     else:
         new_arg = False
     last_c = arg.comment_set.order_by('-pub_date')[0]
+
     return render_to_response("items/arg_detail.html",
                               {'object': arg,
                                'new_arg': new_arg,
-                                'last_c': last_c},
+                               'last_c': last_c,
+                               'voted_for': voted_for, 
+                               'current': current,
+                               'pvotes': votes.filter(voted_for="P").count(),
+                               'dvotes': votes.filter(voted_for="D").count() 
+                               },
                               context_instance=RequestContext(request))
 
 def object_list_field(request, model, field, value, paginate_by=None, page=None,
@@ -481,12 +556,6 @@ def object_list_foreign_field(request, model, field, value, foreign_model,
                                    template_object_name=template_object_name,
                                    mimetype=mimetype)
 
-def calc_start(page, paginate_by, count):
-    """Calculate the first number in a section of a list of objects to be displayed as a numbered list"""
-    if page is not None:
-        if page == 'last':
-            return paginate_by * (count / paginate_by) + 1
-        else:
-            return paginate_by * (int(page) - 1) + 1                
-    else:
-        return 1
+
+
+

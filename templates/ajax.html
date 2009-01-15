@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block htmlhead %}
+<script type="text/JavaScript">
+    $(document).ready(function(){
+	$("#generate").click(function(){
+	    $("#quote p").load("/ajax");
+	});
+    });
+</script> 
+<style type="text/css">
+#wrapper {
+    width: 240px;
+    height: 80px;
+    margin: auto;
+    padding: 10px;
+    margin-top: 10px;
+    border: 1px solid black;
+    text-align: center;
+}
+</style> 
+{% endblock %}
+
+{% block title %}AJAX text{% endblock %}
+
+{% block content %}
+
+<div id="wrapper">
+  <div id="quote"><p> </p></div>
+  <input type="submit" id="generate" value="Generate!">
+</div>
+
+{% endblock %}

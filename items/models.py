@@ -114,3 +114,14 @@ class LogItem(models.Model):
         return self.message
 
 
+class Vote(models.Model):
+
+    argument = models.ForeignKey(Argument)
+    voter = models.ForeignKey(User)
+    voted_for = models.CharField(max_length=1) # "P" for plaintiff or "D" for defendant
+    
+    def __unicode__(self):
+        return ' '.join([self.voter.username, "voted for", self.voted_for, "in arg", self.argument.title])
+
+
+    

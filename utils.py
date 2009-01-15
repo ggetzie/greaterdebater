@@ -1,5 +1,6 @@
 from tcd.comments.models import Comment
 import random
+import types
 
 def build_list(comments, p_id):
     """Takes a query set of comments and a parent id and
@@ -22,3 +23,25 @@ def random_string(length):
     """Returns an alphanumeric string of random characters with the given length"""
     alphanumeric = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
     return ''.join([random.choice(alphanumeric) for x in range(length)])
+
+def calc_start(page, paginate_by, count):
+    """Calculate the first number in a section of a list of objects to be displayed as a numbered list"""
+    if page is not None:
+        if page == 'last':
+            return paginate_by * (count / paginate_by) + 1
+        else:
+            return paginate_by * (int(page) - 1) + 1                
+    else:
+        return 1
+
+
+
+
+
+
+
+
+    
+        
+                            
+
