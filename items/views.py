@@ -14,7 +14,7 @@ from tcd.items.forms import tcdTopicSubmitForm, Ballot
 from tcd.items.models import Topic, Argument, Vote
 from tcd.profiles.forms import tcdLoginForm
 from tcd.profiles.models import Profile
-from tcd.utils import build_list, calc_start, xml_vote
+from tcd.utils import build_list, calc_start
 
 import datetime
 import random
