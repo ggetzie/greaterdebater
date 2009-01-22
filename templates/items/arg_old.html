@@ -1,8 +1,9 @@
-{% extends "items/arg_base.html" %}
+{% extends "base.html" %}
 {% block title %}Argument Archive{% endblock %}
 
 {% block content %}
-<h3>Argument Archive</h3>
+<h4>Argument Archive</h4>
+<p id="other-args"><a href="/argue/">View Current Arguments</a></p>
 {% include "items/arg_list.html" %}
 
 {% if has_previous %}

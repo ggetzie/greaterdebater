@@ -26,7 +26,8 @@ from markdown import markdown
 import re
 import datetime
 
-from tcd.items.models import Topic, Argument, elapsed_time
+from tcd.items.models import Topic, Argument
+from tcd.utils import elapsed_time
 
 """
 We cache lexer aliases to speed parsing. To update them, get lexers_aliases like this :

@@ -8,34 +8,69 @@
 </head>
 <body>
   {% block header %}
-  <ul class="flat-list">
-    <li><a href="/">Hot</a></li>
-    <li><a href="/new">New</a></li>
-    <li><a href="/submit">Submit</a></li>
-    <li><a href="/argue">Arguments</a></li>
-    {% if user.is_authenticated %}
-    <li>Welcome <a href="/users/u/{{ user.username }}/profile/">{{ user.username }}</a>!</li> 
-    <li><a href="/users/logout">Log out</a></li>
-    {% else %}
-    <li><a href="/users/login?next={{ request.path }}">Log in</a> or <a href="/users/register?next={{ redirect }}">create an account</a></li>
-    {% endif %}
-  </ul>
-  <br />
+  <div class="wrapper">
+    <div id="header">
+
+      <div id="topmenu">
+
+	  <a href="/" class="menu">Hot</a></li>|
+	  <a href="/new" class="menu">New</a></li>|
+	  <a href="/submit" class="menu">Submit</a></li>|
+	  <a href="/argue" class="menu">Arguments</a></li>
+
+      </div>
+
+      <div id="login">
+	{% if user.is_authenticated %}
+	  Welcome <a href="/users/u/{{ user.username }}/profile/">{{ user.username }}</a>!|
+	  <a href="/users/logout">Log out</a>
+	{% else %}
+	<a href="/users/login?next={{ request.path }}">Log in</a> or <a href="/users/register?next={{ redirect }}">create an account</a>
+	{% endif %}
+      </div>
+
+    </div>
+    <br />
     {% if messages %}
-  <p class="sys_messages">
-    <ul class="sys_msg_lst">
-      {% for message in messages %}
-      <li>{{ message|safe }}</li>
-      {% endfor %}
-    </ul>
-  </p>
+    <p class="sys_messages">
+      <ul class="sys_msg_lst">
+	{% for message in messages %}
+	<li>{{ message|safe }}</li>
+	{% endfor %}
+      </ul>
+    </p>
     {% endif %}
-  {% endblock %}
+    {% endblock %}
 
-  {% block sub_header %}
-  {% endblock %}
+    {% block sub_header %}
+    {% endblock %}
+    <div id="content-wrapper">
+      <div id="content">
+	{% block content %}
+	{% endblock %}
+      </div>
 
-  {% block content %}
-  {% endblock %}
+      <div id="ads">
+	<p id="adsp">
+	  Ads go here<br />
+	  blah blah blah<br />
+	  Ad 1<br />
+	  Ad 2<br />
+	</p>
+      </div>
+      <div class="clearfooter"></div>
+    </div>
+  </div>
+  
+  <div class="footer">
+    <ul class="flat-list">
+      <li><a href="/about/">About</a></li>|
+      <li><a href="/help/">Help</a></li>|
+      <li><a href="/FAQ/">FAQ</a></li>|
+      <li><a href="/TOS/">Terms of Service</a></li>|
+      <li><a href="/contact/">Feedback</a></li>
+    </ul>
+  </div>
+
 </body>
 </html>

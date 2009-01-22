@@ -1,15 +1,6 @@
 $(document).ready(function() {
 
-    $("div[@class=comment_action]").hide()
-//     $("form[@class=Ballot]").submit(function(){
-// 	$.post("/vote/", {argument: $(this).("input[@name=argument]").val(),
-// 			  voter: $(this).("input[@name=voter]").val(),
-// 			  voted_for: $(this).("input[@name=voted_for]").val()},
-// 	       function(xml) {
-// 		   addVotes(xml);
-// 	       });
-// 	return false;
-//     });
+
 });
 
 function vote(form_id){
@@ -34,9 +25,22 @@ function displayFormComment(form_id) {
 
 
 function addVotes(xml) {
+    var pvotefor
+    var dvotefor
+    if ($("pvotes",xml).text() == "1") {
+	pvotefor = " vote for "
+    } else {
+	pvotefor = " votes for "
+    }
+
+    if ($("dvotes",xml).text() == "1") {
+	dvotefor = " vote for "
+    } else {
+	dvotefor = " votes for "
+    }
+
     $("#vote").html("<p>You voted for " + $("voted_for",xml).text() +
-		    "</p><p>Current Tally:<br />" + $("pvotes",xml).text() +  
-		    " votes for " + $("plaintiff",xml).text() +
-		    "<br />" + $("dvotes",xml).text() + " votes for " + 
-		    $("defendant",xml).text() + "<br /></p>");
+		    "</p><p>Current Tally:<br />" + 
+		    $("pvotes",xml).text() +  pvotefor + $("plaintiff",xml).text() + "<br />" + 
+		    $("dvotes",xml).text() + dvotefor +  $("defendant",xml).text() + "</p>");
 }

@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from tcd.utils import elapsed_time
+
 import datetime
 
 class Topic(models.Model):
@@ -61,15 +63,15 @@ class Argument(models.Model):
         if self.status == 0:
             return "challenge pending"
         elif self.status == 1:
-            return ''.join(["in progress, ", self.plaintiff.username, "'s turn"])
+            return ''.join([self.plaintiff.username, "'s turn"])
         elif self.status == 2:
-            return ''.join(["in progress, ", self.defendant.username, "'s turn"])
+            return ''.join([self.defendant.username, "'s turn"])
         elif self.status == 3:
             return ''.join(["winner: ", self.defendant.username])
         elif self.status == 4:
             return ''.join(["winner: ", self.plaintiff.username])
         elif self.status == 5:
-            return "opponents agreed to a draw"
+            return "draw"
         elif self.status == 6:
             return ''.join([ self.plaintiff.username, " declined challenge"])
         else:
@@ -91,20 +93,9 @@ class Argument(models.Model):
         else:
             return None
 
-def elapsed_time(dtime):
-    delta = datetime.datetime.now() - dtime
-    if delta.days > 0:
-        return ''.join([str(delta.days), " days"])
-    elif delta.seconds > 3600:
-        return ''.join([str(delta.seconds / 3600), " hours"])
-    elif 3600 > delta.seconds >= 60:
-        return ''.join([str(delta.seconds / 60), " minutes"])
-    elif 60 > delta.seconds >= 1:
-        return ''.join([str(delta.seconds), " seconds"])
-    elif delta.seconds == 0:
-        return ''.join([str(delta.microseconds / 1000), " milliseconds"])
-    else:
-        return "0 milliseconds"
+    def get_elapsed(self):
+        return elapsed_time(self.start_date)
+
 
 class LogItem(models.Model):
     date = models.DateTimeField()
@@ -123,5 +114,3 @@ class Vote(models.Model):
     def __unicode__(self):
         return ' '.join([self.voter.username, "voted for", self.voted_for, "in arg", self.argument.title])
 
-
-    

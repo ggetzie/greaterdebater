@@ -10,24 +10,22 @@
 <div class="firstcomment">
   {{ comment.comment_html|safe }}
 </div>
-<ul class="comment-action-list">
-  <li><a href="/comments/{{ comment.id }}/arguments/">({{ comment.arguments.count }}) arguments</a></li>
+<div class="comment-menu">
+
+  <a href="/comments/{{ comment.id }}/arguments/">({{ comment.arguments.count }}) arguments</a>
   {% if user.is_authenticated %}
   {% ifequal user object.user %}
   {% else %}
-  <li><a href='#' onclick="displayFormComment('#argue{{ comment.id }}'); return false;">argue</a></li>  
-</ul>
-<div class="action_block">
-  {% include "comments/argue_form.html" %}
-</div>
+  <a href='#' onclick="displayFormComment('#argue{{ comment.id }}'); return false;">argue</a>
+  <div class="action_block">
+    {% include "comments/argue_form.html" %}
+  </div>
 {% endifequal %}
-
-
 {% else %}
-</ul>
 {% endif %}
 {% endfor %}
 {% endif %}
+</div>
 
 <br />
 {% include "comments/form.html" %}<br>

@@ -1,6 +1,23 @@
 body {
 font-family: Verdana;
-margin-left: 5px;
+height: 100%;
+}
+
+.wrapper {
+min-height: 100%;
+margin-bottom: -100;
+position: relative;
+}
+
+.footer {
+height: 100px;
+text-align: center;
+position: relative;
+}    
+
+.clearfooter {
+height: 100px;
+clear: both;
 }
 
 body a{
@@ -8,10 +25,9 @@ text-decoration: none;
 }
 
 p.commentp {
-margin-top: 0px;
-margin-bottom: 0px;
+margin-top: 5px;
+margin-bottom: 5px;
 margin-left: 5px;
-width: 50%;
 }
 
 p.comment_topic {
@@ -21,33 +37,30 @@ margin-left: 5px;
 font-size: small;
 }  
 
-tr.unread_msg {
-font-weight: bold
-}
-
-tr.read_msg {
-font-weight: normal
+p#other-args {
+margin: 0 0 0 0;
+font-size: small;
 }
 
 ul.flat-list {
 list-style-type: none;
-margin: 0;
-padding: 0;
+margin-left: 1px;
+list-style-position: outside;
 }
 
 ul.flat-list li {
-padding-right: 10px;
+margin-right: 5px;
+margin-left: 5px;
 display: inline;
 }
 
 ul.comment-action-list {
 list-style-type: none;
-margin: 0;
-padding: 0;
 }
 
 ul.comment-action-list li {
-margin-right: 5px;
+margin-right: 2px;
+margin-left: 2px;
 display: inline;
 font-size: small;
 }
@@ -58,6 +71,14 @@ text-decoration: none;
 
 a.unread {
 font-weight: bold
+}
+
+tr.unread_msg {
+font-weight: bold
+}
+
+tr.read_msg {
+font-weight: normal
 }
 
 span.comment_info {
@@ -92,6 +113,57 @@ text-align: left; /* align left for IE */
 margin: 0 auto 0 0; /* align left for Mozilla */
 }
 
-div.firstcomment {
-width: 60%;   
+div#add-comment {
+margin-top: 20px;
+}  
+
+div.comment_action {
+display: none;
+}
+
+a.title {
+font-size: large
+}    
+
+a.menu {
+margin-left: 2px;
+margin-right: 4px;
+}
+
+div.comment-menu {
+font-size: small;    
+}
+
+div#topmenu {
+text-align: left;   
+float: left;
+width: 60%
+}
+
+div#login {
+width: 40%;
+float: right;
+text-align: right;
+}    
+
+div#content {
+width: 60%;
+float: left;
+}
+
+div#ads {
+width: 40%;
+float: right;
+outline-style: solid;
+outline-width: 1px;
+}
+
+p#adsp {
+margin-right: 20px;
+margin-left: 20px;
+text-align: center;
+}    
+
+div#content-wrapper {
+margin-top: 20px;
 }

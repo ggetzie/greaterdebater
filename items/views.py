@@ -10,11 +10,13 @@ from django.views.generic import list_detail
 
 from tcd.comments.forms import CommentForm
 from tcd.comments.models import Comment, tcdMessage, Draw
+from tcd.comments.utils import build_list
 from tcd.items.forms import tcdTopicSubmitForm, Ballot
 from tcd.items.models import Topic, Argument, Vote
 from tcd.profiles.forms import tcdLoginForm
 from tcd.profiles.models import Profile
-from tcd.utils import build_list, calc_start
+from tcd.utils import calc_start
+
 
 import datetime
 import random
@@ -284,11 +286,7 @@ def vote(request):
                 
                 response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')
                 return HttpResponse(response)
-#                 return HttpResponse(xml_vote(voted_name,
-#                                              str(all_votes.filter(voted_for="P").count()),
-#                                              str(all_votes.filter(voted_for="D").count()),
-#                                              arg.plaintiff.username,
-#                                              arg.defendant.username))                                             
+
             else:
                 request.user.message_set.create(message="Can't cast vote as another user")
         else:

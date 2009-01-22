@@ -1,13 +1,15 @@
-<ol start={{ start }}>
-  {% for arg in args_list %}
-  <li>
-    <div class="arg_list">
-      Title: <a class="arg_title" href="/argue/{{ arg.id }}">{{ arg.title }}</a><br />
-      {{ arg.plaintiff.username }} vs. {{ arg.defendant.username }}<br />
-      {{ arg.get_status }}<br />
-      Started {{ arg.start_date|timesince }} ago<br />
+<div class="arg_list">
+  <ol start={{ start }} class="title-list">
+    {% for arg in args_list %}
+    <li>
+      <a class="title" href="/argue/{{ arg.id }}">{{ arg.title }}</a><br />
+      <ul class="comment-action-list">
+	<li>{{ arg.plaintiff.username }} vs. {{ arg.defendant.username }}</li>|
+	<li>{{ arg.get_status }}</li>|
+	<li>Started {{ arg.get_elapsed }} ago</li>
+      </ul>
       <br />
-    </div>
-  </li>
-  {% endfor %}
-</ol>
+    </li>
+    {% endfor %}
+  </ol>
+</div>

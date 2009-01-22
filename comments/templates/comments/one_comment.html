@@ -2,6 +2,8 @@
 <p class="commentp"><i>Comment deleted</i></p>
 {% else %}
 <span class="comment_info"> by <a href="/users/u/{{ comment.user }}/profile/">{{ comment.user }}</a> {{ comment.get_elapsed }} ago</span>
+<p class="commentp">
 {{ comment.comment_html|safe }}
+</p>
 {% endif %}
 

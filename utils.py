@@ -1,23 +1,6 @@
-from tcd.comments.models import Comment
+import datetime
 import random
 import types
-
-def build_list(comments, p_id):
-    """Takes a query set of comments and a parent id and
-    returns a list of comments sorted in the appropriate parent-child
-    order such that first comment = first toplevel comment, second commend = first
-    child of first comment, third comment = first child of second comment or second 
-    child of first comment and so on"""
-    comment_list = []
-    for comment in comments.filter(parent_id=p_id):
-        children = comments.filter(parent_id=comment.id)
-        if not children:
-            comment_list.append(comment)
-        else:
-            comment_list.append(comment)
-            comment_list.extend(build_list(comments, comment.id))
-    return comment_list
-
 
 def random_string(length):
     """Returns an alphanumeric string of random characters with the given length"""
@@ -34,14 +17,25 @@ def calc_start(page, paginate_by, count):
     else:
         return 1
 
+def elapsed_time(dtime):
+    delta = datetime.datetime.now() - dtime
+    if delta.days > 7:
+        return time_plural(delta.days / 7, "week")
+    elif delta.days > 0:
+        return time_plural(delta.days, "day")
+    elif delta.seconds > 3600:
+        return time_plural(delta.seconds / 3600, "hour")
+    elif 3600 > delta.seconds >= 60:
+        return time_plural(delta.seconds / 60, "minute")
+    elif 60 > delta.seconds >= 1:
+        return time_plural(delta.seconds, "second")
+    elif delta.seconds == 0:
+        return time_plural(delta.microseconds / 1000, "millisecond")
+    else:
+        return "0 milliseconds"
 
-
-
-
-
-
-
-    
-        
-                            
-
+def time_plural(num, unit):
+    if num == 1:
+        return ''.join([str(num), " ", unit])
+    else:
+        return ''.join([str(num), " ", unit, "s"])
