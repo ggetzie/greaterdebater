@@ -3,6 +3,10 @@ font-family: Verdana;
 height: 100%;
 }
 
+body a{
+text-decoration: none;
+}
+
 .wrapper {
 min-height: 100%;
 margin-bottom: -100;
@@ -20,14 +24,15 @@ height: 100px;
 clear: both;
 }
 
-body a{
-text-decoration: none;
+div.title {
+width: 90%;
 }
 
 p.commentp {
 margin-top: 5px;
 margin-bottom: 5px;
 margin-left: 5px;
+width: 90%;
 }
 
 p.comment_topic {
@@ -125,7 +130,7 @@ a.title {
 font-size: large
 }    
 
-a.menu {
+.menu {
 margin-left: 2px;
 margin-right: 4px;
 }

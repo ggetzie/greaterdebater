@@ -6,14 +6,11 @@
 <ol start={{ start }} class="topic-list">
   {% for object in object_list %}
   <li><div class="title"><a href={{ object.url }} class="title">{{ object.title }}</a> </div>
-    <div class="topic-info">
-      <ul id="topic_info{{ object.id }}" class="comment-action-list">
-	<li>submitted by <a href="/users/u/{{ object.user }}/profile/">{{ object.user }}</a></li>
-	<li>{{ object.get_elapsed }} ago</li>|
-	<li>{% with object.comment_set.count as num %}
-	  <a href="/{{ object.id }}">{{ num }} comment{{ num|pluralize }}</a>
-	  {% endwith %}</li>
-      </ul>
+    <div class="comment-menu">
+	submitted by <a href="/users/u/{{ object.user }}/profile/">{{ object.user }}</a> {{ object.get_elapsed }} ago |
+	{% with object.comment_set.count as num %}
+	<a href="/{{ object.id }}">{{ num }} comment{{ num|pluralize }}</a>
+	  {% endwith %}
     </div>
   </li>
   {% endfor %}
