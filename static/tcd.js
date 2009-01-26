@@ -1,5 +1,6 @@
 $(document).ready(function() {
-
+    
+//     $("ads").css("height", $("content").css("height"));
 
 });
 

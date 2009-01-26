@@ -40,7 +40,7 @@
 </div>
 {% if object.comment_set.all %}
 {% for comment in object.comment_set.all %}
-<div id="comment_div{{ comment.id }}" style="margin-left: {% ifequal comment.user object.defendant %}10{% else %}50{% endifequal %}px">
+<div id="comment_div{{ comment.id }}" class=" {% ifequal comment.user object.defendant %}defendant{% else %}plaintiff{% endifequal %}">
   <br />
   {% include "comments/one_comment.html" %}
 </div>
@@ -92,4 +92,8 @@
   {% endif %}
 </p>
 {% endifequal %}
+{% endblock %}
+
+{% block ads %}
+{% include "ads.html" %}
 {% endblock %}

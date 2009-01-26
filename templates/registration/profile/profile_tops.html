@@ -3,21 +3,21 @@
 {% block title %}{{ username }}'s submissions{% endblock %}
 
 {% block content %}
-<h4>Submissions</h4><br />
+<h4>Submissions</h4><
 {% if topics_list %}
-<ul>
+<ul class="topic-list">
   {% for object in topics_list %}
   <li><a href={{ object.url }}>{{ object.title }}</a> <br>
-      <ul id="topic_info{{ object.id }}" class="comment-action-list">
-	<li>submitted by <a href= /{{ object.user }}>{{ object.user }}</a></li>
-	<li>{{ object.get_elapsed }} ago</li>
-	<li>{% with object.comment_set.count as num %}
+    <div class="comment-menu">
+	submitted by <a href="/users/u/{{ object.user }}/profile/">{{ object.user }}</a>
+	{{ object.get_elapsed }} ago | 
+	{% with object.comment_set.count as num %}
 	  <a href = "/{{ object.id }}">({{ num }}) comment{{ num|pluralize }}</a>
-	  {% endwith %}</li>
+	  {% endwith %}
 	{% ifequal request.user object.user %}
-	<li><a href="/edit/{{ object.id }}/{{ page }}">Edit</a></li>
+	| <a href="/edit/{{ object.id }}/{{ page }}">Edit</a>
 	{% endifequal %}
-      </ul>      
+    </div>
   </li>
   {% endfor %}
 </ul>

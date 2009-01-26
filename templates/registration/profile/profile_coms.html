@@ -15,7 +15,7 @@ on <a href="/{{ comment.topic_id }}/">{{ comment.topic.title }}</a>
   {% if comment.is_removed %}
   <a href='#' onclick="document.delete{{ comment.id }}.submit(); return false;">undelete</a>
   {% endif %}
-</div>
+</div><br />
 {% endfor %}
 
 {% if has_previous %}

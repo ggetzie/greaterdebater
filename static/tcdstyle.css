@@ -1,6 +1,7 @@
 body {
 font-family: Verdana;
 height: 100%;
+margin-left: 10px;
 }
 
 body a{
@@ -50,7 +51,6 @@ font-size: small;
 ul.flat-list {
 list-style-type: none;
 margin-left: 1px;
-list-style-position: outside;
 }
 
 ul.flat-list li {
@@ -90,12 +90,18 @@ span.comment_info {
 font-size: small;
 }    
 
-span.comment_info a {
-text-decoration: none;
+span.domain {
+font-size: x-small;
+color: #888888;
+margin-left: 5px;
 }    
 
+div.sub_header {
+padding-top: 15px;
+}
+
 div.comment_div {
-margin-bottom: 10px;
+margin-bottom: 15px;
 
 }
 
@@ -108,14 +114,12 @@ div.arg_list {
 margin-left: 10px;
 }   
 
-ol.topic-list li{
-margin-bottom: 10px;
+ul.topic-list {
+list-style-type: none;
 }
 
-hr.topic {
-width: 60%;
-text-align: left; /* align left for IE */
-margin: 0 auto 0 0; /* align left for Mozilla */
+.topic-list li{
+margin-bottom: 10px;
 }
 
 div#add-comment {
@@ -135,7 +139,7 @@ margin-left: 2px;
 margin-right: 4px;
 }
 
-div.comment-menu {
+.comment-menu {
 font-size: small;    
 }
 
@@ -157,7 +161,7 @@ float: left;
 }
 
 div#ads {
-width: 40%;
+width: 25%;
 float: right;
 outline-style: solid;
 outline-width: 1px;
@@ -171,4 +175,22 @@ text-align: center;
 
 div#content-wrapper {
 margin-top: 20px;
+}
+
+div.defendant {
+margin-left: 10px;
+}
+
+div.plaintiff {
+margin-left: 50px;
+}
+
+div#tos {
+text-align: justify;
+font-size: 13px;
+margin-left: 20px;
+}
+
+div#tos h2 {
+text-align: center;
 }

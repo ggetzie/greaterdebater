@@ -1,13 +1,14 @@
 <div class="arg_list">
-  <ol start={{ start }} class="title-list">
+  <ol start={{ start }} class="topic-list">
     {% for arg in args_list %}
     <li>
       <a class="title" href="/argue/{{ arg.id }}">{{ arg.title }}</a><br />
-      <ul class="comment-action-list">
-	<li>{{ arg.plaintiff.username }} vs. {{ arg.defendant.username }}</li>|
-	<li>{{ arg.get_status }}</li>|
-	<li>Started {{ arg.get_elapsed }} ago</li>
-      </ul>
+
+      <span class="menu comment-menu">{{ arg.plaintiff.username }} vs. {{ arg.defendant.username }}</span>|
+      <span class="menu comment-menu">{{ arg.get_status }}</span>|
+      <span class="menu comment-menu">Started {{ arg.get_elapsed }} ago</span>
+
+
       <br />
     </li>
     {% endfor %}
