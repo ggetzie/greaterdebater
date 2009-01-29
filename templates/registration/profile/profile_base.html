@@ -2,20 +2,20 @@
 {% block title %}{{ username }}'s profile{% endblock %}
 
 {% block sub_header %}
-<span class="sub_header">
-  <ul class="flat-list">
+<div class="sub_header">
+
     {% ifequal user username %}    
-    <li><a href="/users/u/{{ username }}/settings">Settings</a></li>
-    <li><a href="/users/u/{{ username }}/messages">Messages</a></li>
+    <a class="menu" href="/users/u/{{ username }}/settings">Settings</a> |
+    <a class="menu" href="/users/u/{{ username }}/messages">Messages</a> |
     {% endifequal %}
-    <li><a href="/users/u/{{ username }}/arguments">Arguments</a></li>
-    <li><a href="/users/u/{{ username }}/submissions">Submissions</a></li>
-    <li><a href="/users/u/{{ username }}/comments">Comments</a></li>
-  </ul>
-</span>
+    <a class="menu" href="/users/u/{{ username }}/arguments">Arguments</a> |
+    <a class="menu" href="/users/u/{{ username }}/submissions">Submissions</a> |
+    <a class="menu" href="/users/u/{{ username }}/comments">Comments</a>
+
+</div>
 <h3>{{ username }}'s profile </h3>
-<br />
 {% endblock %}
 
 {% block content %}
+
 {% endblock %}

@@ -260,8 +260,8 @@ def challenge(request, c_id):
 
 def vote(request):
     """Cast a vote for either the plaintiff or defendant in an argument"""
-    if request.POST:
-        redirect = '/'
+    redirect = '/'
+    if request.POST:        
         form = Ballot(request.POST)
         if form.is_valid():
             arg = get_object_or_404(Argument, pk=form.cleaned_data['argument'])
@@ -294,7 +294,6 @@ def vote(request):
                 
     else:
         request.user.message_set.create(message="Not a POST")
-        redirect = '/'
     
     return HttpResponseRedirect(redirect)
                             

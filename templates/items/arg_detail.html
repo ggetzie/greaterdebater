@@ -40,9 +40,12 @@
 </div>
 {% if object.comment_set.all %}
 {% for comment in object.comment_set.all %}
-<div id="comment_div{{ comment.id }}" style="margin-left: {% ifequal comment.user object.defendant %}10{% else %}50{% endifequal %}px">
+<div id="comment_div{{ comment.id }}" class=" {% ifequal comment.user object.defendant %}defendant{% else %}plaintiff{% endifequal %}">
   <br />
-  {% include "comments/one_comment.html" %}
+  <span id= "comment_info{{ comment.id }}" class="comment_info {% if comment.is_removed %}removed{% endif %}"> by <a href="/users/u/{{ comment.user }}/profile/">{{ comment.user }}</a> {{ comment.get_elapsed }} ago</span>
+  <div id="commentp_div{{ comment.id }}">
+    {{ comment.comment_html|safe }}
+  </div>
 </div>
 {% endfor %}
 {% else %}
@@ -92,4 +95,8 @@
   {% endif %}
 </p>
 {% endifequal %}
+{% endblock %}
+
+{% block ads %}
+{% include "ads.html" %}
 {% endblock %}

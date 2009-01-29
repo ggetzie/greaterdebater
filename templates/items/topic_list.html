@@ -5,7 +5,7 @@
 {% if object_list %}
 <ol start={{ start }} class="topic-list">
   {% for object in object_list %}
-  <li><div class="title"><a href={{ object.url }} class="title">{{ object.title }}</a> </div>
+  <li><div class="title"><a href={{ object.url }} class="title">{{ object.title }}</a> <span class="domain">({{ object.get_domain }})</span></div>
     <div class="comment-menu">
 	submitted by <a href="/users/u/{{ object.user }}/profile/">{{ object.user }}</a> {{ object.get_elapsed }} ago |
 	{% with object.comment_set.count as num %}
@@ -27,4 +27,8 @@
 <a href="/page/{{ next }}">Next</a>
 {% endif %}
 
+{% endblock %}
+
+{% block ads %}
+{% include "ads.html" %}
 {% endblock %}

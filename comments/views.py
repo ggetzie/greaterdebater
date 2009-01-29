@@ -18,8 +18,8 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render_to_response
-#from django.core.paginator import ObjectPaginator, InvalidPage
-from django.template import loader, RequestContext
+
+from django.template import loader, RequestContext, Context
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib.contenttypes.models import ContentType
@@ -31,6 +31,7 @@ from models import Comment
 from tcd.items.models import Topic
 
 import datetime
+import pyfo
 
 try:
     COMMENT_REDIRECT_TO=settings.COMMENT_REDIRECT_TO
@@ -86,18 +87,37 @@ def delete(request):
             comment = get_object_or_404(Comment, pk=form.cleaned_data['comment_id'])
             redirect_to = form.cleaned_data['referring_page']
             if comment.user == request.user:
-                if comment.is_removed:
-                    comment.is_removed = False
+                if not comment.arguments.all():
+
+                    if comment.is_removed:
+                        comment.is_removed = False
+
+                    else:
+                        comment.is_removed = True
+
+                    comment.save()
+                    t = loader.get_template('comments/one_comment.html')                
+                    c = Context({'comment': comment,
+                                 'user': request.user})
+                    response = ('response', [('status', 'ok'),
+                                             ('id', comment.id),
+                                             ('comment', t.render(c))])
+                    response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')
+                    return HttpResponse(response)
                 else:
-                    comment.is_removed = True
-                comment.save()
+                    message="Can't delete a comment that has arguments"            
             else:
-                request.user.message_set.create(message="Can't delete a comment that isn't yours")
+                message="Can't delete a comment that isn't yours"
         else:
-            request.user.message_set.create(message="Invalid Form")
+            message = "Invalid Form"
     else:
-        request.user.message_set.create(message="Not a POST request")
-    return HttpResponseRedirect(redirect_to)
+        message="Not a POST request"
+    response = ('response', [('message', message),
+                             ('status', "error"),
+                             ('id', comment.id)])
+    response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')
+    return HttpResponse(response)
+
                                     
 def tip(request):	
     from pygments import lexers

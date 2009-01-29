@@ -31,35 +31,36 @@
 
     </div>
     <br />
-    {% if messages %}
-    <p class="sys_messages">
+
+    <div id="sys_messages">
+      {% if messages %}
       <ul class="sys_msg_lst">
 	{% for message in messages %}
 	<li>{{ message|safe }}</li>
 	{% endfor %}
       </ul>
-    </p>
-    {% endif %}
+      {% endif %}
+    </div>
+
     {% endblock %}
 
     {% block sub_header %}
     {% endblock %}
+    
     <div id="content-wrapper">
       <div id="content">
 	{% block content %}
 	{% endblock %}
       </div>
 
-      <div id="ads">
-	<p id="adsp">
-	  Ads go here<br />
-	  blah blah blah<br />
-	  Ad 1<br />
-	  Ad 2<br />
-	</p>
+      <div id="ad-wrapper">
+	{% block ads %}
+	{% endblock %}
       </div>
+
       <div class="clearfooter"></div>
     </div>
+
   </div>
   
   <div class="footer">
@@ -67,8 +68,8 @@
       <li><a href="/about/">About</a></li>|
       <li><a href="/help/">Help</a></li>|
       <li><a href="/FAQ/">FAQ</a></li>|
-      <li><a href="/TOS/">Terms of Service</a></li>|
-      <li><a href="/contact/">Feedback</a></li>
+      <li><a href="/tos/">Terms of Service</a></li>|
+      <li><a href="/feedback/">Feedback</a></li>
     </ul>
   </div>
 

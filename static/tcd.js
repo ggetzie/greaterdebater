@@ -1,18 +1,9 @@
 $(document).ready(function() {
-
+    
+//     $("ads").css("height", $("content").css("height"));
 
 });
-
-function vote(form_id){
-    $.post("/vote/", {argument: $(form_id + ' #argument').val(),
-		      voter: $(form_id + ' #voter').val(),
-		      voted_for: $(form_id + ' #voted_for').val()},
-	   function(xml) {
-	       addVotes(xml);
-	   });
-};
     
-		   
 function displayFormComment(form_id) {
 
     $(form_id).parents("div.action_block").find("div.comment_action").
@@ -23,6 +14,14 @@ function displayFormComment(form_id) {
     $(form_id).slideToggle();
 }		
 
+function vote(form_id){
+    $.post("/vote/", {argument: $(form_id + ' #argument').val(),
+		      voter: $(form_id + ' #voter').val(),
+		      voted_for: $(form_id + ' #voted_for').val()},
+	   function(xml) {
+	       addVotes(xml);
+	   });
+};
 
 function addVotes(xml) {
     var pvotefor
@@ -44,6 +43,23 @@ function addVotes(xml) {
 		    $("pvotes",xml).text() +  pvotefor + $("plaintiff",xml).text() + "<br />" + 
 		    $("dvotes",xml).text() + dvotefor +  $("defendant",xml).text() + "</p>");
 }
+
+function delete_comment(id) {
+    form_id = '#delete' + id
+    
+    $.post($(form_id).attr("action"), {comment_id: id},	   
+	   function(xml) { 
+	       comID = $("id",xml).text()
+	       divID = '#comment_div' + comID
+	       if($("status",xml).text() == "error") {
+		   $('#confirm_delete' + comID).html($("message", xml).text())		       		   
+	       } else {
+		   $(divID).html($("comment",xml).text())
+	       }
+
+	   }
+	  );	       
+};
 
 function collapse(div_id, mode) {
     var div = $(div_id);
@@ -72,4 +88,5 @@ function collapse(div_id, mode) {
 	alert("Invalid mode!");
     };
 	
-}
+};
+

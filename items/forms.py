@@ -6,7 +6,9 @@ from django.shortcuts import get_object_or_404
 attrs_dict = {'class': 'required'}
 
 class tcdTopicSubmitForm(forms.Form):
-    title = forms.CharField(max_length=140, label="Title")
+    title = forms.CharField(max_length=140, label="Title",
+                            widget=forms.widgets.Textarea(attrs={'rows': 2,
+                                                                 'cols': 70}))
     url = forms.URLField(label="URL", required=False,
                          help_text="Leave the URL field blank to submit a self-referential topic.")
     comment = forms.CharField(label="Text", required=False,

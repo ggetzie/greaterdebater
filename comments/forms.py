@@ -32,4 +32,4 @@ class CommentForm(forms.Form):
 
 class DeleteForm(forms.Form):
     comment_id = forms.IntegerField(widget=forms.widgets.HiddenInput())
-    referring_page = forms.CharField(max_length=255, widget=forms.widgets.HiddenInput())
+    referring_page = forms.CharField(max_length=255, widget=forms.widgets.HiddenInput(), required=False)

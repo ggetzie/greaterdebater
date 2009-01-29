@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from tcd.utils import elapsed_time
 
 import datetime
+import urlparse
 
 class Topic(models.Model):
     title = models.CharField(max_length=200)
@@ -31,6 +32,13 @@ class Topic(models.Model):
         time = (delta.days * 1440) + (delta.seconds / 60) + 1
         self.score = self.comment_length / float(time)
         self.last_calc = datetime.datetime.now()
+
+    def get_domain(self):
+        domain = urlparse.urlparse(self.url)[1]
+        if domain:
+            return domain
+        else:
+            return "greaterdebater.com"
 
 class Argument(models.Model):
     plaintiff = models.ForeignKey(User, related_name='plaintiff_set')

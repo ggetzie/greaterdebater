@@ -1,13 +1,20 @@
 {% ifequal user comment.user %}
-<form action="/comments/delete/" name="delete{{ comment.id }}" method="post" accept-charset="utf-8">
-  <div><input type="hidden" name="comment_id" value={{ comment.id }}></div>
-  <div><input type="hidden" name="referring_page" value="{{ request.path }}"></div>
+<form action="/comments/delete/" id="delete{{ comment.id }}" name="delete{{ comment.id }}" method="post" accept-charset="utf-8">
+  <div><input type="hidden" id="delete_com_id{{ comment.id }}" value={{ comment.id }}></div>
+  <div><input type="hidden" id="delete_ref_page{{ comment.id }}" value="{{ request.path }}"></div>
 </form>
 {% endifequal %}
-{% if not comment.is_removed %}
-<div class="comment-menu">
+
+<div id = "comment-menu{{ comment.id }}" class="comment-menu">
 
   <a id="collapse{{ comment.id }}" class="menu" href="javascript:collapse('#comment_div{{ comment.id }}', 0);">[-]</a>
+  {% if comment.is_removed %}
+
+  {% ifequal user comment.user %}
+  <a id="undelete{{ comment.id}}" href='#' class="menu comment-menu" onclick="delete_comment('{{ comment.id }}'); return false;">undelete</a>
+  {% endifequal %}
+
+  {% else %}
 
   <a class="menu" href="/comments/{{ comment.id }}/arguments/">({{ comment.arguments.count }}) argument{{ comment.arguments.count|pluralize }}</a>
 
@@ -19,7 +26,7 @@
 
   
   {% ifequal user comment.user %}
-
+  
   <a class="menu" href='#' class="comment_action"
      onclick="displayFormComment('#edit{{ comment.id }}'); return false;">edit</a>
 
@@ -36,11 +43,16 @@
 
   {% endifequal %}
   {% endif %}
+
+  {% endif %}
 </div>
 
+{% if user.is_authenticated %}  
+{% if not comment.is_removed %}
 <div id="action_block{{ comment.id }}" class="action_block">
   {% include "comments/reply_form.html" %}
   {% include "comments/edit_form.html" %}
   {% include "comments/argue_form.html" %}
 </div>
+{% endif %}
 {% endif %}

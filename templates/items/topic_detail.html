@@ -2,8 +2,11 @@
 {% block title %}{{ object.title }}{% endblock %}
 
 {% block content %}
-<strong><a href={{ object.url }}>{{ object.title }}</a></strong><br />
-<span class="comment_info">submitted by <a href="/users/u/{{ object.user }}/profile/">{{ object.user }}</a> {{ object.get_elapsed }} ago<br /></span>
+<div class="title"><a href={{ object.url }}>{{ object.title }}</a></div>
+
+<span class="comment_info">
+  submitted by <a href="/users/u/{{ object.user }}/profile/">{{ object.user }}</a> {{ object.get_elapsed }} ago
+</span>
 
 {% if first_c %}
 {% for comment in first_c %}
@@ -20,32 +23,45 @@
   <div class="action_block">
     {% include "comments/argue_form.html" %}
   </div>
-{% endifequal %}
-{% else %}
+  {% endifequal %}
+  {% else %}
+  {% endif %}
+
+  {% endfor %}
+
+</div>
 {% endif %}
-{% endfor %}
-{% endif %}
+
+
+{% include "comments/form.html" %}
+
+{% if rest_c %}
+
+<div id="comments">
+  {% for comment in rest_c %}
+  <div id="comment_div{{ comment.id }}" class="comment_div" style="margin-left: {{ comment.nesting }}px">
+    {% include "comments/one_comment.html" %}
+  </div>
+  {% endfor %}
 </div>
 
-<br />
-{% include "comments/form.html" %}<br>
-{% if rest_c %}
-{% for comment in rest_c %}
-<div id="comment_div{{ comment.id }}" style="margin-left: {{ comment.nesting }}px">
-  <br />
-  {% include "comments/one_comment.html" %}
-  {% include "comments/comment_actions.html" %}
-</div>
-{% endfor %}
 <p>
-{% if has_previous %}
-<a href="/{{ object.id }}/{{ previous }}">Previous</a>
-{% endif %}
-{% if has_next %}
-<a href="/{{ object.id }}/{{ next }}">Next</a>
-{% endif %}
+  {% if has_previous %}
+  <a href="/{{ object.id }}/{{ previous }}">Previous</a>
+  {% endif %}
+
+  {% if has_next %}
+  <a href="/{{ object.id }}/{{ next }}">Next</a>
+  {% endif %}
 </p>
+
 {% else %}
+
 <p>No comments</p>
 {% endif %}
+
+{% endblock %}
+
+{% block ads %}
+{% include "ads.html" %}
 {% endblock %}

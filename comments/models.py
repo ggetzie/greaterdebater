@@ -91,8 +91,8 @@ class Comment(models.Model):
         if not self.id:
             self.pub_date = datetime.datetime.now()          
         self.comment_html=self.hilight(self.comment)
+        self.comment_html = self.comment_html.replace('<p>', """<p class="commentp">""" )
         self.comment_html = self.comment_html.replace('\n', "<br />")
-        self.comment_html = self.comment_html.replace('<p>', """<p class="commentp">""")
         if self.topic:
             self.topic.comment_length += len(self.comment)
             self.topic.recalculate()

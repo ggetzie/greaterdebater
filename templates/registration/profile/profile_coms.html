@@ -5,18 +5,16 @@
 
 {% block content %}
 <h4>Comments</h4><br />
-{% for comment in comments_list %}
-<p class=comment_topic>
-on <a href="/{{ comment.topic_id }}/">{{ comment.topic.title }}</a>
-</p>
-<div id="comment{{ comment.id }}" class="comment_div">
-  {% include "comments/one_comment.html" %}
-  {% include "comments/comment_actions.html" %}
-  {% if comment.is_removed %}
-  <a href='#' onclick="document.delete{{ comment.id }}.submit(); return false;">undelete</a>
-  {% endif %}
+<div id="comments">
+  {% for comment in comments_list %}
+  <p class=comment_topic>
+    on <a href="/{{ comment.topic_id }}/">{{ comment.topic.title }}</a>
+  </p>
+  <div id="comment_div{{ comment.id }}" class="comment_div">
+    {% include "comments/one_comment.html" %}    
+  </div><br />
+  {% endfor %}
 </div>
-{% endfor %}
 
 {% if has_previous %}
 <a href="/users/u/{{ username }}/comments/{{ previous }}">prev</a>
