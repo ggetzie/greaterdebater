@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}{{ object.title }}{% endblock %}
+
+{% block content %}
+<h4>{{ object.title }}</h4>
+<p>{{ object.get_status }}</p>
+
+<div id="vote">
+
+  {% if voted_for %}
+  <p>You voted for {{ voted_for }}</p>
+  <p>
+    Current Tally:<br />
+    {{ pvotes }} vote{{ pvotes|pluralize }} for {{ object.plaintiff }}<br />
+    {{ dvotes }} vote{{ dvotes|pluralize }} for {{ object.defendant }}<br />
+  </p>
+
+  {% else %}
+  {% if current %}
+  <form id="voteP" class="Ballot" method="post" accept-charset="utf-8">
+    <div><input type="hidden" id="argument" value={{ object.id }} /></div>
+    <div><input type="hidden" id="voter" value={{ request.user.id }} /></div>
+    <div><input type="hidden" id="voted_for" value="P" /></div>
+  </form>
+  <form id="voteD" class="Ballot" method="post" accept-charset="utf-8">
+    <div><input type="hidden" id="argument" value={{ object.id }} /></div>
+    <div><input type="hidden" id="voter" value={{ request.user.id }} /></div>
+    <div><input type="hidden" id="voted_for" value="D" /></div>
+  </form>
+  <ul class="flat-list">    
+    <li>
+      <a href='#' onclick="vote('#voteP'); return false;">Vote for {{ object.plaintiff.username}}</a>
+    </li>
+    <li>
+      <a href='#' onclick="vote('#voteD'); return false;">Vote for {{ object.defendant.username}}</a>
+    </li>
+  </ul>	
+  {% endif %}
+  {% endif %}
+</div>
+{% if object.comment_set.all %}
+{% for comment in object.comment_set.all %}
+<div id="comment_div{{ comment.id }}" class=" {% ifequal comment.user object.defendant %}defendant{% else %}plaintiff{% endifequal %}">
+  <br />
+  {% include "comments/one_comment.html" %}
+</div>
+{% endfor %}
+{% else %}
+<p>No comments</p>
+{% endif %}
+{% ifequal user object.whos_up %}
+<p>
+  {% if new_arg %}
+  <div class="arg_query">
+    Begin this argument?<br />
+    <ul class="flat-list">
+      <li><a href="/argue/accept/{{ object.id }}">Accept</a></li>
+      <li><a href="/argue/decline/{{ object.id }}">Decline</a></li>
+    </ul>
+  </div>
+  {% else %}
+  {% if object.draw_set.all %}
+  A draw has been offered <br />
+  <ul class="flat-list">
+    <li><a href="/argue/draw/accept/{{ object.id }}">Accept</a></li>
+    <li><a href="/argue/draw/decline/{{ object.id }}">Decline</a></li>
+  </ul>
+  {% else %}
+  <ul class="flat-list">
+
+    <li>
+      <a href='#' onclick="displayFormComment('#rebut{{ object.id }}'); return false;">Rebut</a>
+    </li>
+
+    <li>
+      <a href='#' onclick="displayFormComment('#draw{{ object.id }}'); return false;">Offer a draw</a>
+    </li>
+
+    <li>
+      <a href='#' onclick="displayFormComment('#concede{{ object.id }}'); return false;">Concede</a>
+    </li>
+
+  </ul><br />
+  <div class="action_block">
+    {% include "comments/rebut_form.html" %}
+    {% include "comments/draw_form.html" %}
+    <div id="concede{{ object.id }}" class="comment_action">
+      <p>Concede argument: Are you sure? <a href="/argue/concede/{{ object.id }}">Yes</a> / <a href="#" onclick="displayFormComment('#concede{{ object.id }}'); return false;">No</a></p>
+    </div>
+  </div>
+  {% endif %}
+  {% endif %}
+</p>
+{% endifequal %}
+{% endblock %}
+
+{% block ads %}
+{% include "ads.html" %}
+{% endblock %}

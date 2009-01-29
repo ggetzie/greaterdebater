@@ -25,14 +25,6 @@ height: 100px;
 clear: both;
 }
 
-.removed {
-display: none;
-}
-
-.anti-removed {
-display: none;
-}
-
 div.title {
 width: 90%;
 }
@@ -138,12 +130,8 @@ div.comment_action {
 display: none;
 }
 
-.title {
+a.title {
 font-size: large
-}    
-
-div.title {
-margin-bottom: 10px;
 }    
 
 .menu {
@@ -187,7 +175,6 @@ text-align: center;
 
 div#content-wrapper {
 margin-top: 20px;
-<<<<<<< variant A
 }
 
 div.defendant {
@@ -206,34 +193,4 @@ margin-left: 20px;
 
 div#tos h2 {
 text-align: center;
->>>>>>> variant B
-}
-
-div.defendant {
-margin-left: 10px;
-}
-
-div.plaintiff {
-margin-left: 50px;
-}
-
-div#tos {
-text-align: justify;
-font-size: 13px;
-margin-left: 20px;
-}
-
-div#tos h2 {
-text-align: center;
-}
-
-div#comments {
-margin-top: 20px;
-}
-
-div#sys_messages {
-margin: 20px 20px 20px 20px;
-text-align: center;
-####### Ancestor
-======= end
 }
