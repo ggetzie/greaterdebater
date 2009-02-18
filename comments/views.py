@@ -19,10 +19,10 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render_to_response
 
-from django.template import loader, RequestContext, Context
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib.contenttypes.models import ContentType
+from django.template import loader, RequestContext, Context
 from django.utils.http import urlquote_plus, urlquote
 
 from forms import CommentForm, DeleteForm

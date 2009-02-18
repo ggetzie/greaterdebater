@@ -47,7 +47,7 @@ function addVotes(xml) {
 function delete_comment(id) {
     form_id = '#delete' + id
     
-    $.post($(form_id).attr("action"), {comment_id: id},	   
+    $.post("comments/delete", {comment_id: id},	   
 	   function(xml) { 
 	       comID = $("id",xml).text()
 	       divID = '#comment_div' + comID
@@ -60,6 +60,18 @@ function delete_comment(id) {
 	   }
 	  );	       
 };
+
+function flag_topic(topic_id, user_id) {
+    form_id = 'tflag' + topic_id;
+
+    $.post("/tflag/", {topic_id: topic_id,
+		      user_id: user_id},
+	   function(xml) {
+	       msg = $("message",xml).text();
+	       $("#topic_div" + topic_id).after(msg);
+	   }
+	  )
+}
 
 function collapse(div_id, mode) {
     var div = $(div_id);

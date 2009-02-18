@@ -13,13 +13,13 @@ class Topic(models.Model):
     user = models.ForeignKey(User)
     comment_length = models.IntegerField()
     last_calc = models.DateTimeField('last score calculation')
+    tflaggers = models.ManyToManyField(User, verbose_name="Users who flagged this topic as spam", related_name='tflaggers_set')
+    needs_review = models.BooleanField(default=False)
     
-    class Admin:
-        pass
-
 
     class Meta:
         ordering = ['-score', '-sub_date']
+
 
     def __unicode__(self):
         return self.title
@@ -58,11 +58,9 @@ class Argument(models.Model):
     status = models.PositiveSmallIntegerField(default=0)
 
     
-    class Admin:
-        pass
-
     class Meta:
         ordering = ['-start_date']
+
     
     def __unicode__(self):
         return self.title

@@ -1,0 +1,16 @@
+<div id="topic_div{{ object.id }}" class="topic_div">
+  <div class="title"><a href={{ object.url }} class="title">{{ object.title }}</a> <span class="domain">({{ object.get_domain }})</span></div>
+  <div class="comment-menu">
+    submitted by <a href="/users/u/{{ object.user }}/profile/">{{ object.user }}</a> {{ object.get_elapsed }} ago |
+    {% with object.comment_set.count as num %}
+    <a href="/{{ object.id }}">{{ num }} comment{{ num|pluralize }}</a>
+    {% endwith %}
+    {% if user.is_authenticated %}
+    | <a href="#" onclick="$('#confirm_flag{{ object.id }}').show()">flag</a>
+    <span class="confirm" id="confirm_flag{{ object.id }}">
+      | Flag this as spam? <a href="#" onclick="flag_topic({{ object.id }}, {{ user.id }}); $('#confirm_flag{{ object.id }}').hide(); return false;">Yes</a> 
+      / <a href="#" onclick="$('#confirm_flag{{ object.id }}').hide()">No</a>
+    </span>
+    {% endif %}
+  </div>
+</div>

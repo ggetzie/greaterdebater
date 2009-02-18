@@ -1,9 +1,10 @@
+{% comment %}
 {% ifequal user comment.user %}
 <form action="/comments/delete/" id="delete{{ comment.id }}" name="delete{{ comment.id }}" method="post" accept-charset="utf-8">
-  <div><input type="hidden" id="delete_com_id{{ comment.id }}" value={{ comment.id }}></div>
-  <div><input type="hidden" id="delete_ref_page{{ comment.id }}" value="{{ request.path }}"></div>
+  <div><input type="hidden" id="delete_com_id{{ comment.id }}" name="comment_id" value={{ comment.id }}></div>
 </form>
 {% endifequal %}
+{% endcomment %}
 
 <div id = "comment-menu{{ comment.id }}" class="comment-menu">
 

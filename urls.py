@@ -1,9 +1,12 @@
 from django.conf.urls.defaults import *
+from django.contrib import admin
+
+admin.autodiscover()
 
 urlpatterns = patterns('',
                        (r'^tcdsetup.html$', 'django.views.generic.simple.direct_to_template', {'template': 'tcdsetup.html'}),
                        (r'^vinepics.html$', 'django.views.generic.simple.direct_to_template', {'template': 'vinepics.html'}),
-                       (r'^admin/', include('django.contrib.admin.urls')),
+                       (r'^admin/(.*)', admin.site.root),
                        (r'', include('tcd.items.urls')),                       
                        (r'^about/$', 'django.views.generic.simple.direct_to_template', {'template': 'about.html'}),
                        (r'^FAQ/$', 'django.views.generic.simple.direct_to_template', {'template': 'faq.html'}),

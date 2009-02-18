@@ -187,7 +187,6 @@ text-align: center;
 
 div#content-wrapper {
 margin-top: 20px;
-<<<<<<< variant A
 }
 
 div.defendant {
@@ -206,7 +205,6 @@ margin-left: 20px;
 
 div#tos h2 {
 text-align: center;
->>>>>>> variant B
 }
 
 div.defendant {
@@ -234,6 +232,8 @@ margin-top: 20px;
 div#sys_messages {
 margin: 20px 20px 20px 20px;
 text-align: center;
-####### Ancestor
-======= end
+}
+
+.confirm {
+display: none;
 }

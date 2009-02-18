@@ -5,13 +5,13 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
-from django.template import loader, RequestContext
+from django.template import loader, RequestContext, Context
 from django.views.generic import list_detail
 
 from tcd.comments.forms import CommentForm
 from tcd.comments.models import Comment, tcdMessage, Draw
 from tcd.comments.utils import build_list
-from tcd.items.forms import tcdTopicSubmitForm, Ballot
+from tcd.items.forms import tcdTopicSubmitForm, Ballot, Tflag
 from tcd.items.models import Topic, Argument, Vote
 from tcd.profiles.forms import tcdLoginForm
 from tcd.profiles.models import Profile
@@ -76,37 +76,53 @@ def comments(request, topic_id, page=1):
                               context_instance=RequestContext(request)
                               )
 
-def topics(request, page=1):
+def topics(request, page=1, sort="hot"):
     """Display the list of topics on the front page. Order by highest score"""
-    paginate_by = 25
-    if page == 'last':
-        start = paginate_by * (Topic.objects.count() / paginate_by) + 1
-    else:
-        start = paginate_by * (int(page) - 1) + 1        
-    user = request.user
-    
+    paginate_by = 5
+    start = calc_start(page, paginate_by, Topic.objects.count())
+    user = request.user    
     if user.is_authenticated() and tcdMessage.objects.filter(recipient=user, is_read=False):        
         user.message_set.create(message=''.join(["<a href='/users/u/", user.username,
                                                  "/messages/'>You have unread messages</a>"]))
+    if sort == "new":
+        queryset = Topic.objects.filter(needs_review=False).order_by('-sub_date')
+        pager = "new" 
+    else:
+        queryset = Topic.objects.filter(needs_review=False)
+        pager = "page" 
     
     return list_detail.object_list(request=request, 
-                                   queryset=Topic.objects.all(), 
+                                   queryset=queryset,
                                    paginate_by=paginate_by, 
                                    page=page,
-                                   extra_context={'start': start,})
+                                   extra_context={'start': start,
+                                                  'pager': pager})
 
-def new_topics(request, page=1):
-    """Display the list of topics in order from newest to oldest"""
-    paginate_by = 25
-    if page == 'last':
-        start = paginate_by * (Topic.objects.count() / paginate_by) + 1
+def tflag(request):
+    if request.POST:
+        form = Tflag(request.POST)
+        if form.is_valid():
+            top = Topic.objects.get(pk=form.cleaned_data['topic_id'])
+            user = User.objects.get(pk=form.cleaned_data['user_id'])
+            if user in top.tflaggers.all():
+                message="You've already flagged this topic"
+            else:
+                top.tflaggers.add(user)
+                if top.tflaggers.count() > 10:
+                    top.needs_review = True
+                top.save()
+                message="Topic flagged"
+        else:
+            message = "Invalid Form"
     else:
-        start = paginate_by * (int(page) - 1) + 1        
-    return list_detail.object_list(request=request, 
-                                   queryset=Topic.objects.order_by('-sub_date'), 
-                                   paginate_by=paginate_by, 
-                                   page=page,
-                                   extra_context={'start': start,})
+        message = "Not a Post"
+
+    t = loader.get_template('items/flag_msg.html')
+    c = Context({'topic': top,
+                 'message': message})
+    response = ('response', [('message', t.render(c))])
+    response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')    
+    return HttpResponse(response)
 
 
 
@@ -200,11 +216,6 @@ def edit_topic(request, topic_id, page):
                               {'form': form,
                                'username': top.user.username},
                               context_instance=RequestContext(request))
-
-def ajax(request):
-    prefixes = ['Mashup', '2.0', 'Tagging', 'Folksonomy']
-    suffixes = ['Web', 'Push', 'Media', 'GUI']
-    return HttpResponse(''.join([random.choice(prefixes), " is the new ", random.choice(suffixes)]))
 
 def challenge(request, c_id):
     """Create a pending argument as one user challenges another."""

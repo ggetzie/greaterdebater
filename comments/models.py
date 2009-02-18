@@ -77,16 +77,6 @@ class Comment(models.Model):
         verbose_name_plural = 'comments'
         ordering = ('pub_date',)
         
-    class Admin:
-        list_display = ('user', 'pub_date')
-        fields=(
-        (None, {'fields': ('topic', 'parent_id', 'nesting', 'is_removed', 
-                           'is_first', 'pub_date', 'arg_proper')}),
-        ('Content', {'fields': ('user', 'comment')}),
-        )
-        search_fields = ('comment','user__username')
-        date_hierarchy = 'pub_date'
-        
     def save(self):
         if not self.id:
             self.pub_date = datetime.datetime.now()          

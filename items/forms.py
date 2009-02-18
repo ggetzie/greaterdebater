@@ -34,3 +34,7 @@ class Ballot(forms.Form):
             return voted_for
         else:
             raise forms.ValidationError("Invalid vote")
+
+class Tflag(forms.Form):
+    topic_id = forms.IntegerField(widget=forms.widgets.HiddenInput())
+    user_id = forms.IntegerField(widget=forms.widgets.HiddenInput())
