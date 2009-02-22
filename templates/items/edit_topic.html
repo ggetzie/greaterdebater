@@ -5,10 +5,28 @@
 {% block content %}
 <form action="{{ request.path }}" method='post'>
   <table>
-    {{ form }}
+    <tr>
+      <th>	
+	<label for="id_title">Title:</label>
+      </th>
+      <td>
+	{{ form.title }}
+      </td>
+    </tr>
+    <tr>
+      <th>
+	<label for="id_comment">Text:</label>
+      </th>
+      <td>      
+	{{ form.comment }}
+      </td>
+    </tr>
     <tr>
       <td></td>
-      <td><input type="submit" value="Edit" /></td></tr>
+      <td>
+	<input type="submit" value="Edit" />
+      </td>
+    </tr>
   </table>
 </form>
 {% endblock %}

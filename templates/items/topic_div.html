@@ -1,10 +1,7 @@
 <div id="topic_div{{ object.id }}" class="topic_div">
   <div class="title"><a href={{ object.url }} class="title">{{ object.title }}</a> <span class="domain">({{ object.get_domain }})</span></div>
   <div class="comment-menu">
-    submitted by <a href="/users/u/{{ object.user }}/profile/">{{ object.user }}</a> {{ object.get_elapsed }} ago |
-    {% with object.comment_set.count as num %}
-    <a href="/{{ object.id }}">{{ num }} comment{{ num|pluralize }}</a>
-    {% endwith %}
+    submitted by <a href="/users/u/{{ object.user }}/profile/">{{ object.user }}</a> {{ object.get_elapsed }} ago
     {% if user.is_authenticated %}
     <span id="flag_link{{ object.id }}">
       | <a href="#" onclick="swap('#flag_link{{ object.id }}', '#confirm_flag{{ object.id }}'); return false;">flag</a>
@@ -14,5 +11,9 @@
       / <a href="#" onclick="swap('#flag_link{{ object.id }}', '#confirm_flag{{ object.id }}'); return false;">No</a>
     </span>
     {% endif %}
+
+    {% with object.comment_set.count as num %}
+     | <a href="/{{ object.id }}">{{ num }} comment{{ num|pluralize }}</a>
+    {% endwith %}
   </div>
 </div>
