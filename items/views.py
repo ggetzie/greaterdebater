@@ -11,7 +11,7 @@ from django.views.generic import list_detail
 from tcd.comments.forms import CommentForm
 from tcd.comments.models import Comment, tcdMessage, Draw
 from tcd.comments.utils import build_list
-from tcd.items.forms import tcdTopicSubmitForm, Ballot, Tflag
+from tcd.items.forms import tcdTopicSubmitForm, Ballot, Flag
 from tcd.items.models import Topic, Argument, Vote
 from tcd.profiles.forms import tcdLoginForm
 from tcd.profiles.models import Profile
@@ -78,7 +78,7 @@ def comments(request, topic_id, page=1):
 
 def topics(request, page=1, sort="hot"):
     """Display the list of topics on the front page. Order by highest score"""
-    paginate_by = 5
+    paginate_by = 25
     start = calc_start(page, paginate_by, Topic.objects.count())
     user = request.user    
     if user.is_authenticated() and tcdMessage.objects.filter(recipient=user, is_read=False):        
@@ -98,12 +98,13 @@ def topics(request, page=1, sort="hot"):
                                    extra_context={'start': start,
                                                   'pager': pager})
 
-def tflag(request):
+def tflag(request):    
+    top=None
     if request.POST:
-        form = Tflag(request.POST)
+        form = Flag(request.POST)
         if form.is_valid():
-            top = Topic.objects.get(pk=form.cleaned_data['topic_id'])
-            user = User.objects.get(pk=form.cleaned_data['user_id'])
+            top = Topic.objects.get(pk=form.cleaned_data['object_id'])
+            user = request.user
             if user in top.tflaggers.all():
                 message="You've already flagged this topic"
             else:
@@ -117,9 +118,14 @@ def tflag(request):
     else:
         message = "Not a Post"
 
-    t = loader.get_template('items/flag_msg.html')
-    c = Context({'topic': top,
-                 'message': message})
+    t = loader.get_template('items/msg_div.html')
+    if top:
+        id = top.id
+    else:
+        id = 1
+    c = Context({'id': id,
+                 'message': message,
+                 'nesting': "10"})
     response = ('response', [('message', t.render(c))])
     response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')    
     return HttpResponse(response)

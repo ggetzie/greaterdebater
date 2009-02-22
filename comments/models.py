@@ -71,6 +71,8 @@ class Comment(models.Model):
     arguments = models.ManyToManyField(Argument, blank=True, null=True)
     arg_proper = models.BooleanField(default=False)
     is_msg = models.BooleanField(default=False)
+    cflaggers = models.ManyToManyField(User, verbose_name="Users who flagged this topic as spam", related_name="cflaggers")
+    needs_review = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'comment'

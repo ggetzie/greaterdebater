@@ -22,6 +22,7 @@ from django.shortcuts import render_to_response
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import User
 from django.template import loader, RequestContext, Context
 from django.utils.http import urlquote_plus, urlquote
 
@@ -29,6 +30,7 @@ from forms import CommentForm, DeleteForm
 from models import Comment
 
 from tcd.items.models import Topic
+from tcd.items.forms import Flag
 
 import datetime
 import pyfo
@@ -146,3 +148,29 @@ def arguments(request, comment_id):
                                'args_list': args_list},
                               context_instance=RequestContext(request))
                                     
+def flag(request):
+    if request.POST:
+        form = Flag(request.POST)
+        if form.is_valid():
+            com = Comment.objects.get(pk=form.cleaned_data['object_id'])
+            user = request.user
+            if user in com.cflaggers.all():
+                message="You've already flagged this comment"
+            else:
+                com.cflaggers.add(user)
+                if com.cflaggers.count() > 10:
+                    com.needs_review = True
+                com.save()
+                message="Comment flagged"
+        else:
+            message = "Invalid Form"
+    else:
+        message = "Not a Post"
+
+    t = loader.get_template('items/msg_div.html')
+    c = Context({'id': com.id,
+                 'message': message,
+                 'nesting': com.nesting})
+    response = ('response', [('message', t.render(c))])
+    response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')    
+    return HttpResponse(response)

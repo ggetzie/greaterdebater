@@ -61,16 +61,29 @@ function delete_comment(id) {
 	  );	       
 };
 
-function flag_topic(topic_id, user_id) {
-    form_id = 'tflag' + topic_id;
+function flag_topic(topic_id, user_id) {    
 
-    $.post("/tflag/", {topic_id: topic_id,
-		      user_id: user_id},
+    $.post("/tflag/", {object_id: topic_id},		      
 	   function(xml) {
 	       msg = $("message",xml).text();
 	       $("#topic_div" + topic_id).after(msg);
 	   }
 	  )
+}
+
+function flag_comment(comment_id, user_id) {
+    $.post("/comments/flag/", {object_id: comment_id},
+	   function(xml){
+	       msg = $("message",xml).text();
+	       $("#comment_div" + comment_id).after(msg);
+	   }
+	  )
+}
+
+function swap(thing1, thing2){
+    var temp = $(thing1).html()
+    $(thing1).html( $(thing2).html());
+    $(thing2).html(temp);
 }
 
 function collapse(div_id, mode) {

@@ -6,10 +6,12 @@
     <a href="/{{ object.id }}">{{ num }} comment{{ num|pluralize }}</a>
     {% endwith %}
     {% if user.is_authenticated %}
-    | <a href="#" onclick="$('#confirm_flag{{ object.id }}').show()">flag</a>
+    <span id="flag_link{{ object.id }}">
+      | <a href="#" onclick="swap('#flag_link{{ object.id }}', '#confirm_flag{{ object.id }}'); return false;">flag</a>
+    </span>
     <span class="confirm" id="confirm_flag{{ object.id }}">
-      | Flag this as spam? <a href="#" onclick="flag_topic({{ object.id }}, {{ user.id }}); $('#confirm_flag{{ object.id }}').hide(); return false;">Yes</a> 
-      / <a href="#" onclick="$('#confirm_flag{{ object.id }}').hide()">No</a>
+      | Flag this as spam? <a href="#" onclick="flag_topic({{ object.id }}, {{ user.id }}); swap('#flag_link{{ object.id }}', '#confirm_flag{{ object.id }}'); return false;">Yes</a> 
+      / <a href="#" onclick="swap('#flag_link{{ object.id }}', '#confirm_flag{{ object.id }}'); return false;">No</a>
     </span>
     {% endif %}
   </div>
