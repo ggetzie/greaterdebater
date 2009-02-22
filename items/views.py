@@ -6,6 +6,7 @@ from django.db import models
 from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import loader, RequestContext, Context
+from django.utils.datastructures import MultiValueDictKeyError
 from django.views.generic import list_detail
 
 from tcd.comments.forms import CommentForm
@@ -164,7 +165,13 @@ def submit(request):
                 comment.save()
                 return HttpResponseRedirect(next)
         else:
-            form = tcdTopicSubmitForm()
+            try:
+                form = tcdTopicSubmitForm(initial={'title':request.GET['title'],
+                                                   'url':request.GET['url']})
+            except MultiValueDictKeyError:
+                form = tcdTopicSubmitForm()
+                
+
         return render_to_response("items/submit.html",
                                   {'form': form},
                                   context_instance=RequestContext(request))

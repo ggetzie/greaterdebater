@@ -114,7 +114,11 @@ def delete(request):
             message = "Invalid Form"
     else:
         message="Not a POST request"
-    response = ('response', [('message', message),
+    msg_template = loader.get_template('items/msg_div.html')
+    msg_context = Context({'id': comment.id,
+                          'message': message,
+                          'nesting': comment.nesting})
+    response = ('response', [('message', msg_template.render(msg_context)),
                              ('status', "error"),
                              ('id', comment.id)])
     response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')

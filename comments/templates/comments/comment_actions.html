@@ -1,10 +1,3 @@
-{% comment %}
-{% ifequal user comment.user %}
-<form action="/comments/delete/" id="delete{{ comment.id }}" name="delete{{ comment.id }}" method="post" accept-charset="utf-8">
-  <div><input type="hidden" id="delete_com_id{{ comment.id }}" name="comment_id" value={{ comment.id }}></div>
-</form>
-{% endifequal %}
-{% endcomment %}
 
 <div id = "comment-menu{{ comment.id }}" class="comment-menu">
 
@@ -32,9 +25,14 @@
      onclick="displayFormComment('#edit{{ comment.id }}'); return false;">edit</a>
 
 
+  <span class="menu" id="delete{{ comment.id }}">
+    <a class="menu" href='#' class="comment_action"
+       onclick="swap('#delete{{ comment.id }}', '#confirm_delete{{ comment.id }}'); return false;">delete</a>
+  </span>
 
-  <a class="menu" href='#' class="comment_action"
-     onclick="displayFormComment('#confirm_delete{{ comment.id }}'); return false;">delete</a>
+  <span id="confirm_delete{{ comment.id }}" class="comment_action confirm">
+    are you sure? <a href='#' onclick="delete_comment('{{ comment.id }}'); swap('#delete{{ comment.id }}', '#confirm_delete{{ comment.id }}'); return false;">yes</a> / <a href='#' onclick="swap('#delete{{ comment.id }}', '#confirm_delete{{ comment.id }}'); return false;">no</a>
+  </span>
 
 
   {% else %}

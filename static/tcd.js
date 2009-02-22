@@ -47,12 +47,13 @@ function addVotes(xml) {
 function delete_comment(id) {
     form_id = '#delete' + id
     
-    $.post("comments/delete", {comment_id: id},	   
+    $.post("/comments/delete/", {comment_id: id},	   
 	   function(xml) { 
 	       comID = $("id",xml).text()
 	       divID = '#comment_div' + comID
 	       if($("status",xml).text() == "error") {
-		   $('#confirm_delete' + comID).html($("message", xml).text())		       		   
+		   msg=$("message",xml).text()
+		   $('#comment_div' + comID).after(msg)
 	       } else {
 		   $(divID).html($("comment",xml).text())
 	       }
