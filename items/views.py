@@ -510,6 +510,7 @@ def arg_detail(request, object_id):
 
     return render_to_response("items/arg_detail.html",
                               {'object': arg,
+                               'comments': arg.comment_set.order_by('pub_date'),
                                'new_arg': new_arg,
                                'last_c': last_c,
                                'voted_for': voted_for, 

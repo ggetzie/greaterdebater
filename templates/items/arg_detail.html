@@ -38,8 +38,8 @@
   {% endif %}
   {% endif %}
 </div>
-{% if object.comment_set.all %}
-{% for comment in object.comment_set.all %}
+{% if comments %}
+{% for comment in comments %}
 <div id="comment_div{{ comment.id }}" class=" {% ifequal comment.user object.defendant %}defendant{% else %}plaintiff{% endifequal %}">
   <br />
   <span id= "comment_info{{ comment.id }}" class="comment_info {% if comment.is_removed %}removed{% endif %}"> by <a href="/users/u/{{ comment.user }}/profile/">{{ comment.user }}</a> {{ comment.get_elapsed }} ago</span>

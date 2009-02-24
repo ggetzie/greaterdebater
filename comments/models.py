@@ -77,14 +77,13 @@ class Comment(models.Model):
     class Meta:
         verbose_name = 'comment'
         verbose_name_plural = 'comments'
-        ordering = ('pub_date',)
+        ordering = ('-pub_date',)
         
     def save(self):
         if not self.id:
             self.pub_date = datetime.datetime.now()          
         self.comment_html=self.hilight(self.comment)
         self.comment_html = self.comment_html.replace('<p>', """<p class="commentp">""" )
-        self.comment_html = self.comment_html.replace('\n', "<br />")
         if self.topic:
             self.topic.comment_length += len(self.comment)
             self.topic.recalculate()
