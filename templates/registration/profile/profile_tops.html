@@ -7,16 +7,26 @@
 {% if topics_list %}
 <ul class="topic-list">
   {% for object in topics_list %}
-  <li><a href={{ object.url }}>{{ object.title }}</a> <br>
-    <div class="comment-menu">
+  <li>
+    <div id="topic_div{{ object.id }}">
+      <a href={{ object.url }}>{{ object.title }}</a> <br />
+      <div class="comment-menu">
 	submitted by <a href="/users/u/{{ object.user }}/profile/">{{ object.user }}</a>
 	{{ object.get_elapsed }} ago | 
 	{% with object.comment_set.count as num %}
-	  <a href = "/{{ object.id }}">({{ num }}) comment{{ num|pluralize }}</a>
-	  {% endwith %}
+	<a href = "/{{ object.id }}">({{ num }}) comment{{ num|pluralize }}</a>
+	{% endwith %}
 	{% ifequal request.user object.user %}
-	| <a href="/edit/{{ object.id }}/{{ page }}">Edit</a>
+	| <a href="/edit/{{ object.id }}/{{ page }}">edit</a>
+	<span id="delete_link{{ object.id }}">
+	  | <a href="#" onclick="swap('#delete_link{{ object.id }}', '#confirm_delete{{ object.id }}'); return false;">delete</a>
+	</span>
+	<span class="confirm" id="confirm_delete{{ object.id }}">
+	  | Are you sure? <a href="#" onclick="delete_topic({{ object.id }}); swap('#delete_link{{ object.id }}', '#confirm_delete{{ object.id }}'); return false;">Yes</a> 
+	  / <a href="#" onclick="swap('#delete_link{{ object.id }}', '#confirm_delete{{ object.id }}'); return false;">No</a>
+	</span>
 	{% endifequal %}
+      </div>
     </div>
   </li>
   {% endfor %}

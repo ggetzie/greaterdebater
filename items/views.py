@@ -132,7 +132,42 @@ def tflag(request):
     response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')    
     return HttpResponse(response)
 
+def delete_topic(request):
+    message = "ok"
+    status = "fail"
+    if request.POST:
+        try:
+            top = Topic.objects.get(pk=request.POST['topic_id'])
+        except MultiValueDictKeyError:
+            message = "Invalid Form"
+            error_context = Context({'message': message,
+                                     'nesting': "10"})
+            error_template = loader.get_template('items/msg_div.html')
+            response = ('response', [('message', error_template.render(error_context))])
+            response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')    
+            return HttpResponse(response)
+        if request.user == top.user:
+            coms = top.comment_set.filter(is_first=False, is_removed=False)
+            if coms:
+                message = "Can't delete a topic that has comments"
+            else:
+                top.delete()
+                message = "Topic deleted. FOREVER."
+                status = "success"
+        else:
+            message = "Can't delete a topic that isn't yours"
+    else:
+        message = "Not a POST"
 
+    c = Context({'message': message,
+                 'nesting': "10"})
+    t = loader.get_template('items/msg_div.html')
+    response = ('response', [('message', t.render(c)),
+                             ('status', status)
+                             ]
+                )
+    response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')    
+    return HttpResponse(response)
 
 def submit(request):
     """Add a new topic submitted by the user"""

@@ -28,6 +28,9 @@ urlpatterns = patterns('',
                        # Flag a topic as spam
                        (r'^tflag/$', 'tcd.items.views.tflag'),
 
+                       # Delete a topic
+                       (r'^topics/delete/$', 'tcd.items.views.delete_topic'),
+
                        # Urls associated with the commenting system
                        (r'^comments/', include('tcd.comments.urls')),                                              
 

@@ -45,7 +45,6 @@ function addVotes(xml) {
 }
 
 function delete_comment(id) {
-    form_id = '#delete' + id
     
     $.post("/comments/delete/", {comment_id: id},	   
 	   function(xml) { 
@@ -58,6 +57,20 @@ function delete_comment(id) {
 		   $(divID).html($("comment",xml).text())
 	       }
 
+	   }
+	  );	       
+};
+
+function delete_topic(id) {
+        
+    $.post("/topics/delete/", {topic_id: id},	   
+	   function(xml) { 	       
+	       divID = '#topic_div' + id;	       
+	       msg=$("message",xml).text()
+	       $(divID).after(msg)
+	       if ($("status",xml).text() == "success") {		   
+		   $(divID).remove()
+	       }
 	   }
 	  );	       
 };
