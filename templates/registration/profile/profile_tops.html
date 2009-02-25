@@ -22,7 +22,7 @@
 	  | <a href="#" onclick="swap('#delete_link{{ object.id }}', '#confirm_delete{{ object.id }}'); return false;">delete</a>
 	</span>
 	<span class="confirm" id="confirm_delete{{ object.id }}">
-	  | Are you sure? <a href="#" onclick="delete_topic({{ object.id }}); swap('#delete_link{{ object.id }}', '#confirm_delete{{ object.id }}'); return false;">Yes</a> 
+	  | Sure? Can't undo. <a href="#" onclick="delete_topic({{ object.id }}); swap('#delete_link{{ object.id }}', '#confirm_delete{{ object.id }}'); return false;">Yes</a> 
 	  / <a href="#" onclick="swap('#delete_link{{ object.id }}', '#confirm_delete{{ object.id }}'); return false;">No</a>
 	</span>
 	{% endifequal %}

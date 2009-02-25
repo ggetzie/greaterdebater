@@ -18,7 +18,7 @@ class Topic(models.Model):
     
 
     class Meta:
-        ordering = ['-score', '-sub_date']
+        ordering = ['-sub_date']
 
 
     def __unicode__(self):

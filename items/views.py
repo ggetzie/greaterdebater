@@ -90,7 +90,7 @@ def topics(request, page=1, sort="hot"):
         queryset = Topic.objects.filter(needs_review=False).order_by('-sub_date')
         pager = "new" 
     else:
-        queryset = Topic.objects.filter(needs_review=False)
+        queryset = Topic.objects.filter(needs_review=False).order_by('-score', '-sub_date')
         pager = "page" 
     
     return list_detail.object_list(request=request, 
@@ -190,14 +190,15 @@ def submit(request):
                 else:
                     topic.url = next
                 topic.save()
-                comment = Comment(user=request.user,
-                                  topic=topic,
-                                  pub_date=datetime.datetime.now(),
-                                  comment=form.cleaned_data['comment'],
-                                  is_first=True,
-                                  parent_id=0,
-                                  nesting=0)
-                comment.save()
+                if form.cleaned_data['comment']:
+                    comment = Comment(user=request.user,
+                                      topic=topic,
+                                      pub_date=datetime.datetime.now(),
+                                      comment=form.cleaned_data['comment'],
+                                      is_first=True,
+                                      parent_id=0,
+                                      nesting=0)
+                    comment.save()
                 return HttpResponseRedirect(next)
         else:
             try:
