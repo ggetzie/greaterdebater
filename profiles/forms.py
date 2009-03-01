@@ -61,3 +61,10 @@ class forgotForm(forms.Form):
         if not User.objects.filter(email=self.cleaned_data.get('email', '')):
             raise forms.ValidationError("email address not found")
         return self.cleaned_data
+
+class FeedbackForm(forms.Form):
+    subject = forms.CharField(max_length=140, label="Subject",
+                              widget=forms.widgets.TextInput(attrs={'size': 50}))
+    message = forms.CharField(widget=forms.widgets.Textarea(attrs={'class': 'required icomment',
+                                                                   'rows': 10,
+                                                                   'cols': 70}))

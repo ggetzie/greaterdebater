@@ -10,7 +10,6 @@ urlpatterns = patterns('',
                        (r'', include('tcd.items.urls')),                       
                        (r'^about/$', 'django.views.generic.simple.direct_to_template', {'template': 'about.html'}),
                        (r'^FAQ/$', 'django.views.generic.simple.direct_to_template', {'template': 'faq.html'}),
-                       (r'^help/$', 'django.views.generic.simple.direct_to_template', {'template': 'help.html'}),
-                       (r'^feedback/$', 'django.views.generic.simple.direct_to_template', {'template': 'feedback.html'}),
+                       (r'^help/$', 'django.views.generic.simple.direct_to_template', {'template': 'help.html'}),                       
                        (r'^tos/$', 'django.views.generic.simple.direct_to_template', {'template': 'tos.html'}),
 )

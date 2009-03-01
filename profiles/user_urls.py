@@ -27,21 +27,40 @@ submissions_dict = {'model': Topic,
                     'paginate_by': 10}
 
 urlpatterns = patterns('',
+
+                       # Display the main profile page, showing the score
                        (r'^profile/', 'tcd.profiles.views.profile'),
+
+                       # Display all of the arguments a user has been involved in, paginated
                        (r'^arguments/$', 'tcd.profiles.views.profile_args'),
                        (r'^arguments/(?P<page>(\d+|last))$', 'tcd.profiles.views.profile_args'),
+
+                       # Display all of the comments a user has submitted, paginated
                        (r'^comments/$', 'tcd.items.views.object_list_foreign_field', 
                         comments_dict),
                        (r'^comments/(?P<page>(\d+|last))$', 'tcd.items.views.object_list_foreign_field', 
                         comments_dict),
+
+                       # Display all the topics a user has submitted, paginated
                        (r'^submissions/$', 'tcd.items.views.object_list_foreign_field', 
                         submissions_dict),
                        (r'^submissions/(?P<page>(\d+|last))$', 'tcd.items.views.object_list_foreign_field', 
                         submissions_dict),
+
+                       # Display a list of messages for the user
                        (r'^messages/$', 'tcd.profiles.views.profile_msgs'), 
                        (r'^messages/page/(?P<page>(\d+|last))$', 'tcd.profiles.views.profile_msgs'), 
+
+                       # Display the body of a message
                        (r'^messages/(?P<object_id>[\d]+)$', 'tcd.profiles.views.message_detail'),
+
+                       # Display the user's current settings and allow them to be modified
                        (r'^settings/$', 'tcd.profiles.views.profile_stgs'), 
+
+                       # Reset the user's password
                        (r'^reset/$', 'tcd.profiles.views.reset_password'), 
+
+                       # Display the reset password page for a user who has forgotten his password
+                       # and is following a link with the code sent via email.
                        (r'^reset/(?P<code>[A-Za-z0-9]{32})$', 'tcd.profiles.views.reset_password'), 
 )

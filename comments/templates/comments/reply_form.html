@@ -6,7 +6,10 @@
       <div><input type="hidden" name="parent_id" value={{ comment.id }}></div>
       <div><input type="hidden" name="nesting" value={{ comment.nesting }}></div>
       <div><input type="hidden" name="toplevel" value=0></div>
-      <div><input type="submit" value= "Reply"></div>
+      <div>
+	<button onclick="$('#reply{{ comment.id }}').slideToggle(); return false;" name="cancel">Cancel</button>
+	<input type="submit" value="Reply">
+      </div>
     </div>
   </form>
 </div>

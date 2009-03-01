@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Feedback{% endblock %}
+
+{% block content %}
+
+<div class="form">
+  <p>
+    We welcome your feedback! Use the form below to submit your comments and questions.
+  </p>
+
+  <p>
+    Thank you!
+  </p>
+</div>
+
+<div class="form">
+  <form action="/users/feedback/" method='post'>
+    <table>
+      <tr>
+	<th>
+	  <label for="id_subject">Subject:</label>
+	</th>
+	<td>
+	  {{ form.subject }}
+	</td>
+      </tr>
+      <tr>
+	<th>
+	  <label for="id_message">Message:</label>
+	</th>
+	<td>
+	  {{ form.message }}
+	</td>
+      </tr>
+      <tr>
+	<td></td>
+	<td>
+	  <input type="Submit" value="Send" />
+	</td>
+      </tr>
+    </table>
+  </form>
+</div>
+{% endblock %}
+	

@@ -10,7 +10,7 @@ from django.views.generic import list_detail
 from tcd.comments.models import Comment, tcdMessage
 from tcd.items.models import Topic, Argument
 from tcd.items.views import object_list_field, object_list_foreign_field, calc_start
-from tcd.profiles.forms import tcdUserCreationForm, tcdPasswordResetForm, tcdLoginForm, forgotForm
+from tcd.profiles.forms import tcdUserCreationForm, tcdPasswordResetForm, tcdLoginForm, forgotForm, FeedbackForm
 from tcd.profiles.models import Profile, Forgotten
 from tcd.utils import random_string
 
@@ -189,6 +189,25 @@ def reset_password(request, value, code=None):
                               {'form': form,
                                'username': user,
                                'code': code},
+                              context_instance=RequestContext(request))
+
+def feedback(request):        
+    if request.POST:
+        form = FeedbackForm(request.POST)
+        if form.is_valid():            
+            send_mail(form.cleaned_data['subject'],
+                      form.cleaned_data['message'],
+                      'admin@kotsf.com',
+                      ['ggetzie@gmail.com'],
+                      fail_silently=False)            
+            feedback_context = {'form': form,
+                                'messages': ["Feedback sent."]}
+    else:
+        form = FeedbackForm()
+        feedback_context = {'form': form}
+             
+    return render_to_response("registration/feedback.html",
+                              feedback_context,
                               context_instance=RequestContext(request))
 
 def forgot_password(request):

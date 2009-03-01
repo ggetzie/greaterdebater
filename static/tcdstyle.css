@@ -237,3 +237,7 @@ text-align: center;
 .confirm {
 display: none;
 }
+
+div.form {
+margin-left: 20px;
+}    

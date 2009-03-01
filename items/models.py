@@ -28,8 +28,9 @@ class Topic(models.Model):
         return elapsed_time(self.sub_date)
 
     def recalculate(self):
+        # a topic's score is (total length of all comments) / (minutes elapsed since topic submitted)
         delta = datetime.datetime.now() - self.sub_date
-        time = (delta.days * 1440) + (delta.seconds / 60) + 1
+        time = (delta.days * 1440) + (delta.seconds / 60) + 1 # add 1 to avoid dividing by zero
         self.score = self.comment_length / float(time)
         self.last_calc = datetime.datetime.now()
 
