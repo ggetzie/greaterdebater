@@ -1,6 +1,8 @@
 $(document).ready(function() {
     
-//     $("ads").css("height", $("content").css("height"));
+    $('#check_all').change(function () {
+    	$('.message').attr('checked', $('#check_all').attr('checked'));
+    });
 
 });
     
@@ -129,3 +131,22 @@ function collapse(div_id, mode) {
 	
 };
 
+function delete_checked_messages() {
+    var checked_messages = [];
+    
+    $('.message').each( function(i) {
+	if ($(this).attr('checked')) {
+	    checked_messages.push($(this).attr('value'))}})
+    
+    if (checked_messages.length == 0) {
+	$('#sys_messages').html("No messages selected"); 
+    } else {    
+	$.post('/users/delete_messages/', {message_list: checked_messages.toString()},
+	       function(xml){
+		   jQuery.each(checked_messages, function() {
+		       $('#message_row' + this).remove()
+		   })
+		   $('#sys_messages').html($("message",xml))
+	       })
+    }
+}

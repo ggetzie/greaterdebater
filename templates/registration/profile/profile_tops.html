@@ -9,7 +9,7 @@
   {% for object in topics_list %}
   <li>
     <div id="topic_div{{ object.id }}">
-      <a href={{ object.url }}>{{ object.title }}</a> <br />
+      <a class="title" href={{ object.url }}>{{ object.title }}</a> <br />
       <div class="comment-menu">
 	submitted by <a href="/users/u/{{ object.user }}/profile/">{{ object.user }}</a>
 	{{ object.get_elapsed }} ago | 

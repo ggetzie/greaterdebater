@@ -22,6 +22,9 @@ urlpatterns = patterns('',
 
                        # Submit feedback via a form
                        (r'^feedback/$', 'tcd.profiles.views.feedback'),
+                       
+                       # Delete private messages
+                       (r'^delete_messages/$', 'tcd.profiles.views.delete_messages'),
 
                        # Urls for displaying differnt parts of users' profiles
                        (r'^u/(?P<value>[A-Za-z\d]+)/', include('tcd.profiles.user_urls')),

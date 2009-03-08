@@ -4,26 +4,43 @@
 
 
 {% block content %}
-<h4>Messages</h4><br />
-<table>
+<h4>Messages</h4>
+<table class="message_table">
+  <tr class="message_command">
+    <td colspan=4 class="comment-menu">
+      <span id="cdm1">
+	<a href="#" title="Delete checked messages" onclick="swap('#cdm1', '#cdm2'); return false;">Delete</a>
+      </span>
+      <span id="cdm2" class="confirm">
+	Are you sure? <a href="#" onclick="delete_checked_messages(); swap('#cdm1', '#cdm2'); return false;">yes</a> / <a href="#" onclick="swap('#cdm1', '#cdm2'); return false;">no</a>
+      </span>
+    </td>
+  </tr>
   <tr>
-    <td width=50>From</td>
-    <td width=200>Subject</td>
-    <td width=150>Date</td></tr>
+    <th width=25><input type="checkbox" id="check_all" /></th>
+    <th width=100>From</th>
+    <th width=200>Subject</th>
+    <th width=150>Date</th></tr>
   {% if messages_list %}
   {% for msg in messages_list %}
-    <tr class="{% ifequal msg.is_read 0 %}unread_msg{% else %}read_msg{% endifequal %}">
+    <tr class="{% ifequal msg.is_read 0 %}unread_msg{% else %}read_msg{% endifequal %}" id="message_row{{ msg.id }}">
       <td>
-	{{ msg.user }}</td>
+	<input type="checkbox" id="message{{ msg.id }}" class="message" value={{ msg.id }} />
+      </td>
       <td>
-	<a href="/users/u/{{ user.username }}/messages/{{ msg.comment_ptr_id }}">{{ msg.subject }}</a></td>
+	{{ msg.user }}
+      </td>
+      <td>
+	<a href="/users/u/{{ user.username }}/messages/{{ msg.comment_ptr_id }}">{{ msg.subject }}</a>
+      </td>
       <td>
 	{% ifequal msg.pub_date.date msg.pub_date.today.date %}
 	{{ msg.pub_date.time }} Today
         {% else %}
 	{{ msg.pub_date.date }}
         {% endifequal %}
-	</td></tr>
+      </td>
+    </tr>
     {% endfor %}
     {% else %}
     </table>

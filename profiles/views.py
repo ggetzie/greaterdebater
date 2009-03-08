@@ -2,7 +2,7 @@ from django.contrib import auth
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
-from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden
+from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import loader, RequestContext
 from django.views.generic import list_detail
@@ -16,6 +16,7 @@ from tcd.utils import random_string
 
 import datetime
 import MySQLdb
+import pyfo
 
 def register(request):
     """Create an account for a new user"""
@@ -233,6 +234,21 @@ def forgot_password(request):
                               {'form': form},
                               context_instance=RequestContext(request))
 
+def delete_messages(request):
+    if request.POST:
+        message_list = request.POST['message_list']
+        message_list = [int(i) for i in message_list.split(',')]
+        messages = tcdMessage.objects.filter(pk__in=message_list)
+        messages.delete()
+        sys_message="Messages Deleted"
+    else:
+        sys_message = "Not a POST"
+    response = ('response', [('message', sys_message)])
+    response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')
+    return HttpResponse(response)
+
+
+
 def save_forgotten(user):
     """When saving a temporary entry to the forgotten password table, there is a 
 _very_ small chance that we will randomly generate a code that is already in the
@@ -247,3 +263,4 @@ resubmit with a new randomly generated code."""
         return code
     except MySQLdb.IntegrityError:
         save_forgotten(user)
+

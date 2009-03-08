@@ -142,10 +142,6 @@ display: none;
 font-size: large
 }    
 
-div.title {
-margin-bottom: 10px;
-}    
-
 .menu {
 margin-left: 2px;
 margin-right: 4px;
@@ -240,4 +236,12 @@ display: none;
 
 div.form {
 margin-left: 20px;
+}    
+
+table.message_table th {
+text-align: left;
+}
+    
+tr.message_command {
+margin-bottom: 10px;
 }    

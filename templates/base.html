@@ -34,7 +34,7 @@
 
     <div id="sys_messages">
       {% if messages %}
-      <ul class="sys_msg_lst">
+      <ul id="sys_msg_list" class="sys_msg_lst">
 	{% for message in messages %}
 	<li>{{ message|safe }}</li>
 	{% endfor %}
