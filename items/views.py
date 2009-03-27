@@ -22,6 +22,7 @@ from tcd.utils import calc_start
 import datetime
 import random
 import pyfo
+import urllib
 
 def comments(request, topic_id, page=1):
     """The view for topic_detail.html 
@@ -177,29 +178,33 @@ def submit(request):
             data = request.POST.copy()
             form = tcdTopicSubmitForm(data)
             if form.is_valid():
-                topic = Topic(user=request.user,
-                              title=form.cleaned_data['title'],
-                              score=1,
-                              sub_date=datetime.datetime.now(),
-                              comment_length=0,
-                              last_calc=datetime.datetime.now())
-                topic.save()
-                next = ''.join(["/", str(topic.id), "/"])
-                if data['url']:
-                    topic.url = form.cleaned_data['url']
-                else:
-                    topic.url = next
-                topic.save()
-                if form.cleaned_data['comment']:
-                    comment = Comment(user=request.user,
-                                      topic=topic,
-                                      pub_date=datetime.datetime.now(),
-                                      comment=form.cleaned_data['comment'],
-                                      is_first=True,
-                                      parent_id=0,
-                                      nesting=0)
-                    comment.save()
-                return HttpResponseRedirect(next)
+                try:
+                    topic = Topic.objects.get(url=form.cleaned_data['url'])
+                    return HttpResponseRedirect(''.join(["/", str(topic.id), "/"]))
+                except ObjectDoesNotExist:
+                    topic = Topic(user=request.user,
+                                  title=form.cleaned_data['title'],
+                                  score=1,
+                                  sub_date=datetime.datetime.now(),
+                                  comment_length=0,
+                                  last_calc=datetime.datetime.now())
+                    topic.save()
+                    next = ''.join(["/", str(topic.id), "/"])
+                    if data['url']:
+                        topic.url = form.cleaned_data['url']
+                    else:
+                        topic.url = next
+                    topic.save()
+                    if form.cleaned_data['comment']:
+                        comment = Comment(user=request.user,
+                                          topic=topic,
+                                          pub_date=datetime.datetime.now(),
+                                          comment=form.cleaned_data['comment'],
+                                          is_first=True,
+                                          parent_id=0,
+                                          nesting=0)
+                        comment.save()
+                    return HttpResponseRedirect(next)
         else:
             try:
                 form = tcdTopicSubmitForm(initial={'title':request.GET['title'],
@@ -212,9 +217,19 @@ def submit(request):
                                   {'form': form},
                                   context_instance=RequestContext(request))
 
-    else:
+    else:        
+
+        if request.GET['title'] and request.GET['url']:            
+            # If the user has not logged in but is trying to submit with the bookmarklet
+            # keep the url and title from the previous request and forward them after login
+            redirect = ''.join([request.path, '?url=', request.GET['url'], 
+                                # re-URLEncode the title
+                                '&title=', urllib.quote(request.GET['title'].encode('utf-8'))])
+        else:
+            redirect = request.path
+
         return render_to_response("registration/login.html",
-                                  {'redirect': '/submit/',
+                                  {'redirect': redirect,
                                    'message': "Please log in to submit a topic",
                                    'form': tcdLoginForm()},
                                   context_instance=RequestContext(request))
