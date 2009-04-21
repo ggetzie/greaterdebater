@@ -17,22 +17,22 @@
 
   {% else %}
   {% if current %}
-  <form id="voteP" class="Ballot" method="post" accept-charset="utf-8">
-    <div><input type="hidden" id="argument" value={{ object.id }} /></div>
-    <div><input type="hidden" id="voter" value={{ request.user.id }} /></div>
-    <div><input type="hidden" id="voted_for" value="P" /></div>
-  </form>
-  <form id="voteD" class="Ballot" method="post" accept-charset="utf-8">
-    <div><input type="hidden" id="argument" value={{ object.id }} /></div>
-    <div><input type="hidden" id="voter" value={{ request.user.id }} /></div>
-    <div><input type="hidden" id="voted_for" value="D" /></div>
-  </form>
+<!--   <form id="voteP" class="Ballot" method="post" accept-charset="utf-8"> -->
+<!--     <div><input type="hidden" id="argument" value={{ object.id }} /></div> -->
+<!--     <div><input type="hidden" id="voter" value={{ request.user.id }} /></div> -->
+<!--     <div><input type="hidden" id="voted_for" value="P" /></div> -->
+<!--   </form> -->
+<!--   <form id="voteD" class="Ballot" method="post" accept-charset="utf-8"> -->
+<!--     <div><input type="hidden" id="argument" value={{ object.id }} /></div> -->
+<!--     <div><input type="hidden" id="voter" value={{ request.user.id }} /></div> -->
+<!--     <div><input type="hidden" id="voted_for" value="D" /></div> -->
+<!--   </form> -->
   <ul class="flat-list">    
     <li>
-      <a href='#' onclick="vote('#voteP'); return false;">Vote for {{ object.plaintiff.username}}</a>
+      <a href='#' onclick="vote({{ object.id }}, {{ request.user.id }}, 'P'); return false;">Vote for {{ object.plaintiff.username}}</a>
     </li>
     <li>
-      <a href='#' onclick="vote('#voteD'); return false;">Vote for {{ object.defendant.username}}</a>
+      <a href='#' onclick="vote({{ object.id }}, {{ request.user.id }}, 'D'); return false;">Vote for {{ object.defendant.username}}</a>
     </li>
   </ul>	
   {% endif %}

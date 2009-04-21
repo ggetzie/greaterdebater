@@ -16,10 +16,10 @@ function displayFormComment(form_id) {
     $(form_id).slideToggle();
 }		
 
-function vote(form_id){
-    $.post("/vote/", {argument: $(form_id + ' #argument').val(),
-		      voter: $(form_id + ' #voter').val(),
-		      voted_for: $(form_id + ' #voted_for').val()},
+function vote(argument, voter, voted_for){
+    $.post("/vote/", {argument: argument,
+		      voter: voter,
+		      voted_for: voted_for},
 	   function(xml) {
 	       addVotes(xml);
 	   });

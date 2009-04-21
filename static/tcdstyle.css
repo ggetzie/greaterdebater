@@ -29,12 +29,55 @@ clear: both;
 display: none;
 }
 
-.anti-removed {
-display: none;
+span.letter {
+text-align: center;
+padding-left: 1%;
+padding-right: 1%;
 }
 
-div.title {
-width: 90%;
+span.white {
+background: #FFFFFF;
+color: #000000;
+}
+
+span.gray1 {
+background: #CCCCCC;
+color: #333333;
+}
+
+span.gray2 {
+background: #999999;
+color: #666666;
+}
+
+span.gray-2 {
+background: #666666;
+color: #999999
+}
+
+span.gray-1 {
+background: #333333;
+color: #CCCCCC;
+}
+
+span.black {
+background: #000000;
+color: #FFFFFF;
+}
+
+div#title {
+width: 100%;
+text-align: center;
+}
+
+span.tagline {
+font-size: small;
+font-style: italic;
+}    
+
+div#header {
+padding-top: 10px;
+padding-bottom: 10px;
 }
 
 p.commentp {
@@ -154,7 +197,7 @@ font-size: small;
 div#topmenu {
 text-align: left;   
 float: left;
-width: 60%
+width: 60%;
 }
 
 div#login {
@@ -162,6 +205,11 @@ width: 40%;
 float: right;
 text-align: right;
 }    
+
+.header {
+background: #c1c1c1;
+font-weight: bold;
+}
 
 div#content {
 width: 60%;
@@ -183,6 +231,10 @@ text-align: center;
 
 div#content-wrapper {
 margin-top: 20px;
+}
+
+div#ad-wrapper {
+padding-top: 30px;
 }
 
 div.defendant {
