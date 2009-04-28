@@ -8,25 +8,11 @@
 <div id="vote">
 
   {% if voted_for %}
-  <p>You voted for {{ voted_for }}</p>
-  <p>
-    Current Tally:<br />
-    {{ pvotes }} vote{{ pvotes|pluralize }} for {{ object.plaintiff }}<br />
-    {{ dvotes }} vote{{ dvotes|pluralize }} for {{ object.defendant }}<br />
-  </p>
+
+  {% include "items/vote_div.html" %} 
 
   {% else %}
   {% if current %}
-<!--   <form id="voteP" class="Ballot" method="post" accept-charset="utf-8"> -->
-<!--     <div><input type="hidden" id="argument" value={{ object.id }} /></div> -->
-<!--     <div><input type="hidden" id="voter" value={{ request.user.id }} /></div> -->
-<!--     <div><input type="hidden" id="voted_for" value="P" /></div> -->
-<!--   </form> -->
-<!--   <form id="voteD" class="Ballot" method="post" accept-charset="utf-8"> -->
-<!--     <div><input type="hidden" id="argument" value={{ object.id }} /></div> -->
-<!--     <div><input type="hidden" id="voter" value={{ request.user.id }} /></div> -->
-<!--     <div><input type="hidden" id="voted_for" value="D" /></div> -->
-<!--   </form> -->
   <ul class="flat-list">    
     <li>
       <a href='#' onclick="vote({{ object.id }}, {{ request.user.id }}, 'P'); return false;">Vote for {{ object.plaintiff.username}}</a>

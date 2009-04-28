@@ -28,22 +28,15 @@ function vote(argument, voter, voted_for){
 function addVotes(xml) {
     var pvotefor
     var dvotefor
-    if ($("pvotes",xml).text() == "1") {
-	pvotefor = " vote for "
-    } else {
-	pvotefor = " votes for "
-    }
 
-    if ($("dvotes",xml).text() == "1") {
-	dvotefor = " vote for "
-    } else {
-	dvotefor = " votes for "
-    }
+    if ($("error",xml).text() == "True"){
 
-    $("#vote").html("<p>You voted for " + $("voted_for",xml).text() +
-		    "</p><p>Current Tally:<br />" + 
-		    $("pvotes",xml).text() +  pvotefor + $("plaintiff",xml).text() + "<br />" + 
-		    $("dvotes",xml).text() + dvotefor +  $("defendant",xml).text() + "</p>");
+	$("#sys_messages").html( $("message",xml).text());
+
+    } else {
+
+	$("#vote").html( $("message",xml).text());
+    }
 }
 
 function delete_comment(id) {

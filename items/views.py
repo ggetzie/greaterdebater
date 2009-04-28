@@ -332,7 +332,8 @@ def challenge(request, c_id):
 
 def vote(request):
     """Cast a vote for either the plaintiff or defendant in an argument"""
-    redirect = '/'
+    message = "ok"
+    error = "True"
     if request.POST:        
         form = Ballot(request.POST)
         if form.is_valid():
@@ -350,24 +351,28 @@ def vote(request):
                 else:
                     voted_name = arg.defendant.username
                 
-                response = ('response', [('voted_for', voted_name),
-                                         ('pvotes', str(all_votes.filter(voted_for="P").count())),
-                                         ('dvotes', str(all_votes.filter(voted_for="D").count())),
-                                         ('plaintiff', arg.plaintiff.username),
-                                         ('defendant', arg.defendant.username)])
-                
-                response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')
-                return HttpResponse(response)
-
+                t = loader.get_template('items/vote_div.html')
+                c = Context({'voted_for': voted_name,
+                             'pvotes': str(all_votes.filter(voted_for="P").count()),
+                             'dvotes': str(all_votes.filter(voted_for="D").count()),
+                             'object': arg})
+                message = t.render(c)
+                error = "False"
             else:
-                request.user.message_set.create(message="Can't cast vote as another user")
+                message="Can't cast vote as another user"
         else:
-            request.user.message_set.create(message="Invalid vote")
+            message="Invalid vote"
                 
     else:
-        request.user.message_set.create(message="Not a POST")
+        message="Not a POST"
+
+    response = ('response', [('error', error),                                         
+                             ('message', message)
+                             ])
+    response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')
+    return HttpResponse(response)
     
-    return HttpResponseRedirect(redirect)
+
                             
 
 def rebut(request, a_id):
