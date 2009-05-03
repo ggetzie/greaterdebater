@@ -5,6 +5,7 @@
 <h4>{{ object.title }}</h4>
 <p>{{ object.get_status }}</p>
 
+{% if request.user.is_authenticated %}
 <div id="vote">
 
   {% if voted_for %}
@@ -24,6 +25,8 @@
   {% endif %}
   {% endif %}
 </div>
+{% endif %}
+
 {% if comments %}
 {% for comment in comments %}
 <div id="comment_div{{ comment.id }}" class=" {% ifequal comment.user object.defendant %}defendant{% else %}plaintiff{% endifequal %}">

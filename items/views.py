@@ -542,16 +542,18 @@ def arg_detail(request, object_id):
     arg = get_object_or_404(Argument, pk=object_id)
     voted_for = None
     votes = Vote.objects.filter(argument=arg)
-    try: 
-        vote = votes.get(voter=request.user)
-        if vote.voted_for == "P":
-            voted_for = arg.plaintiff
-        elif vote.voted_for == "D":
-            voted_for = arg.defendant
-        else:                
-            request.user.message_set.create(message="Something funky about your vote")
-    except Vote.DoesNotExist:
-        pass
+    if request.user.is_authenticated():
+
+        try: 
+            vote = votes.get(voter=request.user)
+            if vote.voted_for == "P":
+                voted_for = arg.plaintiff
+            elif vote.voted_for == "D":
+                voted_for = arg.defendant
+            else:                
+                request.user.message_set.create(message="Something funky about your vote")
+        except Vote.DoesNotExist:
+            pass
 
     if arg.status in range(1,3):
         current = True
