@@ -196,13 +196,18 @@ def feedback(request):
     if request.POST:
         form = FeedbackForm(request.POST)
         if form.is_valid():            
+            if request.user.is_authenticated():
+                message = '\n\n'.join([form.cleaned_data['message'], 
+                                       '\n'.join([''.join(["username: ", request.user.username]), 
+                                                  ''.join(["email: ", request.user.email])])])
+            else:
+                message = '\n\n'.join([form.cleaned_data['message'], "Anonymous user"])
             send_mail(form.cleaned_data['subject'],
-                      form.cleaned_data['message'],
+                      message,
                       'admin@kotsf.com',
                       ['ggetzie@gmail.com'],
                       fail_silently=False)            
-            feedback_context = {'form': form,
-                                'messages': ["Feedback sent."]}
+            return HttpResponseRedirect("/users/thanks")
     else:
         form = FeedbackForm()
         feedback_context = {'form': form}

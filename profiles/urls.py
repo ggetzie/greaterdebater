@@ -22,6 +22,10 @@ urlpatterns = patterns('',
 
                        # Submit feedback via a form
                        (r'^feedback/$', 'tcd.profiles.views.feedback'),
+
+                       # Thank you page for feedback submission
+                       (r'^thanks/$', 'django.views.generic.simple.direct_to_template', 
+                        {'template': 'registration/thanks.html'}),
                        
                        # Delete private messages
                        (r'^delete_messages/$', 'tcd.profiles.views.delete_messages'),

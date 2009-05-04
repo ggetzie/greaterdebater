@@ -81,15 +81,15 @@
 
     </div>
 
+    {% if messages %}
     <div id="sys_messages">
-      {% if messages %}
-      <ul id="sys_msg_list" class="sys_msg_lst">
+
 	{% for message in messages %}
-	<li>{{ message|safe }}</li>
+	<p>{{ message|safe }}</p>
 	{% endfor %}
-      </ul>
-      {% endif %}
+
     </div>
+    {% endif %}
 
     {% endblock %}
 
@@ -115,8 +115,8 @@
   <div class="footer">
     <ul class="flat-list">
       <li><a href="/about/">About</a></li>|
-      <li><a href="/help/">Help</a></li>|
-      <li><a href="/FAQ/">FAQ</a></li>|
+<!--       <li><a href="/help/">Help</a></li>| -->
+<!--       <li><a href="/FAQ/">FAQ</a></li>| -->
       <li><a href="/tos/">Terms of Service</a></li>|
       <li><a href="/users/feedback/">Feedback</a></li>
     </ul>

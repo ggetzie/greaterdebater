@@ -278,8 +278,11 @@ margin-top: 20px;
 }
 
 div#sys_messages {
-margin: 20px 20px 20px 20px;
+margin: 20px 300px 20px 300px;
 text-align: center;
+border: medium solid blue;
+font-weight: bold;
+background: #EEE8AA;
 }
 
 .confirm {
