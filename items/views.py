@@ -218,14 +218,14 @@ def submit(request):
                                   context_instance=RequestContext(request))
 
     else:        
-
-        if request.GET['title'] and request.GET['url']:            
+        
+        try:
             # If the user has not logged in but is trying to submit with the bookmarklet
             # keep the url and title from the previous request and forward them after login
             redirect = ''.join([request.path, '?url=', request.GET['url'], 
                                 # re-URLEncode the title
                                 '&title=', urllib.quote(request.GET['title'].encode('utf-8'))])
-        else:
+        except MultiValueDictKeyError:
             redirect = request.path
 
         return render_to_response("registration/login.html",

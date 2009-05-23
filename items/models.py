@@ -80,7 +80,7 @@ class Argument(models.Model):
         elif self.status == 5:
             return "draw"
         elif self.status == 6:
-            return ''.join([ self.plaintiff.username, " declined challenge"])
+            return ''.join([ self.defendant.username, " declined challenge"])
         else:
             return "invalid status"        
     

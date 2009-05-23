@@ -3,5 +3,11 @@
 
 {% block content %}
 <h4>{{ comment.subject }}</h4>
-{% include "comments/one_comment.html" %}
+<div id="comment_div{{ comment.id }}" class="form">
+  <br />
+  <span id= "comment_info{{ comment.id }}" class="comment_info"> from <a href="/users/u/{{ comment.user }}/profile/">{{ comment.user }}</a> {{ comment.get_elapsed }} ago</span>
+  <div id="commentp_div{{ comment.id }}">
+    {{ comment.comment_html|safe }}
+  </div>
+</div>
 {% endblock %}
