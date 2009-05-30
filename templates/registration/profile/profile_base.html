@@ -1,7 +1,9 @@
 {% extends "base.html" %}
+
 {% block title %}{{ username }}'s profile{% endblock %}
 
 {% block sub_header %}
+<h3 id="profile">{{ username }}'s profile </h3>
 <div class="sub_header">
 
     {% ifequal user username %}    
@@ -13,7 +15,6 @@
     <a class="menu" href="/users/u/{{ username }}/comments">Comments</a>
 
 </div>
-<h3>{{ username }}'s profile </h3>
 {% endblock %}
 
 {% block content %}

@@ -89,6 +89,18 @@ function flag_comment(comment_id, user_id) {
 	  )
 }
 
+function concede_argument(arg_id, user_id) {
+    $.post("/argue/concede/", {arg_id: arg_id,
+			      user_id: user_id},
+	   function(xml) {
+	       msg = $("message", xml).text();
+	       $("#turn_actions").append(msg);
+	   }
+	  )
+    $("#concede" + arg_id).hide();
+}
+	  
+
 function swap(thing1, thing2){
     var temp = $(thing1).html()
     $(thing1).html( $(thing2).html());

@@ -74,9 +74,9 @@ class Argument(models.Model):
         elif self.status == 2:
             return ''.join([self.defendant.username, "'s turn"])
         elif self.status == 3:
-            return ''.join(["winner: ", self.defendant.username])
+            return ''.join([self.defendant.username, " wins!"])
         elif self.status == 4:
-            return ''.join(["winner: ", self.plaintiff.username])
+            return ''.join([self.plaintiff.username, " wins!"])
         elif self.status == 5:
             return "draw"
         elif self.status == 6:

@@ -168,6 +168,7 @@ margin-left: 10px;
 
 ul.topic-list {
 list-style-type: none;
+margin-left: -40px;
 }
 
 .topic-list li{
@@ -322,4 +323,8 @@ border-bottom: medium solid #C1C1C1;
 div#arg_title span {
 font-size: small;
 margin-left: 10px;
+}
+
+h3#profile {
+margin-top: 50px;
 }

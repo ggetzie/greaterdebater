@@ -12,7 +12,7 @@ from django.views.generic import list_detail
 from tcd.comments.forms import CommentForm
 from tcd.comments.models import Comment, tcdMessage, Draw
 from tcd.comments.utils import build_list
-from tcd.items.forms import tcdTopicSubmitForm, Ballot, Flag
+from tcd.items.forms import tcdTopicSubmitForm, Ballot, Flag, Concession
 from tcd.items.models import Topic, Argument, Vote
 from tcd.profiles.forms import tcdLoginForm
 from tcd.profiles.models import Profile
@@ -511,31 +511,47 @@ def respond_draw(request, response, a_id):
         arg.save()
     return HttpResponseRedirect(redirect)
 
-def concede(request, a_id):
+def concede(request):
     """User concedes an argument, opponent wins"""
-    arg = Argument.objects.get(pk=a_id)
-    redirect = ''.join(["/argue/", str(arg.id), "/"])
-    if request.user in (arg.defendant, arg.plaintiff):
-        arg.status += 2
-        arg.end_date = datetime.datetime.now()
-        recipient = arg.get_opponent(request.user)
-        prof = Profile.objects.get(user = recipient)
-        prof.score += 1
-        message = ''.join([request.user.username, " has conceded argument\n", 
-                           "[", arg.title, "]", "(/argue/", str(arg.id), "/)"])
-        msg = tcdMessage(user=request.user,
-                         recipient = recipient,
-                         comment = message,
-                         subject = "All right, you win",
-                         parent_id = 0,
-                         nesting = 0)
-        msg.save()
-        arg.save()
-        prof.save()
-        request.user.message_set.create(message="Point conceded")
-    else:
-        request.user.message_set.create(message="Not your argument")
-    return HttpResponseRedirect(redirect)
+    if request.POST:
+        form = Concession(request.POST)
+        if form.is_valid():
+            arg = Argument.objects.get(pk=form.cleaned_data['arg_id'])
+            user = User.objects.get(pk=form.cleaned_data['user_id'])
+
+            if user == request.user and request.user in (arg.defendant, arg.plaintiff):
+                arg.status += 2
+                arg.end_date = datetime.datetime.now()
+                recipient = arg.get_opponent(request.user)
+                prof = Profile.objects.get(user = recipient)
+                prof.score += 1
+                message = ''.join([request.user.username, " has conceded argument\n", 
+                                   "[", arg.title, "]", "(/argue/", str(arg.id), "/)"])
+                msg = tcdMessage(user=request.user,
+                                 recipient = recipient,
+                                 comment = message,
+                                 subject = "All right, you win",
+                                 parent_id = 0,
+                                 nesting = 0)
+                msg.save()
+                arg.save()
+                prof.save()
+                response_message = "Point conceded"
+            else:
+                response_message = "Not your argument"
+        else:
+            response_message = "Invalid form"
+    else: 
+        response_message = "Not a Post"
+
+    t = loader.get_template('items/msg_div.html')
+
+    c = Context({'id': "1",
+                 'message': response_message,
+                 'nesting': "0"})
+    response = ('response', [('message', t.render(c))])
+    response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')    
+    return HttpResponse(response)
 
 
 def arg_detail(request, object_id):

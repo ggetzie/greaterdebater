@@ -36,3 +36,7 @@ class Ballot(forms.Form):
 
 class Flag(forms.Form):
     object_id = forms.IntegerField(widget=forms.widgets.HiddenInput())
+
+class Concession(forms.Form):
+    arg_id = forms.IntegerField(widget=forms.widgets.HiddenInput())
+    user_id = forms.IntegerField(widget=forms.widgets.HiddenInput())

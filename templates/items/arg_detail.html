@@ -39,7 +39,7 @@
     <li><a href="/argue/draw/decline/{{ object.id }}">Decline</a></li>
   </ul>
   {% else %}
-  <div class="arg_responses">
+  <div class="arg_responses" id="turn_actions">
 
     <a class="menu" href='#' onclick="displayFormComment('#rebut{{ object.id }}'); return false;">Rebut</a> |
     <a class="menu" href='#' onclick="displayFormComment('#draw{{ object.id }}'); return false;">Offer a draw</a> |
@@ -49,7 +49,7 @@
       {% include "comments/rebut_form.html" %}
       {% include "comments/draw_form.html" %}
       <div id="concede{{ object.id }}" class="comment_action">
-	<p>Concede argument: Are you sure? <a href="/argue/concede/{{ object.id }}">Yes</a> / <a href="#" onclick="displayFormComment('#concede{{ object.id }}'); return false;">No</a></p>
+	<p>Concede argument: Are you sure? <a href="#" onclick="concede_argument({{ object.id }}, {{ user.id }}); return false;">Yes</a> / <a href="#" onclick="displayFormComment('#concede{{ object.id }}'); return false;">No</a></p>
       </div>
     </div>
   </div>
