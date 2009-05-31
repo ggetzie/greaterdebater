@@ -4,7 +4,7 @@
 {% block content %}
 <div id="arg_title">
   <h3>{{ object.title }}</h3>
-  <span>Status: {{ object.get_status }}</span>
+  <span id="arg_status">Status: {{ object.get_status }}</span>
 </div>
 {% if comments %}
 {% for comment in comments %}

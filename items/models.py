@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from tcd.profiles.models import Profile
 from tcd.utils import elapsed_time
 
 import datetime
@@ -102,6 +103,24 @@ class Argument(models.Model):
 
     def get_elapsed(self):
         return elapsed_time(self.start_date)
+
+    def reset(self):
+        # Get the winner and reduce his score by one
+        winner = None
+        if self.status == 3:
+            winner = self.defendent
+        elif self.status == 4:
+            winner = self.plaintiff
+        else:
+            return "Argument cannot be reset, no winner"
+        prof = Profile.objects.get(user = winner)
+        prof.score -= 1
+        prof.save()
+
+        # Set the status of the argument so it's the loser's turn again
+        self.status -= 2
+        self.save()
+        
 
 
 class LogItem(models.Model):

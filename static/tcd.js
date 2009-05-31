@@ -94,7 +94,15 @@ function concede_argument(arg_id, user_id) {
 			      user_id: user_id},
 	   function(xml) {
 	       msg = $("message", xml).text();
-	       $("#turn_actions").append(msg);
+	       if ( $("status", xml).text() == "error") {
+		   $("#turn_actions").append(msg);
+	       } else if ( $("status", xml).text() == "ok") {
+		   $("#arg_status").html( $("arg_status", xml).text() );
+		   $("#arg_actions").parent().append(msg);
+		   $("#arg_actions").remove()
+	       } else {
+		   alert("Invalid status");
+	       }
 	   }
 	  )
     $("#concede" + arg_id).hide();

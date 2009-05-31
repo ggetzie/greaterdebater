@@ -513,6 +513,8 @@ def respond_draw(request, response, a_id):
 
 def concede(request):
     """User concedes an argument, opponent wins"""
+    status = "error"
+    arg_status = None
     if request.POST:
         form = Concession(request.POST)
         if form.is_valid():
@@ -537,6 +539,8 @@ def concede(request):
                 arg.save()
                 prof.save()
                 response_message = "Point conceded"
+                status = "ok"
+                arg_status = " ".join(["Status:", arg.get_status()])
             else:
                 response_message = "Not your argument"
         else:
@@ -548,8 +552,11 @@ def concede(request):
 
     c = Context({'id': "1",
                  'message': response_message,
-                 'nesting': "0"})
-    response = ('response', [('message', t.render(c))])
+                 'nesting': "20"})
+    response = ('response', [('message', t.render(c)),
+                             ('status', status),
+                             ('arg_status', arg_status)
+                             ])
     response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')    
     return HttpResponse(response)
 

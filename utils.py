@@ -39,3 +39,5 @@ def time_plural(num, unit):
         return ''.join([str(num), " ", unit])
     else:
         return ''.join([str(num), " ", unit, "s"])
+
+    
