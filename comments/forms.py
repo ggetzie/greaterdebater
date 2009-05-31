@@ -33,3 +33,14 @@ class CommentForm(forms.Form):
 class DeleteForm(forms.Form):
     comment_id = forms.IntegerField(widget=forms.widgets.HiddenInput())
     referring_page = forms.CharField(max_length=255, widget=forms.widgets.HiddenInput(), required=False)
+
+class RebutForm(forms.Form):
+    comment =  forms.CharField(widget=forms.widgets.Textarea(attrs={'class': 'required icomment',
+                                                                    'rows': 5,
+                                                                    'cols': 50}))
+    redirect = forms.CharField(max_length=255, widget=forms.widgets.HiddenInput(), 
+                               required=False)    
+    parent_id = forms.IntegerField(widget=forms.widgets.HiddenInput(), required=False)
+    nesting = forms.IntegerField(widget=forms.widgets.HiddenInput(), required=False)
+    toplevel = forms.IntegerField(widget=forms.widgets.HiddenInput(), required=False)
+    arg_id = forms.IntegerField(widget=forms.widgets.HiddenInput())

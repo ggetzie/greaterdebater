@@ -6,19 +6,16 @@
   <h3>{{ object.title }}</h3>
   <span id="arg_status">Status: {{ object.get_status }}</span>
 </div>
-{% if comments %}
-{% for comment in comments %}
-<div id="comment_div{{ comment.id }}" class=" {% ifequal comment.user object.defendant %}defendant{% else %}plaintiff{% endifequal %}">
-  <br />
-  <span id= "comment_info{{ comment.id }}" class="comment_info {% if comment.is_removed %}removed{% endif %}"> by <a href="/users/u/{{ comment.user }}/profile/">{{ comment.user }}</a> {{ comment.get_elapsed }} ago</span>
-  <div id="commentp_div{{ comment.id }}">
-    {{ comment.comment_html|safe }}
-  </div>
+
+<div id="arg_comments">
+  {% if comments %}
+  {% for comment in comments %}
+  {% include "comments/arg_comment.html" %}
+  {% endfor %}
+  {% else %}
+  <p>No comments</p>
+  {% endif %}
 </div>
-{% endfor %}
-{% else %}
-<p>No comments</p>
-{% endif %}
 
 
 {% ifequal user object.whos_up %}

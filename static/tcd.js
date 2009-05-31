@@ -107,6 +107,32 @@ function concede_argument(arg_id, user_id) {
 	  )
     $("#concede" + arg_id).hide();
 }
+
+function rebut_argument(arg_id, parent_id, nesting) {    
+    var comment_text = $("#rebut_text").val();
+    $.post("/argue/rebut/", {comment: comment_text,
+			     parent_id: parent_id,
+			     nesting: nesting,
+			     arg_id: arg_id},
+	   function(xml) {
+	       msg = $("message", xml).text();
+	       status = $("status", xml).text();
+	       if (status == "error") {
+		   // show the error message somewhere
+		   $("#turn_actions").append(msg);
+	       } else if ( status == "ok") {
+		   // add the rebuttal comment at the end of the list of comments
+		   $("#arg_comments").append(msg);
+		   // update the status field
+		   $("#arg_status").html( $("arg_status", xml).text() );
+		   $("#arg_actions").remove()
+	       } else {
+		   alert("Invalid status");
+	       }
+	   }
+	  )
+}
+
 	  
 
 function swap(thing1, thing2){

@@ -9,7 +9,7 @@ from django.template import loader, RequestContext, Context
 from django.utils.datastructures import MultiValueDictKeyError
 from django.views.generic import list_detail
 
-from tcd.comments.forms import CommentForm
+from tcd.comments.forms import CommentForm, RebutForm
 from tcd.comments.models import Comment, tcdMessage, Draw
 from tcd.comments.utils import build_list
 from tcd.items.forms import tcdTopicSubmitForm, Ballot, Flag, Concession
@@ -371,46 +371,67 @@ def vote(request):
                              ])
     response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')
     return HttpResponse(response)
-    
-
-                            
-
-def rebut(request, a_id):
+                                
+def rebut(request):
     """Add a new post to an argument."""
+    status = "error"
+    arg_status = None    
+    t = loader.get_template('items/msg_div.html')
+    id = "1"
+    nesting = "20"
+
     if request.POST:
-        form = CommentForm(request.POST)
-        arg = get_object_or_404(Argument, pk=a_id)
-        redirect = ''.join(['/argue/', str(arg.id), '/'])
+        form = RebutForm(request.POST)
         if form.is_valid():            
+            arg = get_object_or_404(Argument, pk=form.cleaned_data['arg_id'])
             if arg.whos_up() == request.user:
-                if arg.status == 2:
-                    arg.status = 1
-                elif arg.status == 1:
-                    arg.status = 2
-                elif arg.status == 0:
-                    arg.status = 1
-                else:
-                    request.user.message_set.create(message="Argument not active!")
-                    return HttpResponseRedirect(redirect)                
-                params = {'comment': form.cleaned_data['comment'],
-                          'user': request.user,
-                          'topic': arg.topic,
-                          'parent_id': form.cleaned_data['parent_id'],
-                          'nesting': form.cleaned_data['nesting'] + 40,
-                          'arg_proper': True}
-                c = Comment(**params)
-                c.save()
-                arg.comment_set.add(c)
-                arg.save()
-                request.user.message_set.create(message="Argument Rebutted!")
+                if arg.status in (0, 1, 2):
+                    if arg.status == 2:
+                        arg.status = 1
+                    elif arg.status == 1:
+                        arg.status = 2
+                    elif arg.status == 0:
+                        arg.status = 1
+                    params = {'comment': form.cleaned_data['comment'],
+                      'user': request.user,
+                      'topic': arg.topic,
+                      'parent_id': form.cleaned_data['parent_id'],
+                      'nesting': form.cleaned_data['nesting'] + 40,
+                      'arg_proper': True}
+                    c = Comment(**params)
+                    c.save()
+                    arg.comment_set.add(c)
+                    arg.save()
+
+                    t = loader.get_template('comments/arg_comment.html')
+
+                    context = Context({'comment': c,
+                                       'object': arg})
+                    arg_status = ' '.join(["Status:", arg.get_status()])
+                    status = "ok"                                 
+                else:                    
+                    context = Context({'id': id,
+                                       'message': "Argument not active!",
+                                       'nesting': nesting})
             else:
-                request.user.message_set.create(message="Not your turn")
+                context = Context({'id': id,
+                                   'message': "Not your turn",
+                                   'nesting': nesting})
         else:
-            request.user.message_set.create(message="Invalid form")
+            context = Context({'id': id,
+                               'message': "Invalid form",
+                               'nesting': nesting})
     else:
-        request.user.message_set.create(message="Not a POST")
-        redirect = '/'
-    return HttpResponseRedirect(redirect)
+        context = Context({'id': id,
+                           'message': "Not a POST",
+                           'nesting': nesting})
+
+    response = ('response', [('message', t.render(context)),
+                             ('status', status),
+                             ('arg_status', arg_status)
+                             ])
+    response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')    
+    return HttpResponse(response)
 
 def respond(request, response, a_id):
     """Potential opponent accepts or rejects a challenge to an argument."""    
@@ -518,7 +539,7 @@ def concede(request):
     if request.POST:
         form = Concession(request.POST)
         if form.is_valid():
-            arg = Argument.objects.get(pk=form.cleaned_data['arg_id'])
+            arg = get_object_or_404(Argument, pk=form.cleaned_data['arg_id'])
             user = User.objects.get(pk=form.cleaned_data['user_id'])
 
             if user == request.user and request.user in (arg.defendant, arg.plaintiff):

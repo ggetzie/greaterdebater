@@ -1,14 +1,11 @@
 <div id="rebut{{ object.id }}" class="comment_action">
-  <form action="/argue/rebut/{{ object.id }}/" method="post" accept-charset="utf-8">
+  <form id="rebut_form">
     <div class="form-row">
       <label for="id_comment">Posting as {{ user }}</label>
-      <br /><textarea rows=5 cols=50 name="comment"></textarea>
-      <div><input type="hidden" name="parent_id" value={{ last_c.id }}></div>
-      <div><input type="hidden" name="nesting" value={{ last_c.nesting }}></div>
-      <div><input type="hidden" name="toplevel" value=0></div>
+      <br /><textarea rows=5 cols=50 name="comment" id="rebut_text"></textarea>
       <div>
 	<button onclick="$('#rebut{{ object.id }}').slideToggle(); return false;" name="cancel">Cancel</button>
-	<input type="submit" value= "Rebut">
+	<button onclick="rebut_argument({{ object.id }}, {{ last_c.id }}, {{ last_c.nesting }}); return false;" name="rebut">Rebut</button>
       </div>
     </div>
   </form>
