@@ -314,6 +314,10 @@ div.arg_responses {
 margin: 20px 20px 20px 20px;
 }    
 
+div.arg_query ul.flat-list {
+margin-left: -45px;
+}
+
 div#arg_title {
 padding-bottom: 15px;
 margin-bottom: 15px;

@@ -30,11 +30,13 @@
   </div>
   {% else %}
   {% if object.draw_set.all %}
-  A draw has been offered <br />
-  <ul class="flat-list">
-    <li><a href="/argue/draw/accept/{{ object.id }}">Accept</a></li>
-    <li><a href="/argue/draw/decline/{{ object.id }}">Decline</a></li>
-  </ul>
+  <div class="arg_responses arg_query">
+    A draw has been offered
+    <ul class="flat-list">
+      <li><a href="/argue/draw/accept/{{ object.id }}">Accept</a></li>
+      <li><a href="/argue/draw/decline/{{ object.id }}">Decline</a></li>
+    </ul>
+  </div>
   {% else %}
   <div class="arg_responses" id="turn_actions">
 

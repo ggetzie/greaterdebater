@@ -5,7 +5,7 @@
       <br /><textarea rows=5 cols=50 name="comment" id="rebut_text"></textarea>
       <div>
 	<button onclick="$('#rebut{{ object.id }}').slideToggle(); return false;" name="cancel">Cancel</button>
-	<button onclick="rebut_argument({{ object.id }}, {{ last_c.id }}, {{ last_c.nesting }}); return false;" name="rebut">Rebut</button>
+	<button onclick="rebut_argument({{ object.id }}, {{ last_c.id }}, {{ last_c.nesting }}, false); return false;" name="rebut">Rebut</button>
       </div>
     </div>
   </form>

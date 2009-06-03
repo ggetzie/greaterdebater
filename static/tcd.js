@@ -108,12 +108,20 @@ function concede_argument(arg_id, user_id) {
     $("#concede" + arg_id).hide();
 }
 
-function rebut_argument(arg_id, parent_id, nesting) {    
-    var comment_text = $("#rebut_text").val();
-    $.post("/argue/rebut/", {comment: comment_text,
-			     parent_id: parent_id,
-			     nesting: nesting,
-			     arg_id: arg_id},
+function rebut_argument(arg_id, parent_id, nesting, draw) {    
+    var comment_text
+    if (draw == true) {
+	url = "/argue/draw/"
+	comment_text = $("#draw_text").val();
+    } else {
+	url = "/argue/rebut/"
+	comment_text = $("#rebut_text").val();
+    }
+
+    $.post(url, {comment: comment_text,
+		 parent_id: parent_id,
+		 nesting: nesting,
+		 arg_id: arg_id},
 	   function(xml) {
 	       msg = $("message", xml).text();
 	       status = $("status", xml).text();

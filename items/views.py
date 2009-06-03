@@ -409,22 +409,22 @@ def rebut(request):
                                        'object': arg})
                     arg_status = ' '.join(["Status:", arg.get_status()])
                     status = "ok"                                 
-                else:                    
+                else:                   
                     context = Context({'id': id,
                                        'message': "Argument not active!",
-                                       'nesting': nesting})
+                                       'nesting': nesting})                    
             else:
                 context = Context({'id': id,
                                    'message': "Not your turn",
-                                   'nesting': nesting})
+                                   'nesting': nesting})                    
         else:
             context = Context({'id': id,
-                               'message': "Invalid form",
-                               'nesting': nesting})
+                               'message': "Invalid form - rebut",
+                               'nesting': nesting})                    
     else:
         context = Context({'id': id,
-                           'message': "Not a POST",
-                           'nesting': nesting})
+                           'message': "Not a POST",            
+                           'nesting': nesting})                            
 
     response = ('response', [('message', t.render(context)),
                              ('status', status),
@@ -473,33 +473,50 @@ def respond(request, response, a_id):
     arg.save()
     return HttpResponseRedirect(redirect)
 
-def draw(request, a_id):
+def draw(request):
     """A user offers that the argument be resolved as a draw."""
-    arg = Argument.objects.get(pk=a_id)
-    redirect = ''.join(['/argue/', str(arg.id), '/'])
-    if arg.whos_up() == request.user and not arg.draw_set.all():
-        message = ''.join([request.user.username, 
-                           " has offered a draw regarding argument\n "
-                           "[",  arg.title, "]", "(", redirect, ")",
-                           "\nView the argument to accept or decline."])
-        recipient = arg.get_opponent(request.user)
-        msg = tcdMessage(user=request.user,
-                         recipient=recipient,
-                         comment=message,
-                         subject="Draw?",
-                         parent_id=0,
-                         nesting=0)
-        msg.save()
-        draw = Draw(offeror=request.user,
-                    recipient=arg.get_opponent(request.user),
-                    offer_date=datetime.datetime.now(),
-                    argument=arg)
-        draw.save()
-        request.user.message_set.create(message=''.join(["Offered a draw to ", recipient.username]))
-        return rebut(request, a_id)
+    status = "error"    
+    if request.POST:
+        form = RebutForm(request.POST)
+        if form.is_valid():
+            arg = get_object_or_404(Argument, pk=form.cleaned_data['arg_id'])
+            redirect = ''.join(['/argue/', str(arg.id), '/'])
+            if arg.whos_up() == request.user and not arg.draw_set.all():
+                message = ''.join([request.user.username, 
+                                   " has offered a draw regarding argument\n "
+                                   "[",  arg.title, "]", "(", redirect, ")",
+                                   "\nView the argument to accept or decline."])
+                recipient = arg.get_opponent(request.user)
+                msg = tcdMessage(user=request.user,
+                                 recipient=recipient,
+                                 comment=message,
+                                 subject="Draw?",
+                                 parent_id=0,
+                                 nesting=0)
+                msg.save()
+                draw = Draw(offeror=request.user,
+                            recipient=arg.get_opponent(request.user),
+                            offer_date=datetime.datetime.now(),
+                            argument=arg)
+                draw.save()
+                return rebut(request)
+            else:
+                response_message="Not your turn, not your argument, or there's already a draw offer outstanding"
+        else:
+            response_message = "Invalid Form - draw"
+                                    
     else:
-        request.user.message_set.create(message="Not your turn, not your argument, or there's already a draw offer outstanding")
-    return HttpResponseRedirect(redirect)
+        response_message = "Not a POST"
+    t = loader.get_template('items/msg_div.html')
+    c = Context({'id': "1",
+                 'message': response_message,
+                 'nesting': "20"})
+    response = ('response', [('message', t.render(c)),
+                             ('status', status)
+                             ])
+    response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')    
+    return HttpResponse(response)
+
 
 def respond_draw(request, response, a_id):
     """Opponent responds to an offer of a draw"""
