@@ -71,8 +71,10 @@
     <p>
       Who's winning? Cast your vote below.
     </p>
-      <a class="menu" href='#' onclick="vote({{ object.id }}, {{ request.user.id }}, 'P'); return false;">Vote for {{ object.plaintiff.username}}</a> |
-      <a class="menu" href='#' onclick="vote({{ object.id }}, {{ request.user.id }}, 'D'); return false;">Vote for {{ object.defendant.username}}</a>
+    <a class="menu" href='#' onclick="vote({{ object.id }}, {{ request.user.id }}, 'P'); return false;">Vote for {{ object.plaintiff.username}}</a> |
+    <a class="menu" href='#' onclick="vote({{ object.id }}, {{ request.user.id }}, 'D'); return false;">Vote for {{ object.defendant.username}}</a>
+    {% else %}
+    {% include "items/vote_div.html" %} 
     {% endif %}
     {% endif %}
   </div>

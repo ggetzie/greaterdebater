@@ -1,6 +1,10 @@
+{% if voted_for %}
 <p>You voted for {{ voted_for }}</p>
-<p>
-  Current Tally:<br />
-  {{ pvotes }} vote{{ pvotes|pluralize }} for {{ object.plaintiff }}<br />
-  {{ dvotes }} vote{{ dvotes|pluralize }} for {{ object.defendant }}<br />
-</p>
+<p>Current Tally:</p>
+{% else %}
+<p>Final Tally:</p>
+{% endif %}
+
+{{ pvotes }} vote{{ pvotes|pluralize }} for {{ object.plaintiff }}<br />
+{{ dvotes }} vote{{ dvotes|pluralize }} for {{ object.defendant }}
+
