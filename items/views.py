@@ -433,45 +433,78 @@ def rebut(request):
     response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')    
     return HttpResponse(response)
 
-def respond(request, response, a_id):
+def respond(request):
     """Potential opponent accepts or rejects a challenge to an argument."""    
-    arg = get_object_or_404(Argument, pk=a_id)
-    if request.user == arg.defendant:
-        redirect = ''.join(["/argue/", str(arg.id), "/"])
-        if arg.status == 0:
-            if response == 'accept':
-                arg.status = 2
-                message = ''.join([arg.defendant.username, 
-                                   " has accepted your challenge. \n[View this argument](", redirect, ")"])
-                msg = tcdMessage(user=request.user,
-                                 recipient=arg.plaintiff,
-                                 comment=message,
-                                 subject="Challenge accepted",
-                                 parent_id=0,
-                                 pub_date=datetime.datetime.now(),
-                                 nesting=0)
-                msg.save()
-                
-            elif response == 'decline':
-                arg.status = 6
-                message = ''.join([ arg.defendant.username, 
-                                    " has declined your challenge."])
-                msg = tcdMessage(user=request.user,
-                                 recipient=arg.plaintiff,
-                                 comment=message,
-                                 subject="Challenge declined",
-                                 parent_id=0,
-                                 nesting=0)
-                msg.save()
-            else:
-                request.user.message_set.create(message="Badly formed URL")
-        else:
-            request.user.message_set.create(message="Challenge already accepted or declined")
-    else:
-        request.user.message_set.create(message="Can't respond to a challenge that's not for you!")
+    status = "error"
+    turn_actions = ""
+    arg_status = "error"
+    arg_response = None
+    if request.POST:
+        form = Response(request.POST)
+        if form.is_valid():
+            arg = get_object_or_404(Argument, pk=form.cleaned_data['arg_id'])
+            if request.user == arg.defendant:
+                redirect = ''.join(["/argue/", str(arg.id), "/"])
+                if arg.status == 0:
+                    response = form.cleaned_data['response']
+                    if response == 0:
+                        # challenge accepted
+                        arg.status = 2
+                        arg_response = "accept"
+                        message = ''.join([arg.defendant.username, 
+                                           " has accepted your challenge. \n[View this argument](", redirect, ")"])
+                        msg = tcdMessage(user=request.user,
+                                         recipient=arg.plaintiff,
+                                         comment=message,
+                                         subject="Challenge accepted",
+                                         parent_id=0,
+                                         pub_date=datetime.datetime.now(),
+                                         nesting=0)
 
-    arg.save()
-    return HttpResponseRedirect(redirect)
+                    else:
+                        # response == 1, challenge declined
+                        # a value other than 0 or 1 would cause the form to not validate
+                        arg.status = 6
+                        arg_response = "decline"
+                        message = ''.join([ arg.defendant.username, 
+                                            " has declined your challenge."])
+                        msg = tcdMessage(user=request.user,
+                                         recipient=arg.plaintiff,
+                                         comment=message,
+                                         subject="Challenge declined",
+                                         parent_id=0,
+                                         nesting=0)
+                    msg.save()
+                    arg.save()
+                    status = "ok"
+                    ta_template = loader.get_template("items/turn_actions.html")
+                    ta_c = Context({'object': arg,
+                                    'user': request.user,
+                                    'last_c': arg.comment_set.order_by('-pub_date')[0]})
+                    turn_actions = ta_template.render(ta_c)
+                    response_message = msg.subject
+                    arg_status = arg.get_status()
+                else:
+                    response_message = "Challenge already accepted or declined"
+            else:
+                response_message = "Can't respond to a challenge that's not for you!"
+        else:
+            response_message = "Invalid Form"
+    else:
+        response_message = "Not a POST"
+
+    msg_t = loader.get_template("items/msg_div.html")
+    msg_c = Context({'id': "1",
+                     'message': response_message,
+                     'nesting': "20"})
+    responseXML = ('response', [('message', msg_t.render(msg_c)),
+                                ('turn_actions', turn_actions),
+                                ('arg_response', arg_response),
+                                ('arg_status', ": ".join(['Status', arg_status])),
+                                ('status', status)])
+    responseXML = pyfo.pyfo(responseXML, prolog=True, pretty=True, encoding='utf-8')    
+    return HttpResponse(responseXML)
+
 
 def draw(request):
     """A user offers that the argument be resolved as a draw."""
@@ -573,7 +606,7 @@ def respond_draw(request):
     msg_c = Context({'id': "1",
                      'message': response_message,
                      'nesting': "20"})
-    responseXML = ('response', [('messsage', msg_t.render(msg_c)),
+    responseXML = ('response', [('message', msg_t.render(msg_c)),
                                 ('turn_actions', ta_XML),
                                 ('arg_status', ": ".join(['Status', arg_status])),
                                 ('status', status)])

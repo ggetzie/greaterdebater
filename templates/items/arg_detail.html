@@ -21,11 +21,11 @@
 {% ifequal user object.whos_up %}
 <div id="arg_actions">
   {% if new_arg %}
-  <div class="arg_query arg_responses">
+  <div class="arg_query arg_responses" id="arg_responses">
     Begin this argument?<br />
     <ul class="flat-list">
-      <li><a href="/argue/accept/{{ object.id }}">Accept</a></li>
-      <li><a href="/argue/decline/{{ object.id }}">Decline</a></li>
+      <li><a href="#" onclick="respond_challenge({{ object.id}}, {{ request.user.id }}, 0); return false;">Accept</a></li>
+      <li><a href="#" onclick="respond_challenge({{ object.id}}, {{ request.user.id }}, 1); return false;">Decline</a></li>
     </ul>
   </div>
   {% else %}

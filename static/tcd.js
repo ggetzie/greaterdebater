@@ -98,7 +98,7 @@ function respond_draw(arg_id, user_id, response) {
 	       msg = $("message", xml).text();
 	       $("#arg_actions").parent().append(msg);
 	       if ( $("status", xml).text() == "ok") {
-		   if ( $("arg_status", xml).text() == "draw") {
+		   if ( $("arg_status", xml).text() == "Status: draw") {
 		       // if the draw was accepted
 		       // change the status and remove the options to reply
 		       $("#arg_actions").remove();
@@ -114,6 +114,38 @@ function respond_draw(arg_id, user_id, response) {
 	   }
 	  )
 }
+
+function respond_challenge(arg_id, user_id, response) {
+    $.post("/argue/respond/", {arg_id: arg_id,
+			       user_id: user_id,
+			       response: response},
+	   function(xml) {
+	       // display the message
+	       if ( $("status", xml).text() == "ok") {
+		   if ( $("arg_response", xml).text() == "accept") {
+		       // if the challenge was accepted
+		       // change the status and add the options to reply
+		       turn_actions = $("turn_actions", xml).text()
+		       $("#arg_actions").html(turn_actions);
+		   } else {
+		       // if the challenge was declined, remove the arg_actions div
+		       $("#arg_actions").remove();
+		   }
+		   // In any case, update the status of the argument
+		   $("#arg_status").html( $("arg_status", xml).text() );
+	       } else if ($("status", xml).text() == "error") {
+		   // Display the error message
+		   msg = $("message", xml).text();
+		   $("#arg_actions").append(msg);
+	       } else {
+		   alert("Invalid Status!");
+	       }
+	   }
+	  )
+	   
+}
+
+
 
 function concede_argument(arg_id, user_id) {
     $.post("/argue/concede/", {arg_id: arg_id,

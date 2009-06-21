@@ -36,5 +36,5 @@ urlpatterns = patterns('tcd.items.views',
                        (r'^draw/respond/$', 'respond_draw'),                                              
                        (r'^draw/(?P<response>(accept|decline))/(?P<a_id>[\d]+)/$', 'respond_draw'),       
                        (r'^concede/$', 'concede'),                     
-                       (r'^(?P<response>(accept|decline))/(?P<a_id>[\d]+)$', 'respond'),                                                              
+                       (r'^respond/$', 'respond'),                                            
 )
