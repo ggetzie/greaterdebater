@@ -40,3 +40,10 @@ class Flag(forms.Form):
 class Concession(forms.Form):
     arg_id = forms.IntegerField(widget=forms.widgets.HiddenInput())
     user_id = forms.IntegerField(widget=forms.widgets.HiddenInput())
+
+class Response(forms.Form):
+    arg_id = forms.IntegerField(widget=forms.widgets.HiddenInput())
+    user_id = forms.IntegerField(widget=forms.widgets.HiddenInput())
+    response = forms.TypedChoiceField(widget=forms.widgets.HiddenInput(), 
+                                      choices=[(0, 'accept'), (1, 'decline')],
+                                      coerce=int)

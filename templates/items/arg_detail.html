@@ -30,28 +30,15 @@
   </div>
   {% else %}
   {% if object.draw_set.all %}
-  <div class="arg_responses arg_query">
-    A draw has been offered
-    <ul class="flat-list">
-      <li><a href="/argue/draw/accept/{{ object.id }}">Accept</a></li>
-      <li><a href="/argue/draw/decline/{{ object.id }}">Decline</a></li>
-    </ul>
+  <div class="arg_responses arg_query" id="draw_query">
+    <p>
+      A draw has been offered
+    </p>
+      <a class="menu" href="#" onclick="respond_draw({{ object.id }}, {{ request.user.id }}, 0); return false;">Accept</a> |
+      <a class="menu" href="#" onclick="respond_draw({{ object.id }}, {{ request.user.id }}, 1); return false;">Decline</a>
   </div>
   {% else %}
-  <div class="arg_responses" id="turn_actions">
-
-    <a class="menu" href='#' onclick="displayFormComment('#rebut{{ object.id }}'); return false;">Rebut</a> |
-    <a class="menu" href='#' onclick="displayFormComment('#draw{{ object.id }}'); return false;">Offer a draw</a> |
-    <a class="menu" href='#' onclick="displayFormComment('#concede{{ object.id }}'); return false;">Concede</a>
-
-    <div class="action_block">
-      {% include "comments/rebut_form.html" %}
-      {% include "comments/draw_form.html" %}
-      <div id="concede{{ object.id }}" class="comment_action">
-	<p>Concede argument: Are you sure? <a href="#" onclick="concede_argument({{ object.id }}, {{ user.id }}); return false;">Yes</a> / <a href="#" onclick="displayFormComment('#concede{{ object.id }}'); return false;">No</a></p>
-      </div>
-    </div>
-  </div>
+  {% include "items/turn_actions.html" %}
   {% endif %}
   {% endif %}
 </div>

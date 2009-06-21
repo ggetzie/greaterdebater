@@ -89,6 +89,32 @@ function flag_comment(comment_id, user_id) {
 	  )
 }
 
+function respond_draw(arg_id, user_id, response) {
+    $.post("/argue/draw/respond/", {arg_id: arg_id,
+				    user_id: user_id,
+				    response: response},
+	   function(xml) {
+	       // display the message
+	       msg = $("message", xml).text();
+	       $("#arg_actions").parent().append(msg);
+	       if ( $("status", xml).text() == "ok") {
+		   if ( $("arg_status", xml).text() == "draw") {
+		       // if the draw was accepted
+		       // change the status and remove the options to reply
+		       $("#arg_actions").remove();
+		       $("#arg_status").html( $("arg_status", xml).text() );
+		   } else {
+		       // if the draw was declined, show the options to reply
+		       $("#draw_query").remove();
+		       turn_actions = $("turn_actions", xml).text()
+		       $("#arg_actions").html(turn_actions);
+		   }
+	       }
+
+	   }
+	  )
+}
+
 function concede_argument(arg_id, user_id) {
     $.post("/argue/concede/", {arg_id: arg_id,
 			      user_id: user_id},

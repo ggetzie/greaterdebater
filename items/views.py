@@ -12,7 +12,7 @@ from django.views.generic import list_detail
 from tcd.comments.forms import CommentForm, RebutForm
 from tcd.comments.models import Comment, tcdMessage, Draw
 from tcd.comments.utils import build_list
-from tcd.items.forms import tcdTopicSubmitForm, Ballot, Flag, Concession
+from tcd.items.forms import tcdTopicSubmitForm, Ballot, Flag, Concession, Response
 from tcd.items.models import Topic, Argument, Vote
 from tcd.profiles.forms import tcdLoginForm
 from tcd.profiles.models import Profile
@@ -518,36 +518,67 @@ def draw(request):
     return HttpResponse(response)
 
 
-def respond_draw(request, response, a_id):
+def respond_draw(request):
     """Opponent responds to an offer of a draw"""
-    arg = Argument.objects.get(pk=a_id)
-    draw = Draw.objects.get(argument=arg)
-    redirect = ''.join(["/argue/", str(arg.id), "/"])
-    if request.user == draw.recipient:
-        if response == "accept":
-            message = ''.join([request.user.username, " has accepted your offer of a draw",
-                               " regarding \n[", arg.title, "](", redirect, ")"])
-            subject = "Draw Accepted"
-            request.user.message_set.create(message="Accepted draw")
-            arg.status = 5            
-        elif response == "decline":
-            message = ''.join([request.user.username, " has declined your offer of a draw",
-                               " regarding \n[", arg.title, "](", redirect, ")"])
-            subject = "Draw Declined"
-            request.user.message_set.create(message="Draw Rejected")
+    
+    # default to error status
+    # if the form processes successfully, will be changed to "ok"
+    status = "error"
+    ta_XML = ""
+    arg_status = "error"
+    if request.POST:
+        form = Response(request.POST)
+        if form.is_valid():
+            arg = get_object_or_404(Argument, pk=form.cleaned_data['arg_id'])
+            draw = get_object_or_404(Draw, argument=arg)
+            redirect = ''.join(["/argue/", str(arg.id), "/"])
+            if request.user == draw.recipient:
+                response = form.cleaned_data['response']
+                if response == 0: # draw offer accepted
+                    message = ''.join([request.user.username, " has accepted your offer of a draw",
+                                       " regarding \n[", arg.title, "](", redirect, ")"])
+                    subject = "Draw Accepted"
+                    arg.status = 5            
+                    response_message = subject
+                else: 
+                    # response == 1, the draw was declined 
+                    # if a value other than 0 or 1, the form would not have validated
+                    message = ''.join([request.user.username, " has declined your offer of a draw",
+                                       " regarding \n[", arg.title, "](", redirect, ")"])
+                    subject = "Draw Declined"
+                    response_message = subject
+                msg = tcdMessage(user=request.user,
+                                     recipient = draw.offeror,
+                                     comment = message,
+                                     subject = subject,
+                                     parent_id = 0,
+                                     nesting = 0)
+                draw.delete()
+                msg.save()
+                arg.save()
+                ta_template = loader.get_template("items/turn_actions.html")
+                ta_c = Context({'object': arg,
+                                'user': request.user,
+                                'last_c': arg.comment_set.order_by('-pub_date')[0]})
+                ta_XML = ta_template.render(ta_c)
+                status = "ok"
+                arg_status = arg.get_status()
+            else:
+                response_message = "You can't responsd to this draw offer"                
         else:
-            request.user.message_set.create(message="Badly formed URL")
-            return HttpResponseRedirect(redirect)
-        msg = tcdMessage(user=request.user,
-                             recipient = draw.offeror,
-                             comment = message,
-                             subject = subject,
-                             parent_id = 0,
-                             nesting = 0)
-        draw.delete()
-        msg.save()
-        arg.save()
-    return HttpResponseRedirect(redirect)
+            response_message = "Invalid Form"
+    else:
+        response_message = "Not a POST"
+    msg_t = loader.get_template("items/msg_div.html")
+    msg_c = Context({'id': "1",
+                     'message': response_message,
+                     'nesting': "20"})
+    responseXML = ('response', [('messsage', msg_t.render(msg_c)),
+                                ('turn_actions', ta_XML),
+                                ('arg_status', ": ".join(['Status', arg_status])),
+                                ('status', status)])
+    responseXML = pyfo.pyfo(responseXML, prolog=True, pretty=True, encoding='utf-8')    
+    return HttpResponse(responseXML)
 
 def concede(request):
     """User concedes an argument, opponent wins"""
