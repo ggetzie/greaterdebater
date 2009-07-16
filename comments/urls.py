@@ -20,11 +20,26 @@ from django.conf.urls.defaults import patterns
 # This url file is included from items.urls with the prefix /comments/
 
 urlpatterns = patterns('',
+
+                       # Why is this here?
                        (r'^$', 'comments.views.list'),
+
+                       # Add a comment to a topic
                        (r'^(?P<topic_id>\d+)/add/$', 'comments.views.add'),
+
+                       # Edit a comment
                        (r'^(?P<topic_id>\d+)/edit/$', 'comments.views.edit'),
+
+                       # View a single comment on a page by itself
                        (r'^(?P<comment_id>\d+)/$', 'comments.views.comment_detail'),
+
+                       # Delete a comment
                        (r'[delete|undelete]/$', 'comments.views.delete'),
+
+                       # View all arguments associated with a comment
                        (r'^(?P<comment_id>\d+)/arguments/$', 'comments.views.arguments'),                        
+                       (r'^(?P<comment_id>\d+)/arguments/(?P<page>\d+)/$', 'comments.views.arguments'),                        
+
+                       # Flag a comment as spam
                        (r'^flag/$', 'comments.views.flag'),
                        )

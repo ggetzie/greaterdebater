@@ -2,8 +2,10 @@
 <div id="argue{{ comment.id }}" class="comment_action">
   <form action="/argue/challenge/{{ comment.id }}/" method="post" accept-charset="utf-8">
     <div class="form-row">
-      <label for="id_comment">Posting as {{ user }}</label>
-      <br /><textarea rows=5 cols=50 name="comment"></textarea>
+      <label for="id_title">Title</label>
+      <div><input type="text" name="title" /></div>
+      <label for="id_comment">Argument</label>
+      <div><textarea rows=5 cols=50 name="comment"></textarea></div>
       <div><input type="hidden" name="parent_id" value={{ comment.id }} /></div>
       <div><input type="hidden" name="nesting" value={{ comment.nesting }} /></div>
       <div><input type="hidden" name="toplevel" value=0 /></div>

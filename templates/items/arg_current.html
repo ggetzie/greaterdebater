@@ -5,6 +5,14 @@
 <h4>Current Arguments</h4>
 <p id="other-args"><a href="/argue/archive">View Argument Archive</a></p>
 {% include "items/arg_list.html" %}
+
+{% if has_previous %}
+<a href="/argue/page/{{ previous }}">Previous</a>
+{% endif %}
+{% if has_next %}
+<a href="/argue/page/{{ next }}">Next</a>
+{% endif %}
+
 {% endblock %}
 
 {% block ads %}

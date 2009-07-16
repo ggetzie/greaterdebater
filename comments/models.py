@@ -95,7 +95,10 @@ class Comment(models.Model):
 
     def get_elapsed(self):
         return elapsed_time(self.pub_date)
-        
+
+    def get_viewable_arguments(self):
+        return self.arguments.filter(status__range=(1,5)).count()
+            
     def hilight(self, content):
         CODE_TAG_START = "{{{"
         CODE_TAG_END = "}}}"

@@ -48,7 +48,7 @@ class Argument(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField(blank=True, null=True)
     topic = models.ForeignKey(Topic)
-    title = models.CharField(max_length=200)
+    title = models.CharField(max_length=140)
     # status codes: 0 = challenge made, response pending
     #               1 = argument in progress, plaintiff's turn
     #               2 = argument in progress, defendant's turn

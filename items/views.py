@@ -9,13 +9,16 @@ from django.template import loader, RequestContext, Context
 from django.utils.datastructures import MultiValueDictKeyError
 from django.views.generic import list_detail
 
-from tcd.comments.forms import CommentForm, RebutForm
+from tcd.comments.forms import ArgueForm, CommentForm, RebutForm
 from tcd.comments.models import Comment, tcdMessage, Draw
 from tcd.comments.utils import build_list
+
 from tcd.items.forms import tcdTopicSubmitForm, Ballot, Flag, Concession, Response
 from tcd.items.models import Topic, Argument, Vote
+
 from tcd.profiles.forms import tcdLoginForm
 from tcd.profiles.models import Profile
+
 from tcd.utils import calc_start
 
 
@@ -281,7 +284,7 @@ def edit_topic(request, topic_id, page):
 def challenge(request, c_id):
     """Create a pending argument as one user challenges another."""
     if request.POST:
-        form = CommentForm(request.POST)
+        form = ArgueForm(request.POST)
         c = get_object_or_404(Comment, pk=c_id)
         defendant = c.user
         redirect = ''.join(['/', str(c.topic_id), '/']) 
@@ -297,6 +300,7 @@ def challenge(request, c_id):
                                    defendant=defendant,
                                    start_date=datetime.datetime.now(),
                                    topic=c.topic,                                   
+                                   title=form.cleaned_data['title'],
                                    status=0)
                     arg.save()
                     c.arguments.add(arg)
@@ -310,7 +314,6 @@ def challenge(request, c_id):
                     opener = Comment(**params)
                     opener.save()
                     opener.arguments.add(arg)
-                    arg.title= ''.join([opener.comment[:20].replace('\r', ' '), '...'])
                     arg.save()
                     msg_txt = ''.join([request.user.username, 
                                        " has challenged you to an argument.\n [Click here](/argue/",

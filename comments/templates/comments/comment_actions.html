@@ -10,7 +10,7 @@
 
   {% else %}
 
-  <a class="menu" href="/comments/{{ comment.id }}/arguments/">({{ comment.arguments.count }}) argument{{ comment.arguments.count|pluralize }}</a>
+  <a class="menu" href="/comments/{{ comment.id }}/arguments/">({{ comment.get_viewable_arguments }}) argument{{ comment.get_viewable_arguments|pluralize }}</a>
 
   
   {% if user.is_authenticated %}  

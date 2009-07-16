@@ -332,3 +332,7 @@ margin-left: 10px;
 h3#profile {
 margin-top: 50px;
 }
+
+div.form-row label{
+font-size: small;
+}    

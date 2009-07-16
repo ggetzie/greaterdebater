@@ -4,6 +4,13 @@
 {% block content %}
 {% include "comments/one_comment.html" %}
 <h4>Arguments for this comment</h4>
-<br />
 {% include "items/arg_list.html" %}
+
+{% if has_previous %}
+<a href="/comments/{{ comment.id}}/arguments/{{ previous }}">Previous</a>
+{% endif %}
+{% if has_next %}
+<a href="/comments/{{ comment.id}}/arguments/{{ next }}">Next</a>
+{% endif %}
+
 {% endblock %}

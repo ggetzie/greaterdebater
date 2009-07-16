@@ -28,8 +28,19 @@ class CommentForm(forms.Form):
     parent_id = forms.IntegerField(widget=forms.widgets.HiddenInput(), required=False)
     nesting = forms.IntegerField(widget=forms.widgets.HiddenInput(), required=False)
     toplevel = forms.IntegerField(widget=forms.widgets.HiddenInput(), required=False)
-    
 
+class ArgueForm(forms.Form):
+    """Form used for one user to challenge another to an argument"""
+    comment =  forms.CharField(widget=forms.widgets.Textarea(attrs={'class': 'required icomment',
+                                                                    'rows': 5,
+                                                                    'cols': 50}))
+    title = forms.CharField(max_length=140,
+                            label="Title",
+                            widget=forms.TextInput(attrs={'size': '50'}))
+                            
+    parent_id = forms.IntegerField(widget=forms.widgets.HiddenInput(), required=False)
+
+    
 class DeleteForm(forms.Form):
     comment_id = forms.IntegerField(widget=forms.widgets.HiddenInput())
     referring_page = forms.CharField(max_length=255, widget=forms.widgets.HiddenInput(), required=False)

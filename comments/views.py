@@ -25,12 +25,15 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 from django.template import loader, RequestContext, Context
 from django.utils.http import urlquote_plus, urlquote
+from django.views.generic import list_detail
 
 from forms import CommentForm, DeleteForm
 from models import Comment
 
 from tcd.items.models import Topic
 from tcd.items.forms import Flag
+
+from tcd.utils import calc_start
 
 import datetime
 import pyfo
@@ -144,13 +147,20 @@ def comment_detail(request, comment_id):
                               {'comment': comment},
                               context_instance=RequestContext(request))
                                     
-def arguments(request, comment_id):
+def arguments(request, comment_id, page=1):
+    paginate_by = 10
     comment = get_object_or_404(Comment, pk=comment_id)
-    args_list = comment.arguments.order_by('-start_date')
-    return render_to_response("comments/comment_args.html",
-                              {'comment': comment,
-                               'args_list': args_list},
-                              context_instance=RequestContext(request))
+    args_list = comment.arguments.filter(status__range=(1,5)).order_by('-start_date')
+    start = calc_start(page, paginate_by, args_list.count())
+
+    return list_detail.object_list(request=request,
+                                   queryset=args_list,
+                                   page=page,
+                                   paginate_by=paginate_by,
+                                   extra_context={'start': start,
+                                                  'comment': comment},
+                                   template_name="comments/comment_args.html",
+                                   template_object_name="args")
                                     
 def flag(request):
     if request.POST:
