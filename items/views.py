@@ -102,7 +102,20 @@ def topics(request, page=1, sort="hot"):
                                    paginate_by=paginate_by, 
                                    page=page,
                                    extra_context={'start': start,
-                                                  'pager': pager})
+                                                  'page': pager})
+
+def front_page(request):
+    """Display the home page of GreaterDebater.com, show five hottest arguments and five hottest topics"""
+    args = Argument.objects.filter(status__range=(1,2))[0:5]
+    topics = Topic.objects.filter(needs_review=False).order_by('-score', '-sub_date')[0:5]
+    return render_to_response('items/front_page.html',
+                              {'args_list': args,
+                               'topic_list': topics},
+                              context_instance=RequestContext(request)
+                              )
+
+    
+    
 
 def tflag(request):    
     top=None
@@ -348,6 +361,8 @@ def vote(request):
                             voter=voter,
                             voted_for=form.cleaned_data['voted_for'])
                 vote.save()
+                arg.calculate_score()
+                arg.save()
                 all_votes = Vote.objects.filter(argument=arg)
                 if vote.voted_for == "P":
                     voted_name = arg.plaintiff.username
@@ -705,6 +720,16 @@ def arg_detail(request, object_id):
                                'dvotes': votes.filter(voted_for="D").count() 
                                },
                               context_instance=RequestContext(request))
+
+def newest_args(request, page=1):
+    args = Argument.objects.filter(status__range=(1,2)).order_by('start_date')
+    paginate_by = 10
+    extra_context = {'start': calc_start(page, paginate_by, args.count())}
+
+    return list_detail.object_list(request=request, queryset=args, paginate_by=paginate_by,page=page,
+                                   template_object_name = 'args',
+                                   template_name = "items/arg_new.html",)
+                                   
 
 def object_list_field(request, model, field, value, paginate_by=None, page=None,
                       fv_dict=None, allow_empty=True, template_name=None, 

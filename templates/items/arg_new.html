@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Current Arguments{% endblock %}
+
+{% block content %}
+<h4>Newest Arguments</h4>
+<p id="other-args"><a href="/argue/archive">View Argument Archive</a></p>
+{% include "items/arg_list.html" %}
+
+{% if has_previous %}
+<a href="/argue/new/page/{{ previous }}">Previous</a>
+{% endif %}
+{% if has_next %}
+<a href="/argue/new/page/{{ next }}">Next</a>
+{% endif %}
+
+{% endblock %}
+
+{% block ads %}
+{% include "ads.html" %}
+{% endblock %}

@@ -58,10 +58,11 @@ class Argument(models.Model):
     #               6 = plaintiff declined challenge
     #               others invalid
     status = models.PositiveSmallIntegerField(default=0)
+    score = models.FloatField(default=0)
 
     
     class Meta:
-        ordering = ['-start_date']
+        ordering = ['-score', '-start_date']
 
     
     def __unicode__(self):
@@ -120,7 +121,13 @@ class Argument(models.Model):
         # Set the status of the argument so it's the loser's turn again
         self.status -= 2
         self.save()
-        
+
+    def calculate_score(self):
+        numvotes = Vote.objects.filter(argument=self.id).count()
+        delta = datetime.datetime.now() - self.start_date
+        minutes = delta.days*1440 + delta.seconds/60 + 1.0
+        self.score = float(numvotes / minutes)
+        self.save()
 
 
 class LogItem(models.Model):

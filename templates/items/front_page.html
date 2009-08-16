@@ -1,10 +1,19 @@
 {% extends "base.html" %}
-{% block title %}Topics{% endblock %}
+{% block title %}Home{% endblock %}
 
 {% block content %}
-{% if object_list %}
+
+<h3>Most Active Arguments</h3>
+{% if args_list %}
+{% include "items/arg_list.html" %}
+{% else %}
+<p>No current arguments are available</p>
+{% endif %}
+
+<h3>Most Active Topics</h3>
+{% if topic_list %}
 <ol start={{ start }} class="topic-list">
-  {% for object in object_list %}
+  {% for object in topic_list %}
   <li>
     {% include "items/topic_div.html" %}
   </li>
@@ -12,14 +21,6 @@
 </ol>
 {% else %}
 <p>No topics are available</p>
-{% endif %}
-
-{# pagination #}
-{% if has_previous %}
-<a href="/hot/{{ page }}/{{ previous }}">Previous</a>
-{% endif %}
-{% if has_next %}
-<a href="/hot/{{ page }}/{{ next }}">Next</a>
 {% endif %}
 
 {% endblock %}

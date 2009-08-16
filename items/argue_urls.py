@@ -25,9 +25,13 @@ archive_args = {'model': Argument,
     
 
 urlpatterns = patterns('tcd.items.views',
-                       # Display active arguments
+                       # Display active arguments, sorted by score
                        (r'^$', 'object_list_field', current_args),
                        (r'^page/(?P<page>(\d+|last))/$', 'object_list_field', current_args),
+
+                       # Display active arguments, sorted by date
+                       (r'^new/$', 'newest_args'),
+                       (r'^new/page/(?P<page>(\d+|last))/$', 'newest_args'),
 
                        # Display completed arguments
                        (r'^archive/$', 'object_list_field', archive_args),

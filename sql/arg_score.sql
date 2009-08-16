@@ -1,0 +1,6 @@
+
+BEGIN;
+
+ALTER TABLE items_argument ADD score FLOAT NOT NULL;
+
+COMMIT;

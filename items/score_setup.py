@@ -22,6 +22,12 @@ def recalc_all():
     for top in tops:
         top.recalculate()
         top.save()
+
+    args = Argument.objects.filter(status__range=(1,2))
+    for arg in args: 
+        arg.calculate_score()
+        arg.save()
+
     log = LogItem(date=datetime.datetime.now(),
                   message= ''.join(["recalc_all success ", str(tops.count()), " updated"]))
     log.save()
