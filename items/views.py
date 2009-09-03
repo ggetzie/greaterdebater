@@ -87,9 +87,7 @@ def topics(request, page=1, sort="hot"):
     paginate_by = 25
     start = calc_start(page, paginate_by, Topic.objects.count())
     user = request.user    
-    if user.is_authenticated() and tcdMessage.objects.filter(recipient=user, is_read=False):        
-        user.message_set.create(message=''.join(["<a href='/users/u/", user.username,
-                                                 "/messages/'>You have unread messages</a>"]))
+
     if sort == "new":
         queryset = Topic.objects.filter(needs_review=False).order_by('-sub_date')
         pager = "new" 
@@ -108,6 +106,10 @@ def front_page(request):
     """Display the home page of GreaterDebater.com, show five hottest arguments and five hottest topics"""
     args = Argument.objects.filter(status__range=(1,2))[0:5]
     topics = Topic.objects.filter(needs_review=False).order_by('-score', '-sub_date')[0:5]
+
+    if request.user.is_authenticated() and tcdMessage.objects.filter(recipient=request.user, is_read=False):        
+        request.user.message_set.create(message=''.join(["<a href='/users/u/", request.user.username,
+                                                 "/messages/'>You have unread messages</a>"]))
     return render_to_response('items/front_page.html',
                               {'args_list': args,
                                'topic_list': topics},
