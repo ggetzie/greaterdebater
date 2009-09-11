@@ -255,3 +255,12 @@ function delete_checked_messages() {
 	       })
     }
 }
+
+function delete_current_message(m_id){
+    $.post('/users/delete_current_message/', {message_id: m_id},
+	   function(url) {
+	       window.location.href=url
+	   }
+	       
+	   )
+}

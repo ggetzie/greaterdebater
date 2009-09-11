@@ -136,15 +136,29 @@ def profile_msgs(request, value, page=1):
         return HttpResponseForbidden("<h1>Unauthorized</h1>")
 
 def message_detail(request, value, object_id):
-    message = tcdMessage.objects.get(comment_ptr=object_id)
-    user = User.objects.get(username=value)
-    if not message.is_read:
-        message.is_read = True
-        message.save()
-    return render_to_response("registration/profile/message_detail.html",
-                              {'comment': message,
-                               'username': user},
-                              context_instance=RequestContext(request))
+    user = get_object_or_404(User, username=value)
+    if user == request.user:
+        message_list = tcdMessage.objects.filter(recipient=user).order_by('-pub_date')    
+        message = message_list.get(comment_ptr=object_id)
+        try:
+            next = message_list.filter(pub_date__gt=message.pub_date).order_by('pub_date')[0].id
+        except IndexError:
+            next = ""
+        try:
+            prev = message_list.filter(pub_date__lt=message.pub_date).order_by('-pub_date')[0].id
+        except IndexError:
+            prev = ""
+        if not message.is_read:
+            message.is_read = True
+            message.save()
+        return render_to_response("registration/profile/message_detail.html",
+                                  {'comment': message,
+                                   'username': user,
+                                   'next': str(next),
+                                   'prev': str(prev)},
+                                  context_instance=RequestContext(request))
+    else:
+        return HttpResponseForbidden("<h1>Unauthorized</h1>")
 
 def profile_stgs(request, value):
     """ Display the users current settings and allow them to be modified """
@@ -252,7 +266,22 @@ def delete_messages(request):
     response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')
     return HttpResponse(response)
 
+def delete_current_message(request):
+    if request.POST:
+        m_id = int(request.POST['message_id'])
+        message_list = tcdMessage.objects.filter(recipient=request.user)
+        message = message_list.get(comment_ptr=m_id)
+        try:
+            redirect = ''.join(['/users/u/', request.user.username, 
+                                '/messages/', 
+                                str(message_list.filter(pub_date__gt=message.pub_date).order_by('pub_date')[0].id)])
+        except IndexError:
+            redirect = ''.join(['/users/u/', request.user.username, 
+                                '/messages/'])
 
+        message.delete()
+        return HttpResponse(redirect)
+            
 
 def save_forgotten(user):
     """When saving a temporary entry to the forgotten password table, there is a 

@@ -102,7 +102,7 @@ font-size: small;
 
 ul.flat-list {
 list-style-type: none;
-margin-left: 1px;
+margin-left: -20px;
 }
 
 ul.flat-list li {
@@ -179,10 +179,6 @@ div#add-comment {
 margin-top: 20px;
 }  
 
-div.comment_action {
-display: none;
-}
-
 .title {
 font-size: large
 }    
@@ -247,13 +243,13 @@ div.plaintiff {
 margin-left: 50px;
 }
 
-div#tos {
+div.tos {
 text-align: justify;
 font-size: 13px;
 margin-left: 20px;
 }
 
-div#tos h2 {
+div.tos h2 {
 text-align: center;
 }
 
@@ -312,7 +308,6 @@ background: #EEEEEE;
 
 div.arg_responses {
 margin: 20px 20px 20px 20px;
-
 }    
 
 div.arg_query ul.flat-list {
@@ -337,3 +332,12 @@ margin-top: 50px;
 div.form-row label{
 font-size: small;
 }    
+
+div.message-actions {
+margin-left: 20px;
+margin-top: 20px;
+}
+
+div.message-actions ul {
+margin-left: -45px;
+}

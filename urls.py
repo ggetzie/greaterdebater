@@ -12,4 +12,5 @@ urlpatterns = patterns('',
                        (r'^FAQ/$', 'django.views.generic.simple.direct_to_template', {'template': 'faq.html'}),
                        (r'^help/$', 'django.views.generic.simple.direct_to_template', {'template': 'help.html'}),                       
                        (r'^tos/$', 'django.views.generic.simple.direct_to_template', {'template': 'tos.html'}),
+                       (r'^privacy/$', 'django.views.generic.simple.direct_to_template', {'template': 'privacy.html'}),
 )

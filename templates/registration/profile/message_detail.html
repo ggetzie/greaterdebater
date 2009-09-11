@@ -4,10 +4,35 @@
 {% block content %}
 <h4>{{ comment.subject }}</h4>
 <div id="comment_div{{ comment.id }}" class="form">
-  <br />
   <span id= "comment_info{{ comment.id }}" class="comment_info"> from <a href="/users/u/{{ comment.user }}/profile/">{{ comment.user }}</a> {{ comment.get_elapsed }} ago</span>
   <div id="commentp_div{{ comment.id }}">
     {{ comment.comment_html|safe }}
   </div>
+</div>
+
+<div class="message-actions">
+
+  <ul class="flat-list">
+    <li>
+    {% if next %}
+    <a href="/users/u/{{ user.username }}/messages/{{ next }}">Next</a> |
+    {% endif %}
+    </li>
+
+    <li>
+    {% if prev %}
+    <a href="/users/u/{{ user.username }}/messages/{{ prev }}">Prev</a> |
+    {% endif %}
+    </li>
+
+    <li>
+    <a href="#" onclick="delete_current_message({{ comment.id }}); return false;">Delete</a>
+    </li>
+  </ul>
+
+  <p>
+    <a href="/users/u/{{ user.username}}/messages/"><- Back to messages</a>  
+  </p>
+
 </div>
 {% endblock %}
