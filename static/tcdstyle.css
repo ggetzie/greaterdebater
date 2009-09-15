@@ -26,10 +26,6 @@ height: 100px;
 clear: both;
 }
 
-.removed {
-display: none;
-}
-
 span.letter {
 text-align: center;
 padding-left: 1%;
@@ -100,9 +96,14 @@ margin: 0 0 0 0;
 font-size: small;
 }
 
+div#header ul.flat-list{
+margin-top: 0px;
+margin-bottom: 0px;
+}
+
 ul.flat-list {
 list-style-type: none;
-margin-left: -20px;
+margin-left: -45px;
 }
 
 ul.flat-list li {
@@ -180,7 +181,7 @@ margin-top: 20px;
 }  
 
 .title {
-font-size: large
+font-size: large;
 }    
 
 .menu {
@@ -197,12 +198,6 @@ text-align: left;
 float: left;
 width: 60%;
 }
-
-div#login {
-width: 40%;
-float: right;
-text-align: right;
-}    
 
 .header {
 background: #c1c1c1;
@@ -341,3 +336,60 @@ margin-top: 20px;
 div.message-actions ul {
 margin-left: -45px;
 }
+
+div#login {
+width: 40%;
+float: right;
+text-align: right;
+}    
+
+div#login ul {
+float: right;
+}
+
+div#login span {
+/* padding-right: 20px; */
+white-space: nowrap;
+padding: 3px 12px;
+border-right: 1px solid white;
+display: block;
+}
+   
+.jsddm
+{	margin: 0;
+	padding: 0}
+	
+	.jsddm li
+	{	float: left;
+		list-style: none;}
+		/* font: 12px Verdana} */
+
+	.jsddm li a
+	{	display: block;
+		padding: 3px 12px;
+		text-decoration: none;
+/* 		border-right: 1px solid white; */
+		/* width: 70px; */
+		white-space: nowrap
+	}
+
+	.jsddm li a:hover
+	{	background: #FFFFFF;}
+		
+		.jsddm li ul
+		{	margin: 0;
+			padding: 0;
+			position: absolute;
+			visibility: hidden;
+			border-top: 1px solid white}
+		
+		.jsddm li ul li
+		{	float: none;
+			display: inline}
+		
+		.jsddm li ul li a
+		{	/* width: auto; */
+			background: #C1C1C1}
+		
+		.jsddm li ul li a:hover
+		{	background: #FFFFFF;}
