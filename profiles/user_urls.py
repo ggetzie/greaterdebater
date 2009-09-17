@@ -33,18 +33,18 @@ urlpatterns = patterns('',
 
                        # Display all of the arguments a user has been involved in, paginated
                        (r'^arguments/$', 'tcd.profiles.views.profile_args'),
-                       (r'^arguments/(?P<page>(\d+|last))$', 'tcd.profiles.views.profile_args'),
+                       (r'^arguments/(?P<page>(\d+|last))/?$', 'tcd.profiles.views.profile_args'),
 
                        # Display all of the comments a user has submitted, paginated
                        (r'^comments/$', 'tcd.items.views.object_list_foreign_field', 
                         comments_dict),
-                       (r'^comments/(?P<page>(\d+|last))$', 'tcd.items.views.object_list_foreign_field', 
+                       (r'^comments/(?P<page>(\d+|last))/?$', 'tcd.items.views.object_list_foreign_field', 
                         comments_dict),
 
                        # Display all the topics a user has submitted, paginated
                        (r'^submissions/$', 'tcd.items.views.object_list_foreign_field', 
                         submissions_dict),
-                       (r'^submissions/(?P<page>(\d+|last))$', 'tcd.items.views.object_list_foreign_field', 
+                       (r'^submissions/(?P<page>(\d+|last))/?$', 'tcd.items.views.object_list_foreign_field', 
                         submissions_dict),
 
                        # Display a list of messages for the user

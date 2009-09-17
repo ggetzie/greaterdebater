@@ -38,7 +38,7 @@ urlpatterns = patterns('',
 
                        # View all arguments associated with a comment
                        (r'^(?P<comment_id>\d+)/arguments/$', 'comments.views.arguments'),                        
-                       (r'^(?P<comment_id>\d+)/arguments/(?P<page>\d+)/$', 'comments.views.arguments'),                        
+                       (r'^(?P<comment_id>\d+)/arguments/(?P<page>\d+)/?$', 'comments.views.arguments'),                        
 
                        # Flag a comment as spam
                        (r'^flag/$', 'comments.views.flag'),

@@ -77,24 +77,6 @@ div#header {
     padding-bottom: 10px;
 }
 
-p.commentp {
-    margin-top: 5px;
-    margin-bottom: 5px;
-    margin-left: 5px;
-    width: 90%;
-}
-
-p.comment_topic {
-    margin-top: 0px;
-    margin-bottom: 0px;
-    margin-left: 5px;
-    font-size: small;
-}  
-
-div.comment_action {
-    display: none;
-} 
-
 p#other-args {
     margin: 0 0 0 0;
     font-size: small;
@@ -116,6 +98,14 @@ ul.flat-list li {
     display: inline;
 }
 
+div#comments {
+    margin-top: 20px;
+}
+
+div#add-comment {
+    margin-top: 20px;
+}  
+
 ul.comment-action-list {
     list-style-type: none;
 }
@@ -129,6 +119,29 @@ ul.comment-action-list li {
 
 ul.comment-action-list a {
     text-decoration: none;
+}
+
+p.commentp {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-left: 5px;
+    width: 90%;
+}
+
+p.comment_topic {
+    margin-top: 0px;
+    margin-bottom: 0px;
+    margin-left: 5px;
+    font-size: small;
+}  
+
+div.comment_action {
+    display: none;
+} 
+
+blockquote {
+    background: #EEEEEE;
+    padding: 10px 0px 10px 15px;
 }
 
 a.unread {
@@ -179,10 +192,6 @@ ul.topic-list {
 .topic-list li{
     margin-bottom: 10px;
 }
-
-div#add-comment {
-    margin-top: 20px;
-}  
 
 .title {
     font-size: large;
@@ -268,10 +277,6 @@ div#tos {
 
 div#tos h2 {
     text-align: center;
-}
-
-div#comments {
-    margin-top: 20px;
 }
 
 div#sys_messages {
