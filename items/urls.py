@@ -9,7 +9,7 @@ urlpatterns = patterns('',
 
                        # View Topics sorted by highest score
                        (r'^(?P<sort>(hot))/$', 'tcd.items.views.topics'), 
-                       (r'^(?P<sort>(hot))/page/(?P<page>\d+)/?$', 'tcd.items.views.topics'),                          
+                       (r'^(?P<sort>(hot))/(?P<page>\d+)/?$', 'tcd.items.views.topics'),                          
 
                        # View Topics sorted by submission date
                        (r'^(?P<sort>(new))/$', 'tcd.items.views.topics'),

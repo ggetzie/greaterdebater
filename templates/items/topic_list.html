@@ -1,8 +1,9 @@
 {% extends "base.html" %}
-{% block title %}Topics{% endblock %}
+{% block title %}{{ ttype }} Topics{% endblock %}
 
 {% block content %}
 {% if object_list %}
+<h3 class="section-title">{{ ttype }} Topics</h3>
 <ol start={{ start }} class="topic-list">
   {% for object in object_list %}
   <li>
@@ -15,12 +16,14 @@
 {% endif %}
 
 {# pagination #}
-{% if has_previous %}
-<a href="/hot/{{ page }}/{{ previous }}/">Previous</a>
-{% endif %}
-{% if has_next %}
-<a href="/hot/{{ page }}/{{ next }}/">Next</a>
-{% endif %}
+<div class="pages">
+  {% if has_previous %}
+  <a id="prev" href="/{{ page }}/{{ previous }}/">Previous</a>
+  {% endif %}
+  {% if has_next %}
+  <a id="next" href="/{{ page }}/{{ next }}/">Next</a>
+  {% endif %}
+</div>
 
 {% endblock %}
 

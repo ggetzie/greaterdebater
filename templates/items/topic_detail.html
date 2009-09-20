@@ -2,41 +2,43 @@
 {% block title %}{{ object.title }}{% endblock %}
 
 {% block content %}
-<div class="title"><a href={{ object.url }}>{{ object.title }}</a></div>
+<div class="topic-header">
+  <div class="detail-title"><a href={{ object.url }}>{{ object.title }}</a></div>
 
-<span class="comment_info">
-  submitted by <a href="/users/u/{{ object.user }}/profile/">{{ object.user }}</a> {{ object.get_elapsed }} ago
-</span>
+  <span class="comment_info">
+    submitted by <a href="/users/u/{{ object.user }}/profile/">{{ object.user }}</a> {{ object.get_elapsed }} ago
+  </span>
 
-{% if first_c %}
-{% for comment in first_c %}
-<div class="firstcomment">
-  {{ comment.comment_html|safe }}
-</div>
-<div class="comment-menu">
-
-  <a href="/comments/{{ comment.id }}/arguments/">({{ comment.arguments.count }}) arguments</a>
-  {% if user.is_authenticated %}
-  {% ifequal user object.user %}
-  {% else %}
-  <a href='#' onclick="displayFormComment('#argue{{ comment.id }}'); return false;">argue</a>
-  <div class="action_block">
-    {% include "comments/argue_form.html" %}
+  {% if first_c %}
+  {% for comment in first_c %}
+  <div class="firstcomment">
+    {{ comment.comment_html|safe }}
   </div>
-  {% endifequal %}
-  {% else %}
+  <div class="comment-menu">
+
+    <a href="/comments/{{ comment.id }}/arguments/">({{ comment.arguments.count }}) arguments</a>
+    {% if user.is_authenticated %}
+    {% ifequal user object.user %}
+    {% else %}
+    <a href='#' onclick="displayFormComment('#argue{{ comment.id }}'); return false;">argue</a>
+    <div class="action_block">
+      {% include "comments/argue_form.html" %}
+    </div>
+    {% endifequal %}
+    {% else %}
+    {% endif %}
+
+    {% endfor %}
+
+  </div>
   {% endif %}
 
-  {% endfor %}
-
+  {% include "comments/form.html" %}
 </div>
-{% endif %}
 
-
-{% include "comments/form.html" %}
 
 {% if rest_c %}
-
+<h4>Comments</h4>
 <div id="comments">
   {% for comment in rest_c %}
   <div id="comment_div{{ comment.id }}" class="comment_div" style="margin-left: {{ comment.nesting }}px">

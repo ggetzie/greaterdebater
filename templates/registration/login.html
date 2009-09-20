@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}TCD Login{% endblock%}
+{% block title %}Login{% endblock%}
 
 {% block content %}
 {% if form.errors %}
@@ -9,14 +9,17 @@
 <p>{{ message }}</p>
 {% endif %}
 
-<form action="/users/login/" method='post'>
-  <table>
-    {{ form }}
-    <tr>
-      <td><input type="hidden" name="next" value={{ redirect|escape }} /></td>
-      <td><input type="submit" value="Login" /></td></tr>
-  </table>
-</form>
-<br />
-<a href="/users/forgot">Forgot Password?</a>
+<div class="login-form">
+  <form action="/users/login/" method='post'>
+    <table>
+      {{ form }}
+      <tr>
+	<td><input type="hidden" name="next" value={{ redirect|escape }} /></td>
+	<td><input type="submit" value="Login" /></td></tr>
+    </table>
+  </form>
+  <p>
+    <a href="/users/forgot">Forgot Password?</a>
+  </p>
+</div>
 {% endblock %}

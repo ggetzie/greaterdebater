@@ -91,16 +91,19 @@ def topics(request, page=1, sort="hot"):
     if sort == "new":
         queryset = Topic.objects.filter(needs_review=False).order_by('-sub_date')
         pager = "new" 
+        ttype = "Newest"
     else:
         queryset = Topic.objects.filter(needs_review=False).order_by('-score', '-sub_date')
-        pager = "page" 
+        pager = "hot" 
+        ttype = "Most Active"
     
     return list_detail.object_list(request=request, 
                                    queryset=queryset,
                                    paginate_by=paginate_by, 
                                    page=page,
                                    extra_context={'start': start,
-                                                  'page': pager})
+                                                  'page': pager,
+                                                  'ttype': ttype})
 
 def front_page(request):
     """Display the home page of GreaterDebater.com, show five hottest arguments and five hottest topics"""

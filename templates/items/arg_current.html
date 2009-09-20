@@ -2,16 +2,18 @@
 {% block title %}Current Arguments{% endblock %}
 
 {% block content %}
-<h4>Current Arguments</h4>
-<p id="other-args"><a href="/argue/archive">View Argument Archive</a></p>
+<h4 class="section-title">Current Arguments</h4>
+
 {% include "items/arg_list.html" %}
 
-{% if has_previous %}
-<a href="/argue/page/{{ previous }}/">Previous</a>
-{% endif %}
-{% if has_next %}
-<a href="/argue/page/{{ next }}/">Next</a>
-{% endif %}
+<div class="pages">
+  {% if has_previous %}
+  <a id="prev" href="/argue/page/{{ previous }}/">Previous</a>
+  {% endif %}
+  {% if has_next %}
+  <a id="next" href="/argue/page/{{ next }}/">Next</a>
+  {% endif %}
+</div>
 
 {% endblock %}
 

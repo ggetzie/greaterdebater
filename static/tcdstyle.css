@@ -67,6 +67,23 @@ div#title {
     text-align: center;
 }
 
+.section-title {
+    margin: 0px 0px 30px 15px;
+}
+
+div.pages {
+    margin: 30px 0px 30px 20px;
+    width: 40%;
+}
+
+div.pages a#prev {
+    float: left;
+}
+
+div.pages a#next {
+    float: right;
+}
+
 span.tagline {
     font-size: small;
     font-style: italic;
@@ -75,11 +92,6 @@ span.tagline {
 div#header {
     padding-top: 10px;
     padding-bottom: 10px;
-}
-
-p#other-args {
-    margin: 0 0 0 0;
-    font-size: small;
 }
 
 div#header ul.flat-list{
@@ -140,8 +152,8 @@ div.comment_action {
 } 
 
 blockquote {
-    background: #EEEEEE;
-    padding: 10px 0px 10px 15px;
+    border-left: solid thin blue;
+    margin: 10px 0px 10px 15px;
 }
 
 a.unread {
@@ -180,9 +192,11 @@ div.topic_info {
     font-size: small;
 }    
 
-div.arg_list {
-    margin-left: 10px;
-}   
+div.topic-header {
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+    border-bottom: medium solid #C1C1C1;
+}
 
 ul.topic-list {
     list-style-type: none;
@@ -196,6 +210,11 @@ ul.topic-list {
 .title {
     font-size: large;
 }    
+
+div.detail-title {
+    font-size: x-large;
+    font-weight: bold;
+}
 
 .menu {
     margin-left: 2px;
@@ -220,6 +239,7 @@ div#topmenu {
 div#content {
     width: 60%;
     float: left;
+    margin: 20px 0px 0px 20px;
 }
 
 div#ads {
@@ -353,6 +373,14 @@ ul#help-contents{
 ul#help-contents li ul{
     list-style: none;
 }    
+
+div.login-form {
+    margin: 50px 0px 0px 0px;
+}
+
+div.login-form th {
+    text-align: right;
+}
 
 div#login {
     width: 40%;
