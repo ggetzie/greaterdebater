@@ -22,9 +22,9 @@ function displayFormComment(form_id) {
 }		
 
 function vote(argument, voter, voted_for){
-    $.post("/vote/", {argument: argument,
-		      voter: voter,
-		      voted_for: voted_for},
+    $.post("/argue/vote/", {argument: argument,
+			    voter: voter,
+			    voted_for: voted_for},
 	   function(xml) {
 	       addVotes(xml);
 	   });
@@ -42,6 +42,17 @@ function addVotes(xml) {
 
 	$("#vote").html( $("message",xml).text());
     }
+}
+
+function unvote(argument, voter) {
+    $.post("/argue/unvote/", {argument: argument,
+			      voter:voter},
+	   function(xml) {
+	       if ($("error", xml).text() == "True") {
+		   $("#sys_messages").html( $("message", xml).text() );
+	       } else {
+		   window.location.reload();
+	       }});
 }
 
 function delete_comment(id) {
@@ -270,6 +281,9 @@ function delete_current_message(m_id){
 	   )
 }
 
+
+// Javascript for dropdown menu adapted from
+// http://javascript-array.com/scripts/jquery_simple_drop_down_menu/
 var timeout    = 500;
 var closetimer = 0;
 var ddmenuitem = 0;

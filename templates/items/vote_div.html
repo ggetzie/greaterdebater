@@ -1,9 +1,12 @@
 {% if voted_for %}
-<p>You voted for {{ voted_for }}</p>
-<p>Current Tally:</p>
-{% else %}
-<p>Final Tally:</p>
+<p>You voted for {{ voted_for }}
+  {% if current %}
+  <a id="unvote" class="comment-menu" href="#" onClick="unvote({{ object.id }}, {{ request.user.id }}); return false;">Unvote</a>
+  {% endif %}
+</p>
 {% endif %}
+
+<p>{% if current %}Current{% else %}Final{% endif %} Tally:</p>
 
 {{ pvotes }} vote{{ pvotes|pluralize }} for {{ object.plaintiff }}<br />
 {{ dvotes }} vote{{ dvotes|pluralize }} for {{ object.defendant }}

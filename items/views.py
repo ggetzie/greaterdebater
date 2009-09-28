@@ -378,7 +378,9 @@ def vote(request):
                 c = Context({'voted_for': voted_name,
                              'pvotes': str(all_votes.filter(voted_for="P").count()),
                              'dvotes': str(all_votes.filter(voted_for="D").count()),
-                             'object': arg})
+                             'object': arg,
+                             'current': True,
+                             'request': request})
                 message = t.render(c)
                 error = "False"
             else:
@@ -392,6 +394,30 @@ def vote(request):
     response = ('response', [('error', error),                                         
                              ('message', message)
                              ])
+    response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')
+    return HttpResponse(response)
+
+def unvote(request):
+    message = "ok"
+    error = True
+    if request.POST:
+        form = Ballot(request.POST)
+        if form.is_valid():
+            arg = get_object_or_404(Argument, pk=form.cleaned_data['argument'])
+            voter = get_object_or_404(User, pk=form.cleaned_data['voter'])
+            redirect = ''.join(['/argue/', str(arg.id)])
+            if voter == request.user:
+                vote = get_object_or_404(Vote, argument=arg, voter=voter)
+                vote.delete()
+                error = False
+            else:
+                message = "Can't delete another user's vote"
+        else:
+            message = "Invalid Form"
+    else:
+        message = "Not a Post"
+    response = ('response', [('error', error),
+                             ('message', message)])
     response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')
     return HttpResponse(response)
                                 
@@ -690,6 +716,11 @@ def arg_detail(request, object_id):
     arg = get_object_or_404(Argument, pk=object_id)
     voted_for = None
     votes = Vote.objects.filter(argument=arg)
+    current = False
+    new_arg = False
+    show_actions = False
+    show_votes = False
+    show_draw = False
     if request.user.is_authenticated():
 
         try: 
@@ -705,13 +736,24 @@ def arg_detail(request, object_id):
 
     if arg.status in range(1,3):
         current = True
-    else:
-        current = False
 
     if request.user == arg.defendant and arg.status == 0:
         new_arg = True
+
+    if current == True and request.user == arg.whos_up() and arg.draw_set.all():
+        show_draw = True
+        
+    if current == True and new_arg == False and not arg.draw_set.all() and request.user == arg.whos_up():
+        show_actions = True
+
+    if current == True and request.user.is_authenticated() and not request.user in [arg.plaintiff, arg.defendant]:
+        show_votes = True
+
+    if current and (request.user.is_authenticated() == False or request.user == arg.whos_up(invert=1)):
+        show_arg_actions = False
     else:
-        new_arg = False
+        show_arg_actions = True
+                
     last_c = arg.comment_set.order_by('-pub_date')[0]
 
     return render_to_response("items/arg_detail.html",
@@ -722,7 +764,11 @@ def arg_detail(request, object_id):
                                'voted_for': voted_for, 
                                'current': current,
                                'pvotes': votes.filter(voted_for="P").count(),
-                               'dvotes': votes.filter(voted_for="D").count() 
+                               'dvotes': votes.filter(voted_for="D").count(), 
+                               'show_actions': show_actions,
+                               'show_votes': show_votes,
+                               'show_arg_actions': show_arg_actions,
+                               'show_draw': show_draw
                                },
                               context_instance=RequestContext(request))
 
@@ -736,7 +782,7 @@ def newest_args(request, page=1):
                                    template_name = "items/arg_new.html",)
                                    
 
-def object_list_field(request, model, field, value, paginate_by=None, page=None,
+def object_list_field(request, model, field, value, sort=None, paginate_by=None, page=None,
                       fv_dict=None, allow_empty=True, template_name=None, 
                       template_loader=loader, extra_context=None, context_processors=None,
                       template_object_name='object', mimetype=None):
@@ -749,6 +795,9 @@ def object_list_field(request, model, field, value, paginate_by=None, page=None,
         fv_dict = {}
     fv_dict[field] = value
     obj_list = model.objects.filter(**fv_dict)
+
+    if sort:
+        obj_list = obj_list.order_by(sort)
 
     # calculate the number of the first object on this page
     # in case the objects are paginated and want to be displayed as 

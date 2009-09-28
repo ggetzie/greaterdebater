@@ -70,27 +70,37 @@ class Argument(models.Model):
     
     def get_status(self):
         if self.status == 0:
+            # challenge offered, defendent's turnn
             return "challenge pending"
         elif self.status == 1:
+            # argument in progress, plaintiff's turn
             return ''.join([self.plaintiff.username, "'s turn"])
         elif self.status == 2:
+            # argument in progress, defendants's turn
             return ''.join([self.defendant.username, "'s turn"])
         elif self.status == 3:
+            # argument over, defendant wins
             return ''.join([self.defendant.username, " wins!"])
         elif self.status == 4:
+            # argument over, plaintiff wins
             return ''.join([self.plaintiff.username, " wins!"])
         elif self.status == 5:
+            # opponents agreed to a draw
             return "draw"
         elif self.status == 6:
+            # argument never started, defendant declined challenge
             return ''.join([ self.defendant.username, " declined challenge"])
         else:
             return "invalid status"        
     
-    def whos_up(self):
+    def whos_up(self, invert=0):
+        # returns the user whose turn it is in an argument
+        # if invert == 1, returns the user whose turn it is NOT
+        participants = (self.defendant, self.plaintiff)
         if self.status in [0, 2]:
-            return self.defendant
+            return participants[invert]
         elif self.status == 1:
-            return self.plaintiff
+            return participants[1-invert]
         else:
             return None
 

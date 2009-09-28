@@ -25,14 +25,17 @@ class tcdTopicSubmitForm(forms.Form):
 class Ballot(forms.Form):
     argument = forms.IntegerField(widget=forms.widgets.HiddenInput())
     voter = forms.IntegerField(widget=forms.widgets.HiddenInput())
-    voted_for = forms.CharField(widget=forms.widgets.HiddenInput())
+    voted_for = forms.CharField(widget=forms.widgets.HiddenInput(), required=False)
     
     def clean_voted_for(self):
         voted_for = self.cleaned_data.get('voted_for', '')
-        if voted_for == "P" or voted_for == "D":
-            return voted_for
+        if voted_for:
+            if voted_for == "P" or voted_for == "D":
+                return voted_for
+            else:
+                raise forms.ValidationError("Invalid vote")
         else:
-            raise forms.ValidationError("Invalid vote")
+            return voted_for
 
 class Flag(forms.Form):
     object_id = forms.IntegerField(widget=forms.widgets.HiddenInput())

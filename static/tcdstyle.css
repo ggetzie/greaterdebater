@@ -366,6 +366,10 @@ div.message-actions ul {
     margin-left: -45px;
 }
 
+a#unvote {
+padding: 0 15px 0 15px;
+}
+
 ul#help-contents{
     list-style: none;
 }    
@@ -395,6 +399,9 @@ div#login span {
     display: block;
 }
 
+
+/* formatting for drop down menu adapted from  */
+/* http://javascript-array.com/scripts/jquery_simple_drop_down_menu/ */
 .jsddm
 {	margin: 0;
 	padding: 0}

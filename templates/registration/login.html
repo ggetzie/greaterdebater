@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Login{% endblock%}
 
+{% block bodyatt %}
+onLoad="document.forms.login.email.focus()"
+{% endblock %}
+
 {% block content %}
 {% if form.errors %}
 <p class="error">Sorry, that's not a valid username or password</p>
@@ -10,7 +14,7 @@
 {% endif %}
 
 <div class="login-form">
-  <form action="/users/login/" method='post'>
+  <form action="/users/login/" name="login" method='post'>
     <table>
       {{ form }}
       <tr>

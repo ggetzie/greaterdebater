@@ -22,9 +22,6 @@ urlpatterns = patterns('',
                        # Submit a new topic
                        (r'^submit/$', 'tcd.items.views.submit'),
                        
-                       # Vote for a participant in an argument
-                       (r'^vote/$', 'tcd.items.views.vote'),
-
                        # Edit the title, url or description of a topic
                        (r'^edit/(?P<topic_id>\d+)/(?P<page>\d+)/?$', 'tcd.items.views.edit_topic'),
 

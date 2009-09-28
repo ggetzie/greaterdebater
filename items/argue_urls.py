@@ -20,7 +20,8 @@ archive_args = {'model': Argument,
                 'value': (3, 5),
                 'template_name': "items/arg_old.html",
                 'template_object_name': 'args',
-                'paginate_by': 10
+                'paginate_by': 10,
+                'sort': '-start_date'
                 }
     
 
@@ -57,5 +58,11 @@ urlpatterns = patterns('tcd.items.views',
                        (r'^concede/$', 'concede'),                     
 
                        # Respond to a challenge for an argument
-                       (r'^respond/$', 'respond'),                                            
+                       (r'^respond/$', 'respond'),          
+                                  
+                       # Vote for a participant in an argument
+                       (r'^vote/$', 'vote'),
+
+                       # Vote for a participant in an argument
+                       (r'^unvote/$', 'unvote'),
 )

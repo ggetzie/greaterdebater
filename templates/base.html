@@ -6,8 +6,7 @@
     {% include "specific_base.html" %}
     {% block htmlhead %}{% endblock %}
 </head>
-<body>
-  {% block header %}
+<body {% block bodyatt %}{% endblock %} >
   <div class="wrapper">
     <div id="title">
       <h1>
@@ -58,7 +57,7 @@
 	The only place on the internet where you can win an argument
       </span>
     </div>
-
+    {% block header %}
     <div id="header">
 
       <div id="topmenu" class="header">
