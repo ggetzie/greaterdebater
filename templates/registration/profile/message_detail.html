@@ -2,6 +2,16 @@
 {% block title %} {{ comment.subject }} {% endblock %}
 
 {% block content %}
+<div class="comment-menu">
+  <ul class="flat-list">
+    <li>
+      <a href="/users/u/{{ user.username}}/messages/">Back to messages</a>  
+    </li>
+    |
+    <li>
+      <a href="#" onclick="delete_current_message({{ comment.id }}); return false;">Delete</a>
+    </li>    
+</div>
 <h4>{{ comment.subject }}</h4>
 <div id="comment_div{{ comment.id }}" class="form">
   <span id= "comment_info{{ comment.id }}" class="comment_info"> from <a href="/users/u/{{ comment.user }}/profile/">{{ comment.user }}</a> {{ comment.get_elapsed }} ago</span>
@@ -10,29 +20,17 @@
   </div>
 </div>
 
-<div class="message-actions">
-
-  <ul class="flat-list">
-    <li>
+  <ul class="next-prev comment-menu">
     {% if next %}
-    <a href="/users/u/{{ user.username }}/messages/{{ next }}">Next</a> |
-    {% endif %}
-    </li>
-
     <li>
+      <a href="/users/u/{{ user.username }}/messages/{{ next }}">Next Message</a>
+    </li>
+    {% endif %}
+
     {% if prev %}
-    <a href="/users/u/{{ user.username }}/messages/{{ prev }}">Prev</a> |
-    {% endif %}
-    </li>
-
     <li>
-    <a href="#" onclick="delete_current_message({{ comment.id }}); return false;">Delete</a>
+      <a href="/users/u/{{ user.username }}/messages/{{ prev }}">Previous Message</a>
     </li>
+    {% endif %}
   </ul>
-
-  <p>
-    <a href="/users/u/{{ user.username}}/messages/"><- Back to messages</a>  
-  </p>
-
-</div>
 {% endblock %}

@@ -99,6 +99,20 @@ div#header ul.flat-list{
     margin-bottom: 0px;
 }
 
+ul.next-prev {
+    list-style-type: none;
+}
+
+ul.next-prev li {
+    padding: 10px 10px 10px 0px;
+    text-align: left;
+    margin-left: -40px;
+}
+
+ul.next-prev li a{
+    padding: 8px 8px 8px 0px;
+}
+
 ul.flat-list {
     list-style-type: none;
     margin-left: -45px;
@@ -180,6 +194,7 @@ span.domain {
 
 div.sub_header {
     padding-top: 15px;
+    width: 60%;
 }
 
 div.comment_div {
@@ -217,8 +232,8 @@ div.detail-title {
 }
 
 .menu {
-    margin-left: 2px;
-    margin-right: 4px;
+    padding-left: 2px;
+    padding-right: 4px;
 }
 
 .comment-menu {
