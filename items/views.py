@@ -734,7 +734,7 @@ def arg_detail(request, object_id):
         except Vote.DoesNotExist:
             pass
 
-    if arg.status in range(1,3):
+    if arg.status in range(0,3):
         current = True
 
     if request.user == arg.defendant and arg.status == 0:
