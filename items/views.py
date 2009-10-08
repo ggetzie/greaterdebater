@@ -342,7 +342,8 @@ def addtags(request):
             top.save()
 
             t = loader.get_template('items/tag_div.html')
-            c = Context({'object': top})
+            c = Context({'object': top,
+                         'request': request})
             message = t.render(c)
             error = False
         else:
