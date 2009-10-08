@@ -1,3 +1,4 @@
+{% if request.user.is_authenticated %}
 <div id="tags{{ object.id }}" class="tags">
   {% with object.display_tags as tags %}
   {% if tags %}
@@ -19,3 +20,4 @@
   </div>
   {% endwith %}
 </div>
+{% endif %}
