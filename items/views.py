@@ -13,8 +13,8 @@ from tcd.comments.forms import ArgueForm, CommentForm, RebutForm
 from tcd.comments.models import Comment, tcdMessage, Draw
 from tcd.comments.utils import build_list
 
-from tcd.items.forms import tcdTopicSubmitForm, Ballot, Flag, Concession, Response
-from tcd.items.models import Topic, Argument, Vote
+from tcd.items.forms import tcdTopicSubmitForm, Ballot, Flag, Concession, Response, TagEdit
+from tcd.items.models import Topic, Argument, Vote, Tags
 
 from tcd.profiles.forms import tcdLoginForm
 from tcd.profiles.models import Profile
@@ -203,12 +203,16 @@ def submit(request):
                     topic = Topic.objects.get(url=form.cleaned_data['url'])
                     return HttpResponseRedirect(''.join(["/", str(topic.id), "/"]))
                 except ObjectDoesNotExist:
+                    dtags = form.cleaned_data['tags']
+                    tags = '\n'.join([dtags, ','.join(['1']*(dtags.count(',')+1))])
                     topic = Topic(user=request.user,
                                   title=form.cleaned_data['title'],
                                   score=1,
                                   sub_date=datetime.datetime.now(),
                                   comment_length=0,
-                                  last_calc=datetime.datetime.now())
+                                  last_calc=datetime.datetime.now(),
+                                  tags = tags
+                                  )
                     topic.save()
                     next = ''.join(["/", str(topic.id), "/"])
                     if data['url']:
@@ -216,6 +220,8 @@ def submit(request):
                     else:
                         topic.url = next
                     topic.save()
+                    utags = Tags(user=request.user, topic=topic, tags=dtags)
+                    utags.save()
                     if form.cleaned_data['comment']:
                         comment = Comment(user=request.user,
                                           topic=topic,
@@ -298,6 +304,59 @@ def edit_topic(request, topic_id, page):
                               {'form': form,
                                'username': top.user},
                               context_instance=RequestContext(request))
+
+def addtags(request):
+    """A user submits tags to add to a topic"""
+    error = True
+    if request.POST:
+        form = TagEdit(request.POST)
+        if form.is_valid():
+            user = request.user
+            top = get_object_or_404(Topic, pk=form.cleaned_data['topic_id'])
+            new_tags = form.cleaned_data['tags']
+            current_tags = top.tag_dict(top.tags)
+            try:
+                current_user_tags = Tags.objects.get(user=user, topic=top)
+                cutags = current_user_tags.tags.split(',')
+            except ObjectDoesNotExist:
+                current_user_tags = Tags(user=user, topic=top, tags='')
+                cutags = []
+            new_tags = new_tags.split(',')
+
+            # add new tags to the list of tags added by this user
+            # and to the list of all tags for this topic
+            # don't add to the user's list if it's already in there
+            # if it's already in the global list, just increase the count by one
+            for tag in new_tags:
+                if not tag in cutags:
+                    cutags.append(tag)
+                    try:
+                        current_tags[tag] += 1
+                    except KeyError:
+                        current_tags[tag] = 1
+
+            current_user_tags.tags = ','.join(cutags)
+            current_user_tags.save()
+
+            top.tags = top.tag_string(current_tags)
+            top.save()
+
+            t = loader.get_template('items/tag_div.html')
+            c = Context({'object': top})
+            message = t.render(c)
+            error = False
+        else:
+            message = "Invalid Form"
+    else:
+        message = "Not a Post"
+
+    response = ('response', [('error', error),                                         
+                             ('message', message)
+                             ])
+    response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')
+    return HttpResponse(response)
+    
+
 
 def challenge(request, c_id):
     """Create a pending argument as one user challenges another."""

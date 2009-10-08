@@ -16,12 +16,13 @@ class Topic(models.Model):
     last_calc = models.DateTimeField('last score calculation')
     tflaggers = models.ManyToManyField(User, verbose_name="Users who flagged this topic as spam", related_name='tflaggers_set')
     needs_review = models.BooleanField(default=False)
-    
+    tags = models.TextField()
 
+    
     class Meta:
         ordering = ['-sub_date']
 
-
+    
     def __unicode__(self):
         return self.title
     
@@ -41,6 +42,36 @@ class Topic(models.Model):
             return domain
         else:
             return "greaterdebater.com"
+
+    def tag_dict(self, tag_string):
+        """returns a dictionary where keys are tags and values
+        are the count of how many users have used that tag for
+        this topic"""
+        if tag_string == '':
+            return {}
+        else:
+            kv = [row.split(',') for row in tag_string.split('\n')]        
+            return dict(zip(kv[0], [int(s) for s in kv[1]]))
+    
+    def tag_string(self, tag_dict):
+        """Takes a dictionary of tags and tag counts and returns
+        a string in comma separated format"""
+        tags = []
+        counts = []
+        tag_items = tag_dict.items()
+        tag_items.sort(cmp=lambda x, y: cmp(x[1], y[1]), reverse=True)
+        for k, v in tag_items:
+            tags.append(k)
+            counts.append(v)
+        return "\n".join([",".join(tags), 
+                          ",".join([str(i) for i in counts])])
+    
+    def display_tags(self):
+        if self.tags:
+            return self.tags.split('\n')[0].split(',')
+        else:
+            return []
+    
 
 class Argument(models.Model):
     plaintiff = models.ForeignKey(User, related_name='plaintiff_set')
@@ -157,3 +188,9 @@ class Vote(models.Model):
     def __unicode__(self):
         return ' '.join([self.voter.username, "voted for", self.voted_for, "in arg", self.argument.title])
 
+
+class Tags(models.Model):
+
+    topic = models.ForeignKey(Topic, related_name="tagged_topic")
+    user = models.ForeignKey(User)
+    tags = models.TextField()

@@ -23,7 +23,7 @@ GreaterDebater is a place to engage in productive discourse on the hottest topic
 
 <h3>Most Active Topics</h3>
 {% if topic_list %}
-<ol start={{ start }} class="topic-list">
+<ol class="topic-list">
   {% for object in topic_list %}
   <li>
     {% include "items/topic_div.html" %}

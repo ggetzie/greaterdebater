@@ -86,6 +86,22 @@ function delete_topic(id) {
 	  );	       
 };
 
+function showalltags(topic_id) {
+    $("#fulltags" + topic_id).toggle();
+    $("#moretags" + topic_id).toggle();
+
+}
+
+function addtags(topic_id) {
+    tagdiv = "#tags" + topic_id
+    tags = $("#tag_text" + topic_id).val()
+    $.post("/topics/addtags/", {topic_id: topic_id,
+				tags: tags},
+	   function(xml) {
+	       $(tagdiv).html($("message", xml).text());
+	   });
+}
+
 function flag_topic(topic_id, user_id) {    
 
     $.post("/tflag/", {object_id: topic_id},		      

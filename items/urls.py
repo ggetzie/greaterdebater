@@ -31,6 +31,9 @@ urlpatterns = patterns('',
                        # Delete a topic
                        (r'^topics/delete/$', 'tcd.items.views.delete_topic'),
 
+                       # Add tags to a topic
+                       (r'^topics/addtags/$', 'tcd.items.views.addtags'),
+
                        # Urls associated with the commenting system
                        (r'^comments/', include('tcd.comments.urls')),                                              
 

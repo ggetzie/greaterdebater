@@ -317,9 +317,8 @@ div#tos h2 {
 div#sys_messages {
     margin: 20px 300px 20px 300px;
     text-align: center;
-    border: medium solid blue;
+    border: thin solid red;
     font-weight: bold;
-    background: #EEE8AA;
 }
 
 .confirm {
@@ -329,6 +328,15 @@ div#sys_messages {
 div.form {
     margin-left: 20px;
 }    
+
+form td {
+    font-size: small;
+    color: #666666;
+}
+
+form th {
+    vertical-align: top;
+}
 
 table.message_table th {
     text-align: left;
@@ -452,3 +460,11 @@ div#login span {
 
 .jsddm li ul li a:hover
 {	background: #FFFFFF;}
+
+.tags {
+    font-size: small;
+}
+
+.tag-form {
+    margin: 10px 0px 5px 0px;
+}

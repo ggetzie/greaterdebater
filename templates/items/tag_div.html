@@ -1,0 +1,21 @@
+<div id="tags{{ object.id }}" class="tags">
+  {% with object.display_tags as tags %}
+  {% if tags %}
+  Tags: {% for tag in tags|slice:":5" %} {{ tag }}{% if not forloop.last %},{% endif %} {% endfor%}
+  <a id="moretags{{ object.id }}" href='#' onclick="showalltags({{ object.id }}); return false;">more...</a>
+  {% else %}
+  <a id="moretags{{ object.id }}" href='#' onclick="showalltags({{ object.id }}); return false;">Add Tags...</a>
+  {% endif %}
+  <div id="fulltags{{ object.id }}" class="tags confirm">
+    {% for tag in tags|slice:"5:" %} {{ tag }}{% if not forloop.last %},{% endif %} {% endfor %}
+    <div class="tag-form">
+      <div><input type="hidden" name="topic_id" value={{ object.id }} /></div>
+      <div>
+	<input type="text" name="tags" id="tag_text{{ object.id }}" />
+	<button onclick="addtags({{ object.id }}); return false;" name="Add">Add</button>
+      </div>	
+    </div>   
+    <a id="hidetags{{ object.id }}" href='#' onclick="showalltags({{ object.id }}); return false;">hide</a>
+  </div>
+  {% endwith %}
+</div>
