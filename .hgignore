@@ -4,3 +4,5 @@ settings.*
 */*.pyc
 *.orig
 templates/specific_base.html
+index/favicon.ico
+robots.txt
