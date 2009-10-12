@@ -4,9 +4,10 @@
 
 
 {% block content %}
-<h4>Comments</h4>
+<h3>Comments</h3>
 
 <div id="comments">
+  {% if comments_list %}
   {% for comment in comments_list %}
   <p class=comment_topic>
     on <a href="/{{ comment.topic_id }}/">{{ comment.topic.title }}</a>
@@ -15,6 +16,9 @@
     {% include "comments/one_comment.html" %}    
   </div><br />
   {% endfor %}
+  {% else %}
+  No Comments Available 
+  {% endif %}
 </div>
 
 {% if has_previous %}

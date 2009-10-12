@@ -1,4 +1,5 @@
 <div class="arg_list">
+  {% if args_list %}
   <ol start={{ start }} class="topic-list">
     {% for arg in args_list %}
     <li>
@@ -9,4 +10,7 @@
     </li>
     {% endfor %}
   </ol>
+  {% else %}
+  No Arguments Available
+  {% endif %}
 </div>
