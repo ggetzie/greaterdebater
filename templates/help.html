@@ -4,53 +4,242 @@
 {% block title %}Help{% endblock %}
 
 {% block content %}
-<h2>Help</h2>
+<a name="top"><h2>Help</h2></a>
 
 <ul id="help-contents">
   <li>
-    Topics
-    <ul>
+    <a href="#topics">Topics</a>
+    <ul class="flat-list help-sub">
       <li>
-	Submitting
+	<a href="#t-submit">Submitting</a>
       </li>
       <li>
-	Editing
-      </li>
-    </ul>
-  </li>
-  <li>
-    Comments
-    <ul>
-      <li>
-	Submitting
+	<a href="#t-edit">Editing</a>
       </li>
       <li>
-	Replying
-      </li>
-      <li>
-	Editing
+	<a href="#t-tags">Tags</a>
       </li>
     </ul>
   </li>
   <li>
-    Arguments
-    <ul>
+    <a href="#comments">Comments</a>
+    <ul class="flat-list help-sub">
       <li>
-	Overview
+	<a href="#c-submit">Submitting</a>
       </li>
       <li>
-	Starting
+	<a href="#c-reply">Replying</a>
       </li>
       <li>
-	Voting
+	<a href="#c-edit">Editing</a>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <a href="#arguments">Arguments</a>
+    <ul class="flat-list help-sub">
+      <li>
+	<a href="#a-start">Starting</a>
       </li>
       <li>
-	Draws
+	<a href="#a-vote">Voting</a>
       </li>
       <li>
-	Conceding
+	<a href="#a-draw">Draws</a>
       </li>
-    </ul>      
+      <li>
+	<a href="#a-concede">Conceding</a>
+      </li>
+    </ul>    
+  </li>
+  <li>
+    <a href="#profiles">Profiles</a>
   </li>
 </ul>
+
+<a name="topics"><h3>Topics</h3></a>
+<div class="help-subject">
+  <p>
+    Topics are issues or questions for discussion. They may link to an
+    outside webpage containing a more detailed description of the issue.    
+  </p>
+  <a name="t-submit"><h4>Submitting</h4></a>
+  <p>
+    The submit form for topics has four fields.
+  </p>
+  <ul>
+    <li>Title: This will be displayed on the hot and new pages where
+      all topics are listed</li>
+    <li>URL: The address of an outside page describing the issue up
+      for debate. If left blank the topic will link to itself.</li>
+    <li>Tags: Short keywords that describe the topic. Separate each
+      tag with a comma.</li>
+    <li>Text: An initial comment by the submitter to start discussion</li>
+  </ul>
+  <p class="toplink"><a href="#top">Back to top</a></p>
+  <a name="t-edit"><h4>Editing</h4></a>
+  <p>
+    The user who submits a topic may later edit it. To edit a topic
+    you have submitted, click on your username in the upper right hand
+    corner of the page. This will take you to your user profile
+    page. Here click on "Submissions" to view a list of all the topics
+    you have submitted. Find the topic you wish to edit and click the
+    "edit" link underneath it. Here you may make changes to the title
+    or initial comment for the topic. Click the "Edit" button to save
+    your changes. 
+  </p>
+  <p>
+    The URL for a topic may not be edited in this fashion. To change
+    the URL, delete the topic and submit it again with the new URL.
+  </p>
+  <p class="toplink"><a href="#top">Back to top</a></p>
+  <a name="t-tags"><h4>Tags</h4></a>
+  <p>
+    Tags are short keywords that describe the topic. The submitter may
+    add tags at the time of submission. Other users may add their own
+    tags later. These tags may be the same as the ones added by the
+    submitter or they may be different. A unique record is kept of
+    which user added each tag for a given topic. A count of how many
+    users applied each tag to a topic is also stored.
+  </p>
+  <p>
+    To add tags to a topic that has already been submitted, find the
+    topic on the list of Hot or New topics. Underneath the title,
+    where the tags are listed, click "more" to show all of the current
+    tags as well as the form for adding new tags. Add new tags in the
+    text box shown, separating each tag with a comma. Click the "Add"
+    button to save the new tags.
+  </p>       
+  <p class="toplink"><a href="#top">Back to top</a></p>
+</div>
+<a name="comments"><h3>Comments</h3></a>
+<div class="help-subject">
+  <a name="c-submit"><h4>Submitting</h4></a>
+  <p>
+    When viewing a topic, logged in users may submit comments by
+    entering text in the text box near the top of the page and
+    clicking on the "Add Comment" button to submit their
+    comment. 
+  </p>
+  <p class="toplink"><a href="#top">Back to top</a></p>
+  <a name="c-reply"><h4>Replying</h4></a>
+  <p>
+    Users may also reply directly to existing comments by clicking on
+    the "reply" link located underneath each comment. A similar text
+    box will appear. Enter reply text here and click on the "Reply"
+    button to submit the reply.
+  </p>
+  <p class="toplink"><a href="#top">Back to top</a></p>
+  <a name="c-edit"><h4>Editing</h4></a>
+  <p>
+    Users may make changes to comments they have made by clicking on
+    the "Edit" link underneath their comments. A textbox will appear
+    pre-filled with the existing comment text. Make any necessary
+    changes and click the "Edit" button to save them. 
+  </p>
+  <p>
+    Users may also delete their comments by clicking the "Delete" link
+    underneath them. This is a reversible operation and delete
+    comments may be retrieved at any time if desired. However,
+    comments may not be deleted if they have become the basis for
+    arguments.
+  </p>
+  <p class="toplink"><a href="#top">Back to top</a></p>
+</div>
+<a name="arguments"><h3>Arguments</h3></a>
+<div class="help-subject">
+  <p>
+    Arguments are a way to have a controlled discussion between two
+    people. Users may take issue with any of the comments on the site
+    and propose an argument to the author. If accepted, the argument
+    will begin and will be listed on the New arguments and Hot
+    arguments pages.
+  </p>
+  <p>
+    Only the two participants of the argument may post in the argument
+    threads, though the arguments may be viewed by anyone. After a
+    participant posts a rebuttal, he may not post to the argument
+    thread again until after his opponent has replied.
+  </p>
+  <p>
+    Argument threads will remain active for seven (7) days. After
+    seven days, the votes will be counted and a winner of the argument
+    will be declared (or a draw if the votes are even).
+  </p>
+  <p class="toplink"><a href="#top">Back to top</a></p>
+  <a name="a-start"><h4>Starting</h4></a>
+  <p>
+    To propose an argument with a given comment, click on the "argue"
+    link below it. In the form that appears, enter a title for the
+    argument and state your case in the textbox
+    provided. Greaterdebater will send a message to the author of the
+    comment on your behalf with a link to your proposed argument. The
+    comment author will then have the option to accept or decline your
+    challenge to an argument. A message regarding the author's
+    decision will be sent to you. If your argument is accepted, a link
+    will be provided to view the author's rebuttal and respond.
+  </p>
+  <p class="toplink"><a href="#top">Back to top</a></p>
+  <a name="a-vote"><h4>Voting</h4></a>
+  <p>
+    Users not involved in a given argument may cast votes to determine
+    the winner. Voting will remain active for seven days. During this
+    time votes may be changed at will. The final vote count at the end
+    of the seven days will determine the outcome of the argument.
+  </p>
+  <p class="toplink"><a href="#top">Back to top</a></p>
+  <a name="a-draws"><h4>Draws</h4></a>
+  <p>
+    During the course of an argument either participant may offer a
+    draw during his turn. The offer of a draw consumes one turn during
+    which the offeror can explain why a draw should be accepted. His
+    opponent will then have the opportunity to accept or decline the
+    offer. If the opponent declines, it will be his turn and he can
+    continue with a rebuttal. If the draw offer is accepted the
+    argument will end with no points awarded to either side.
+  </p>
+  <p class="toplink"><a href="#top">Back to top</a></p>
+  <a name="a-concede"><h4>Conceding</h4></a>
+  <p>
+    Each participant will have the opportunity to concede the point
+    during any argument. The conceding participant loses the argument
+    and his opponent gains one point, just as if he had won the
+    argument on votes.
+  </p>
+  <p class="toplink"><a href="#top">Back to top</a></p>
+</div>
+
+<a name="profiles"><h3>Profiles</h3></a>
+<div class="help-subject">
+  <p>
+    To access your user profile, click on your username in the upper
+    right hand corner. From this page you can see your current
+    score. There are also several other links to view various aspects
+    of your account.
+  </p>
+    <ul>
+      <li>
+	Settings: Reset your password
+      </li>
+      <li>
+	Messages: View system messages regarding the status of your
+	current arguments.
+      </li>
+      <li>
+	Arguments: View a list of all arguments you have participated in.
+      </li>
+      <li>
+	Submissions: View all of the topics you've submitted
+      </li>
+      <li>
+	Comments: View all of the comments you've made
+      </li>
+    </ul>	
+  <p>
+    You may also view the profiles of other users, with the exception
+    of the settings and messages pages, by clicking on any of the user
+    names attached to comments, arguments or topics on the site.
+  </p>
+  <p class="toplink"><a href="#top">Back to top</a></p>
+</Div>
 {% endblock %}

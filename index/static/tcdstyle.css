@@ -124,6 +124,18 @@ ul.flat-list li {
     display: inline;
 }
 
+ul.help-sub {
+    margin: 0px 0px 10px -30px;
+}
+
+div.help-subject {
+    margin-left: 20px;
+}
+
+p.toplink {
+    font-size: small;
+}
+
 div#comments {
     margin-top: 20px;
 }
@@ -254,7 +266,7 @@ div#topmenu {
 div#content {
     width: 60%;
     float: left;
-    margin: 20px 0px 0px 20px;
+    margin: 5px 0px 0px 20px;
 }
 
 div#ads {
@@ -275,7 +287,7 @@ div#content-wrapper {
 }
 
 div#ad-wrapper {
-    padding-top: 30px;
+    padding: 20px 10px 0px 0px;
 }
 
 div.defendant {
@@ -315,7 +327,7 @@ div#tos h2 {
 }
 
 div#sys_messages {
-    margin: 20px 300px 20px 300px;
+    margin: 40px 300px 0px 300px;
     text-align: center;
     border: thin solid red;
     font-weight: bold;
