@@ -270,17 +270,10 @@ div#content {
 }
 
 div#ads {
-    width: 25%;
+    width: 160px;
     float: right;
-    outline-style: solid;
-    outline-width: 1px;
+    margin-right: -7px;
 }
-
-p#adsp {
-    margin-right: 20px;
-    margin-left: 20px;
-    text-align: center;
-}    
 
 div#content-wrapper {
     margin-top: 20px;
