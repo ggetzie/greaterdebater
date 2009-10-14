@@ -93,7 +93,7 @@
 	    <a href="/users/logout">Log out</a>
 	  {% else %}
 	    <a href="/users/login?next={{ request.path }}">Log in</a> or
-	    <a href="/users/register?next={{ redirect }}">create an account</a>
+	    <a href="/users/register?next={{ request.path }}">create an account</a>
 	  {% endif %}
 	</span>
       </div>
