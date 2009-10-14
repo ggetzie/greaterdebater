@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.contrib import auth
 from django.shortcuts import get_object_or_404
 
+import re
+
 class tcdUserCreationForm(forms.Form):
     username = forms.CharField(max_length=30, label="Username")
     email = forms.EmailField(label="Email")
@@ -17,6 +19,10 @@ class tcdUserCreationForm(forms.Form):
         username = self.cleaned_data.get('username', '')
         if User.objects.filter(username=username):
             raise forms.ValidationError("A user with that name already exists")
+        
+        if re.search("[^a-zA-Z0-9_]", username):
+            raise forms.ValidationError("Only alphanumeric characters allowed in username")
+
         return username
 
     def clean_email(self):
