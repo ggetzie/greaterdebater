@@ -20,14 +20,14 @@
   or <a href="/argue/new">newest</a> arguments. Registered users can
   cast their votes for the greater debater.
 </p>
-<h3>Most Active Arguments</h3>
+<a href="/argue/"><h3>Most Active Arguments</h3></a>
 {% if args_list %}
 {% include "items/arg_list.html" %}
 {% else %}
 <p>No current arguments are available</p>
 {% endif %}
 
-<h3>Most Active Topics</h3>
+<a href="/hot/"><h3>Most Active Topics</h3></a>
 {% if topic_list %}
 <ol class="topic-list">
   {% for object in topic_list %}

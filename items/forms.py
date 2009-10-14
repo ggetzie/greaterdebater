@@ -13,7 +13,7 @@ class tcdTopicSubmitForm(forms.Form):
     tags = forms.CharField(label="Tags", widget=forms.TextInput(attrs={'size':'70'}),
                            required=False,
                            help_text = """Words or short phrases that describe the topic separated by commas <br />
-e.g. Politics, News, Current Events""")
+e.g. Politics, Technology, Funny""")
     comment = forms.CharField(label="Text", required=False,
                               widget=forms.widgets.Textarea(attrs={'class': 'required icomment',
                                                                    'rows': 5,

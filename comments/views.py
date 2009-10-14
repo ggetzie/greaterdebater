@@ -81,6 +81,7 @@ def edit(request, topic_id):
             c = get_object_or_404(Comment, pk=form.cleaned_data['parent_id'])
             if c.user == request.user:
                 c.comment = form.cleaned_data['comment']
+                c.comment += "\n\n*Edited: %s*" % datetime.datetime.now().strftime("%H:%M on %b-%d-%Y")
                 c.save()
     return HttpResponseRedirect(redirect_to)
                                 

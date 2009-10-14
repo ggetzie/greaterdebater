@@ -68,7 +68,7 @@ div#title {
 }
 
 .section-title {
-    margin: 0px 0px 30px 15px;
+    margin: 15px 0px 15px 0px;
 }
 
 div.pages {
@@ -295,6 +295,10 @@ div.tos {
     text-align: justify;
     font-size: 13px;
     margin-left: 20px;
+}
+
+div.tos blockquote {
+    border:none;
 }
 
 div.tos h2 {
