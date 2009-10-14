@@ -2,7 +2,13 @@
 {% block title %}Arguments for Comment {{ comment.id }}{% endblock %}
 
 {% block content %}
-{% include "comments/one_comment.html" %}
+<span class="comment_info">
+  submitted by <a href="/users/u/{{ comment.user }}/profile/">{{ comment.user }}</a> {{ comment.get_elapsed }} ago
+</span>
+<div class="firstcomment">
+  {{ comment.comment_html|safe }}
+</div>
+
 <h4>Arguments for this comment</h4>
 {% include "items/arg_list.html" %}
 
