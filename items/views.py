@@ -119,9 +119,6 @@ def front_page(request):
                               context_instance=RequestContext(request)
                               )
 
-    
-    
-
 def tflag(request):    
     top=None
     if request.POST:
@@ -131,9 +128,9 @@ def tflag(request):
             user = request.user
             if user in top.tflaggers.all():
                 message="You've already flagged this topic"
-            else:
+            else:                
                 top.tflaggers.add(user)
-                if top.tflaggers.count() > 10:
+                if top.tflaggers.count() > 10 or user.is_staff:
                     top.needs_review = True
                 top.save()
                 message="Topic flagged"
