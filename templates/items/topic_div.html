@@ -3,6 +3,7 @@
   <div class="comment-menu">
     submitted by <a href="/users/u/{{ object.user }}/profile/">{{ object.user }}</a> {{ object.get_elapsed }} ago
     {% if user.is_authenticated %}
+    {% ifnotequal user object.user %}
     <span id="flag_link{{ object.id }}">
       | <a href="#" onclick="swap('#flag_link{{ object.id }}', '#confirm_flag{{ object.id }}'); return false;">flag</a>
     </span>
@@ -10,6 +11,7 @@
       | Flag this as spam? <a href="#" onclick="flag_topic({{ object.id }}, {{ user.id }}); swap('#flag_link{{ object.id }}', '#confirm_flag{{ object.id }}'); return false;">Yes</a> 
       / <a href="#" onclick="swap('#flag_link{{ object.id }}', '#confirm_flag{{ object.id }}'); return false;">No</a>
     </span>
+    {% endifnotequal %}
     {% endif %}
 
     {% with object.comment_set.count as num %}

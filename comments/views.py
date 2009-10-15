@@ -173,7 +173,7 @@ def flag(request):
                 message="You've already flagged this comment"
             else:
                 com.cflaggers.add(user)
-                if com.cflaggers.count() > 10:
+                if com.cflaggers.count() > 10 or user.is_staff:
                     com.needs_review = True
                 com.save()
                 message="Comment flagged"
