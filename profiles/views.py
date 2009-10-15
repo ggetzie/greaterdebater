@@ -207,6 +207,7 @@ def reset_password(request, value, code=None):
                               context_instance=RequestContext(request))
 
 def feedback(request):        
+    form = FeedbackForm()
     if request.POST:
         form = FeedbackForm(request.POST)
         if form.is_valid():            
@@ -216,16 +217,16 @@ def feedback(request):
                                                   ''.join(["email: ", request.user.email])])])
             else:
                 message = '\n\n'.join([form.cleaned_data['message'], "Anonymous user"])
-            send_mail(form.cleaned_data['subject'],
+            subj = form.cleaned_data['subject']
+            send_mail(subj,
                       message,
                       'admin@kotsf.com',
-                      ['ggetzie@gmail.com'],
+                      ['greaterfeedback@gmail.com'],
                       fail_silently=False)            
             return HttpResponseRedirect("/users/thanks")
-    else:
-        form = FeedbackForm()
-        feedback_context = {'form': form}
-             
+
+
+    feedback_context = {'form': form}             
     return render_to_response("registration/feedback.html",
                               feedback_context,
                               context_instance=RequestContext(request))

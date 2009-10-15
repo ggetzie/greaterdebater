@@ -15,23 +15,11 @@
 
 <div class="form">
   <form action="/users/feedback/" method='post'>
+    {% if form.error_dict %}
+    <p class="error">Please correct the errors below</p>
+    {% endif %}
     <table>
-      <tr>
-	<th>
-	  <label for="id_subject">Subject:</label>
-	</th>
-	<td>
-	  {{ form.subject }}
-	</td>
-      </tr>
-      <tr>
-	<th>
-	  <label for="id_message">Message:</label>
-	</th>
-	<td>
-	  {{ form.message }}
-	</td>
-      </tr>
+      {{ form }}
       <tr>
 	<td></td>
 	<td>

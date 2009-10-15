@@ -21,7 +21,7 @@ class tcdUserCreationForm(forms.Form):
             raise forms.ValidationError("A user with that name already exists")
         
         if re.search("[^a-zA-Z0-9_]", username):
-            raise forms.ValidationError("Only alphanumeric characters allowed in username")
+            raise forms.ValidationError("Only letters and numbers allowed in username")
 
         return username
 
@@ -70,7 +70,13 @@ class forgotForm(forms.Form):
 
 class FeedbackForm(forms.Form):
     subject = forms.CharField(max_length=140, label="Subject",
-                              widget=forms.widgets.TextInput(attrs={'size': 50}))
+                              widget=forms.widgets.TextInput(attrs={'size': 50}), required=False)
     message = forms.CharField(widget=forms.widgets.Textarea(attrs={'class': 'required icomment',
                                                                    'rows': 10,
                                                                    'cols': 70}))
+
+    def clean_subject(self):
+        subj = self.cleaned_data.get('subject', '')
+        if subj == '':
+            subj = "GreaterDebater Feedback"
+        return subj
