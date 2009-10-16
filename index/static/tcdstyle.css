@@ -195,6 +195,10 @@ tr.read_msg {
     font-weight: normal
 }
 
+h3.prof-head {
+    margin-top: 0px;
+}
+
 span.comment_info {
     font-size: small;
 }    
@@ -380,6 +384,10 @@ div#arg_title {
 div#arg_title span {
     font-size: small;
     margin-left: 10px;
+}
+
+.hotargs {
+    color: #CC0000;
 }
 
 h3#profile {

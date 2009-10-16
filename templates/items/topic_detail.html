@@ -15,21 +15,19 @@
     {{ comment.comment_html|safe }}
   </div>
   <div class="comment-menu">
-
-    <a href="/comments/{{ comment.id }}/arguments/">{{ comment.get_viewable_arguments }} arguments</a>
+    
+    {% with comment.get_viewable_arguments as num %}
+    <a class="menu {% ifnotequal num 0 %}hotargs{% endifnotequal %}" href="/comments/{{ comment.id }}/arguments/">{{ num }} argument{{ num|pluralize }}</a>
+    {% endwith %}
     {% if user.is_authenticated %}
-    {% ifequal user object.user %}
-    {% else %}
-    <a href='#' onclick="displayFormComment('#argue{{ comment.id }}'); return false;">argue</a>
+    {% ifnotequal user object.user %}
+    <a class="menu" href='#' onclick="displayFormComment('#argue{{ comment.id }}'); return false;">argue</a>
     <div class="action_block">
       {% include "comments/argue_form.html" %}
     </div>
-    {% endifequal %}
+    {% endifnotequal %}
     {% else %}
     {% endif %}
-
-
-
   </div>
   {% endfor %}
   {% endif %}
