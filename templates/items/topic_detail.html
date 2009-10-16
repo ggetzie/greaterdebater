@@ -16,7 +16,7 @@
   </div>
   <div class="comment-menu">
 
-    <a href="/comments/{{ comment.id }}/arguments/">({{ comment.get_viewable_arguments }}) arguments</a>
+    <a href="/comments/{{ comment.id }}/arguments/">{{ comment.get_viewable_arguments }} arguments</a>
     {% if user.is_authenticated %}
     {% ifequal user object.user %}
     {% else %}
@@ -48,15 +48,14 @@
   {% endfor %}
 </div>
 
-<p>
+<div class="pages">
   {% if has_previous %}
-  <a href="/{{ object.id }}/{{ previous }}">Previous</a>
+  <a id="prev" href="/{{ object.id }}/{{ previous }}">Previous</a>
   {% endif %}
-
   {% if has_next %}
-  <a href="/{{ object.id }}/{{ next }}">Next</a>
+  <a id="next" href="/{{ object.id }}/{{ next }}">Next</a>
   {% endif %}
-</p>
+</div>
 
 {% else %}
 

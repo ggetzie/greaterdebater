@@ -87,6 +87,7 @@ div.pages a#next {
 span.tagline {
     font-size: small;
     font-style: italic;
+    color: #333333;
 }    
 
 div#header {

@@ -7,12 +7,14 @@
 <h3>Arguments</h3><br />
 {% include "items/arg_list.html" %}
 
-{% if has_previous %}
-<a href="/users/u/{{ username }}/arguments/{{ previous }}/">prev</a>
-{% endif %}
+<div class="pages">
+  {% if has_previous %}
+  <a id="prev" href="/users/u/{{ username }}/arguments/{{ previous }}/">prev</a>
+  {% endif %}
 
-{% if has_next %}
-<a href="/users/u/{{ username }}/arguments/{{ next }}/">next</a>
-{% endif %}
+  {% if has_next %}
+  <a id="next" href="/users/u/{{ username }}/arguments/{{ next }}/">next</a>
+  {% endif %}
+</div>
 
 {% endblock %}

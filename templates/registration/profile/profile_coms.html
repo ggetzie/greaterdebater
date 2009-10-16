@@ -14,19 +14,21 @@
   </p>
   <div id="comment_div{{ comment.id }}" class="comment_div">
     {% include "comments/one_comment.html" %}    
-  </div><br />
+  </div>
   {% endfor %}
   {% else %}
   No Comments Available 
   {% endif %}
 </div>
 
-{% if has_previous %}
-<a href="/users/u/{{ username }}/comments/{{ previous }}/">prev</a>
-{% endif %}
+<div class="pages">
+  {% if has_previous %}
+  <a id="prev" href="/users/u/{{ username }}/comments/{{ previous }}/">prev</a>
+  {% endif %}
 
-{% if has_next %}
-<a href="/users/u/{{ username }}/comments/{{ next }}/">next</a>
-{% endif %}
+  {% if has_next %}
+  <a id="next" href="/users/u/{{ username }}/comments/{{ next }}/">next</a>
+  {% endif %}
+</div>
 
 {% endblock %}

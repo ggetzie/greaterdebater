@@ -14,7 +14,7 @@
 	submitted by <a href="/users/u/{{ object.user }}/profile/">{{ object.user }}</a>
 	{{ object.get_elapsed }} ago | 
 	{% with object.comment_set.count as num %}
-	<a href = "/{{ object.id }}">({{ num }}) comment{{ num|pluralize }}</a>
+	<a href = "/{{ object.id }}">{{ num }} comment{{ num|pluralize }}</a>
 	{% endwith %}
 	{% ifequal request.user object.user %}
 	| <a href="/edit/{{ object.id }}/{{ page }}">edit</a>
@@ -32,14 +32,15 @@
   {% endfor %}
 </ul>
 
+<div class="pages">
+  {% if has_previous %}
+  <a id="prev" href="/users/u/{{ username }}/submissions/{{ previous }}/">prev</a>
+  {% endif %}
 
-{% if has_previous %}
-<a href="/users/u/{{ username }}/submissions/{{ previous }}/">prev</a>
-{% endif %}
-
-{% if has_next %}
-<a href="/users/u/{{ username }}/submissions/{{ next }}/">next</a>
-{% endif %}
+  {% if has_next %}
+  <a id="next" href="/users/u/{{ username }}/submissions/{{ next }}/">next</a>
+  {% endif %}
+</div>
 
 {% else %}
 <p>No topics are available</p>

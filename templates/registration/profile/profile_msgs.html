@@ -48,12 +48,13 @@
     {% endif %}
 </table>
 
-{% if has_previous %}
-<a href="/users/u/{{ username }}/messages/page/{{ previous }}/">prev</a>
-{% endif %}
+<div class="pages">
+  {% if has_previous %}
+  <a id="prev" href="/users/u/{{ username }}/messages/page/{{ previous }}/">prev</a>
+  {% endif %}
 
-{% if has_next %}
-<a href="/users/u/{{ username }}/messages/page/{{ next }}/">next</a>
-{% endif %}
-
+  {% if has_next %}
+  <a id="next" href="/users/u/{{ username }}/messages/page/{{ next }}/">next</a>
+  {% endif %}
+</div>
 {% endblock %}
