@@ -21,6 +21,10 @@ body a{
     position: relative;
 }    
 
+div.foot-menu {
+     margin-bottom: 30px;
+}
+
 .clearfooter {
     height: 100px;
     clear: both;

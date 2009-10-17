@@ -218,6 +218,7 @@ def feedback(request):
             else:
                 message = '\n\n'.join([form.cleaned_data['message'], "Anonymous user"])
             subj = form.cleaned_data['subject']
+
             send_mail(subj,
                       message,
                       'admin@kotsf.com',

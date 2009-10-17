@@ -154,15 +154,6 @@ class tcdMessage(Comment):
         self.is_msg = True
         super(tcdMessage , self).save()
     
-    class Admin:
-        list_display = ('user', 'pub_date')
-        fields=(
-        (None, {'fields': ('parent_id', 'pub_date', 'is_read')}),
-        ('Content', {'fields': ('user', 'recipient', 'comment')}),
-        )
-        search_fields = ('comment','user__username', 'recipient__username')
-
-        
     class Meta:
         ordering = ('-pub_date',)
 

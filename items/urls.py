@@ -8,15 +8,15 @@ urlpatterns = patterns('',
                        (r'^$', 'tcd.items.views.front_page'), 
 
                        # View Topics sorted by highest score
-                       (r'^(?P<sort>(hot))/$', 'tcd.items.views.topics'), 
+                       (r'^(?P<sort>(hot))/?$', 'tcd.items.views.topics'), 
                        (r'^(?P<sort>(hot))/(?P<page>\d+)/?$', 'tcd.items.views.topics'),                          
 
                        # View Topics sorted by submission date
-                       (r'^(?P<sort>(new))/$', 'tcd.items.views.topics'),
+                       (r'^(?P<sort>(new))/?$', 'tcd.items.views.topics'),
                        (r'^(?P<sort>(new))/(?P<page>\d+)/?$', 'tcd.items.views.topics'),
                        
                        # View Comments associated with a topic
-                       (r'^(?P<topic_id>\d+)/$', 'tcd.items.views.comments'),
+                       (r'^(?P<topic_id>\d+)/?$', 'tcd.items.views.comments'),
                        (r'^(?P<topic_id>\d+)/(?P<page>\d+)/?$', 'tcd.items.views.comments'),
                        
                        # Submit a new topic
