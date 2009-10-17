@@ -80,6 +80,10 @@ div.section-title {
     font-size: x-small;
 }
 
+.rss-link img{
+    border: none;
+}
+
 div.pages {
     margin: 30px 0px 30px 20px;
     width: 40%;

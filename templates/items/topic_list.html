@@ -5,9 +5,12 @@
 {% if object_list %}
 
 <h3 class="section-title">{{ ttype }} Topics</h3>
+
+{% ifequal ttype "Newest" %}
 <div class="rss-link">
-  <a href="/feeds/newtopics/"><img src="/static/feed-icon-28x28.png" /> Subscribe to RSS</a>
+  <a href="/feeds/newargs/"><img src="/static/feed-icon-14x14.png" /></a> <a href="/feeds/newargs/">Subscribe to RSS</a>
 </div>
+{% endifequal %}
 
 <ol start={{ start }} class="topic-list">
   {% for object in object_list %}
