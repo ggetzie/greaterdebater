@@ -35,10 +35,10 @@ def comments(request, topic_id, page=1):
     has_next = True
     top = get_object_or_404(Topic, pk=topic_id)
     comments = top.comment_set.filter(is_msg=False, 
+                                      is_first=False,
                                       arg_proper=False,
                                       needs_review=False)
-    first_c = comments.filter(is_first=True)
-    rest_c = build_list(comments.filter(is_first=False).order_by('-pub_date'), 0)
+    rest_c = build_list(comments.order_by('-pub_date'), 0)
     form_comment = CommentForm()
 
     if len(rest_c) % paginate_by:
@@ -70,8 +70,7 @@ def comments(request, topic_id, page=1):
         has_next = False
 
     return render_to_response('items/topic_detail.html', 
-                              {'object': top,
-                               'first_c': first_c,
+                              {'object': top,                               
                                'rest_c': rest_c[start:end],
                                'redirect': ''.join(["/", str(topic_id), "/"]),
                                'has_previous': has_previous,
@@ -792,32 +791,42 @@ def arg_detail(request, object_id):
             pass
 
     if arg.status in range(0,3):
+        # The argument hasn't ended
         current = True
 
-    if request.user == arg.defendant and arg.status == 0:
-        new_arg = True
-
-    if current == True and request.user == arg.whos_up() and arg.draw_set.all():
-        show_draw = True
-        
-    if current == True and new_arg == False and not arg.draw_set.all() and request.user == arg.whos_up():
-        show_actions = True
-
-    if current == True and request.user.is_authenticated() and not request.user in [arg.plaintiff, arg.defendant]:
-        show_votes = True
-
     if current and (request.user.is_authenticated() == False or request.user == arg.whos_up(invert=1)):
+        # The viewer is either not logged in or a participant and it's not his turn
+        # Don't show any controls
         show_arg_actions = False
     else:
         show_arg_actions = True
-                
-    last_c = arg.comment_set.order_by('-pub_date')[0]
 
+    if request.user == arg.defendant and arg.status == 0:
+        # defendant hasn't accepted or declined the challenge yet
+        # and is viewing the argument, show the options
+        # to accept or decline the argument
+        new_arg = True
+
+    if current == True and request.user == arg.whos_up() and arg.draw_set.all():
+        # A draw has been proposed and the recipient is viewing the argument
+        # show the option to decline or accept the draw
+        show_draw = True
+        
+    if current == True and new_arg == False and not arg.draw_set.all() and request.user == arg.whos_up():
+        # No draw is pending, the person viewing the argument 
+        # is a participant and it's his turn show the options
+        # to respond
+        show_actions = True
+
+    if current == True and request.user.is_authenticated() and not request.user in [arg.plaintiff, arg.defendant]:
+        # The person viewing the argument is a registered user
+        # and not a participant, show the voting box
+        show_votes = True
+                
     return render_to_response("items/arg_detail.html",
                               {'object': arg,
                                'comments': arg.comment_set.order_by('pub_date'),
                                'new_arg': new_arg,
-                               'last_c': last_c,
                                'voted_for': voted_for, 
                                'current': current,
                                'pvotes': votes.filter(voted_for="P").count(),

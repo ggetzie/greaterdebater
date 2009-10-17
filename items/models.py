@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from tcd.profiles.models import Profile
 from tcd.utils import elapsed_time
+from tcd.settings import HOSTNAME
 
 import datetime
 import urlparse
@@ -71,6 +72,16 @@ class Topic(models.Model):
             return self.tags.split('\n')[0].split(',')
         else:
             return []
+        
+    def get_absolute_url(self):
+        return '/'.join([HOSTNAME, str(self.id)])
+
+    def get_first_comment(self):
+        com = self.comment_set.filter(is_first=True)
+        if com:
+            return com[0]
+        else:
+            return False
     
 
 class Argument(models.Model):
@@ -169,6 +180,14 @@ class Argument(models.Model):
         minutes = delta.days*1440 + delta.seconds/60 + 1.0
         self.score = float(numvotes / minutes)
         self.save()
+
+    def first_two(self):
+        # The initial comment that inspired the argument
+        # and the first assault by the plaintiff
+        return self.comment_set.order_by('pub_date')[:2]
+
+    def get_absolute_url(self):
+        return '/'.join([HOSTNAME, 'argue', str(self.id)])
 
 
 class LogItem(models.Model):

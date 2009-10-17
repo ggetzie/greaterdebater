@@ -9,8 +9,9 @@
     submitted by <a href="/users/u/{{ object.user }}/profile/">{{ object.user }}</a> {{ object.get_elapsed }} ago
   </span>
 
-  {% if first_c %}
-  {% for comment in first_c %}
+  {% with object.get_first_comment as comment %}
+  {% if comment %}
+
   <div class="firstcomment">
     {{ comment.comment_html|safe }}
   </div>
@@ -29,8 +30,8 @@
     {% else %}
     {% endif %}
   </div>
-  {% endfor %}
   {% endif %}
+  {% endwith %}
 
   {% include "comments/form.html" %}
 </div>

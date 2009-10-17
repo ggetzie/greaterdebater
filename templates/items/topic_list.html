@@ -3,7 +3,12 @@
 
 {% block content %}
 {% if object_list %}
+
 <h3 class="section-title">{{ ttype }} Topics</h3>
+<div class="rss-link">
+  <a href="/feeds/newtopics/"><img src="/static/feed-icon-28x28.png" /> Subscribe to RSS</a>
+</div>
+
 <ol start={{ start }} class="topic-list">
   {% for object in object_list %}
   <li>

@@ -1,0 +1,17 @@
+<div>
+  <p>
+    submitted by {{ obj.user }}
+  </p>
+<div>
+
+<div>
+  {% if obj.get_first_comment %}
+  {{ obj.get_first_comment.comment_html|safe }}
+  {% endif %}
+</div>
+
+<div>
+  {% with obj.comment_set.count as num %}
+  <a href="{{ obj.get_absolute_url }}">{{ num }} comment{{ num|pluralize }}</a>
+  {% endwith %}
+</div>

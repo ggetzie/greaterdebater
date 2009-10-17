@@ -71,8 +71,13 @@ div#title {
     text-align: center;
 }
 
-.section-title {
+div.section-title {    
     margin: 15px 0px 15px 0px;
+}
+
+.rss-link {
+    float: right;
+    font-size: x-small;
 }
 
 div.pages {

@@ -31,18 +31,18 @@ urlpatterns = patterns('tcd.items.views',
                        (r'^page/(?P<page>(\d+|last))/?$', 'object_list_field', current_args),
 
                        # Display active arguments, sorted by date
-                       (r'^new/$', 'newest_args'),
+                       (r'^new/?$', 'newest_args'),
                        (r'^new/page/(?P<page>(\d+|last))/?$', 'newest_args'),
 
                        # Display completed arguments
-                       (r'^archive/$', 'object_list_field', archive_args),
+                       (r'^archive/?$', 'object_list_field', archive_args),
                        (r'^archive/page/(?P<page>(\d+|last))/$', 'object_list_field', archive_args),
 
                        # Challenge a user to an argument
                        (r'^challenge/(?P<c_id>[\d]+)/$', 'challenge'),
                        
                        # Display a single argument
-                       (r'^(?P<object_id>[\d]+)/$', 'arg_detail'),
+                       (r'^(?P<object_id>[\d]+)/?$', 'arg_detail'),
 
                        # POST a rebuttal to an argument
                        (r'^rebut/$', 'rebut'),
@@ -50,7 +50,7 @@ urlpatterns = patterns('tcd.items.views',
                        # POST an offer to call an argument a draw
                        (r'^draw/$', 'draw'),  
                        
-                       # Responsd to an offer to call an argument a draw
+                       # Respond to an offer to call an argument a draw
                        (r'^draw/respond/$', 'respond_draw'),                                              
                        (r'^draw/(?P<response>(accept|decline))/(?P<a_id>[\d]+)/$', 'respond_draw'),       
 
