@@ -839,7 +839,7 @@ def arg_detail(request, object_id):
                               context_instance=RequestContext(request))
 
 def newest_args(request, page=1):
-    args = Argument.objects.filter(status__range=(1,2)).order_by('start_date')
+    args = Argument.objects.filter(status__range=(1,2)).order_by('-start_date')
     paginate_by = 10
     extra_context = {'start': calc_start(page, paginate_by, args.count())}
 

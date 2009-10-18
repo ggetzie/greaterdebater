@@ -105,7 +105,7 @@ def profile_args(request, value, page=1):
     user = get_object_or_404(User, username=value)
     args = user.defendant_set.all() | user.plaintiff_set.all()
     return list_detail.object_list(request=request,
-                                   queryset=args,
+                                   queryset=args.order_by('-start_date'),
                                    paginate_by=paginate_by,
                                    page=page,
                                    template_name="registration/profile/profile_args.html",
