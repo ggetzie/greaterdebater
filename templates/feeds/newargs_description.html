@@ -4,6 +4,7 @@ by {{ comment.user }} - {{ comment.get_elapsed }} ago
 <div>
     {{ comment.comment_html|safe }}
 </div>
+<br />
 {% endfor %}
 
 <p>
