@@ -6,6 +6,7 @@ submitted by {{ obj.user }}
   {% endif %}
 </div>
 
+<br />
 <div>
   {% with obj.comment_set.count as num %}
   <a href="{{ obj.get_absolute_url }}">{{ num }} comment{{ num|pluralize }}</a>
