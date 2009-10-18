@@ -1,10 +1,8 @@
+<br />
 {% for comment in obj.first_two %}
-<div style="margin-left:{% ifequal comment.user obj.defendant %}10{% else %}40{% endifequal %}">
-  <p>
-    by {{ comment.user }} <br />
-    {{ comment.get_elapsed }} ago
+by {{ comment.user }} - {{ comment.get_elapsed }} ago
+<div>
     {{ comment.comment_html|safe }}
-  </p>
 </div>
 {% endfor %}
 

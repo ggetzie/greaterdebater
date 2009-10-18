@@ -1,5 +1,5 @@
 <div id="topic_div{{ object.id }}" class="topic_div">
-  <div class="title"><a href={{ object.url }} class="title">{{ object.title }}</a> <span class="domain">({{ object.get_domain }})</span></div>
+  <div class="title"><a href="{{ object.url }}" class="title">{{ object.title }}</a> <span class="domain">({{ object.get_domain }})</span></div>
   <div class="comment-menu">
     submitted by <a href="/users/u/{{ object.user }}/profile/">{{ object.user }}</a> {{ object.get_elapsed }} ago
     {% if user.is_authenticated %}

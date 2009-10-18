@@ -1,9 +1,5 @@
-<div>
-  <p>
-    submitted by {{ obj.user }}
-  </p>
-<div>
-
+<br />
+submitted by {{ obj.user }}
 <div>
   {% if obj.get_first_comment %}
   {{ obj.get_first_comment.comment_html|safe }}

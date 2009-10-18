@@ -19,8 +19,6 @@ class CommentAdmin(admin.ModelAdmin):
 
     list_display = ('user', 'pub_date', 'comment')
     list_filter = ['pub_date', 'needs_review', 'is_msg', 'arg_proper', 'is_first', 'is_removed']
-#     search_fields = ('comment','user__username', 'is_removed')
-#     date_hierarchy = 'pub_date'
 
 
 admin.site.register(Comment, CommentAdmin)
