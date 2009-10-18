@@ -24,7 +24,7 @@ class ArgumentAdmin(admin.ModelAdmin):
         ('Status',     {'fields': ['status', 'score']})
         ]
 
-    list_display('start_date', 'title')
+    list_display = ('start_date', 'title')
     list_filter = ('start_date', 'end_date', 'status')
          
 
