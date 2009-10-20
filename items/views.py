@@ -777,6 +777,7 @@ def arg_detail(request, object_id):
     show_actions = False
     show_votes = False
     show_draw = False
+    last_c = arg.comment_set.order_by("-pub_date")[0]
     if request.user.is_authenticated():
 
         try: 
@@ -822,12 +823,13 @@ def arg_detail(request, object_id):
         # The person viewing the argument is a registered user
         # and not a participant, show the voting box
         show_votes = True
-                
+
     return render_to_response("items/arg_detail.html",
                               {'object': arg,
                                'comments': arg.comment_set.order_by('pub_date'),
                                'new_arg': new_arg,
                                'voted_for': voted_for, 
+                               'last_c': last_c,
                                'current': current,
                                'pvotes': votes.filter(voted_for="P").count(),
                                'dvotes': votes.filter(voted_for="D").count(), 
