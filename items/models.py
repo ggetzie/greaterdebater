@@ -161,7 +161,7 @@ class Argument(models.Model):
         # Get the winner and reduce his score by one
         winner = None
         if self.status == 3:
-            winner = self.defendent
+            winner = self.defendant
         elif self.status == 4:
             winner = self.plaintiff
         else:
