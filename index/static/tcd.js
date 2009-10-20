@@ -218,17 +218,14 @@ function rebut_argument(arg_id, parent_id, nesting, draw) {
 	       if (status == "error") {
 		   // show the error message somewhere
 		   $("#turn_actions").append(msg);
-	       } else if ( status == "ok") {
+	       } else {
 		   // add the rebuttal comment at the end of the list of comments
 		   $("#arg_comments").append(msg);
 		   // update the status field
 		   $("#arg_status").html( $("arg_status", xml).text() );
 		   $("#arg_actions").remove()
-	       } else {
-		   alert("Invalid status");
 	       }
-	   }
-	  )
+	   })
 }
 
 	  
