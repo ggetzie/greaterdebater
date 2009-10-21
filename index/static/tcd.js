@@ -94,6 +94,7 @@ function showalltags(topic_id) {
 
 function addtags(topic_id) {
     tagdiv = "#tags" + topic_id
+    $(tagdiv).html("Loading...")
     tags = $("#tag_text" + topic_id).val()
     $.post("/topics/addtags/", {topic_id: topic_id,
 				tags: tags},
@@ -122,12 +123,16 @@ function flag_comment(comment_id, user_id) {
 }
 
 function respond_draw(arg_id, user_id, response) {
+    var turn_actions = $("#turn_actions").html();
+    $("#turn_actions").html("Loading...");
+    
     $.post("/argue/draw/respond/", {arg_id: arg_id,
 				    user_id: user_id,
 				    response: response},
 	   function(xml) {
 	       // display the message
 	       msg = $("message", xml).text();
+	       $("#turn_actions").html(turn_actions);
 	       $("#arg_actions").parent().append(msg);
 	       if ( $("status", xml).text() == "ok") {
 		   if ( $("arg_status", xml).text() == "Status: draw") {
@@ -177,21 +182,21 @@ function respond_challenge(arg_id, user_id, response) {
 	   
 }
 
-
-
 function concede_argument(arg_id, user_id) {
+    var turn_actions = $("#turn_actions").html()
+    $("#turn_actions").html("Loading...")
     $.post("/argue/concede/", {arg_id: arg_id,
 			      user_id: user_id},
 	   function(xml) {
+	       
 	       msg = $("message", xml).text();
 	       if ( $("status", xml).text() == "error") {
+		   $("#turn_actions").html(turn_actions);
 		   $("#turn_actions").append(msg);
-	       } else if ( $("status", xml).text() == "ok") {
+	       } else {
 		   $("#arg_status").html( $("arg_status", xml).text() );
 		   $("#arg_actions").parent().append(msg);
 		   $("#arg_actions").remove()
-	       } else {
-		   alert("Invalid status");
 	       }
 	   }
 	  )
@@ -208,11 +213,15 @@ function rebut_argument(arg_id, parent_id, nesting, draw) {
 	comment_text = $("#rebut_text").val();
     }
 
+    var turn_actions = $("#turn_actions").html()
+    $("#turn_actions").html("Loading...")
+
     $.post(url, {comment: comment_text,
 		 parent_id: parent_id,
 		 nesting: nesting,
 		 arg_id: arg_id},
 	   function(xml) {
+	       $("#turn_actions").html(turn_actions)
 	       msg = $("message", xml).text();
 	       status = $("status", xml).text();
 	       if (status == "error") {
@@ -267,7 +276,9 @@ function collapse(div_id, mode) {
 
 function delete_checked_messages() {
     var checked_messages = [];
-    
+    var cmd_row = $("#cmd_row").html();
+    $("#cmd_row").html("Loading...");
+
     $('.message').each( function(i) {
 	if ($(this).attr('checked')) {
 	    checked_messages.push($(this).attr('value'))}})
@@ -283,9 +294,11 @@ function delete_checked_messages() {
 		   $('#sys_messages').html($("message",xml))
 	       })
     }
+    $("#cmd_row").html(cmd_row);
 }
 
 function delete_current_message(m_id){
+    $("#delete").html("Loading...")
     $.post('/users/delete_current_message/', {message_id: m_id},
 	   function(url) {
 	       window.location.href=url
