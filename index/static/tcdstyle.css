@@ -75,6 +75,11 @@ div.section-title {
     margin: 15px 0px 15px 0px;
 }
 
+.more {
+    font-size: small;
+    margin-left: 40px;
+}
+
 .rss-link {
     float: right;
     font-size: x-small;

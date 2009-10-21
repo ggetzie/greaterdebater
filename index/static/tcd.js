@@ -81,9 +81,13 @@ function delete_comment(id) {
 };
 
 function delete_topic(id) {
-        
+    var topic_menu = $("#delete_link" + id).parent();
+    var tinside = topic_menu.html();
+    topic_menu.html("Loading...");
+    
     $.post("/topics/delete/", {topic_id: id},	   
-	   function(xml) { 	       
+	   function(xml) { 	 
+	       topic_menu.html(tinside);
 	       divID = '#topic_div' + id;	       
 	       msg=$("message",xml).text()
 	       $(divID).after(msg)
@@ -161,6 +165,8 @@ function respond_draw(arg_id, user_id, response) {
 }
 
 function respond_challenge(arg_id, user_id, response) {
+    var arg_responses = $("#arg_responses").html();
+    $("#arg_responses").html("Loading...");
     $.post("/argue/respond/", {arg_id: arg_id,
 			       user_id: user_id,
 			       response: response},
@@ -180,6 +186,7 @@ function respond_challenge(arg_id, user_id, response) {
 		   $("#arg_status").html( $("arg_status", xml).text() );
 	       } else if ($("status", xml).text() == "error") {
 		   // Display the error message
+		   $("#arg_responses").html(arg_responses);
 		   msg = $("message", xml).text();
 		   $("#arg_actions").append(msg);
 	       } else {
