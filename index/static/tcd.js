@@ -94,8 +94,8 @@ function showalltags(topic_id) {
 
 function addtags(topic_id) {
     tagdiv = "#tags" + topic_id
-    $(tagdiv).html("Loading...")
     tags = $("#tag_text" + topic_id).val()
+    $(tagdiv).html("Loading...")
     $.post("/topics/addtags/", {topic_id: topic_id,
 				tags: tags},
 	   function(xml) {
