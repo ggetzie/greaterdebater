@@ -22,33 +22,38 @@ function displayFormComment(form_id) {
 }		
 
 function vote(argument, voter, voted_for){
+    var votediv = $("#vote").html();
+    $("#vote").html("Loading...");
+    
     $.post("/argue/vote/", {argument: argument,
 			    voter: voter,
 			    voted_for: voted_for},
 	   function(xml) {
-	       addVotes(xml);
+	       var pvotefor
+	       var dvotefor
+
+	       if ($("error",xml).text() == "True"){
+		   
+		   $("vote").html(votediv);
+		   $("#sys_messages").html( $("message",xml).text());
+
+	       } else {
+
+		   $("#vote").html( $("message",xml).text());
+	       }
 	   });
 };
 
-function addVotes(xml) {
-    var pvotefor
-    var dvotefor
 
-    if ($("error",xml).text() == "True"){
-
-	$("#sys_messages").html( $("message",xml).text());
-
-    } else {
-
-	$("#vote").html( $("message",xml).text());
-    }
-}
 
 function unvote(argument, voter) {
+    var votediv =  $("#vote").html();
+    $("#vote").html("Loading...");
     $.post("/argue/unvote/", {argument: argument,
 			      voter:voter},
 	   function(xml) {
-	       if ($("error", xml).text() == "True") {
+	       if ($("error", xml).text() == "True") {		   
+		   $("#vote").html(votediv);
 		   $("#sys_messages").html( $("message", xml).text() );
 	       } else {
 		   window.location.reload();
@@ -56,9 +61,12 @@ function unvote(argument, voter) {
 }
 
 function delete_comment(id) {
-    
+    var menuid = "#comment-menu" + id
+    var menu = $(menuid).html();
+    $(menuid).html("Loading...");
     $.post("/comments/delete/", {comment_id: id},	   
 	   function(xml) { 
+	       $(menuid).html(menu);
 	       comID = $("id",xml).text()
 	       divID = '#comment_div' + comID
 	       if($("status",xml).text() == "error") {
