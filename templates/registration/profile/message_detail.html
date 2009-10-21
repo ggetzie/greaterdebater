@@ -8,8 +8,8 @@
       <a href="/users/u/{{ user.username}}/messages/">Back to messages</a>  
     </li>
     |
-    <li>
-      <a id="delete" href="#" onclick="delete_current_message({{ comment.id }}); return false;">Delete</a>
+    <li id="delete">
+      <a href="#" onclick="delete_current_message({{ comment.id }}); return false;">Delete</a>
     </li>    
 </div>
 <h4>{{ comment.subject }}</h4>
