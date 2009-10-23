@@ -379,7 +379,7 @@ def challenge(request, c_id):
                     arg.save()
                     c.arguments.add(arg)
                     c.save()
-                    params = {'comment': form.cleaned_data['comment'],
+                    params = {'comment': form.cleaned_data['argument'],
                               'user': request.user,
                               'topic': c.topic,
                               'parent_id': form.cleaned_data['parent_id'],
@@ -402,6 +402,9 @@ def challenge(request, c_id):
                     request.user.message_set.create(message= ''.join(["Challenged ", 
                                                                       arg.defendant.username, 
                                                                       " to an argument"]))
+        else:
+            message = "<p>Oops! A problem occurred.</p>"
+            request.user.message_set.create(message=message+str(form.errors))
     else:
         request.user.message_set.create(message="Not a POST")
         redirect = '/'

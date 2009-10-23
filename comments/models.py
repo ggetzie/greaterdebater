@@ -26,6 +26,7 @@ from markdown import markdown
 import re
 import datetime
 
+from tcd.comments.forms import ArgueForm
 from tcd.items.models import Topic, Argument
 from tcd.utils import elapsed_time
 
@@ -82,13 +83,13 @@ class Comment(models.Model):
     def save(self):
         if not self.id:
             self.pub_date = datetime.datetime.now()          
-        self.comment_html=self.hilight(self.comment)
+        self.comment_html = self.hilight(self.comment)
         self.comment_html = self.comment_html.replace('<p>', """<p class="commentp">""" )
         if self.topic:
             self.topic.comment_length += len(self.comment)
             self.topic.recalculate()
             self.topic.save()
-        super(Comment , self).save()
+        super(Comment, self).save()
 
     def __unicode__(self):
         return str(self.id)
@@ -98,6 +99,9 @@ class Comment(models.Model):
 
     def get_viewable_arguments(self):
         return self.arguments.filter(status__range=(1,5)).count()
+
+    def get_argue_form(self):
+        return ArgueForm({'parent_id': self.id})
             
     def hilight(self, content):
         CODE_TAG_START = "{{{"

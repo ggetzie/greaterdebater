@@ -2,13 +2,13 @@
 <div id="argue{{ comment.id }}" class="comment_action">
   <form action="/argue/challenge/{{ comment.id }}/" method="post" accept-charset="utf-8">
     <div class="form-row">
+      {% with comment.get_argue_form as form %}
       <label for="id_title">Title</label>
-      <div><input type="text" name="title" /></div>
+      <div>{{ form.title }}</div>
       <label for="id_comment">Argument</label>
-      <div><textarea rows=5 cols=50 name="comment"></textarea></div>
-      <div><input type="hidden" name="parent_id" value={{ comment.id }} /></div>
-      <div><input type="hidden" name="nesting" value={{ comment.nesting }} /></div>
-      <div><input type="hidden" name="toplevel" value=0 /></div>
+      <div>{{ form.argument }}</div>
+      <div>{{ form.parent_id }}</div>
+      {% endwith %}
       <div>
 	<button onclick="$('#argue{{ comment.id }}').slideToggle(); return false;" name="cancel">Cancel</button>
 	<input type="submit" value= "Argue" />

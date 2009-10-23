@@ -50,16 +50,15 @@ except AttributeError:
     
     
 def add(request, topic_id):
-    redirect_to='/'
+    redirect_to = ''.join(['/', topic_id, '/'])
     if request.POST:
         form=CommentForm(request.POST)
         if form.is_valid():
             if not request.user.is_authenticated():
-                request.user.message_set.create(message="Log in to post a comment")
-                redirect_to = ''.join(['/login?next=/', str(topic_id)])
+                request.user.message_set.create(message="Please log in to post a comment")
+                redirect_to = ''.join(['/login?next=/', str(topic_id), '/'])
             else:		    
                 top = get_object_or_404(Topic, pk=topic_id)
-                redirect_to = ''.join(['/', str(top.id), '/'])
                 params = {'comment': form.cleaned_data['comment'],
                           'user': request.user,
                           'topic': top}
@@ -71,6 +70,9 @@ def add(request, topic_id):
                     params['nesting'] = form.cleaned_data['nesting'] + 40
                 c = Comment(**params)
                 c.save()		    
+        else:
+            message = "<p>Oops! A problem occurred.</p>"
+            request.user.message_set.create(message=message+str(form.errors))
     return HttpResponseRedirect(redirect_to)    
                     
 def edit(request, topic_id):
@@ -83,6 +85,9 @@ def edit(request, topic_id):
                 c.comment = form.cleaned_data['comment']
                 c.comment += "\n\n*Edited: %s*" % datetime.datetime.now().strftime("%H:%M on %b-%d-%Y")
                 c.save()
+        else:
+            message = "<p>Oops! A problem occurred.</p>"
+            request.user.message_set.create(message=message+str(form.errors))
     return HttpResponseRedirect(redirect_to)
                                 
 def delete(request):

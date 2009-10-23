@@ -165,6 +165,7 @@ function respond_draw(arg_id, user_id, response) {
 }
 
 function respond_challenge(arg_id, user_id, response) {
+    
     var arg_responses = $("#arg_responses").html();
     $("#arg_responses").html("Loading...");
     $.post("/argue/respond/", {arg_id: arg_id,

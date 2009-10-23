@@ -31,12 +31,12 @@ class CommentForm(forms.Form):
 
 class ArgueForm(forms.Form):
     """Form used for one user to challenge another to an argument"""
-    comment =  forms.CharField(widget=forms.widgets.Textarea(attrs={'class': 'required icomment',
+    argument =  forms.CharField(widget=forms.widgets.Textarea(attrs={'class': 'required icomment',
                                                                     'rows': 5,
                                                                     'cols': 50}))
     title = forms.CharField(max_length=140,
                             label="Title",
-                            widget=forms.TextInput(attrs={'size': '50'}))
+                            widget=forms.TextInput(attrs={'size': '40'}))
                             
     parent_id = forms.IntegerField(widget=forms.widgets.HiddenInput(), required=False)
 
