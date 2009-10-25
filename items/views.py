@@ -85,7 +85,12 @@ def topics(request, page=1, sort="hot"):
     """Display the list of topics on the front page. Order by highest score"""
     paginate_by = 25
     start = calc_start(page, paginate_by, Topic.objects.count())
-    user = request.user    
+
+    if request.user.is_authenticated():
+        prof = get_object_or_404(Profile, user=request.user)
+        newwin = prof.newwin
+    else:
+        newwin = False
 
     if sort == "new":
         queryset = Topic.objects.filter(needs_review=False).order_by('-sub_date')
@@ -102,19 +107,27 @@ def topics(request, page=1, sort="hot"):
                                    page=page,
                                    extra_context={'start': start,
                                                   'page': pager,
-                                                  'ttype': ttype})
+                                                  'ttype': ttype,
+                                                  'newwin': newwin})
 
 def front_page(request):
     """Display the home page of GreaterDebater.com, show five hottest arguments and five hottest topics"""
     args = Argument.objects.filter(status__range=(1,2))[0:5]
     topics = Topic.objects.filter(needs_review=False).order_by('-score', '-sub_date')[0:5]
 
-    if request.user.is_authenticated() and tcdMessage.objects.filter(recipient=request.user, is_read=False):        
-        request.user.message_set.create(message=''.join(["<a href='/users/u/", request.user.username,
+    if request.user.is_authenticated():
+        if tcdMessage.objects.filter(recipient=request.user, is_read=False):        
+            request.user.message_set.create(message=''.join(["<a href='/users/u/", request.user.username,
                                                  "/messages/'>You have unread messages</a>"]))
+        prof = get_object_or_404(Profile, user=request.user)
+        newwin = prof.newwin
+    else:
+        newwin = False
+        
     return render_to_response('items/front_page.html',
                               {'args_list': args,
-                               'topic_list': topics},
+                               'topic_list': topics,
+                               'newwin': newwin},
                               context_instance=RequestContext(request)
                               )
 
@@ -558,6 +571,7 @@ def respond(request):
                     if response == 0:
                         # challenge accepted
                         arg.status = 2
+                        arg.start_date = datetime.datetime.now()
                         arg_response = "accept"
                         message = ''.join([arg.defendant.username, 
                                            " has accepted your challenge. \n[View this argument](", redirect, ")"])
@@ -573,7 +587,8 @@ def respond(request):
                         # response == 1, challenge declined
                         # a value other than 0 or 1 would cause the form to not validate
                         arg.status = 6
-                        arg_response = "decline"
+                        arg.end_date = datetime.datetime.now()
+                        arg_response = "decline"                        
                         message = ''.join([ arg.defendant.username, 
                                             " has declined your challenge."])
                         msg = tcdMessage(user=request.user,
@@ -843,14 +858,32 @@ def arg_detail(request, object_id):
                                },
                               context_instance=RequestContext(request))
 
-def newest_args(request, page=1):
-    args = Argument.objects.filter(status__range=(1,2)).order_by('-start_date')
-    paginate_by = 10
-    extra_context = {'start': calc_start(page, paginate_by, args.count())}
+def args_list(request, sort, page=1):
+
+    if sort == "new":
+        args = Argument.objects.filter(status__range=(1,2)).order_by('-start_date')
+        template_name = "items/arg_new.html"
+    elif sort == "hot":
+        args = Argument.objects.filter(status__range=(1,2))
+        template_name = "items/arg_current.html"
+    elif sort == "archive":
+        args = Argument.objects.filter(status__range=(3,5)).order_by('-start_date')
+        template_name = "items/arg_old.html"
+        
+    if request.user.is_authenticated():
+        prof = get_object_or_404(Profile, user=request.user)
+        newwin = prof.newwin
+    else:
+        newwin = False
+
+    paginate_by = 25
+    extra_context = {'start': calc_start(page, paginate_by, args.count()),
+                     'newwin': newwin}
 
     return list_detail.object_list(request=request, queryset=args, paginate_by=paginate_by,page=page,
                                    template_object_name = 'args',
-                                   template_name = "items/arg_new.html",)
+                                   template_name = template_name,
+                                   extra_context=extra_context)
                                    
 
 def object_list_field(request, model, field, value, sort=None, paginate_by=None, page=None,
@@ -897,13 +930,23 @@ def object_list_foreign_field(request, model, field, value, foreign_model,
     fv_dict[field] = foreign_obj.id
     obj_list = model.objects.filter(**fv_dict)
 
+    if request.user.is_authenticated():
+        prof = get_object_or_404(Profile, user=request.user)
+        newwin = prof.newwin
+    else:
+        newwin = False
+
     # calculate the number of the first object on this page
     # in case the objects are paginated and want to be displayed as 
     # a numbered list
-    extra_context = {'start': calc_start(page, paginate_by, obj_list.count())}
+    extra_context = {'start': calc_start(page, paginate_by, obj_list.count()),
+                     'newwin': newwin,
+                     foreign_field: foreign_obj}
+
+
 
     return list_detail.object_list(request=request, queryset=obj_list, 
-                                   extra_context={foreign_field: foreign_obj},
+                                   extra_context=extra_context,
                                    paginate_by=paginate_by, page=page, 
                                    allow_empty=allow_empty, template_name=template_name,
                                    template_loader=template_loader, 

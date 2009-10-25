@@ -2,19 +2,33 @@
 
 {% block title %}{{ username }}'s arguments{% endblock %}
 
-
 {% block content %}
-<h3 class="prof-head">Arguments</h3>
+<h3 class="prof-head">Pending Arguments</h3>
+{% with pending as args_list %}
 {% include "items/arg_list.html" %}
+{% if more_pending %}
+<a class="more" href="/users/u/{{ username }}/arguments/pending/">All Pending Arguments...</a>
+{% endif %}
+{% endwith %}
 
-<div class="pages">
-  {% if has_previous %}
-  <a id="prev" href="/users/u/{{ username }}/arguments/{{ previous }}/">prev</a>
-  {% endif %}
 
-  {% if has_next %}
-  <a id="next" href="/users/u/{{ username }}/arguments/{{ next }}/">next</a>
-  {% endif %}
-</div>
+<h3 class="prof-head">Active Arguments</h3>
+{% with current as args_list %}
+{% include "items/arg_list.html" %}
+{% if more_current %}
+<a class="more" href="/users/u/{{ username }}/arguments/current/">All Active Arguments...</a>
+{% endif %}
+{% endwith %}
+
+
+
+<h3 class="prof-head">Completed Arguments</h3>
+{% with complete as args_list %}
+{% include "items/arg_list.html" %}
+{% if more_complete %}
+<a class="more" href="/users/u/{{ username }}/arguments/complete/">All Completed Arguments...</a>
+{% endif %}
+{% endwith %}
+
 
 {% endblock %}

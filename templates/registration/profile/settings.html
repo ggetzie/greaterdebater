@@ -4,4 +4,24 @@
 
 {% block content %}
 <a href="/users/u/{{ request.user }}/reset/">Reset Password</a>
+
+<div class="form">
+  <h4>Settings</h4>
+  {% if form.errors %}
+  {{ form.errors }}
+  {% endif %}
+  <form action="/users/u/{{ request.user }}/settings/" name="settings" method="post">
+    <div>
+      {{ form.request_email }}
+    </div>
+    <div>
+      <label for="id_email">Email: </label> {{ form.email }}
+    </div>
+    <div>
+      <label for="id_newwindows">Open links in new window: </label> {{ form.newwindows }}
+    </div>
+    <div>
+	<input type="submit" value="Save" />
+    </div>
+</div>
 {% endblock %}

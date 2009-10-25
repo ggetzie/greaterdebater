@@ -5,38 +5,15 @@ from django.contrib.auth.models import User
 # from tcd.comments.models import *
 from tcd.items.models import Argument;
 
-arguments = {'queryset': Argument.objects.all()}
-
-current_args = {'model': Argument,
-                'field': 'status__range',
-                'value': (1, 2),
-                'template_name': "items/arg_current.html",
-                'template_object_name': 'args',
-                'paginate_by': 10
-                }
-
-archive_args = {'model': Argument,
-                'field': 'status__range',
-                'value': (3, 5),
-                'template_name': "items/arg_old.html",
-                'template_object_name': 'args',
-                'paginate_by': 10,
-                'sort': '-start_date'
-                }
-    
 
 urlpatterns = patterns('tcd.items.views',
-                       # Display active arguments, sorted by score
-                       (r'^$', 'object_list_field', current_args),
-                       (r'^page/(?P<page>(\d+|last))/?$', 'object_list_field', current_args),
-
-                       # Display active arguments, sorted by date
-                       (r'^new/?$', 'newest_args'),
-                       (r'^new/page/(?P<page>(\d+|last))/?$', 'newest_args'),
-
-                       # Display completed arguments
-                       (r'^archive/?$', 'object_list_field', archive_args),
-                       (r'^archive/page/(?P<page>(\d+|last))/$', 'object_list_field', archive_args),
+                       
+                       # Display a list of arguments:
+                       # new = current arguments sorted by date
+                       # hot = current arguments sorted by score
+                       # archive = completed arguments sorted by date
+                       (r'^(?P<sort>(new|hot|archive))/?$', 'args_list'),
+                       (r'^(?P<sort>(new|hot|archive))/page/(?P<page>(\d+|last))/?$', 'args_list'),
 
                        # Challenge a user to an argument
                        (r'^challenge/(?P<c_id>[\d]+)/$', 'challenge'),

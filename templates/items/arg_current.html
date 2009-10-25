@@ -1,17 +1,17 @@
 {% extends "base.html" %}
-{% block title %}Current Arguments{% endblock %}
+{% block title %}Most Active Arguments{% endblock %}
 
 {% block content %}
-<h3 class="section-title">Current Arguments</h3>
+<h3 class="section-title">Most Active Arguments</h3>
 
 {% include "items/arg_list.html" %}
 
 <div class="pages">
   {% if has_previous %}
-  <a id="prev" href="/argue/page/{{ previous }}/">Previous</a>
+  <a id="prev" href="/argue/hot/page/{{ previous }}/">Previous</a>
   {% endif %}
   {% if has_next %}
-  <a id="next" href="/argue/page/{{ next }}/">Next</a>
+  <a id="next" href="/argue/hot/page/{{ next }}/">Next</a>
   {% endif %}
 </div>
 

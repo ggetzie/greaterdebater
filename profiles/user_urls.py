@@ -18,14 +18,6 @@ comments_dict = {'model': Comment,
                  'template_object_name': 'comments',
                  'paginate_by': 10}
 
-submissions_dict = {'model': Topic,
-                    'field': 'user',
-                    'foreign_model': User,
-                    'foreign_field': 'username',
-                    'template_name': "registration/profile/profile_tops.html",
-                    'template_object_name': 'topics',
-                    'paginate_by': 10}
-
 urlpatterns = patterns('',
 
                        # Display the main profile page, showing the score
@@ -33,7 +25,12 @@ urlpatterns = patterns('',
 
                        # Display all of the arguments a user has been involved in, paginated
                        (r'^arguments/?$', 'tcd.profiles.views.profile_args'),
-                       (r'^arguments/(?P<page>(\d+|last))/?$', 'tcd.profiles.views.profile_args'),
+
+                       # Display all of the arguments a user has been involved in, paginated
+                       (r'^arguments/(?P<aset>(pending|current|complete))/?$', 
+                        'tcd.profiles.views.profile_all_args'),
+                       (r'^arguments/(?P<aset>(pending|current|complete))/(?P<page>(\d+|last))/?$', 
+                        'tcd.profiles.views.profile_all_args'),
 
                        # Display all of the comments a user has submitted, paginated
                        (r'^comments/?$', 'tcd.items.views.object_list_foreign_field', 
@@ -42,10 +39,8 @@ urlpatterns = patterns('',
                         comments_dict),
 
                        # Display all the topics a user has submitted, paginated
-                       (r'^submissions/?$', 'tcd.items.views.object_list_foreign_field', 
-                        submissions_dict),
-                       (r'^submissions/(?P<page>(\d+|last))/?$', 'tcd.items.views.object_list_foreign_field', 
-                        submissions_dict),
+                       (r'^submissions/?$', 'tcd.profiles.views.profile_topics'),
+                       (r'^submissions/(?P<page>(\d+|last))/?$', 'tcd.profiles.views.profile_topics'),
 
                        # Display a list of messages for the user
                        (r'^messages/?$', 'tcd.profiles.views.profile_msgs'), 

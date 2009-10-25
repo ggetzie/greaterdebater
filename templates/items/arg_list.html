@@ -3,7 +3,7 @@
   <ol start={{ start }} class="topic-list">
     {% for arg in args_list %}
     <li>
-      <a class="title" href="/argue/{{ arg.id }}">{{ arg.title }}</a><br />
+      <a class="title" href="/argue/{{ arg.id }}"{% if newwin %}target="_blank"{% endif %}>{{ arg.title }}</a><br />
       <span class="menu comment-menu">{{ arg.plaintiff.username }} vs. {{ arg.defendant.username }}</span>|
       <span class="menu comment-menu">{{ arg.get_status }}</span>|
       <span class="menu comment-menu">Started {{ arg.get_elapsed }} ago</span>
@@ -11,6 +11,8 @@
     {% endfor %}
   </ol>
   {% else %}
-  No Arguments Available
+  <p>
+    No Arguments Available
+  </p>
   {% endif %}
 </div>

@@ -222,7 +222,7 @@ tr.read_msg {
 }
 
 h3.prof-head {
-    margin-top: 0px;
+    margin-top: 20px;
 }
 
 span.comment_info {
@@ -366,7 +366,7 @@ div#sys_messages {
 }
 
 div.form {
-    margin-left: 20px;
+    margin: 20px 0px 0px 0px;
 }    
 
 form td {
@@ -376,6 +376,11 @@ form td {
 
 form th {
     vertical-align: top;
+    text-align: right;
+}
+
+form div {
+    margin-bottom: 10px;
 }
 
 table.message_table th {

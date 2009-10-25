@@ -9,12 +9,12 @@
   {% for object in topics_list %}
   <li> 
     <div id="topic_div{{ object.id }}">
-      <a class="title" href={{ object.url }}>{{ object.title }}</a> <br />
+      <a class="title" href={{ object.url }} {% if newwin %}target="_blank"{% endif %}>{{ object.title }}</a> <br />
       <div class="comment-menu">
 	submitted by <a href="/users/u/{{ object.user }}/profile/">{{ object.user }}</a>
 	{{ object.get_elapsed }} ago | 
 	{% with object.comment_set.count as num %}
-	<a href = "/{{ object.id }}">{{ num }} comment{{ num|pluralize }}</a>
+	<a href="/{{ object.id }}" {% if newwin %}target="_blank"{% endif %}>{{ num }} comment{{ num|pluralize }}</a>
 	{% endwith %}
 	{% ifequal request.user object.user %}
 	| <a href="/edit/{{ object.id }}/{{ page }}">edit</a>

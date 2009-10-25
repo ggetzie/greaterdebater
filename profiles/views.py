@@ -10,7 +10,8 @@ from django.views.generic import list_detail
 from tcd.comments.models import Comment, tcdMessage
 from tcd.items.models import Topic, Argument
 from tcd.items.views import object_list_field, object_list_foreign_field, calc_start
-from tcd.profiles.forms import tcdUserCreationForm, tcdPasswordResetForm, tcdLoginForm, forgotForm, FeedbackForm
+from tcd.profiles.forms import tcdUserCreationForm, tcdPasswordResetForm, tcdLoginForm, \
+    forgotForm, FeedbackForm, SettingsForm
 from tcd.profiles.models import Profile, Forgotten
 from tcd.utils import random_string
 
@@ -99,19 +100,91 @@ def profile(request, value):
                                'user_info': user_info,},
                               context_instance=RequestContext(request))
 
-def profile_args(request, value, page=1):
-    """Display a list of all arguments a user has been involved in."""
+def profile_topics(request, value, page=1):
     paginate_by = 10
     user = get_object_or_404(User, username=value)
+    topics = Topic.objects.filter(user=user).order_by('-sub_date')
+
+    if request.user.is_authenticated():        
+        prof = get_object_or_404(Profile, user=request.user)
+        newwin = prof.newwin
+    else:
+        newwin = False
+
+    return list_detail.object_list(request=request,
+                                   queryset=topics,
+                                   paginate_by=paginate_by,
+                                   page=page,
+                                   template_name="registration/profile/profile_tops.html",
+                                   template_object_name='topics',
+                                   extra_context={'username': user,
+                                                  'start': calc_start(page, paginate_by, topics.count()),
+                                                  'newwin': newwin})
+
+
+def profile_args(request, value):
+    """Display a list of all arguments a user has been involved in."""
+
+    user = get_object_or_404(User, username=value)
     args = user.defendant_set.all() | user.plaintiff_set.all()
+    pending = args.filter(status=0).order_by('-start_date')    
+    current = args.filter(status__range=(1,2)).order_by('-start_date')
+    complete = args.filter(status__range=(3,6)).order_by('-start_date')
+    
+    if request.user.is_authenticated():
+        prof = get_object_or_404(Profile, user=request.user)
+        newwin = prof.newwin
+    else:
+        newwin = False
+
+    return render_to_response("registration/profile/profile_args.html",
+                              {'username': user,
+                               'pending': pending[:5],
+                               'more_pending': len(pending) > 5,
+                               'current': current[:5],
+                               'more_current': len(current) > 5,
+                               'complete': complete[:5],
+                               'more_complete': len(complete) > 5,
+                               'newwin': newwin
+                               },
+                              context_instance=RequestContext(request))
+
+def profile_all_args(request, value, aset, page=1):
+
+    paginate_by = 10
+
+    user = get_object_or_404(User, username=value)
+    
+    if request.user.is_authenticated():
+        prof = get_object_or_404(Profile, user=request.user)
+        newwin = prof.newwin
+    else:
+        newwin = False
+    
+    if aset == "pending":
+        status = (0,0)
+        title = "Pending"
+    elif aset == "current":
+        status = (1,2)
+        title = "Active"
+    elif aset == "complete":
+        status = (3,6)
+        title = "Completed"
+        
+
+    args = user.defendant_set.filter(status__range=status) |  user.plaintiff_set.filter(status__range=status)
+
     return list_detail.object_list(request=request,
                                    queryset=args.order_by('-start_date'),
                                    paginate_by=paginate_by,
                                    page=page,
-                                   template_name="registration/profile/profile_args.html",
+                                   template_name="registration/profile/all_args.html",
                                    template_object_name='args',
                                    extra_context={'username': user,
-                                                  'start': calc_start(page, paginate_by, args.count())})
+                                                  'start': calc_start(page, paginate_by, args.count()),
+                                                  'aset': aset,
+                                                  'newwin': newwin,
+                                                  'title': title})
 
 def profile_msgs(request, value, page=1):
     """ Display a list of all the user's messages. Only display if the user
@@ -164,9 +237,26 @@ def profile_stgs(request, value):
     """ Display the users current settings and allow them to be modified """
     
     user = get_object_or_404(User, username=value)
+    prof = get_object_or_404(Profile, user=user)
+
     if request.user == user:
+
+        if request.POST:
+            form = SettingsForm(request.POST)
+            if form.is_valid():
+                user.email = form.cleaned_data['email']
+                prof.newwin = form.cleaned_data['newwindows']
+                user.save()
+                prof.save()
+        else:
+            form = SettingsForm({'newwindows': prof.newwin,
+                                 'request_email': user.email,
+                                 'email': user.email})
+
+
         return render_to_response("registration/profile/settings.html",
-                                  {'username': user},
+                                  {'username': user,
+                                   'form': form},
                                   context_instance=RequestContext(request))
     else:
         return HttpResponseForbidden("<h1>Unauthorized</h1>")

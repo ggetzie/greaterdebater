@@ -80,3 +80,17 @@ class FeedbackForm(forms.Form):
         if subj == '':
             subj = "GreaterDebater Feedback"
         return subj
+
+class SettingsForm(forms.Form):
+    request_email = forms.EmailField(widget=forms.widgets.HiddenInput())
+    email = forms.EmailField(label="Email")
+    newwindows = forms.BooleanField(label="Open links in new window", required=False)
+    
+    def clean_email(self):
+        email = self.cleaned_data.get('email', '')
+        request_email = self.cleaned_data.get('request_email', '')
+        if email == request_email:
+            return email
+        if User.objects.filter(email=email):
+            raise forms.ValidationError("A user with that email address already exists")
+        return email

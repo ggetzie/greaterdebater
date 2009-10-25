@@ -1,0 +1,20 @@
+{% extends "registration/profile/profile_base.html" %}
+
+{% block title %}{{ username }}'s arguments{% endblock %}
+
+
+{% block content %}
+<h3 class="prof-head">{{ title }} Arguments</h3>
+{% include "items/arg_list.html" %}
+
+<div class="pages">
+  {% if has_previous %}
+  <a id="prev" href="/users/u/{{ username }}/arguments/{{ aset }}/{{ previous }}/">prev</a>
+  {% endif %}
+
+  {% if has_next %}
+  <a id="next" href="/users/u/{{ username }}/arguments/{{ aset }}/{{ next }}/">next</a>
+  {% endif %}
+</div>
+
+{% endblock %}

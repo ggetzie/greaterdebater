@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 class Profile(models.Model):
     user = models.ForeignKey(User, unique=True)
     score = models.IntegerField()
+    newwin = models.BooleanField(default=False)
+    mailok = models.BooleanField(default=False)
     
     def __unicode__(self):
         return self.user.username
