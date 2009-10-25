@@ -248,6 +248,7 @@ def profile_stgs(request, value):
                 prof.newwin = form.cleaned_data['newwindows']
                 user.save()
                 prof.save()
+                request.user.message_set.create(message="Changes saved.")
         else:
             form = SettingsForm({'newwindows': prof.newwin,
                                  'request_email': user.email,
