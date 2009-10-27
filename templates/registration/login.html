@@ -25,5 +25,24 @@ onLoad="document.forms.login.email.focus()"
   <p>
     <a href="/users/forgot">Forgot Password?</a>
   </p>
+  <p>
+    Don't have an account? Create one with the form below.
+  </p>
+</div>
+
+<div class="login-form">
+  <h3>Create an account</h3>
+
+  <form action="/users/register/" method="post" name="register">
+    {% if rform.error_dict %}
+    <p class="error">Please correct the errors below.</p>
+    {% endif %}
+    <table>
+      {{ rform }}
+      <tr>
+	<td><input type="hidden" name="next" value={{ redirect|escape }} /></td>
+	<td><input type="submit" value="Create account" /></td></tr>
+    </table>
+  </form>
 </div>
 {% endblock %}

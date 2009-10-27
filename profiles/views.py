@@ -81,12 +81,14 @@ account. Please check your email and follow the link provided to reset your pass
                 message = "Sorry, that's not a valid username or password"
     else:
         form = tcdLoginForm()
+        rform = tcdUserCreationForm()
         if 'next' in request.GET:
             next = request.GET['next']
         else:
             next = "/"
     return render_to_response("registration/login.html",
                               {'form': form,
+                               'rform': rform,
                                'redirect': next,
                                'message': message})
 def profile(request, value):

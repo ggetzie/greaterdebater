@@ -2,9 +2,13 @@
 
 {% block title %}Create an account{% endblock %}
 
+{% block bodyatt %}
+onLoad="document.forms.register.username.focus()"
+{% endblock %}
+
 {% block content %}
 <h3>Create an account</h3>
-<form action="." method="post">
+<form action="." method="post" name="register">
   {% if form.error_dict %}
   <p class="error">Please correct the errors below.</p>
   {% endif %}

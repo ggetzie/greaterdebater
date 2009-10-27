@@ -16,7 +16,7 @@ from tcd.comments.utils import build_list
 from tcd.items.forms import tcdTopicSubmitForm, Ballot, Flag, Concession, Response, TagEdit
 from tcd.items.models import Topic, Argument, Vote, Tags
 
-from tcd.profiles.forms import tcdLoginForm
+from tcd.profiles.forms import tcdLoginForm, tcdUserCreationForm
 from tcd.profiles.models import Profile
 
 from tcd.utils import calc_start
@@ -267,7 +267,8 @@ def submit(request):
         return render_to_response("registration/login.html",
                                   {'redirect': redirect,
                                    'message': "Please log in to submit a topic",
-                                   'form': tcdLoginForm()},
+                                   'form': tcdLoginForm(),
+                                   'rform': tcdUserCreationForm()},
                                   context_instance=RequestContext(request))
 
 def edit_topic(request, topic_id, page):
@@ -720,7 +721,7 @@ def respond_draw(request):
                 status = "ok"
                 arg_status = arg.get_status()
             else:
-                response_message = "You can't responsd to this draw offer"                
+                response_message = "You can't respond to this draw offer"                
         else:
             response_message = "Invalid Form"
     else:
