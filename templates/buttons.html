@@ -14,11 +14,9 @@ Add GreaterDebater to your blog!
   <pre>
     &lt;a href="http://www.greaterdebater.com/submit" onclick="window.location =
     'http://www.greaterdebater.com/submit?url=' +
-    'encodeURIComponent(window.location)'
-    + &title=' + encodeURIComponent(window.title); return false;"&gt;Debate It!&lt;/a&gt;
+    encodeURIComponent(window.location)
+    + '&title=' + encodeURIComponent(document.title); return false;"&gt;Debate It!&lt;/a&gt;
   </pre>
 
-
-  
 </div>
 {% endblock %}
