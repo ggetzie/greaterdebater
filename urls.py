@@ -16,6 +16,7 @@ urlpatterns = patterns('',
                        (r'^help/$', 'django.views.generic.simple.direct_to_template', {'template': 'help.html'}),                       
                        (r'^tos/$', 'django.views.generic.simple.direct_to_template', {'template': 'tos.html'}),
                        (r'^privacy/$', 'django.views.generic.simple.direct_to_template', {'template': 'privacy.html'}),
+                       (r'^buttons/$', 'django.views.generic.simple.direct_to_template', {'template': 'buttons.html'}),
                        (r'^feeds/(?P<url>.*)/$', 'django.contrib.syndication.views.feed',
                         {'feed_dict': feeds}),
                        (r'', include('tcd.items.urls'))

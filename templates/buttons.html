@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}
+Add GreaterDebater to your blog!
+{% endblock %}
+
+{% block content %}
+<div class="blogbuttons">
+  <h2>For Bloggers</h2>
+  <p>
+    Add the code below to your blog or website to allow readers to
+    easily submit your posts to GreaterDebater.
+  </p>
+  <pre>
+    &lt;a href="http://www.greaterdebater.com/submit" onclick="window.location =
+    'http://www.greaterdebater.com/submit?url=' +
+    'encodeURIComponent(window.location)'
+    + &title=' + encodeURIComponent(window.title); return false;"&gt;Debate It!&lt;/a&gt;
+  </pre>
+
+
+  
+</div>
+{% endblock %}

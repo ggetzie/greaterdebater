@@ -75,9 +75,11 @@ account. Please check your email and follow the link provided to reset your pass
                         return HttpResponseRedirect(next)                
                     else:
                         form = tcdLoginForm()
+                        rform = tcdUserCreationForm()
                         message = "Sorry, that's not a valid username or password"
             except ObjectDoesNotExist:
                 form = tcdLoginForm()
+                rform = tcdUserCreationForm()
                 message = "Sorry, that's not a valid username or password"
     else:
         form = tcdLoginForm()
