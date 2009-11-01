@@ -105,7 +105,7 @@ def profile(request, value):
                               context_instance=RequestContext(request))
 
 def profile_topics(request, value, page=1):
-    paginate_by = 10
+    paginate_by = 25
     user = get_object_or_404(User, username=value)
     topics = Topic.objects.filter(user=user).order_by('-sub_date')
 
@@ -124,6 +124,19 @@ def profile_topics(request, value, page=1):
                                    extra_context={'username': user,
                                                   'start': calc_start(page, paginate_by, topics.count()),
                                                   'newwin': newwin})
+
+def profile_saved(request, tag=None):
+    paginate_by = 25
+    user = get_object_or_404(User, username=value)
+    if user == request.user:
+        tags = Tags.objects.filter(user=user).exclude(topic__user=user)
+        tdict = {}
+        for tag in tags:
+            pass
+        if tag:
+            tags = tags.filter(tags__contains=tag)
+    else:
+        return HttpResponseForbidden("<h1>Unauthorized</h1>")
 
 
 def profile_args(request, value):

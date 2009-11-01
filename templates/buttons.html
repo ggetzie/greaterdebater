@@ -11,11 +11,34 @@ Add GreaterDebater to your blog!
     Add the code below to your blog or website to allow readers to
     easily submit your posts to GreaterDebater.
   </p>
+
+  <a href="http://www.greaterdebater.com/submit" 
+     onclick="window.location =
+	      'http://www.greaterdebater.com/submit?url=' +
+	      encodeURIComponent(window.location)
+	      + '&title=' + encodeURIComponent(document.title); return false;">Debate It!</a>
+
   <pre>
     &lt;a href="http://www.greaterdebater.com/submit" onclick="window.location =
     'http://www.greaterdebater.com/submit?url=' +
     encodeURIComponent(window.location)
     + '&title=' + encodeURIComponent(document.title); return false;"&gt;Debate It!&lt;/a&gt;
+  </pre>
+
+  <a href="http://www.greaterdebater.com/submit" 
+     onclick="window.location =
+	      'http://www.greaterdebater.com/submit?url=' +
+	      encodeURIComponent(window.location)
+	      + '&title=' + encodeURIComponent(document.title); return false;">
+    <img src="http://www.greaterdebater.com/static/gd-small.png" /></a>
+
+  <pre>
+    &lt;a href="http://www.greaterdebater.com/submit" 
+       onclick="window.location =
+		'http://www.greaterdebater.com/submit?url=' +
+		encodeURIComponent(window.location)
+		+ '&title=' + encodeURIComponent(document.title); return false;"&gt;
+      &lt;img src="http://www.greaterdebater.com/static/gd-small.png" /&gt;&lt;/a&gt;
   </pre>
 
 </div>
