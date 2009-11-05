@@ -41,3 +41,25 @@ def time_plural(num, unit):
         return ''.join([str(num), " ", unit, "s"])
 
     
+def tag_dict(tag_string):
+    """returns a dictionary where keys are tags and values
+    are the count of how many users have used that tag for
+    this topic"""
+    if tag_string == '':
+        return {}
+    else:
+        kv = [row.split(',') for row in tag_string.split('\n')]        
+        return dict(zip(kv[0], [int(s) for s in kv[1]]))
+
+def tag_string(tag_dict):
+    """Takes a dictionary of tags and tag counts and returns
+    a string in comma separated format"""
+    tags = []
+    counts = []
+    tag_items = tag_dict.items()
+    tag_items.sort(cmp=lambda x, y: cmp(x[1], y[1]), reverse=True)
+    for k, v in tag_items:
+        tags.append(k)
+        counts.append(v)
+    return "\n".join([",".join(tags), 
+                      ",".join([str(i) for i in counts])])

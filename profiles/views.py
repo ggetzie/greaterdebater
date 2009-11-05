@@ -129,12 +129,17 @@ def profile_saved(request, tag=None):
     paginate_by = 25
     user = get_object_or_404(User, username=value)
     if user == request.user:
-        tags = Tags.objects.filter(user=user).exclude(topic__user=user)
+        user_tags = Tags.objects.filter(user=user).exclude(topic__user=user)
         tdict = {}
-        for tag in tags:
-            pass
+        for this_tag in user_tags:
+            tag_list = ','.split(this_tag.tags)
+            for t in tag_list:
+                try:
+                    tdict[t] += 1
+                except KeyError:
+                    tdcit[t] = 0                
         if tag:
-            tags = tags.filter(tags__contains=tag)
+            user_tags = user_tags.filter(tags__contains=tag)
     else:
         return HttpResponseForbidden("<h1>Unauthorized</h1>")
 

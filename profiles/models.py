@@ -6,6 +6,7 @@ class Profile(models.Model):
     score = models.IntegerField()
     newwin = models.BooleanField(default=False)
     mailok = models.BooleanField(default=False)
+#    usertags = models.TextField(blank=True)
     
     def __unicode__(self):
         return self.user.username

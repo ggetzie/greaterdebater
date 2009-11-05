@@ -19,7 +19,7 @@ from tcd.items.models import Topic, Argument, Vote, Tags
 from tcd.profiles.forms import tcdLoginForm, tcdUserCreationForm
 from tcd.profiles.models import Profile
 
-from tcd.utils import calc_start
+from tcd.utils import calc_start, tag_dict, tag_string
 
 
 import datetime
@@ -212,15 +212,14 @@ def submit(request):
                     topic = Topic.objects.get(url=form.cleaned_data['url'])
                     return HttpResponseRedirect(''.join(["/", str(topic.id), "/"]))
                 except ObjectDoesNotExist:
-                    dtags = form.cleaned_data['tags']
-                    tags = '\n'.join([dtags, ','.join(['1']*(dtags.count(',')+1))])
+
+
                     topic = Topic(user=request.user,
                                   title=form.cleaned_data['title'],
                                   score=1,
                                   sub_date=datetime.datetime.now(),
                                   comment_length=0,
-                                  last_calc=datetime.datetime.now(),
-                                  tags = tags
+                                  last_calc=datetime.datetime.now()
                                   )
                     topic.save()
                     next = ''.join(["/", str(topic.id), "/"])
@@ -228,9 +227,16 @@ def submit(request):
                         topic.url = form.cleaned_data['url']
                     else:
                         topic.url = next
+
+                    dtags = form.cleaned_data['tags']
+                    if dtags:
+                        tags = '\n'.join([dtags, ','.join(['1']*(dtags.count(',')+1))])
+                        topic.tags = tags
+                        utags = Tags(user=request.user, topic=topic, tags=dtags)
+                        utags.save()
+
                     topic.save()
-                    utags = Tags(user=request.user, topic=topic, tags=dtags)
-                    utags.save()
+                                            
                     if form.cleaned_data['comment']:
                         comment = Comment(user=request.user,
                                           topic=topic,
@@ -324,7 +330,7 @@ def addtags(request):
             user = request.user
             top = get_object_or_404(Topic, pk=form.cleaned_data['topic_id'])
             new_tags = form.cleaned_data['tags']
-            current_tags = top.tag_dict(top.tags)
+            current_tags = tag_dict(top.tags)
             try:
                 current_user_tags = Tags.objects.get(user=user, topic=top)
                 cutags = current_user_tags.tags.split(',')
@@ -348,7 +354,7 @@ def addtags(request):
             current_user_tags.tags = ','.join(cutags)
             current_user_tags.save()
 
-            top.tags = top.tag_string(current_tags)
+            top.tags = tag_string(current_tags)
             top.save()
 
             t = loader.get_template('items/tag_div.html')

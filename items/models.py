@@ -15,7 +15,10 @@ class Topic(models.Model):
     user = models.ForeignKey(User)
     comment_length = models.IntegerField()
     last_calc = models.DateTimeField('last score calculation')
-    tflaggers = models.ManyToManyField(User, verbose_name="Users who flagged this topic as spam", related_name='tflaggers_set')
+    tflaggers = models.ManyToManyField(User, 
+                                       verbose_name="Users who flagged this topic as spam", 
+                                       related_name='tflaggers_set',
+                                       blank=True)
     needs_review = models.BooleanField(default=False)
     tags = models.TextField()
 
@@ -44,29 +47,6 @@ class Topic(models.Model):
         else:
             return "greaterdebater.com"
 
-    def tag_dict(self, tag_string):
-        """returns a dictionary where keys are tags and values
-        are the count of how many users have used that tag for
-        this topic"""
-        if tag_string == '':
-            return {}
-        else:
-            kv = [row.split(',') for row in tag_string.split('\n')]        
-            return dict(zip(kv[0], [int(s) for s in kv[1]]))
-    
-    def tag_string(self, tag_dict):
-        """Takes a dictionary of tags and tag counts and returns
-        a string in comma separated format"""
-        tags = []
-        counts = []
-        tag_items = tag_dict.items()
-        tag_items.sort(cmp=lambda x, y: cmp(x[1], y[1]), reverse=True)
-        for k, v in tag_items:
-            tags.append(k)
-            counts.append(v)
-        return "\n".join([",".join(tags), 
-                          ",".join([str(i) for i in counts])])
-    
     def display_tags(self):
         if self.tags:
             return self.tags.split('\n')[0].split(',')
