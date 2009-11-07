@@ -239,7 +239,7 @@ def submit(request):
                         utags.save()
                         
                         # update the count of all tags used by the submitter
-                        prof = Profile.objects.get(user=user)
+                        prof = Profile.objects.get(user=request.user)
                         prof.tags = update_tags(prof.tags, dtags.split(','))
                         prof.save()
 
