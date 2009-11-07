@@ -41,30 +41,36 @@ def time_plural(num, unit):
         return ''.join([str(num), " ", unit, "s"])
 
     
-def tag_dict(tag_string):
+def tag_dict(tag_str):
     """returns a dictionary where keys are tags and values
     are the count of how many users have used that tag for
     this topic"""
-    if tag_string == '':
+    if tag_str == '':
         return {}
     else:
-        kv = [row.split(',') for row in tag_string.split('\n')]        
+        kv = [row.split(',') for row in tag_str.split('\n')]        
         return dict(zip(kv[0], [int(s) for s in kv[1]]))
 
-def tag_string(tag_dict):
+def tag_string(tag_d):
     """Takes a dictionary of tags and tag counts and returns
     a string in comma separated format"""
     tags = []
     counts = []
-    tag_items = tag_dict.items()
-    tag_items.sort(cmp=lambda x, y: cmp(x[1], y[1]), reverse=True)
-    for k, v in tag_items:
-        tags.append(k)
-        counts.append(v)
-    return "\n".join([",".join(tags), 
-                      ",".join([str(i) for i in counts])])
+    tag_items = tag_d.items()
+    if tag_items:
+        tag_items.sort(cmp=lambda x, y: cmp(x[1], y[1]), reverse=True)
+        for k, v in tag_items:
+            tags.append(k)
+            counts.append(v)
+        return "\n".join([",".join(tags), 
+                          ",".join([str(i) for i in counts])])
+    else:
+        return ''
 
 def remove_blank_tags(obj):
+    """check a string of tags and tag counts for an entry where the
+    tag is an empty string and remove that entry
+    """
     if obj.tags:
         td = tag_dict(obj.tags)
         newtd = {}
@@ -73,3 +79,24 @@ def remove_blank_tags(obj):
                 newtd[k] = v
         obj.tags = tag_string(newtd)
         obj.save()
+
+
+def update_tags(oldtagstr, newtaglst):
+    """oldtagstr is a string with a comma seperated list of tags and a
+    comma seperated list of tag counts seperated by a newline.
+    e.g. 'politics,funny,technology\n7,5,2' 
+    
+    newtaglst is a list of strings to be added, increment the count if
+    the tag is already present, or add a new entry with a count of 1
+    if it's not.
+
+    return a new string in the same format as oldtagstr with the new
+    entries and counts
+    """
+    td = tag_dict(oldtagstr)
+    for tag in newtaglst:
+        if tag in td:
+            td[tag] += 1
+        else:
+            td[tag] = 1
+    return tag_string(td)

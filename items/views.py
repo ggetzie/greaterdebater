@@ -19,7 +19,7 @@ from tcd.items.models import Topic, Argument, Vote, Tags
 from tcd.profiles.forms import tcdLoginForm, tcdUserCreationForm
 from tcd.profiles.models import Profile
 
-from tcd.utils import calc_start, tag_dict, tag_string
+from tcd.utils import calc_start, tag_dict, tag_string, update_tags
 
 
 import datetime
@@ -213,7 +213,6 @@ def submit(request):
                     return HttpResponseRedirect(''.join(["/", str(topic.id), "/"]))
                 except ObjectDoesNotExist:
 
-
                     topic = Topic(user=request.user,
                                   title=form.cleaned_data['title'],
                                   score=1,
@@ -230,10 +229,19 @@ def submit(request):
 
                     dtags = form.cleaned_data['tags']
                     if dtags:
+                        # create the count of all tags for the topic
                         tags = '\n'.join([dtags, ','.join(['1']*(dtags.count(',')+1))])
                         topic.tags = tags
+                        
+                        # create a Tags object to indicate the submitter
+                        # added these tags to this topic                        
                         utags = Tags(user=request.user, topic=topic, tags=dtags)
                         utags.save()
+                        
+                        # update the count of all tags used by the submitter
+                        prof = Profile.objects.get(user=user)
+                        prof.tags = update_tags(prof.tags, dtags.split(','))
+                        prof.save()
 
                     topic.save()
                                             
@@ -328,34 +336,33 @@ def addtags(request):
         form = TagEdit(request.POST)
         if form.is_valid():
             user = request.user
+            prof = get_object_or_404(Profile, user=user)
             top = get_object_or_404(Topic, pk=form.cleaned_data['topic_id'])
-            new_tags = form.cleaned_data['tags']
-            current_tags = tag_dict(top.tags)
+
+            new_tags = form.cleaned_data['tags'].split(',')
+            unique_tags = []
             try:
                 current_user_tags = Tags.objects.get(user=user, topic=top)
                 cutags = current_user_tags.tags.split(',')
             except ObjectDoesNotExist:
                 current_user_tags = Tags(user=user, topic=top, tags='')
                 cutags = []
-            new_tags = new_tags.split(',')
 
-            # add new tags to the list of tags added by this user
-            # and to the list of all tags for this topic
-            # don't add to the user's list if it's already in there
-            # if it's already in the global list, just increase the count by one
+            # don't let a user add a particular tag to a particular
+            # topic more than once
             for tag in new_tags:
                 if not tag in cutags:
                     cutags.append(tag)
-                    try:
-                        current_tags[tag] += 1
-                    except KeyError:
-                        current_tags[tag] = 1
+                    unique_tags.append(tag)
 
             current_user_tags.tags = ','.join(cutags)
             current_user_tags.save()
-
-            top.tags = tag_string(current_tags)
+            
+            top.tags = update_tags(top.tags, unique_tags)
             top.save()
+
+            prof.tags = update_tags(prof.tags, unique_tags)
+            prof.save()
 
             t = loader.get_template('items/tag_div.html')
             c = Context({'object': top,

@@ -10,6 +10,7 @@ from tcd.utils import tag_string, tag_dict
 def utagsetup():
     allprofs = Profile.objects.all()
     for prof in allprofs:
+        print "%s's profile" % prof.user.username
         td = tag_dict(prof.tags)
         utags = Tags.objects.filter(user=prof.user)
         for thistags in utags:
