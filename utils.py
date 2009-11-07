@@ -63,3 +63,13 @@ def tag_string(tag_dict):
         counts.append(v)
     return "\n".join([",".join(tags), 
                       ",".join([str(i) for i in counts])])
+
+def remove_blank_tags(obj):
+    if obj.tags:
+        td = tag_dict(obj.tags)
+        newtd = {}
+        for k, v in td.items():
+            if k:
+                newtd[k] = v
+        obj.tags = tag_string(newtd)
+        obj.save()
