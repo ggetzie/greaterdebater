@@ -8,16 +8,17 @@ from django.template import loader, RequestContext
 from django.views.generic import list_detail
 
 from tcd.comments.models import Comment, tcdMessage
-from tcd.items.models import Topic, Argument
+from tcd.items.models import Topic, Argument, Tags
 from tcd.items.views import object_list_field, object_list_foreign_field, calc_start
 from tcd.profiles.forms import tcdUserCreationForm, tcdPasswordResetForm, tcdLoginForm, \
     forgotForm, FeedbackForm, SettingsForm
 from tcd.profiles.models import Profile, Forgotten
-from tcd.utils import random_string
+from tcd.utils import random_string, tag_dict, tag_string
 
 import datetime
 import MySQLdb
 import pyfo
+import urllib
 
 def register(request):
     """Create an account for a new user"""
@@ -125,21 +126,30 @@ def profile_topics(request, value, page=1):
                                                   'start': calc_start(page, paginate_by, topics.count()),
                                                   'newwin': newwin})
 
-def profile_saved(request, tag=None):
+def profile_saved(request, value, tag=None, page=1):
     paginate_by = 25
     user = get_object_or_404(User, username=value)
+
     if user == request.user:
-        user_tags = Tags.objects.filter(user=user).exclude(topic__user=user)
-        tdict = {}
-        for this_tag in user_tags:
-            tag_list = ','.split(this_tag.tags)
-            for t in tag_list:
-                try:
-                    tdict[t] += 1
-                except KeyError:
-                    tdcit[t] = 0                
+        prof = get_object_or_404(Profile, user=request.user)
+        user_tags = Tags.objects.filter(user=user)
         if tag:
             user_tags = user_tags.filter(tags__contains=tag)
+
+        utags = tag_dict(prof.tags)
+
+        return list_detail.object_list(request=request,
+                                       queryset=user_tags,
+                                       paginate_by=paginate_by,
+                                       page=page,
+                                       template_name="registration/profile/profile_savd.html",
+                                       template_object_name='user_tags',
+                                       extra_context={'username': user,
+                                                      'start': calc_start(page, paginate_by, user_tags.count()),
+                                                      'newwin': prof.newwin,
+                                                      'utags': utags.keys(),
+                                                      'filter_tag': tag
+                                                      })
     else:
         return HttpResponseForbidden("<h1>Unauthorized</h1>")
 

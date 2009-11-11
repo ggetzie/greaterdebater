@@ -42,6 +42,16 @@ urlpatterns = patterns('',
                        (r'^submissions/?$', 'tcd.profiles.views.profile_topics'),
                        (r'^submissions/(?P<page>(\d+|last))/?$', 'tcd.profiles.views.profile_topics'),
 
+                       # Display all the topics a user has saved by tagging, paginated
+                       (r'^saved/?$', 'tcd.profiles.views.profile_saved'),
+                       (r'^saved/page/(?P<page>(\d+|last))/?$', 'tcd.profiles.views.profile_saved'),
+
+                       # Display all the topics a user has tagged with
+                       # a particular tag, paginated
+                       (r'^saved/(?P<tag>[A-Za-z\d\s]+)/?$', 'tcd.profiles.views.profile_saved'),
+                       (r'^saved/(?P<tag>[A-Za-z\d\s]+)/page/(?P<page>(\d+|last))/?$', 
+                        'tcd.profiles.views.profile_saved'),
+
                        # Display a list of messages for the user
                        (r'^messages/?$', 'tcd.profiles.views.profile_msgs'), 
                        (r'^messages/page/(?P<page>(\d+|last))/?$', 'tcd.profiles.views.profile_msgs'), 

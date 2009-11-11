@@ -1,0 +1,82 @@
+{% extends "registration/profile/profile_base.html" %}
+
+{% block title %}Saved Topics{% endblock %}
+
+{% block content %}
+<h3 class="prof-head">Your Tags</h3>
+<div class="tags">
+{% for tag in utags %}
+<a href="/users/u/{{ username }}/saved/{{ tag }}/">{{ tag }}</a>{% if not forloop.last %},{% endif %}
+{% endfor %}
+</div>
+
+{% if filter_tag %}
+<h3 class="prof-head">Topics You Tagged: {{ filter_tag }}</h3>
+{% else %}
+<h3 class="prof-head">Saved Topics</h3>
+{% endif %}
+
+{% if filter_tag %}
+<p>
+  <a href="/users/u/{{ username }}/saved/">Show all saved topics</a>
+</p>
+{% endif %}
+
+{% if user_tags_list %}
+<ul class="topic-list">
+  {% for object in user_tags_list %}
+
+  <li> 
+    <div id="topic_div{{ object.topic.id }}">
+      <a class="title" href={{ object.topic.url }} {% if newwin %}target="_blank"{% endif %}>{{ object.topic.title }}</a> <br />
+      <div class="comment-menu">
+	submitted by <a href="/users/u/{{ object.topic.user }}/profile/">{{ object.topic.user }}</a>
+	{{ object.topic.get_elapsed }} ago | 
+	{% with object.topic.comment_set.count as num %}
+	<a href="/{{ object.topic.id }}" {% if newwin %}target="_blank"{% endif %}>{{ num }} comment{{ num|pluralize }}</a>
+	{% endwith %}
+	<div id="tags{{ object.topic.id }}" class="tags">
+	  {% with object.display_tags as tags %}
+	  {% if tags %}
+	  Tags: {% for tag in tags|slice:":5" %} {{ tag }}{% if not forloop.last %},{% endif %} {% endfor%}
+	  <a id="moretags{{ object.topic.id }}" href='#' onclick="showalltags({{ object.topic.id }}); return false;">more...</a>
+	  {% else %}
+	  <a id="moretags{{ object.topic.id }}" href='#' onclick="showalltags({{ object.topic.id }}); return false;">Add Tags...</a>
+	  {% endif %}
+	  <div id="fulltags{{ object.topic.id }}" class="tags confirm">
+	    {% for tag in tags|slice:"5:" %} {{ tag }}{% if not forloop.last %},{% endif %} {% endfor %}
+	    <div class="tag-form">
+	      <div><input type="hidden" name="topic_id" value={{ object.topic.id }} /></div>
+	      <div>
+		<input type="text" name="tags" id="tag_text{{ object.topic.id }}" />
+		<button onclick="addtags({{ object.topic.id }}); return false;" name="Add">Add</button>
+	      </div>	
+	    </div>   
+	    <a id="hidetags{{ object.topic.id }}" href='#' onclick="showalltags({{ object.topic.id }}); return false;">hide</a>
+	  </div>
+	  {% endwith %}
+	</div>	
+
+      </div>
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+
+<div class="pages">
+  {% if has_previous %}
+  <a id="prev" href="/users/u/{{ username }}/saved/{% if filter_tag %}filter_tag/{% endif %}page/{{ previous }}/">prev</a>
+  {% endif %}
+
+  {% if has_next %}
+  <a id="next" href="/users/u/{{ username }}/saved/{% if filter_tag %}filter_tag/{% endif %}page/{{ next }}/">next</a>
+  {% endif %}
+</div>
+
+{% else %}
+<p>No topics are available</p>
+{% endif %}
+{% endblock %}
+
+
+

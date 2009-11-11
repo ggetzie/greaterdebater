@@ -34,7 +34,7 @@ class Topic(models.Model):
         return elapsed_time(self.sub_date)
 
     def recalculate(self):
-        # a topic's score is (total length of all comments) / (minutes elapsed since topic submitted)
+        # a topic's score is (total length of all comments) / (hours elapsed since topic submitted)^2
         delta = datetime.datetime.now() - self.sub_date
         time = (delta.days * 24) + (delta.seconds / (60 * 60)) + 1 # add 1 to avoid dividing by zero
         self.score = self.comment_length / float(time * time)
@@ -193,3 +193,6 @@ class Tags(models.Model):
     topic = models.ForeignKey(Topic, related_name="tagged_topic")
     user = models.ForeignKey(User)
     tags = models.TextField()
+
+    def display_tags(self):
+        return self.tags.split(',')

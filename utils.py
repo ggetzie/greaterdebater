@@ -80,6 +80,15 @@ def remove_blank_tags(obj):
         obj.tags = tag_string(newtd)
         obj.save()
 
+def remove_blank_user_tags(ut):
+    """check a string of tags and tag counts for an entry where the
+    tag is an empty string and remove that entry
+    """
+    if ut.tags[0] == ',':
+        ut.tags = ut.tags[1:]
+    ut.tags = ut.tags.replace(',,', ',')
+    ut.save()
+
 
 def update_tags(oldtagstr, newtaglst):
     """oldtagstr is a string with a comma seperated list of tags and a
