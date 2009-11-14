@@ -48,8 +48,8 @@ urlpatterns = patterns('',
 
                        # Display all the topics a user has tagged with
                        # a particular tag, paginated
-                       (r'^saved/(?P<tag>[A-Za-z\d\s]+)/?$', 'tcd.profiles.views.profile_saved'),
-                       (r'^saved/(?P<tag>[A-Za-z\d\s]+)/page/(?P<page>(\d+|last))/?$', 
+                       (r'^saved/(?P<tag>[\w\s\'!@\?\$%#&]+)/?$', 'tcd.profiles.views.profile_saved'),
+                       (r'^saved/(?P<tag>[\w\s\'!@\?\$%#&]+)/page/(?P<page>(\d+|last))/?$', 
                         'tcd.profiles.views.profile_saved'),
 
                        # Display a list of messages for the user

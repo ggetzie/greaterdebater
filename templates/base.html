@@ -72,6 +72,9 @@
 	      <ul>
 		<li><a href="/hot/">Hot</a></li>
 		<li><a href="/new/">New</a></li>
+		{% if request.user.is_authenticated %}
+		<li><a href="/users/u/{{ request.user }}/saved/">Saved</a></li>		
+		{% endif %}
 	      </ul>
 	    </li>
 	    

@@ -332,6 +332,8 @@ def edit_topic(request, topic_id, page):
 def addtags(request):
     """A user submits tags to add to a topic"""
     error = True
+    tagdiv = 'none'
+    message = 'none'
     if request.POST:
         form = TagEdit(request.POST)
         if form.is_valid():
@@ -364,18 +366,25 @@ def addtags(request):
             prof.tags = update_tags(prof.tags, unique_tags)
             prof.save()
 
-            t = loader.get_template('items/tag_div.html')
-            c = Context({'object': top,
-                         'request': request})
-            message = t.render(c)
+            tagload = loader.get_template('items/tag_div.html')
+            tagcontext = Context({'object': top,
+                                  'request': request})
+            tagdiv = tagload.render(tagcontext)
             error = False
-        else:
-            message = "Invalid Form"
+        else:            
+            message = str(form['tags'].errors)
     else:
         message = "Not a Post"
 
+    c = Context({'message': message,
+                 'id': request.POST['topic_id'],
+                 'fsize': 'font-size: small;',
+                 'nesting': "10"})
+    t = loader.get_template('items/msg_div.html')
+
     response = ('response', [('error', error),                                         
-                             ('message', message)
+                             ('message', t.render(c)),
+                             ('tagdiv', tagdiv)
                              ])
     response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')
     return HttpResponse(response)

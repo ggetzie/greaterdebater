@@ -134,7 +134,12 @@ def profile_saved(request, value, tag=None, page=1):
         prof = get_object_or_404(Profile, user=request.user)
         user_tags = Tags.objects.filter(user=user)
         if tag:
-            user_tags = user_tags.filter(tags__contains=tag)
+            # escape regex meta characters allowed in tags
+            safetag = tag.replace("?", "\?")
+            safetag = safetag.replace("$", "\$")
+            safetag = safetag.replace("'", "\'")
+            
+            user_tags = user_tags.filter(tags__regex="(^|,)" + safetag + "(,|$)")
 
         utags = tag_dict(prof.tags)
 

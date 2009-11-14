@@ -107,11 +107,18 @@ function showalltags(topic_id) {
 function addtags(topic_id) {
     tagdiv = "#tags" + topic_id
     tags = $("#tag_text" + topic_id).val()
+    var oldtags = $(tagdiv).html()
     $(tagdiv).html("Loading...")
     $.post("/topics/addtags/", {topic_id: topic_id,
 				tags: tags},
 	   function(xml) {
-	       $(tagdiv).html($("message", xml).text());
+	       if ($("error", xml).text() == "True") {		   
+		   $(tagdiv).html(oldtags);
+		   $(tagdiv).before($("message", xml).text());
+		
+	       } else {
+		   $(tagdiv).html($("tagdiv", xml).text());
+	       }
 	   });
 }
 

@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.contrib import auth
 from django.shortcuts import get_object_or_404
 
+import re
+
 attrs_dict = {'class': 'required'}
 
 class tcdTopicSubmitForm(forms.Form):
@@ -38,17 +40,18 @@ e.g. Politics, Technology, Funny""")
 class TagEdit(forms.Form):
     topic_id = forms.IntegerField(widget=forms.widgets.HiddenInput())
     tags = forms.CharField(label="Tags", widget=forms.TextInput(attrs={'size':'70'}),
-                           required=False,
                            help_text = """Words or short phrases that describe the topic separated by commas <br />
 e.g. Politics, News, Current Events""")
 
     def clean_tags(self):
         tags = self.cleaned_data.get('tags', '')
-        if tags:
-            tags = tags.split(',')
-            return ','.join([tag.strip().lower() for tag in tags])
-        else:
-            return ''
+        tags = tags.split(',')
+        tags = ','.join([tag.strip().lower() for tag in tags])            
+        if re.search("[^\w\s!@\?\$%#,&']", tags):
+            raise forms.ValidationError(
+                "Only letters, numbers, spaces and characters _ ! @ ? $ % # ' & are allowed in tags")                
+        return tags
+
     
 
 class Ballot(forms.Form):

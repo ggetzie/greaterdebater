@@ -1,3 +1,6 @@
-<div id="msg_div{{ id }}" style="margin: 10px 10px 10px {{ nesting }}px; color: red;">
-  <span>{{ message }} <a href='#' onclick="$('#msg_div{{ id }}').remove(); return false;" style="font-size: small; color: #888888; margin-left: 5px">[X]</a></span>
+<div id="msg_div{{ id }}" style="margin: 10px 10px 10px {{ nesting }}px; color: red; {{ fsize }}">
+  <span>
+    {{ message }} 
+    <a href='#' onclick="$('#msg_div{{ id }}').remove(); return false;" style="font-size: small; color: #888888; margin-left: 5px">[X]</a>
+  </span>
 </div>
