@@ -142,7 +142,8 @@ def profile_saved(request, value, tag=None, page=1):
             user_tags = user_tags.filter(tags__regex="(^|,)" + safetag + "(,|$)")
 
         utags = tag_dict(prof.tags)
-
+        utl = utags.keys()
+        utl.sort()
         return list_detail.object_list(request=request,
                                        queryset=user_tags,
                                        paginate_by=paginate_by,
@@ -152,7 +153,7 @@ def profile_saved(request, value, tag=None, page=1):
                                        extra_context={'username': user,
                                                       'start': calc_start(page, paginate_by, user_tags.count()),
                                                       'newwin': prof.newwin,
-                                                      'utags': utags.keys(),
+                                                      'utags': utl,
                                                       'filter_tag': tag
                                                       })
     else:
