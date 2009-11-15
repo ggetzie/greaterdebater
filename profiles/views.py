@@ -145,7 +145,7 @@ def profile_saved(request, value, tag=None, page=1):
         utl = utags.keys()
         utl.sort()
         return list_detail.object_list(request=request,
-                                       queryset=user_tags,
+                                       queryset=user_tags.order_by('-topic__sub_date'),
                                        paginate_by=paginate_by,
                                        page=page,
                                        template_name="registration/profile/profile_savd.html",
