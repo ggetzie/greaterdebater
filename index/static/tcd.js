@@ -98,10 +98,36 @@ function delete_topic(id) {
 	  );	       
 };
 
-function showalltags(topic_id) {
-    $("#fulltags" + topic_id).toggle();
-    $("#moretags" + topic_id).toggle();
+function showalltags(topic_id, add) {
+    ft = '#fulltags' + topic_id;
+    mt = '#moretags' + topic_id;
+    if ($(ft).css('display') == 'none') {
+	$(mt).html("hide...");
+    } else {
+	if (add) {
+	    $(mt).html("Add Tags...");
+	} else {
+	    $(mt).html("more...");
+	}
+    }
+    $(ft).toggle();
+}
 
+function clicktag(topic_id, tag, main) {
+    tag_text = "#tag_text" + topic_id
+    ft = '#fulltags' + topic_id
+    mt = '#moretags' + topic_id
+    tagval = $(tag_text).val()
+    if (main) {
+	$(ft).show()
+	$(mt).html("hide...")
+    }
+
+    if (tagval == '') {
+	$(tag_text).val(tag)
+    } else {
+	$(tag_text).val(tagval + ", " + tag)
+    }
 }
 
 function addtags(topic_id) {
