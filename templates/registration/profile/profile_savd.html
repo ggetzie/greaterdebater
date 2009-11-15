@@ -43,7 +43,7 @@
       <div class="comment-menu">
 	submitted by <a href="/users/u/{{ object.topic.user }}/profile/">{{ object.topic.user }}</a>
 	{{ object.topic.get_elapsed }} ago | 
-	{% with object.topic.comment_set.count as num %}
+	{% with object.topic.com_count as num %}
 	<a href="/{{ object.topic.id }}" {% if newwin %}target="_blank"{% endif %}>{{ num }} comment{{ num|pluralize }}</a>
 	{% endwith %}
 	<div id="tags{{ object.topic.id }}" class="tags">
