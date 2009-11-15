@@ -62,6 +62,25 @@ class Topic(models.Model):
             return com[0]
         else:
             return False
+
+    def com_count(self):
+        num = self.comment_set.filter(arg_proper=False, 
+                                      is_removed=False,
+                                      needs_review=False,
+                                      is_msg=False).count()
+        return num
+
+    def resum(self):
+        clen = 0
+        coms = self.comment_set.filter(is_removed=False,
+                                       needs_review=False,
+                                       is_msg=False)
+
+        for com in coms:
+            clen += len(com.comment)
+        self.comment_length = clen
+        self.recalculate()
+        self.save()
     
 
 class Argument(models.Model):
@@ -157,8 +176,8 @@ class Argument(models.Model):
     def calculate_score(self):
         numvotes = Vote.objects.filter(argument=self.id).count()
         delta = datetime.datetime.now() - self.start_date
-        minutes = delta.days*1440 + delta.seconds/60 + 1.0
-        self.score = float(numvotes / minutes)
+        hours2 = (delta.days*24 + delta.seconds/(3600) + 1.0)**2
+        self.score = float(numvotes / hours2)
         self.save()
 
     def first_two(self):

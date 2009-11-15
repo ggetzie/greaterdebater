@@ -18,7 +18,7 @@
     {% endifnotequal %}
     {% endif %}
 
-    {% with object.comment_set.count as num %}
+    {% with object.com_count as num %}
      | <a href="/{{ object.id }}" {% if newwin %}target="_blank"{% endif %}>{{ num }} comment{{ num|pluralize }}</a>
     {% endwith %}
   </div>

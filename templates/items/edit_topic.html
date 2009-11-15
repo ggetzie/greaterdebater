@@ -3,6 +3,9 @@
 {% block title %}Edit topic{% endblock %}
 
 {% block content %}
+{% if form.errors %}
+{{ form.errors }}
+{% endif %}
 <form action="{{ request.path }}" method='post'>
   <table>
     <tr>

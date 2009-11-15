@@ -70,6 +70,10 @@ def add(request, topic_id):
                     params['nesting'] = form.cleaned_data['nesting'] + 40
                 c = Comment(**params)
                 c.save()		    
+                
+                top.comment_length += len(c.comment)
+                top.recalculate()
+                top.save()
         else:
             message = "<p>Oops! A problem occurred.</p>"
             request.user.message_set.create(message=message+str(form.errors))
@@ -82,8 +86,16 @@ def edit(request, topic_id):
         if form.is_valid():
             c = get_object_or_404(Comment, pk=form.cleaned_data['parent_id'])
             if c.user == request.user:
+                # Adjust the score for the topic based on the new comment length
+                top = c.topic
+                deltalen = len(form.cleaned_data['comment']) - len(c.comment)
+                top.comment_length += deltalen
+                top.recalculate()
+                top.save()
+                
+                # save the edited version of the comment
                 c.comment = form.cleaned_data['comment']
-                c.comment += "\n\n*Edited: %s*" % datetime.datetime.now().strftime("%H:%M on %b-%d-%Y")
+                c.last_edit = datetime.datetime.now()
                 c.save()
         else:
             message = "<p>Oops! A problem occurred.</p>"
@@ -98,14 +110,18 @@ def delete(request):
             comment = get_object_or_404(Comment, pk=form.cleaned_data['comment_id'])
             redirect_to = form.cleaned_data['referring_page']
             if comment.user == request.user:
+                # Can't delete a comment if there are any 
+                # arguments associated with it
                 if not comment.arguments.all():
-
+                    top = comment.topic
                     if comment.is_removed:
                         comment.is_removed = False
-
+                        top.comment_length += len(comment.comment)                        
                     else:
                         comment.is_removed = True
-
+                        top.comment_length -= len(comment.comment)                        
+                    top.recalculate()
+                    top.save()
                     comment.save()
                     t = loader.get_template('comments/one_comment.html')                
                     c = Context({'comment': comment,
@@ -180,6 +196,12 @@ def flag(request):
                 com.cflaggers.add(user)
                 if com.cflaggers.count() > 10 or user.is_staff:
                     com.needs_review = True
+                    # remove this comment's length from the score
+                    # for this topic
+                    top = com.topic
+                    top.comment_length -= len(com.comment)
+                    top.recalculate()
+                    top.save()
                 com.save()
                 message="Comment flagged"
         else:

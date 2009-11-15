@@ -8,7 +8,7 @@ submitted by {{ obj.user }}
 
 <br />
 <div>
-  {% with obj.comment_set.count as num %}
+  {% with obj.com_count as num %}
   <a href="{{ obj.get_absolute_url }}">{{ num }} comment{{ num|pluralize }}</a>
   {% endwith %}
 </div>

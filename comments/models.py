@@ -64,6 +64,7 @@ class Comment(models.Model):
     comment_html = models.TextField(blank=True)
     user = models.ForeignKey(User)
     pub_date = models.DateTimeField(blank=True, null=True)
+    last_edit = models.DateTimeField(blank=True, null=True)
     is_removed = models.BooleanField(default=False)
     is_first = models.BooleanField(default=False)
     topic = models.ForeignKey(Topic, null=True, blank=True)
@@ -88,10 +89,6 @@ class Comment(models.Model):
             self.pub_date = datetime.datetime.now()          
         self.comment_html = self.hilight(self.comment)
         self.comment_html = self.comment_html.replace('<p>', """<p class="commentp">""" )
-        if self.topic:
-            self.topic.comment_length += len(self.comment)
-            self.topic.recalculate()
-            self.topic.save()
         super(Comment, self).save()
 
     def __unicode__(self):

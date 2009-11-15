@@ -254,6 +254,10 @@ def submit(request):
                                           parent_id=0,
                                           nesting=0)
                         comment.save()
+
+                        topic.comment_length += len(comment.comment)
+                        topic.recalculate()
+                        topic.save()
                     return HttpResponseRedirect(next)
         else:
             try:
@@ -298,19 +302,26 @@ def edit_topic(request, topic_id, page):
                 if form.cleaned_data['comment']:
                     if c:
                         c = c[0]
+                        oldlen = len(c.comment)
                         c.comment = form.cleaned_data['comment']
                     else:
+                        oldlen = 0
                         c = Comment(user=top.user,
                                     topic=top,
                                     comment = form.cleaned_data['comment'],
                                     pub_date=datetime.datetime.now(),
                                     is_first=True,
                                     parent_id=0,
-                                    nesting=0)
+                                    nesting=0)                    
                     c.save()
+
+                    top.comment_length += len(c.comment) - oldlen
+                    top.recalculate()
+                    top.save()
                 top.title = form.cleaned_data['title']            
                 top.save()
                 return HttpResponseRedirect(redirect)
+            
     else:
         if top.url[0:4] == 'http':
             url = top.url
