@@ -111,9 +111,9 @@ def topics(request, page=1, sort="hot"):
                                                   'newwin': newwin})
 
 def front_page(request):
-    """Display the home page of GreaterDebater.com, show five hottest arguments and five hottest topics"""
-    args = Argument.objects.filter(status__range=(1,2))[0:5]
-    topics = Topic.objects.filter(needs_review=False).order_by('-score', '-sub_date')[0:5]
+    """Display the home page of GreaterDebater.com, show five hottest arguments and ten hottest topics"""
+    args = Argument.objects.filter(status__range=(1,2))[:5]
+    topics = Topic.objects.filter(needs_review=False).order_by('-score', '-sub_date')[:10]
 
     if request.user.is_authenticated():
         if tcdMessage.objects.filter(recipient=request.user, is_read=False):        

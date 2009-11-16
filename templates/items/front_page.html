@@ -4,22 +4,18 @@
 {% block content %}
 
 <p>
-  GreaterDebater is a place to engage in productive discourse on the
-  hottest topics of the day. 
+  GreaterDebater is a social news website and discussion forum where
+  you can comment on the hottest issues of the day. You can also
+  challenge other commenters to one-on-one arguments where our users
+  cast votes for the side that most convincingly proves their case.
 </p>
 
 <p>
-  To get started, view the <a href="/hot/">hottest topics</a> to look
-  for a discussion to join. <a href="/users/register?next=/">Create an
-  account</a> to submit topics of your own, post comments, and
-  participate in debates with other users.
+  <a href="/users/register?next=/">Create an account</a>
+  or <a href="/users/login?next=/">log in</a> to submit
+  topics of your own, post comments, and participate in debates.
 </p>
 
-<p>
-  Check out the <a href="/argue/hot/">most popular</a>
-  or <a href="/argue/new">newest</a> arguments. Registered users can
-  cast their votes for the greater debater.
-</p>
 <h3>Most Active Arguments</h3>
 {% if args_list %}
 {% include "items/arg_list.html" %}
