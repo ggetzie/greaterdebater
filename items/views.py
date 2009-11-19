@@ -108,7 +108,9 @@ def topics(request, page=1, sort="hot"):
                                    extra_context={'start': start,
                                                   'page': pager,
                                                   'ttype': ttype,
-                                                  'newwin': newwin})
+                                                  'newwin': newwin,
+                                                  'source': 0,
+                                                  })
 
 def front_page(request):
     """Display the home page of GreaterDebater.com, show five hottest arguments and ten hottest topics"""
@@ -127,7 +129,8 @@ def front_page(request):
     return render_to_response('items/front_page.html',
                               {'args_list': args,
                                'topic_list': topics,
-                               'newwin': newwin},
+                               'newwin': newwin,
+                               'source': 0},
                               context_instance=RequestContext(request)
                               )
 
@@ -343,14 +346,15 @@ def edit_topic(request, topic_id, page):
 def addtags(request):
     """A user submits tags to add to a topic"""
     error = True
-    tagdiv = 'none'
-    message = 'none'
+    tagdiv = None
+    message = None
     if request.POST:
         form = TagEdit(request.POST)
         if form.is_valid():
             user = request.user
             prof = get_object_or_404(Profile, user=user)
             top = get_object_or_404(Topic, pk=form.cleaned_data['topic_id'])
+            source = form.cleaned_data['source']
 
             new_tags = form.cleaned_data['tags'].split(',')
             unique_tags = []
@@ -377,9 +381,15 @@ def addtags(request):
             prof.tags = update_tags(prof.tags, unique_tags)
             prof.save()
 
-            tagload = loader.get_template('items/tag_div.html')
-            tagcontext = Context({'object': top,
-                                  'request': request})
+            if source == 1:
+                utags = Tags.objects.get(user=prof.user, topic=top)
+                tagload = loader.get_template('items/tag_div_user.html')
+                tagcontext = Context({'object': utags,
+                                       'source': source})
+            else:
+                tagload = loader.get_template('items/tag_div.html')            
+                tagcontext = Context({'object': top,
+                                      'source': source})
             tagdiv = tagload.render(tagcontext)
             error = False
         else:            

@@ -39,6 +39,9 @@ e.g. Politics, Technology, Funny""")
 
 class TagEdit(forms.Form):
     topic_id = forms.IntegerField(widget=forms.widgets.HiddenInput())
+    source = forms.IntegerField(widget=forms.widgets.HiddenInput())
+    # source = 0: Topic list page (new topics/hot topics)
+    # source = 1: User tags page (saved topics)
     tags = forms.CharField(label="Tags", widget=forms.TextInput(attrs={'size':'70'}),
                            help_text = """Words or short phrases that describe the topic separated by commas <br />
 e.g. Politics, News, Current Events""")

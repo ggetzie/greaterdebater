@@ -130,12 +130,13 @@ function clicktag(topic_id, tag, main) {
     }
 }
 
-function addtags(topic_id) {
+function addtags(topic_id, source) {
     tagdiv = "#tags" + topic_id
     tags = $("#tag_text" + topic_id).val()
     var oldtags = $(tagdiv).html()
     $(tagdiv).html("Loading...")
     $.post("/topics/addtags/", {topic_id: topic_id,
+				source: source,
 				tags: tags},
 	   function(xml) {
 	       if ($("error", xml).text() == "True") {		   

@@ -154,7 +154,8 @@ def profile_saved(request, value, tag=None, page=1):
                                                       'start': calc_start(page, paginate_by, user_tags.count()),
                                                       'newwin': prof.newwin,
                                                       'utags': utl,
-                                                      'filter_tag': tag
+                                                      'filter_tag': tag,
+                                                      'source': 1
                                                       })
     else:
         return HttpResponseForbidden("<h1>Unauthorized</h1>")
