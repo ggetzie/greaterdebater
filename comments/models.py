@@ -89,6 +89,22 @@ class Comment(models.Model):
             self.pub_date = datetime.datetime.now()          
         self.comment_html = self.hilight(self.comment)
         self.comment_html = self.comment_html.replace('<p>', """<p class="commentp">""" )
+        
+        # change urls into links
+        urlre = re.compile("\(?http://[-A-Za-z0-9+&@#/%?=~_()|!:,.;]*[-A-Za-z0-9+&@#/%=~_()|]")
+        urls = urlre.findall(self.comment_html)
+        clean_urls = []
+        
+        # remove the duplicate matches
+        # and replace urls with a link
+        for url in urls:
+            if url[0] == '(' and url[len(url)-1] == ')':
+                url = url[1:len(url)-1]
+            if url in clean_urls: continue
+            clean_urls.append(url)
+            self.comment_html = self.comment_html.replace(url,
+                                                          "<a rel='nofollow' href='" + url + "'>" + url + "</a>")
+            
         super(Comment, self).save()
 
     def __unicode__(self):
