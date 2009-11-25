@@ -88,22 +88,33 @@ class Comment(models.Model):
         if not self.id:
             self.pub_date = datetime.datetime.now()          
         self.comment_html = self.hilight(self.comment)
-        self.comment_html = self.comment_html.replace('<p>', """<p class="commentp">""" )
+#        self.comment_html = self.comment_html.replace('<p>', """<p class="commentp">""" )
         
-        # change urls into links
-        urlre = re.compile("\(?http://[-A-Za-z0-9+&@#/%?=~_()|!:,.;]*[-A-Za-z0-9+&@#/%=~_()|]")
+        # match all the urls
+        # this returns a tuple with two groups
+        # if the url is part of an existing link, the second element
+        # in the tuple will be "> or </a>
+        # if not, the second element will be an empty string
+        urlre = re.compile("(\(?https?://[-A-Za-z0-9+&@#/%?=~_()|!:,.;]*[-A-Za-z0-9+&@#/%=~_()|])(\">|</a>)?")
         urls = urlre.findall(self.comment_html)
         clean_urls = []
         
         # remove the duplicate matches
         # and replace urls with a link
         for url in urls:
-            if url[0] == '(' and url[len(url)-1] == ')':
-                url = url[1:len(url)-1]
-            if url in clean_urls: continue
-            clean_urls.append(url)
-            self.comment_html = self.comment_html.replace(url,
-                                                          "<a rel='nofollow' href='" + url + "'>" + url + "</a>")
+            # ignore urls that are part of a link already
+            if url[1]: continue
+            c_url = url[0]
+            if c_url[0] == '(' and c_url[len(url)-1] == ')':
+                c_url = c_url[1:len(url)-1]
+
+            if c_url in clean_urls: continue            
+            clean_urls.append(c_url)
+            # substitute only where the url is not already part of a
+            # link element.
+            self.comment_html = re.sub("(?<!(=\"|\">))" + re.escape(c_url), 
+                                       "<a rel=\"nofollow\" href=\"" + c_url + "\">" + c_url + "</a>",
+                                       self.comment_html)
             
         super(Comment, self).save()
 

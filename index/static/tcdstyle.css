@@ -242,7 +242,13 @@ div.sub_header {
 
 div.comment_div {
     margin-bottom: 15px;
+}
 
+div.comment_div p {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-left: 5px;
+    width: 90%;
 }
 
 div.topic_info {
