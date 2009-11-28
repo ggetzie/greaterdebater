@@ -79,7 +79,7 @@
 	    </li>
 	    
 	    <li>
-	      <a href="#">Arguments</a>
+	      <a href="#">Debates</a>
 	      <ul>
 		<li><a href="/argue/hot/">Hot</a></li>
 		<li><a href="/argue/new/">New</a></li>
@@ -97,8 +97,7 @@
 	    Welcome <a href="/users/u/{{ user.username }}/profile/">{{ user.username }}</a>! |
 	    <a href="/users/logout">Log out</a>
 	    {% else %}
-	    <a href="/users/login?next={{ request.path }}">Log in</a> or
-	    <a href="/users/register?next={{ request.path }}">create an account</a>
+	    <a href="/users/login?next={{ request.path }}">Log In or Register</a>
 	    {% endif %}
 	  </span>
 	</div>

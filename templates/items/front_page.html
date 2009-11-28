@@ -10,18 +10,20 @@
   cast votes for the side that most convincingly proves their case.
 </p>
 
+{% if not request.user.is_authenticated %}
 <p>
-  <a href="/users/register?next=/">Create an account</a>
-  or <a href="/users/login?next=/">log in</a> to submit
-  topics of your own, post comments, and participate in debates.
+  <a href="/users/login?next=/">Log in or register</a> to
+  submit topics of your own, post comments, and participate in
+  debates.
 </p>
+{% endif %}
 
-<h3>Most Active Arguments</h3>
+<h3>Most Active Debates</h3>
 {% if args_list %}
 {% include "items/arg_list.html" %}
-<a class="more" href="/argue/hot/">More Arguments...</a>
+<a class="more" href="/argue/hot/">More Debates...</a>
 {% else %}
-<p>No current arguments are available</p>
+<p>No current debates are available</p>
 {% endif %}
 
 

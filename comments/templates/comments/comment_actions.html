@@ -11,7 +11,7 @@
   {% else %}
   
   {% with comment.get_viewable_arguments as num %}
-  <a class="menu {% ifnotequal num 0 %}hotargs{% endifnotequal %}" href="/comments/{{ comment.id }}/arguments/">{{ num }} argument{{ num|pluralize }}</a>
+  <a class="menu {% ifnotequal num 0 %}hotargs{% endifnotequal %}" href="/comments/{{ comment.id }}/arguments/">{{ num }} debate{{ num|pluralize }}</a>
   {% endwith %}
   
   {% if user.is_authenticated %}  
@@ -39,7 +39,7 @@
   {% else %}
 
   <a class="menu" href='#' class="comment_action"
-     onclick="displayFormComment('#argue{{ comment.id }}'); return false;">argue</a>
+     onclick="displayFormComment('#argue{{ comment.id }}'); return false;">debate</a>
 
   {% endifequal %}
   {% endif %}

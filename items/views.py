@@ -287,7 +287,7 @@ def submit(request):
 
         return render_to_response("registration/login.html",
                                   {'redirect': redirect,
-                                   'message': "Please log in to submit a topic",
+                                   'message': "Please log in or create an account to continue submitting your topic",
                                    'form': tcdLoginForm(),
                                    'rform': tcdUserCreationForm()},
                                   context_instance=RequestContext(request))
@@ -447,8 +447,8 @@ def challenge(request, c_id):
                     opener.arguments.add(arg)
                     arg.save()
                     msg_txt = ''.join([request.user.username, 
-                                       " has challenged you to an argument.\n [Click here](/argue/",
-                                       str(arg.id), "/) to view the argument and accept or decline"])
+                                       " has challenged you to a debate.\n [Click here](/argue/",
+                                       str(arg.id), "/) to view the debate and accept or decline"])
                     msg = tcdMessage(user=request.user,
                                      recipient=defendant,
                                      comment=msg_txt,
@@ -458,7 +458,7 @@ def challenge(request, c_id):
                     msg.save()
                     request.user.message_set.create(message= ''.join(["Challenged ", 
                                                                       arg.defendant.username, 
-                                                                      " to an argument"]))
+                                                                      " to a debate"]))
         else:
             message = "<p>Oops! A problem occurred.</p>"
             request.user.message_set.create(message=message+str(form.errors))
@@ -468,7 +468,7 @@ def challenge(request, c_id):
     return HttpResponseRedirect(redirect)
 
 def vote(request):
-    """Cast a vote for either the plaintiff or defendant in an argument"""
+    """Cast a vote for either the plaintiff or defendant in a debate"""
     message = "ok"
     error = "True"
     if request.POST:        
@@ -618,7 +618,7 @@ def respond(request):
                         arg.start_date = datetime.datetime.now()
                         arg_response = "accept"
                         message = ''.join([arg.defendant.username, 
-                                           " has accepted your challenge. \n[View this argument](", redirect, ")"])
+                                           " has accepted your challenge. \n[View this debate](", redirect, ")"])
                         msg = tcdMessage(user=request.user,
                                          recipient=arg.plaintiff,
                                          comment=message,
@@ -674,7 +674,7 @@ def respond(request):
 
 
 def draw(request):
-    """A user offers that the argument be resolved as a draw."""
+    """A user offers that the debate be resolved as a draw."""
     status = "error"    
     if request.POST:
         form = RebutForm(request.POST)
@@ -683,9 +683,9 @@ def draw(request):
             redirect = ''.join(['/argue/', str(arg.id), '/'])
             if arg.whos_up() == request.user and not arg.draw_set.all():
                 message = ''.join([request.user.username, 
-                                   " has offered a draw regarding argument\n "
+                                   " has offered a draw regarding the debate\n "
                                    "[",  arg.title, "]", "(", redirect, ")",
-                                   "\nView the argument to accept or decline."])
+                                   "\nView the debate to accept or decline."])
                 recipient = arg.get_opponent(request.user)
                 msg = tcdMessage(user=request.user,
                                  recipient=recipient,
@@ -701,10 +701,9 @@ def draw(request):
                 draw.save()
                 return rebut(request)
             else:
-                response_message="Not your turn, not your argument, or there's already a draw offer outstanding"
+                response_message="Not your turn, not your debate, or there's already a draw offer outstanding"
         else:
             response_message = "Invalid Form - draw"
-                                    
     else:
         response_message = "Not a POST"
     t = loader.get_template('items/msg_div.html')
@@ -781,7 +780,7 @@ def respond_draw(request):
     return HttpResponse(responseXML)
 
 def concede(request):
-    """User concedes an argument, opponent wins"""
+    """User concedes a debate, opponent wins"""
     status = "error"
     arg_status = None
     if request.POST:
@@ -796,7 +795,7 @@ def concede(request):
                 recipient = arg.get_opponent(request.user)
                 prof = Profile.objects.get(user = recipient)
                 prof.score += 1
-                message = ''.join([request.user.username, " has conceded argument\n", 
+                message = ''.join([request.user.username, " has conceded in the debate\n", 
                                    "[", arg.title, "]", "(/argue/", str(arg.id), "/)"])
                 msg = tcdMessage(user=request.user,
                                  recipient = recipient,
@@ -811,7 +810,7 @@ def concede(request):
                 status = "ok"
                 arg_status = " ".join(["Status:", arg.get_status()])
             else:
-                response_message = "Not your argument"
+                response_message = "Not your debate"
         else:
             response_message = "Invalid form"
     else: 

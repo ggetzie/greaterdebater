@@ -6,14 +6,17 @@ onLoad="document.forms.login.email.focus()"
 {% endblock %}
 
 {% block content %}
+
 {% if form.errors %}
 <p class="error">Sorry, that's not a valid username or password</p>
 {% endif %}
+
 {% if message %}
 <p>{{ message }}</p>
 {% endif %}
 
 <div class="login-form">
+  <h3>Log In</h3>
   <form action="/users/login/" name="login" method='post'>
     <table>
       {{ form }}
@@ -31,7 +34,7 @@ onLoad="document.forms.login.email.focus()"
 </div>
 
 <div class="login-form">
-  <h3>Create an account</h3>
+  <h3>Register</h3>
 
   <form action="/users/register/" method="post" name="register">
     {% if rform.error_dict %}
@@ -41,7 +44,7 @@ onLoad="document.forms.login.email.focus()"
       {{ rform }}
       <tr>
 	<td><input type="hidden" name="next" value={{ redirect|escape }} /></td>
-	<td><input type="submit" value="Create account" /></td></tr>
+	<td><input type="submit" value="Register" /></td></tr>
     </table>
   </form>
 </div>

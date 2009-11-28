@@ -25,7 +25,7 @@
   {% if new_arg %}
   <!--   The argument has been proposed but not accepted or declined, the defendant is viewing the page -->
   <div class="arg_query arg_responses" id="arg_responses">
-    Begin this argument?<br />
+    Begin this debate?<br />
     <ul class="flat-list">
       <li><a href="#" onclick="respond_challenge({{ object.id}}, {{ request.user.id }}, 0); return false;">Accept</a></li>
       <li><a href="#" onclick="respond_challenge({{ object.id}}, {{ request.user.id }}, 1); return false;">Decline</a></li>

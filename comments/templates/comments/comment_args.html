@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Arguments for Comment {{ comment.id }}{% endblock %}
+{% block title %}Debates for Comment {{ comment.id }}{% endblock %}
 
 {% block content %}
 <span class="comment_info">
@@ -9,7 +9,7 @@
   {{ comment.comment_html|safe }}
 </div>
 
-<h4>Arguments for this comment</h4>
+<h4>Debates for this comment</h4>
 {% include "items/arg_list.html" %}
 
 {% if has_previous %}
