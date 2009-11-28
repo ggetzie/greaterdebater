@@ -105,8 +105,8 @@ class Comment(models.Model):
             # ignore urls that are part of a link already
             if url[1]: continue
             c_url = url[0]
-            if c_url[0] == '(' and c_url[len(url)-1] == ')':
-                c_url = c_url[1:len(url)-1]
+            if c_url[0] == '(' and c_url[len(c_url)-1] == ')':
+                c_url = c_url[1:len(c_url)-1]
 
             if c_url in clean_urls: continue            
             clean_urls.append(c_url)
