@@ -21,9 +21,7 @@
      | <a href="/{{ object.id }}" {% if newwin %}target="_blank"{% endif %}>{{ num }} comment{{ num|pluralize }}</a>
     {% endwith %}
   </div>
-  {% if request.user.is_authenticated %}
   <div id="tags{{ object.id }}" class="tags">
     {% include "items/tag_div.html" %}
   </div>
-  {% endif %}
 </div>

@@ -1,4 +1,7 @@
 {% with object.display_tags as tags %}
+
+{% if request.user.is_authenticated %}
+
 {% if tags %}
 Tags: 
 {% for tag in tags|slice:":5" %} 
@@ -19,12 +22,33 @@ Tags:
      title="Click to add {{ tag }} to your list of tags">{{ tag }}</a>{% if not forloop.last %},{% endif %} 
   {% endfor %}
   <div id="tag-form{{ object.id }}" class="tag-form">
-    <!--       <div><input type="hidden" name="topic_id" value={{ object.id }} /></div> -->
-    <!--       <div><input type="hidden" name="source" value={{ source }} /></div> -->
     <div>
       <input type="text" name="tags" id="tag_text{{ object.id }}" />
       <button onclick="addtags({{ object.id }}, {{ source }}); return false;" name="Add">Add</button>
     </div>	
   </div>   
 </div>
+
+{% else %}
+
+{% if tags %}
+
+Tags: 
+{% for tag in tags|slice:":5" %} 
+{{ tag }}{% if not forloop.last %},{% endif %} 
+{% endfor%}
+
+{% if tags|slice:"5:" %}
+<a id="moretags{{ object.id }}" 
+   class="moretag" href='#' onclick="showalltags({{ object.id }}, false); return false;">more...</a>
+<div id="fulltags{{ object.id }}" class="tags confirm">
+  {% for tag in tags|slice:"5:" %} 
+  {{ tag }}</a>{% if not forloop.last %},{% endif %} 
+  {% endfor %}
+</div>
+{% endif %} <!-- end if more than 5 tags -->
+
+{% endif %} <!-- end if tags -->
+
+{% endif %} <!-- end request authenticated -->
 {% endwith %}
