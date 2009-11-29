@@ -385,11 +385,13 @@ def addtags(request):
                 utags = Tags.objects.get(user=prof.user, topic=top)
                 tagload = loader.get_template('items/tag_div_user.html')
                 tagcontext = Context({'object': utags,
-                                       'source': source})
+                                       'source': source,
+                                      'request': request})
             else:
                 tagload = loader.get_template('items/tag_div.html')            
                 tagcontext = Context({'object': top,
-                                      'source': source})
+                                      'source': source,
+                                      'request': request})
             tagdiv = tagload.render(tagcontext)
             error = False
         else:            
