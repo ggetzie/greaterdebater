@@ -18,11 +18,11 @@
   <div class="comment-menu">
     
     {% with comment.get_viewable_arguments as num %}
-    <a class="menu {% ifnotequal num 0 %}hotargs{% endifnotequal %}" href="/comments/{{ comment.id }}/arguments/">{{ num }} argument{{ num|pluralize }}</a>
+    <a class="menu {% ifnotequal num 0 %}hotargs{% endifnotequal %}" href="/comments/{{ comment.id }}/arguments/">{{ num }} debate{{ num|pluralize }}</a>
     {% endwith %}
     {% if user.is_authenticated %}
     {% ifnotequal user object.user %}
-    <a class="menu" href='#' onclick="displayFormComment('#argue{{ comment.id }}'); return false;">argue</a>
+    <a class="menu" href='#' onclick="displayFormComment('#argue{{ comment.id }}'); return false;">debate</a>
     <div class="action_block">
       {% include "comments/argue_form.html" %}
     </div>
