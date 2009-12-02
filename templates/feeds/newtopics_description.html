@@ -1,5 +1,12 @@
 <br />
+{% ifnotequal obj.get_domain "greaterdebater.com" %}
+<div>
+  <a style="text-decoration: none" href="{{ obj.url }}">original article</a>
+</div>
+<br />
+{% endifnotequal %}
 submitted by {{ obj.user }}
+<br />
 <div>
   {% if obj.get_first_comment %}
   {{ obj.get_first_comment.comment_html|safe }}
@@ -9,6 +16,6 @@ submitted by {{ obj.user }}
 <br />
 <div>
   {% with obj.com_count as num %}
-  <a href="{{ obj.get_absolute_url }}">{{ num }} comment{{ num|pluralize }}</a>
+  <a href="{{ obj.get_absolute_url }}">view comments</a>
   {% endwith %}
 </div>
