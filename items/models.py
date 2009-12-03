@@ -47,6 +47,9 @@ class Topic(models.Model):
         else:
             return "greaterdebater.com"
 
+    def get_host(self):
+        return HOSTNAME
+
     def display_tags(self):
         if self.tags:
             return self.tags.split('\n')[0].split(',')
