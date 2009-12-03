@@ -41,11 +41,7 @@ class Topic(models.Model):
         self.last_calc = datetime.datetime.now()
 
     def get_domain(self):
-        domain = urlparse.urlparse(self.url)[1]
-        if domain:
-            return domain
-        else:
-            return "greaterdebater.com"
+        return urlparse.urlparse(self.url)[1]
 
     def get_host(self):
         return HOSTNAME

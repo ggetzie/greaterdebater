@@ -19,6 +19,8 @@ from tcd.items.models import Topic, Argument, Vote, Tags
 from tcd.profiles.forms import tcdLoginForm, tcdUserCreationForm
 from tcd.profiles.models import Profile
 
+from tcd.settings import HOSTNAME
+
 from tcd.utils import calc_start, tag_dict, tag_string, update_tags
 
 
@@ -228,7 +230,7 @@ def submit(request):
                     if data['url']:
                         topic.url = form.cleaned_data['url']
                     else:
-                        topic.url = next
+                        topic.url = ''.join([HOSTNAME, '/', str(topic.id), '/'])
 
                     dtags = form.cleaned_data['tags']
                     if dtags:
