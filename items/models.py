@@ -54,7 +54,7 @@ class Topic(models.Model):
             return []
         
     def get_absolute_url(self):
-        return '/'.join([HOSTNAME, str(self.id)])
+        return self.url
 
     def get_first_comment(self):
         com = self.comment_set.filter(is_first=True)
