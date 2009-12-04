@@ -181,7 +181,7 @@ function respond_draw(arg_id, user_id, response) {
 	       $("#turn_actions").html(turn_actions);
 	       $("#arg_actions").parent().append(msg);
 	       if ( $("status", xml).text() == "ok") {
-		   if ( $("arg_status", xml).text() == "Status: draw") {
+		   if ( $("arg_status", xml).text() == 'draw') {
 		       // if the draw was accepted
 		       // change the status and remove the options to reply
 		       $("#arg_actions").remove();

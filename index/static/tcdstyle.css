@@ -423,6 +423,16 @@ div#arg_title span {
     margin-left: 10px;
 }
 
+.arg_info {
+    font-size: small;
+}
+
+.arg_info th{
+    vertical-align: top;
+    text-align: right;
+    width: 125px;
+}
+
 .hotargs {
     color: #CC0000;
 }

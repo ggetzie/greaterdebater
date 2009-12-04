@@ -576,7 +576,7 @@ def rebut(request):
 
                     context = Context({'comment': c,
                                        'object': arg})
-                    arg_status = ' '.join(["Status:", arg.get_status()])
+                    arg_status = arg.get_status()
                     status = "ok"                                 
                 else:                   
                     context = Context({'id': id,
@@ -671,7 +671,7 @@ def respond(request):
     responseXML = ('response', [('message', msg_t.render(msg_c)),
                                 ('turn_actions', turn_actions),
                                 ('arg_response', arg_response),
-                                ('arg_status', ": ".join(['Status', arg_status])),
+                                ('arg_status', arg_status),
                                 ('status', status)])
     responseXML = pyfo.pyfo(responseXML, prolog=True, pretty=True, encoding='utf-8')    
     return HttpResponse(responseXML)
@@ -778,7 +778,7 @@ def respond_draw(request):
                      'nesting': "20"})
     responseXML = ('response', [('message', msg_t.render(msg_c)),
                                 ('turn_actions', ta_XML),
-                                ('arg_status', ": ".join(['Status', arg_status])),
+                                ('arg_status', arg_status),
                                 ('status', status)])
     responseXML = pyfo.pyfo(responseXML, prolog=True, pretty=True, encoding='utf-8')    
     return HttpResponse(responseXML)
@@ -812,7 +812,7 @@ def concede(request):
                 prof.save()
                 response_message = "Point conceded"
                 status = "ok"
-                arg_status = " ".join(["Status:", arg.get_status()])
+                arg_status = arg.get_status()
             else:
                 response_message = "Not your debate"
         else:

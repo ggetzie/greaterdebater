@@ -43,8 +43,8 @@ class Topic(models.Model):
     def get_domain(self):
         return urlparse.urlparse(self.url)[1]
 
-    def get_host(self):
-        return HOSTNAME
+    def get_comments_url(self):
+        return ''.join([HOSTNAME, '/', str(self.id), '/'])
 
     def display_tags(self):
         if self.tags:
@@ -132,6 +132,12 @@ class Argument(models.Model):
             return ''.join([ self.defendant.username, " declined challenge"])
         else:
             return "invalid status"        
+
+    def is_current(self):
+        if self.status in (1,2):
+            return True
+        else:
+            return False
     
     def whos_up(self, invert=0):
         # returns the user whose turn it is in an argument
@@ -154,6 +160,26 @@ class Argument(models.Model):
 
     def get_elapsed(self):
         return elapsed_time(self.start_date)
+
+    def get_remaining(self):
+        end = self.start_date + datetime.timedelta(days=8)
+        # The debate ends on midnight after
+        # the debate is 7 days old
+        end = datetime.datetime(year=end.year,
+                                month=end.month,
+                                day=end.day,
+                                hour=0,
+                                minute=0, 
+                                second=0)
+        remaining = end - datetime.datetime.now()
+        if remaining.days > 0:
+            return "%d days" % remaining.days
+        elif remaining.seconds > 3600:
+            return "%d hours" % (remaining.seconds / 3600)
+        elif remaining.seconds > 60:
+            return "%d minutes" % (remaining.seconds / 60)
+        else:
+            return "Time's Up!"
 
     def reset(self):
         # Get the winner and reduce his score by one

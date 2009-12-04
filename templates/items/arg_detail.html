@@ -4,7 +4,19 @@
 {% block content %}
 <div id="arg_title">
   <h3>{{ object.title }}</h3>
-  <span id="arg_status">Status: {{ object.get_status }}</span>
+<!--  <span id="arg_status"> -->
+  <table class="arg_info">
+    <tr>
+      <th>Status:</th><td id="arg_status">{{ object.get_status }}</td>
+    <tr>
+      <th>Topic:</th><td><a href="{{ object.topic.get_comments_url }}">{{ object.topic.title }}</a><td>
+    </tr>
+    {% if object.is_current %}
+    <tr>
+      <th>Time Remaining:</th><td>{{ object.get_remaining }}</td>
+    </tr>
+    {% endif %}
+  </table>
 </div>
 
 <div id="arg_comments">
