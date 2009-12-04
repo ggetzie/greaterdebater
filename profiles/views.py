@@ -13,6 +13,8 @@ from tcd.items.views import object_list_field, object_list_foreign_field, calc_s
 from tcd.profiles.forms import tcdUserCreationForm, tcdPasswordResetForm, tcdLoginForm, \
     forgotForm, FeedbackForm, SettingsForm
 from tcd.profiles.models import Profile, Forgotten
+
+from tcd.settings import HOSTNAME
 from tcd.utils import random_string, tag_dict, tag_string
 
 import datetime
@@ -366,13 +368,14 @@ def forgot_password(request):
     if request.POST:
         data = request.POST.copy()
         form = forgotForm(data)
-        if form.is_valid():
+        if form.is_valid():            
             # store the user and a randomly generated code in the database
             user = User.objects.get(email=form.cleaned_data['email'])
             code = save_forgotten(user)
-            message = ''.join(["To reset your password, visit the address below:\nhttp://kotsf.com/users/u/",
+            message = ''.join(["To reset your password, visit the address below:\n",
+                               HOSTNAME, "/users/u/",
                                user.username, "/reset/", code])
-            send_mail('Reset your password at kotsf.com', message, 'admin@kotsf.com', [user.email], 
+            send_mail('Reset your password at GreaterDebater', message, 'admin@kotsf.com', [user.email], 
                       fail_silently=False)
             return render_to_response("registration/profile/forgot.html",
                                       {'form': form,

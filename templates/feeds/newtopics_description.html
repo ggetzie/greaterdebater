@@ -1,11 +1,13 @@
-submitted by {{ obj.user }}
+<div>
+  submitted by {{ obj.user }}
+</div>
 <br />
 {% if obj.get_first_comment %}
 <div>
   {{ obj.get_first_comment.comment_html|safe }}
 </div>
 {% endif %}
-
+<br />
 <div>
   <a href="{{ obj.get_comments_url }}">view comments</a>
 </div>
