@@ -429,7 +429,7 @@ def challenge(request, c_id):
             else:
                 if Argument.objects.filter(plaintiff=request.user,
                                            comment=c_id):
-                    request.user.message_set.create(message="You may only start one argument per comment")
+                    request.user.message_set.create(message="You may only start one debate per comment")
                 else:
                     arg = Argument(plaintiff=request.user,
                                    defendant=defendant,
@@ -451,8 +451,10 @@ def challenge(request, c_id):
                     opener.arguments.add(arg)
                     arg.save()
                     msg_txt = ''.join([request.user.username, 
-                                       " has challenged you to a debate.\n [Click here](/argue/",
-                                       str(arg.id), "/) to view the debate and accept or decline"])
+                                       " has challenged you to a debate.\n\n[Click here](/argue/",
+                                       str(arg.id), "/) to view the debate and accept or decline",
+                                       "\n\nIf accepted, the debate will be active for 7 days, ",
+                                       "after which the participant with the most votes will win."])
                     msg = tcdMessage(user=request.user,
                                      recipient=defendant,
                                      comment=msg_txt,
@@ -622,7 +624,9 @@ def respond(request):
                         arg.start_date = datetime.datetime.now()
                         arg_response = "accept"
                         message = ''.join([arg.defendant.username, 
-                                           " has accepted your challenge. \n[View this debate](", redirect, ")"])
+                                           " has accepted your challenge.\n\n[View this debate](", redirect, ")",
+                                           "\n\nThis debate will remain active for 7 days. After the time ",
+                                           "is up, the participant with the most votes will be declared the winner."])
                         msg = tcdMessage(user=request.user,
                                          recipient=arg.plaintiff,
                                          comment=message,
