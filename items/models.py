@@ -173,11 +173,22 @@ class Argument(models.Model):
                                 second=0)
         remaining = end - datetime.datetime.now()
         if remaining.days > 0:
-            return "%d days" % remaining.days
+            if remaining.days == 1:
+                return "%d day" % remaining.days
+            else:
+                return "%d days" % remaining.days
         elif remaining.seconds > 3600:
-            return "%d hours" % (remaining.seconds / 3600)
+            hours = remaining.seconds / 3600
+            if hours == 1:
+                return "%d hour" % hours
+            else:
+                return "%d hours" % hours
         elif remaining.seconds > 60:
-            return "%d minutes" % (remaining.seconds / 60)
+            minutes = remaining.seconds / 60
+            if minutes == 1:
+                return "%d minute" % minutes
+            else:
+                return "%d minutes" % minutes
         else:
             return "Time's Up!"
 

@@ -353,8 +353,8 @@ def feedback(request):
 
             send_mail(subj,
                       message,
-                      'admin@kotsf.com',
-                      ['greaterfeedback@gmail.com'],
+                      'feedback@greaterdebater.com',
+                      ['feedback@greaterdebater.com'],
                       fail_silently=False)            
             return HttpResponseRedirect("/users/thanks")
 
@@ -375,7 +375,10 @@ def forgot_password(request):
             message = ''.join(["To reset your password, visit the address below:\n",
                                HOSTNAME, "/users/u/",
                                user.username, "/reset/", code])
-            send_mail('Reset your password at GreaterDebater', message, 'admin@kotsf.com', [user.email], 
+            send_mail('Reset your password at GreaterDebater', 
+                      message, 
+                      'admin@greaterdebater.com', 
+                      [user.email], 
                       fail_silently=False)
             return render_to_response("registration/profile/forgot.html",
                                       {'form': form,
