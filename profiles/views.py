@@ -66,6 +66,8 @@ def login(request):
                 user = User.objects.get(email=email)
                 try:
                     # check whether an active request for this user to reset his password exists
+                    form = tcdLoginForm()
+                    rform = tcdUserCreationForm()
                     temp = Forgotten.objects.get(user=user)
                     message = """A forgotten password request has been submitted for this
 account. Please check your email and follow the link provided to reset your password"""
@@ -371,6 +373,12 @@ def forgot_password(request):
         if form.is_valid():            
             # store the user and a randomly generated code in the database
             user = User.objects.get(email=form.cleaned_data['email'])
+            
+            # Delete any previous codes in the database for this user
+            old_forgots = Forgotten.objects.filter(user=user)
+            for f in old_forgots:
+                f.delete()
+
             code = save_forgotten(user)
             message = ''.join(["To reset your password, visit the address below:\n",
                                HOSTNAME, "/users/u/",
@@ -381,8 +389,7 @@ def forgot_password(request):
                       [user.email], 
                       fail_silently=False)
             return render_to_response("registration/profile/forgot.html",
-                                      {'form': form,
-                                       'message': "An email with instructions for resetting your password has been sent to the address you provided."},
+                                      {'message': "An email with instructions for resetting your password has been sent to the address you provided."},
                                       context_instance=RequestContext(request))
 
     else:

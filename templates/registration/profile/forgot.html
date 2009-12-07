@@ -4,14 +4,22 @@
 {% block content %}
 
 {% if message %}
-<p>{{ message }}</p>
+<div>
+  <p>
+    {{ message }}
+  </p>
+</div>
 {% endif %}
 
-<form action='.' method='post'>
-  <table>
-    {{ form }}
-    <tr>
-      <td><input type="submit" value="Submit" /></td></tr>
-  </table>
-</form>
+{% if form %}
+<div class="sub_header">
+  <form action='.' method='post'>
+    <table>
+      {{ form }}
+      <tr>
+	<td></td><td><input type="submit" value="Submit" /></td></tr>
+    </table>
+  </form>
+</div>
+{% endif %}
 {% endblock %}
