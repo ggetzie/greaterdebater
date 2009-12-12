@@ -12,7 +12,7 @@
   {% with object.get_first_comment as comment %}
   {% if comment %}
 
-  <div class="firstcomment">
+  <div class="firstcomment comment_div">
     {{ comment.comment_html|safe }}
   </div>
   <div class="comment-menu">
