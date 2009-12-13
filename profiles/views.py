@@ -56,6 +56,8 @@ def register(request):
 def login(request):
     """Log in a user"""
     message = None
+    form = tcdLoginForm()
+    rform = tcdUserCreationForm()
     if request.method == 'POST':
         data = request.POST.copy()
         form = tcdLoginForm(data)
@@ -66,8 +68,6 @@ def login(request):
                 user = User.objects.get(email=email)
                 try:
                     # check whether an active request for this user to reset his password exists
-                    form = tcdLoginForm()
-                    rform = tcdUserCreationForm()
                     temp = Forgotten.objects.get(user=user)
                     message = """A forgotten password request has been submitted for this
 account. Please check your email and follow the link provided to reset your password"""
@@ -79,16 +79,10 @@ account. Please check your email and follow the link provided to reset your pass
                         # before they tried to log in
                         return HttpResponseRedirect(next)                
                     else:
-                        form = tcdLoginForm()
-                        rform = tcdUserCreationForm()
                         message = "Sorry, that's not a valid username or password"
             except ObjectDoesNotExist:
-                form = tcdLoginForm()
-                rform = tcdUserCreationForm()
                 message = "Sorry, that's not a valid username or password"
     else:
-        form = tcdLoginForm()
-        rform = tcdUserCreationForm()
         if 'next' in request.GET:
             next = request.GET['next']
         else:
