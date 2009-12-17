@@ -5,8 +5,16 @@ body {
     margin-left: 10px;
 }
 
-body a{
+a {
     text-decoration: none;
+}
+
+a:visited {
+    color: purple;
+}
+
+a:hover {
+    text-decoration: underline;
 }
 
 .wrapper {
