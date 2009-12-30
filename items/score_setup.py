@@ -9,7 +9,8 @@ import datetime
 def calculate_scores():
     tops = Topic.objects.all()
     for top in tops:
-        coms = top.comment_set.filter(is_msg=False)
+        coms = top.comment_set.filter(is_msg=False,
+                                      needs_review=False)
         for com in coms:
             top.comment_length += len(com.comment)
         top.recalculate()

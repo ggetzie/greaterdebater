@@ -88,7 +88,6 @@ class Comment(models.Model):
         if not self.id:
             self.pub_date = datetime.datetime.now()          
         self.comment_html = self.hilight(self.comment)
-#        self.comment_html = self.comment_html.replace('<p>', """<p class="commentp">""" )
         
         # match all the urls
         # this returns a tuple with two groups

@@ -574,6 +574,11 @@ def rebut(request):
                     arg.comment_set.add(c)
                     arg.save()
 
+                    top = arg.topic
+                    top.comment_length += len(c.comment)
+                    top.recalculate()
+                    top.save()
+
                     t = loader.get_template('comments/arg_comment.html')
 
                     context = Context({'comment': c,
