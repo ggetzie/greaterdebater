@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+
 from tcd.profiles.models import Profile
 from tcd.utils import elapsed_time
 from tcd.settings import HOSTNAME
@@ -80,13 +81,12 @@ class Topic(models.Model):
         self.comment_length = clen
         self.recalculate()
         self.save()
-    
 
 class Argument(models.Model):
-    plaintiff = models.ForeignKey(User, related_name='plaintiff_set')
-    defendant = models.ForeignKey(User, related_name='defendant_set')
-    start_date = models.DateTimeField()
+    plaintiff = models.ForeignKey(User, related_name='old_plaintiff_set')
+    defendant = models.ForeignKey(User, related_name='old_defendant_set')
     end_date = models.DateTimeField(blank=True, null=True)
+    start_date = models.DateTimeField()
     topic = models.ForeignKey(Topic)
     title = models.CharField(max_length=140)
     # status codes: 0 = challenge made, response pending
@@ -224,24 +224,13 @@ class Argument(models.Model):
     def get_absolute_url(self):
         return '/'.join([HOSTNAME, 'argue', str(self.id)])
 
-
+    
 class LogItem(models.Model):
     date = models.DateTimeField()
     message = models.CharField(max_length=200)
 
     def __unicode__(self):
         return self.message
-
-
-class Vote(models.Model):
-
-    argument = models.ForeignKey(Argument)
-    voter = models.ForeignKey(User)
-    voted_for = models.CharField(max_length=1) # "P" for plaintiff or "D" for defendant
-    
-    def __unicode__(self):
-        return ' '.join([self.voter.username, "voted for", self.voted_for, "in arg", self.argument.title])
-
 
 class Tags(models.Model):
 
@@ -251,3 +240,12 @@ class Tags(models.Model):
 
     def display_tags(self):
         return self.tags.split(',')
+
+class Vote(models.Model):
+
+    argument = models.ForeignKey(Argument)
+    voter = models.ForeignKey(User)
+    voted_for = models.CharField(max_length=1) # "P" for plaintiff or "D" for defendant
+    
+    def __unicode__(self):
+        return ' '.join([self.voter.username, "voted for", self.voted_for, "in arg", self.argument.title])

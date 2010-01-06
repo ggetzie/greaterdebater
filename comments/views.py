@@ -28,7 +28,8 @@ from django.utils.http import urlquote_plus, urlquote
 from django.views.generic import list_detail
 
 from forms import CommentForm, DeleteForm
-from models import Comment
+# from models import Comment
+from models import ArgComment, TopicComment, Debate
 
 from tcd.items.models import Topic
 from tcd.items.forms import Flag
@@ -61,14 +62,14 @@ def add(request, topic_id):
                 top = get_object_or_404(Topic, pk=topic_id)
                 params = {'comment': form.cleaned_data['comment'],
                           'user': request.user,
-                          'topic': top}
+                          'ntopic': top}
                 if form.cleaned_data['toplevel'] == 1:
-                    params['parent_id'] = 0
-                    params['nesting'] = 10
+                    params['nparent_id'] = 0
+                    params['nnesting'] = 10
                 else:
-                    params['parent_id'] = form.cleaned_data['parent_id']
-                    params['nesting'] = form.cleaned_data['nesting'] + 40
-                c = Comment(**params)
+                    params['nparent_id'] = form.cleaned_data['parent_id']
+                    params['nnesting'] = form.cleaned_data['nesting'] + 40
+                c = TopicComment(**params)
                 c.save()		    
                 
                 top.comment_length += len(c.comment)
@@ -84,7 +85,9 @@ def edit(request, topic_id):
     if request.POST:
         form=CommentForm(request.POST)
         if form.is_valid():
-            c = get_object_or_404(Comment, pk=form.cleaned_data['parent_id'])
+            # parent_id is the id of the comment being edited
+            # This is so we can reuse the same form for edits as for reply
+            c = get_object_or_404(TopicComment, pk=form.cleaned_data['parent_id'])
             if c.user == request.user:
                 # Adjust the score for the topic based on the new comment length
                 top = c.topic
@@ -97,28 +100,34 @@ def edit(request, topic_id):
                 c.comment = form.cleaned_data['comment']
                 c.last_edit = datetime.datetime.now()
                 c.save()
+            else:
+                message = "<p>Can't edit another user's comment!"
+                request.user.message_set.create(message)
         else:
             message = "<p>Oops! A problem occurred.</p>"
             request.user.message_set.create(message=message+str(form.errors))
     return HttpResponseRedirect(redirect_to)
                                 
 def delete(request):
+    """Unpermanently deletes a comment, undeletes a comment that has been deleted"""
     redirect_to = '/'
     if request.POST:
         form=DeleteForm(request.POST)
         if form.is_valid():
-            comment = get_object_or_404(Comment, pk=form.cleaned_data['comment_id'])
+            comment = get_object_or_404(TopicComment, pk=form.cleaned_data['comment_id'])
             redirect_to = form.cleaned_data['referring_page']
             if comment.user == request.user:
                 # Can't delete a comment if there are any 
                 # arguments associated with it
-                if not comment.arguments.all():
-                    top = comment.topic
-                    if comment.is_removed:
-                        comment.is_removed = False
+                debs = Debate.objects.filter(incite=comment)
+                if not debs:
+                    top = comment.ntopic
+                    # Toggle the deleted state of the comment
+                    if comment.removed:
+                        comment.removed = False
                         top.comment_length += len(comment.comment)                        
                     else:
-                        comment.is_removed = True
+                        comment.removed = True
                         top.comment_length -= len(comment.comment)                        
                     top.recalculate()
                     top.save()
@@ -171,8 +180,8 @@ def comment_detail(request, comment_id):
                                     
 def arguments(request, comment_id, page=1):
     paginate_by = 10
-    comment = get_object_or_404(Comment, pk=comment_id)
-    args_list = comment.arguments.filter(status__range=(1,5)).order_by('-start_date')
+    comment = get_object_or_404(TopicComment, pk=comment_id)
+    args_list = Debate.objects.filter(incite=comment, status__range=(1,5)).order_by('-start_date')
     start = calc_start(page, paginate_by, args_list.count())
 
     return list_detail.object_list(request=request,
@@ -188,7 +197,7 @@ def flag(request):
     if request.POST:
         form = Flag(request.POST)
         if form.is_valid():
-            com = Comment.objects.get(pk=form.cleaned_data['object_id'])
+            com = TopicComment.objects.get(pk=form.cleaned_data['object_id'])
             user = request.user
             if user in com.cflaggers.all():
                 message="You've already flagged this comment"

@@ -55,7 +55,8 @@ e.g. Politics, News, Current Events""")
                 "Only letters, numbers, spaces and characters _ ! @ ? $ % # ' & are allowed in tags")                
         return tags
 
-    
+class Flag(forms.Form):
+    object_id = forms.IntegerField(widget=forms.widgets.HiddenInput())
 
 class Ballot(forms.Form):
     argument = forms.IntegerField(widget=forms.widgets.HiddenInput())
@@ -71,11 +72,6 @@ class Ballot(forms.Form):
                 raise forms.ValidationError("Invalid vote")
         else:
             return voted_for
-
-
-class Flag(forms.Form):
-    object_id = forms.IntegerField(widget=forms.widgets.HiddenInput())
-
 
 class Concession(forms.Form):
     arg_id = forms.IntegerField(widget=forms.widgets.HiddenInput())

@@ -7,12 +7,13 @@ from tcd.comments.models import Comment
 
 class Blog(models.Model):
     author = models.ForeignKey(User)
-    started = models.DateTimeField()
+    start_date = models.DateTimeField()
 
 
 class Post(models.Model):
-    post_txt = models.TextField()
-    post_html = models.TextField(blank=True)
+    txt = models.TextField()
+    html = models.TextField(blank=True)
+    created = models.DateTimeField()
     pub_date = models.DateTimeField(blank=True)
     draft = models.BooleanField(default=True)
     tags = models.TextField(blank=True)
@@ -23,9 +24,10 @@ class Post(models.Model):
         ordering = ('-pub_date')
 
     def save(self):
-        self.post_html = markdown(post_txt)
+        self.html = markdown(post_txt)
 
 class PostComment(Comment):
+    blog = models.ForeignKey(Blog)
     post = models.ForeignKey(Post)
 
                              

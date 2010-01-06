@@ -7,7 +7,7 @@ class PostEdit(forms.Form):
     tags = forms.CharField(label="Tags", widget=forms.TextInput(attrs={'size':'70'})
                            required=False, 
                            help_text="Words or short phrases that describe the blog post, comma separated")
-    post_txt = forms.CharField(label="Text",
+    txt = forms.CharField(label="Text",
                                widget = forms.widgets.Textarea(attrs={'class': 'required icomment',
                                                                       'rows': 50,
                                                                       'cols':80}))
