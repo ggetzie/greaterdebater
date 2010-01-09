@@ -124,7 +124,7 @@ class Comment(models.Model):
         return elapsed_time(self.pub_date)
 
     def get_viewable_arguments(self):
-        return self.arguments.filter(status__range=(1,5)).count()
+        return self.debates.filter(status__range=(1,5)).count()
 
     def get_argue_form(self):
         return ArgueForm({'parent_id': self.id})
@@ -187,14 +187,7 @@ class tcdMessage(Comment):
     class Meta:
         ordering = ('-pub_date',)
 
-class Draw(models.Model):
-    offeror = models.ForeignKey(User, related_name='offeror')
-    recipient = models.ForeignKey(User, related_name='recipient')
-    offer_date = models.DateTimeField()
-    argument = models.ForeignKey(Argument)
 
-    def __unicode__(self):
-        return ''.join(["Argument ", str(self.argument.id)])
 
 class TopicComment(Comment):
     ntopic = models.ForeignKey(Topic)
@@ -345,7 +338,7 @@ class Debate(models.Model):
     def first_two(self):
         # The initial comment that inspired the argument
         # and the first assault by the plaintiff
-        return self.comment_set.order_by('pub_date')[:2]
+        return [self.incite, self.argcomment_set.order_by('pub_date')[0]]
 
     def get_absolute_url(self):
         return '/'.join([HOSTNAME, 'argue', str(self.id)])
@@ -366,3 +359,12 @@ class nVote(models.Model):
     
     def __unicode__(self):
         return ' '.join([self.voter.username, "voted for", self.voted_for, "in arg", self.argument.title])
+
+class Draw(models.Model):
+    offeror = models.ForeignKey(User, related_name='offeror')
+    recipient = models.ForeignKey(User, related_name='recipient')
+    offer_date = models.DateTimeField()
+    argument = models.ForeignKey(Debate)
+
+    def __unicode__(self):
+        return ''.join(["Argument ", str(self.argument.id)])

@@ -14,7 +14,8 @@ Tags:
 {% else %}
 <a id="moretags{{ object.id }}" 
    href='#' onclick="showalltags({{ object.id }}, true); return false;">Add Tags...</a>
-{% endif %}
+{% endif %} <!-- end if tags -->
+
 <div id="fulltags{{ object.id }}" class="tags confirm">
   {% for tag in tags|slice:"5:" %} 
   <a href="#" 

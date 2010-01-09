@@ -57,26 +57,25 @@ class Topic(models.Model):
         return self.url
 
     def get_first_comment(self):
-        com = self.comment_set.filter(is_first=True)
+        com = self.topiccomment_set.filter(first=True)
         if com:
             return com[0]
         else:
             return False
 
     def com_count(self):
-        num = self.comment_set.filter(arg_proper=False, 
-                                      is_removed=False,
-                                      needs_review=False,
-                                      is_msg=False).count()
+        num = self.topiccomment_set.filter(removed=False,
+                                           needs_review=False).count()
         return num
 
     def resum(self):
         clen = 0
-        coms = self.comment_set.filter(is_removed=False,
-                                       needs_review=False,
-                                       is_msg=False)
+        coms = self.topiccomment_set.filter(removed=False,
+                                            needs_review=False)
+        acoms = self.argcomment_set.all()
 
-        for com in coms:
+
+        for com in coms | acoms:
             clen += len(com.comment)
         self.comment_length = clen
         self.recalculate()

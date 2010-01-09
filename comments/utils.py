@@ -1,4 +1,4 @@
-from tcd.comments.models import Comment
+from tcd.comments.models import TopicComment
 
 def build_list(comments, p_id):
     """Takes a query set of comments and a parent id and
@@ -7,8 +7,8 @@ def build_list(comments, p_id):
     child of first comment, third comment = first child of second comment or second 
     child of first comment and so on"""
     comment_list = []
-    for comment in comments.filter(parent_id=p_id):
-        children = comments.filter(parent_id=comment.id)
+    for comment in comments.filter(nparent_id=p_id):
+        children = comments.filter(nparent_id=comment.id)
         if not children:
             comment_list.append(comment)
         else:

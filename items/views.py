@@ -10,11 +10,13 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.views.generic import list_detail
 
 from tcd.comments.forms import ArgueForm, CommentForm, RebutForm
-from tcd.comments.models import Comment, tcdMessage, Draw
+# from tcd.comments.models import Comment, tcdMessage, Draw
+from tcd.comments.models import TopicComment, ArgComment, nVote, Debate, tcdMessage, Draw
 from tcd.comments.utils import build_list
 
 from tcd.items.forms import tcdTopicSubmitForm, Ballot, Flag, Concession, Response, TagEdit
-from tcd.items.models import Topic, Argument, Vote, Tags
+# from tcd.items.models import Topic, Argument, Vote, Tags
+from tcd.items.models import Topic, Tags
 
 from tcd.profiles.forms import tcdLoginForm, tcdUserCreationForm
 from tcd.profiles.models import Profile
@@ -36,10 +38,8 @@ def comments(request, topic_id, page=1):
     has_previous = False
     has_next = True
     top = get_object_or_404(Topic, pk=topic_id)
-    comments = top.comment_set.filter(is_msg=False, 
-                                      is_first=False,
-                                      arg_proper=False,
-                                      needs_review=False)
+    comments = top.topiccomment_set.filter(first=False,
+                                           needs_review=False)
     rest_c = build_list(comments.order_by('-pub_date'), 0)
     form_comment = CommentForm()
 
@@ -84,7 +84,7 @@ def comments(request, topic_id, page=1):
                               )
 
 def topics(request, page=1, sort="hot"):
-    """Display the list of topics on the front page. Order by highest score"""
+    """Display the list of topics. Order by highest score (hot) or most recent (new)"""
     paginate_by = 25
     start = calc_start(page, paginate_by, Topic.objects.count())
 
@@ -116,7 +116,7 @@ def topics(request, page=1, sort="hot"):
 
 def front_page(request):
     """Display the home page of GreaterDebater.com, show five hottest arguments and ten hottest topics"""
-    args = Argument.objects.filter(status__range=(1,2))[:5]
+    args = Debate.objects.filter(status__range=(1,2))[:5]
     topics = Topic.objects.filter(needs_review=False).order_by('-score', '-sub_date')[:10]
 
     if request.user.is_authenticated():
@@ -183,7 +183,7 @@ def delete_topic(request):
             response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')    
             return HttpResponse(response)
         if request.user == top.user:
-            coms = top.comment_set.filter(is_first=False, is_removed=False)
+            coms = top.topiccomment_set.filter(first=False, removed=False)
             if coms:
                 message = "Can't delete a topic that has comments"
             else:
@@ -251,13 +251,13 @@ def submit(request):
                     topic.save()
                                             
                     if form.cleaned_data['comment']:
-                        comment = Comment(user=request.user,
-                                          topic=topic,
-                                          pub_date=datetime.datetime.now(),
-                                          comment=form.cleaned_data['comment'],
-                                          is_first=True,
-                                          parent_id=0,
-                                          nesting=0)
+                        comment = TopicComment(user=request.user,
+                                               ntopic=topic,
+                                               pub_date=datetime.datetime.now(),
+                                               comment=form.cleaned_data['comment'],
+                                               first=True,
+                                               nparent_id=0,
+                                               nnesting=0)
                         comment.save()
 
                         topic.comment_length += len(comment.comment)
@@ -297,7 +297,7 @@ def submit(request):
 def edit_topic(request, topic_id, page):
     """Allow the submitter of a topic to edit its title or url"""
     top = get_object_or_404(Topic, pk=topic_id)
-    c = Comment.objects.filter(topic=top, is_first=True)
+    c = TopicComment.objects.filter(ntopic=top, first=True)
     redirect = ''.join(['/users/u/', request.user.username, '/submissions/', page])    
     if request.method == 'POST':
         if request.user == top.user:
@@ -311,13 +311,13 @@ def edit_topic(request, topic_id, page):
                         c.comment = form.cleaned_data['comment']
                     else:
                         oldlen = 0
-                        c = Comment(user=top.user,
-                                    topic=top,
-                                    comment = form.cleaned_data['comment'],
-                                    pub_date=datetime.datetime.now(),
-                                    is_first=True,
-                                    parent_id=0,
-                                    nesting=0)                    
+                        c = TopicComment(user=top.user,
+                                         ntopic=top,
+                                         comment = form.cleaned_data['comment'],
+                                         pub_date=datetime.datetime.now(),
+                                         first=True,
+                                         nparent_id=0,
+                                         nnesting=0)                    
                     c.save()
 
                     top.comment_length += len(c.comment) - oldlen
@@ -420,36 +420,37 @@ def challenge(request, c_id):
     """Create a pending argument as one user challenges another."""
     if request.POST:
         form = ArgueForm(request.POST)
-        c = get_object_or_404(Comment, pk=c_id)
+        c = get_object_or_404(TopicComment, pk=c_id)
         defendant = c.user
         redirect = ''.join(['/', str(c.topic_id), '/']) 
         if form.is_valid():
             if not request.user.is_authenticated():
                 request.user.message_set.create(message="Log in to start an argument")
             else:
-                if Argument.objects.filter(plaintiff=request.user,
+                if Debate.objects.filter(plaintiff=request.user,
                                            comment=c_id):
                     request.user.message_set.create(message="You may only start one debate per comment")
                 else:
-                    arg = Argument(plaintiff=request.user,
-                                   defendant=defendant,
-                                   start_date=datetime.datetime.now(),
-                                   topic=c.topic,                                   
-                                   title=form.cleaned_data['title'],
-                                   status=0)
+                    arg = Debate(plaintiff=request.user,
+                                 defendant=defendant,
+                                 start_date=datetime.datetime.now(),
+                                 topic=c.topic,                                   
+                                 title=form.cleaned_data['title'],
+                                 status=0,
+                                 incite=c)
                     arg.save()
-                    c.arguments.add(arg)
-                    c.save()
+
                     params = {'comment': form.cleaned_data['argument'],
                               'user': request.user,
-                              'topic': c.topic,
-                              'parent_id': form.cleaned_data['parent_id'],
-                              'nesting': 40,
-                              'arg_proper': True}
-                    opener = Comment(**params)
+                              'ntopic': c.topic,
+                              'debate': arg}
+                              # 'parent_id': form.cleaned_data['parent_id'],
+                              # 'nesting': 40,
+                              # 'arg_proper': True}
+                    opener = ArgComment(**params)
                     opener.save()
-                    opener.arguments.add(arg)
                     arg.save()
+
                     msg_txt = ''.join([request.user.username, 
                                        " has challenged you to a debate.\n\n[Click here](/argue/",
                                        str(arg.id), "/) to view the debate and accept or decline",
@@ -480,17 +481,17 @@ def vote(request):
     if request.POST:        
         form = Ballot(request.POST)
         if form.is_valid():
-            arg = get_object_or_404(Argument, pk=form.cleaned_data['argument'])
+            arg = get_object_or_404(Debate, pk=form.cleaned_data['argument'])
             voter = get_object_or_404(User, pk=form.cleaned_data['voter'])
             redirect = ''.join(['/argue/', str(arg.id)])
             if voter == request.user:
-                vote = Vote(argument=arg,
-                            voter=voter,
-                            voted_for=form.cleaned_data['voted_for'])
+                vote = nVote(argument=arg,
+                             voter=voter,
+                             voted_for=form.cleaned_data['voted_for'])
                 vote.save()
                 arg.calculate_score()
                 arg.save()
-                all_votes = Vote.objects.filter(argument=arg)
+                all_votes = nVote.objects.filter(argument=arg)
                 if vote.voted_for == "P":
                     voted_name = arg.plaintiff.username
                 else:
@@ -525,11 +526,11 @@ def unvote(request):
     if request.POST:
         form = Ballot(request.POST)
         if form.is_valid():
-            arg = get_object_or_404(Argument, pk=form.cleaned_data['argument'])
+            arg = get_object_or_404(Debate, pk=form.cleaned_data['argument'])
             voter = get_object_or_404(User, pk=form.cleaned_data['voter'])
             redirect = ''.join(['/argue/', str(arg.id)])
             if voter == request.user:
-                vote = get_object_or_404(Vote, argument=arg, voter=voter)
+                vote = get_object_or_404(nVote, argument=arg, voter=voter)
                 vote.delete()
                 error = False
             else:
@@ -542,7 +543,7 @@ def unvote(request):
                              ('message', message)])
     response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')
     return HttpResponse(response)
-                                
+
 def rebut(request):
     """Add a new post to an argument."""
     status = "error"
@@ -554,7 +555,7 @@ def rebut(request):
     if request.POST:
         form = RebutForm(request.POST)
         if form.is_valid():            
-            arg = get_object_or_404(Argument, pk=form.cleaned_data['arg_id'])
+            arg = get_object_or_404(Debate, pk=form.cleaned_data['arg_id'])
             if arg.whos_up() == request.user:
                 if arg.status in (0, 1, 2):
                     if arg.status == 2:
@@ -564,13 +565,13 @@ def rebut(request):
                     elif arg.status == 0:
                         arg.status = 1
                     params = {'comment': form.cleaned_data['comment'],
-                      'user': request.user,
-                      'topic': arg.topic,
-                      'parent_id': form.cleaned_data['parent_id'],
-                      'nesting': form.cleaned_data['nesting'] + 40,
-                      'arg_proper': True}
-                    c = Comment(**params)
+                              'user': request.user,
+                              'ntopic': arg.topic,
+                              'debate': arg}
+
+                    c = ArgComment(**params)
                     c.save()
+                    
                     arg.comment_set.add(c)
                     arg.save()
 
@@ -618,7 +619,7 @@ def respond(request):
     if request.POST:
         form = Response(request.POST)
         if form.is_valid():
-            arg = get_object_or_404(Argument, pk=form.cleaned_data['arg_id'])
+            arg = get_object_or_404(Debate, pk=form.cleaned_data['arg_id'])
             if request.user == arg.defendant:
                 redirect = ''.join(["/argue/", str(arg.id), "/"])
                 if arg.status == 0:
@@ -692,7 +693,7 @@ def draw(request):
     if request.POST:
         form = RebutForm(request.POST)
         if form.is_valid():
-            arg = get_object_or_404(Argument, pk=form.cleaned_data['arg_id'])
+            arg = get_object_or_404(Debate, pk=form.cleaned_data['arg_id'])
             redirect = ''.join(['/argue/', str(arg.id), '/'])
             if arg.whos_up() == request.user and not arg.draw_set.all():
                 message = ''.join([request.user.username, 
@@ -741,7 +742,7 @@ def respond_draw(request):
     if request.POST:
         form = Response(request.POST)
         if form.is_valid():
-            arg = get_object_or_404(Argument, pk=form.cleaned_data['arg_id'])
+            arg = get_object_or_404(Debate, pk=form.cleaned_data['arg_id'])
             draw = get_object_or_404(Draw, argument=arg)
             redirect = ''.join(["/argue/", str(arg.id), "/"])
             if request.user == draw.recipient:
@@ -799,7 +800,7 @@ def concede(request):
     if request.POST:
         form = Concession(request.POST)
         if form.is_valid():
-            arg = get_object_or_404(Argument, pk=form.cleaned_data['arg_id'])
+            arg = get_object_or_404(Debate, pk=form.cleaned_data['arg_id'])
             user = User.objects.get(pk=form.cleaned_data['user_id'])
 
             if user == request.user and request.user in (arg.defendant, arg.plaintiff):
@@ -843,15 +844,16 @@ def concede(request):
 
 
 def arg_detail(request, object_id):
-    arg = get_object_or_404(Argument, pk=object_id)
+    arg = get_object_or_404(Debate, pk=object_id)
     voted_for = None
-    votes = Vote.objects.filter(argument=arg)
+    votes = nVote.objects.filter(argument=arg)
     current = False
     new_arg = False
     show_actions = False
     show_votes = False
     show_draw = False
-    last_c = arg.comment_set.order_by("-pub_date")[0]
+    
+    last_c = arg.argcomment_set.order_by("-pub_date")[0]
     if request.user.is_authenticated():
 
         try: 
@@ -917,13 +919,13 @@ def arg_detail(request, object_id):
 def args_list(request, sort, page=1):
 
     if sort == "new":
-        args = Argument.objects.filter(status__range=(1,2)).order_by('-start_date')
+        args = Debate.objects.filter(status__range=(1,2)).order_by('-start_date')
         template_name = "items/arg_new.html"
     elif sort == "hot":
-        args = Argument.objects.filter(status__range=(1,2))
+        args = Debate.objects.filter(status__range=(1,2))
         template_name = "items/arg_current.html"
     elif sort == "archive":
-        args = Argument.objects.filter(status__range=(3,5)).order_by('-start_date')
+        args = Debate.objects.filter(status__range=(3,5)).order_by('-start_date')
         template_name = "items/arg_old.html"
         
     if request.user.is_authenticated():

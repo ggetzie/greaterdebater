@@ -7,9 +7,12 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import loader, RequestContext
 from django.views.generic import list_detail
 
-from tcd.comments.models import Comment, tcdMessage
-from tcd.items.models import Topic, Argument, Tags
+# from tcd.comments.models import Comment, tcdMessage
+from tcd.comments.models import TopicComment, ArgComment, Debate, tcdMessage
+
+from tcd.items.models import Topic, Tags # Argument
 from tcd.items.views import object_list_field, object_list_foreign_field, calc_start
+
 from tcd.profiles.forms import tcdUserCreationForm, tcdPasswordResetForm, tcdLoginForm, \
     forgotForm, FeedbackForm, SettingsForm
 from tcd.profiles.models import Profile, Forgotten

@@ -7,11 +7,9 @@ from django.contrib.auth.models import User
 from tcd.comments.models import Comment
 from tcd.items.models import Topic
 
-comments_dict = {'model': Comment,
+comments_dict = {'model': TopicComment,
                  'field': 'user',
-                 'fv_dict': {'is_msg': False,
-                             'is_first': False,
-                             'arg_proper': False,},
+                 'fv_dict': {'first': False},                             
                  'foreign_model': User,
                  'foreign_field': 'username',
                  'template_name': "registration/profile/profile_coms.html",

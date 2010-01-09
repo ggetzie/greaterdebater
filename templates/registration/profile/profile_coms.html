@@ -10,7 +10,7 @@
   {% if comments_list %}
   {% for comment in comments_list %}
   <p class=comment_topic>
-    on <a href="/{{ comment.topic_id }}/" {% if newwin %}target="_blank"{% endif %}>{{ comment.topic.title }}</a>
+    on <a href="/{{ comment.ntopic_id }}/" {% if newwin %}target="_blank"{% endif %}>{{ comment.ntopic.title }}</a>
   </p>
   <div id="comment_div{{ comment.id }}" class="comment_div">
     {% include "comments/one_comment.html" %}    

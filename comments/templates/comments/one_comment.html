@@ -3,7 +3,7 @@
   <p class="commentp"><i>Comment deleted</i></p>
 </div>
 {% else %}
-<span id= "comment_info{{ comment.id }}" class="comment_info {% if comment.is_removed %}removed{% endif %}"> by <a href="/users/u/{{ comment.user }}/profile/">{{ comment.user }}</a> {{ comment.get_elapsed }} ago   
+<span id= "comment_info{{ comment.id }}" class="comment_info {% if comment.removed %}removed{% endif %}"> by <a href="/users/u/{{ comment.user }}/profile/">{{ comment.user }}</a> {{ comment.get_elapsed }} ago   
 {% ifnotequal user comment.user %}
   <span id="flag_link{{ comment.id }}">
     | <a class="menu" href='#' class="comment_action"

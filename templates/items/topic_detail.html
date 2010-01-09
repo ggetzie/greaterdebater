@@ -41,7 +41,7 @@
 <h4>Comments</h4>
 <div id="comments">
   {% for comment in rest_c %}
-  <div id="comment_div{{ comment.id }}" class="comment_div" style="margin-left: {{ comment.nesting }}px">
+  <div id="comment_div{{ comment.id }}" class="comment_div" style="margin-left: {{ comment.nnesting }}px">
     {% include "comments/one_comment.html" %}
   </div>
   {% endfor %}

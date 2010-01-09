@@ -2,7 +2,7 @@
 <div id = "comment-menu{{ comment.id }}" class="comment-menu">
 
   <a id="collapse{{ comment.id }}" class="menu" href="javascript:collapse('#comment_div{{ comment.id }}', 0);">[-]</a>
-  {% if comment.is_removed %}
+  {% if comment.removed %}
 
   {% ifequal user comment.user %}
   <a id="undelete{{ comment.id}}" href='#' class="menu comment-menu" onclick="delete_comment('{{ comment.id }}'); return false;">undelete</a>
@@ -48,7 +48,7 @@
 </div>
 
 {% if user.is_authenticated %}  
-{% if not comment.is_removed %}
+{% if not comment.removed %}
 <div id="action_block{{ comment.id }}" class="action_block">
   {% include "comments/reply_form.html" %}
   {% include "comments/edit_form.html" %}

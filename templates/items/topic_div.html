@@ -6,6 +6,7 @@
   <div class="comment-menu">
     submitted by <a href="/users/u/{{ object.user }}/profile/">{{ object.user }}</a> {{ object.get_elapsed }} ago
     {% if user.is_authenticated %}
+
     {% ifnotequal user object.user %}
     <span id="flag_link{{ object.id }}">
       | <a href="#" onclick="swap('#flag_link{{ object.id }}', '#confirm_flag{{ object.id }}'); return false;">flag</a>

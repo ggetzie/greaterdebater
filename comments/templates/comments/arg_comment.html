@@ -1,5 +1,5 @@
 <div id="comment_div{{ comment.id }}" class="comment_div {% ifequal comment.user object.defendant %}defendant{% else %}plaintiff{% endifequal %}">
-  <span id= "comment_info{{ comment.id }}" class="comment_info {% if comment.is_removed %}removed{% endif %}"> by <a href="/users/u/{{ comment.user }}/profile/">{{ comment.user }}</a> {{ comment.get_elapsed }} ago</span>
+  <span id= "comment_info{{ comment.id }}" class="comment_info"> by <a href="/users/u/{{ comment.user }}/profile/">{{ comment.user }}</a> {{ comment.get_elapsed }} ago</span>
   <div id="commentp_div{{ comment.id }}">
     {{ comment.comment_html|safe }}
   </div>
