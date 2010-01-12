@@ -253,7 +253,7 @@ function concede_argument(arg_id, user_id) {
     $("#concede" + arg_id).hide();
 }
 
-function rebut_argument(arg_id, parent_id, nesting, draw) {    
+function rebut_argument(arg_id, parent_id, draw) {    
     var comment_text
     if (draw == true) {
 	url = "/argue/draw/"
@@ -268,7 +268,6 @@ function rebut_argument(arg_id, parent_id, nesting, draw) {
 
     $.post(url, {comment: comment_text,
 		 parent_id: parent_id,
-		 nesting: nesting,
 		 arg_id: arg_id},
 	   function(xml) {
 	       $("#turn_actions").html(turn_actions)

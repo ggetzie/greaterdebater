@@ -1,0 +1,8 @@
+My website http://greaterdebater.com has been up and running for a few
+months now.  It's a social news and debate site largely inspired by
+reddit. In addition to sharing links and commenting on them, you can
+also challenge other users to one-on-one debates which take place in a
+special thread where only you and your opponent can post. Other users
+can view the debate and vote for the winner.  Currently I'm working on
+a blog to (hopefully) market the site better and attract some more
+users besides myself and a few of my friends.

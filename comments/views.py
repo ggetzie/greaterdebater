@@ -90,7 +90,7 @@ def edit(request, topic_id):
             c = get_object_or_404(TopicComment, pk=form.cleaned_data['parent_id'])
             if c.user == request.user:
                 # Adjust the score for the topic based on the new comment length
-                top = c.topic
+                top = c.ntopic
                 deltalen = len(form.cleaned_data['comment']) - len(c.comment)
                 top.comment_length += deltalen
                 top.recalculate()

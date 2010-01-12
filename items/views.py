@@ -422,19 +422,19 @@ def challenge(request, c_id):
         form = ArgueForm(request.POST)
         c = get_object_or_404(TopicComment, pk=c_id)
         defendant = c.user
-        redirect = ''.join(['/', str(c.topic_id), '/']) 
+        redirect = ''.join(['/', str(c.ntopic.id), '/']) 
         if form.is_valid():
             if not request.user.is_authenticated():
                 request.user.message_set.create(message="Log in to start an argument")
             else:
                 if Debate.objects.filter(plaintiff=request.user,
-                                           comment=c_id):
+                                           incite=c):
                     request.user.message_set.create(message="You may only start one debate per comment")
                 else:
                     arg = Debate(plaintiff=request.user,
                                  defendant=defendant,
                                  start_date=datetime.datetime.now(),
-                                 topic=c.topic,                                   
+                                 topic=c.ntopic,                                   
                                  title=form.cleaned_data['title'],
                                  status=0,
                                  incite=c)
@@ -442,7 +442,7 @@ def challenge(request, c_id):
 
                     params = {'comment': form.cleaned_data['argument'],
                               'user': request.user,
-                              'ntopic': c.topic,
+                              'ntopic': c.ntopic,
                               'debate': arg}
                               # 'parent_id': form.cleaned_data['parent_id'],
                               # 'nesting': 40,
@@ -532,6 +532,7 @@ def unvote(request):
             if voter == request.user:
                 vote = get_object_or_404(nVote, argument=arg, voter=voter)
                 vote.delete()
+                arg.calculate_score()
                 error = False
             else:
                 message = "Can't delete another user's vote"
@@ -572,7 +573,6 @@ def rebut(request):
                     c = ArgComment(**params)
                     c.save()
                     
-                    arg.comment_set.add(c)
                     arg.save()
 
                     top = arg.topic
@@ -661,7 +661,7 @@ def respond(request):
                     ta_template = loader.get_template("items/turn_actions.html")
                     ta_c = Context({'object': arg,
                                     'user': request.user,
-                                    'last_c': arg.comment_set.order_by('-pub_date')[0]})
+                                    'last_c': arg.argcomment_set.order_by('-pub_date')[0]})
                     turn_actions = ta_template.render(ta_c)
                     response_message = msg.subject
                     arg_status = arg.get_status()
@@ -772,7 +772,7 @@ def respond_draw(request):
                 ta_template = loader.get_template("items/turn_actions.html")
                 ta_c = Context({'object': arg,
                                 'user': request.user,
-                                'last_c': arg.comment_set.order_by('-pub_date')[0]})
+                                'last_c': arg.argcomment_set.order_by('-pub_date')[0]})
                 ta_XML = ta_template.render(ta_c)
                 status = "ok"
                 arg_status = arg.get_status()
@@ -864,7 +864,7 @@ def arg_detail(request, object_id):
                 voted_for = arg.defendant
             else:                
                 request.user.message_set.create(message="Something funky about your vote")
-        except Vote.DoesNotExist:
+        except nVote.DoesNotExist:
             pass
 
     if arg.status in range(0,3):
@@ -902,7 +902,8 @@ def arg_detail(request, object_id):
 
     return render_to_response("items/arg_detail.html",
                               {'object': arg,
-                               'comments': arg.comment_set.order_by('pub_date'),
+                               'incite': arg.incite,
+                               'comments': arg.argcomment_set.order_by('pub_date'),
                                'new_arg': new_arg,
                                'voted_for': voted_for, 
                                'last_c': last_c,

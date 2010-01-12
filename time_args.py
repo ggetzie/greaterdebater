@@ -3,23 +3,24 @@ import os
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'tcd.settings'
 
-from tcd.comments.models import *
-from tcd.items.models import Argument, Vote, LogItem
+from tcd.comments.models import ArgComment, TopicComment, Debate, nVote, Draw, tcdMessage
+from tcd.items.models import LogItem # Argument, Vote
 from tcd.profiles.models import Profile
 import datetime
 
 def time_args():
-    """Get all active arguments from the database and end the ones without
-a reply for more than seven days"""
+    """Get all active arguments from the database and end the ones
+older than 7 days. The winner is the participant with the most votes.
+Equal votes ends the argument in a tie"""
 
-    args = Argument.objects.filter(status__range=(1,2))
+    args = Debate.objects.filter(status__range=(1,2))
     count = 0
     for arg in args:
-        last_comment = arg.comment_set.latest('pub_date')
+        last_comment = arg.argcomment_set.latest('pub_date')
         elapsed = datetime.datetime.now() - arg.start_date
         if elapsed.days >= 7:
             count += 1            
-            votes = Vote.objects.filter(argument=arg)
+            votes = nVote.objects.filter(argument=arg)
             pvotes = votes.filter(voted_for="P").count()
             dvotes = votes.filter(voted_for="D").count()
             if pvotes == dvotes:
@@ -77,7 +78,7 @@ def age_args():
     """
     Artificially age arguments by 8 days for testing purposes
     """
-    args = Argument.objects.filter(status__range=(1,2))
+    args = Debate.objects.filter(status__range=(1,2))
     delta = datetime.timedelta(days=8)
     for arg in args:
         arg.start_date = arg.start_date - delta

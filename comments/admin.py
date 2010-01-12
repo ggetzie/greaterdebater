@@ -1,27 +1,44 @@
 from django.contrib import admin
-from tcd.comments.models import Comment, tcdMessage, Draw
+from tcd.comments.models import TopicComment, tcdMessage, Draw, \
+    ArgComment, Debate, nVote
 
 
 
 admin.site.register(Draw)
 
 
-class CommentAdmin(admin.ModelAdmin):
+class TopicCommentAdmin(admin.ModelAdmin):
     
     fieldsets = [
-        (None,            {'fields': ['user', 'pub_date', 'topic', 'is_first']}),
+        (None,            {'fields': ['user', 'pub_date', 'ntopic', 'first']}),
         ('Flag Info',     {'fields': ['cflaggers', 'needs_review']}),
-        ('Text',          {'fields': ['comment', 'comment_html', 'parent_id', 'nesting', 'is_msg', 'is_removed']}),
-        ('Argument Info', {'fields': ['arguments', 'arg_proper']})
+        ('Text',          {'fields': ['comment', 'comment_html', 'parent_id', 'nnesting', 'removed']}),
         ]
         
         
 
     list_display = ('user', 'pub_date', 'comment')
-    list_filter = ['pub_date', 'needs_review', 'is_msg', 'arg_proper', 'is_first', 'is_removed']
+    list_filter = ['pub_date', 'needs_review', 'first', 'removed']
 
 
-admin.site.register(Comment, CommentAdmin)
+admin.site.register(TopicComment, TopicCommentAdmin)
+
+class ArgCommentAdmin(admin.ModelAdmin):
+    
+    fieldsets = [
+        (None,            {'fields': ['user', 'pub_date', 'topic', 'is_first']}),
+        ('Flag Info',     {'fields': ['cflaggers', 'needs_review']}),
+        ('Text',          {'fields': ['comment', 'comment_html']}),
+        ('Debate Info', {'fields': ['debate']})
+        ]
+        
+        
+
+    list_display = ('user', 'pub_date', 'comment')
+    list_filter = ['pub_date', 'needs_review']
+
+
+admin.site.register(ArgComment, ArgCommentAdmin)
 
 
 class tcdMessageAdmin(admin.ModelAdmin):
@@ -34,3 +51,16 @@ class tcdMessageAdmin(admin.ModelAdmin):
     list_display = ('pub_date', 'recipient', 'subject')
 
 admin.site.register(tcdMessage, tcdMessageAdmin)
+
+class DebateAdmin(admin.ModelAdmin):
+    fieldsets = [
+        (None,         {'fields': ['defendant', 'plaintiff', 'title', 'topic', 'incite']}),
+        ('Dates',      {'fields': ['start_date', 'end_date']}),
+        ('Status',     {'fields': ['status', 'score']})
+        ]
+
+    list_display = ('start_date', 'title')
+    list_filter = ('start_date', 'end_date', 'status')
+         
+
+admin.site.register(Debate, DebateAdmin)

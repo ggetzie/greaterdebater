@@ -4,7 +4,7 @@
 
 from django.conf.urls.defaults import *
 from django.contrib.auth.models import User
-from tcd.comments.models import Comment
+from tcd.comments.models import TopicComment
 from tcd.items.models import Topic
 
 comments_dict = {'model': TopicComment,

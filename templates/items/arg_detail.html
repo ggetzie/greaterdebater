@@ -20,6 +20,9 @@
 </div>
 
 <div id="arg_comments">
+  {% with incite as comment %}
+  {% include "comments/arg_comment.html" %}
+  {% endwith %}
   {% if comments %}
   {% for comment in comments %}
   {% include "comments/arg_comment.html" %}

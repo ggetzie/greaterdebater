@@ -6,7 +6,7 @@
 {% if form.errors %}
 {{ form.errors }}
 {% endif %}
-<form action="." method='post'>
+<form action="{{ request.path }}" method='post'>
   <table>
     <tr>
       <th>	

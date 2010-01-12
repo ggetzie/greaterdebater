@@ -4,7 +4,7 @@
       <label for="id_comment">Posting as {{ user }}</label>
       <br /><textarea rows=5 cols=50 name="comment"></textarea>
       <div><input type="hidden" name="parent_id" value={{ comment.id }}></div>
-      <div><input type="hidden" name="nesting" value={{ comment.nesting }}></div>
+      <div><input type="hidden" name="nesting" value={{ comment.nnesting }}></div>
       <div><input type="hidden" name="toplevel" value=0></div>
       <div>
 	<button onclick="$('#reply{{ comment.id }}').slideToggle(); return false;" name="cancel">Cancel</button>

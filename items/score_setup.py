@@ -3,14 +3,16 @@ import os
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'tcd.settings'
 
-from tcd.imports import *
+# from tcd.imports import *
+from tcd.comments.models import Debate, TopicComment, ArgComment
+from tcd.items.models import Topic, LogItem
 import datetime
 
 def calculate_scores():
     tops = Topic.objects.all()
     for top in tops:
-        coms = top.comment_set.filter(is_msg=False,
-                                      needs_review=False)
+        top.comment_length = 0
+        coms = top.topiccomment_set.filter(needs_review=False) | top.argcomment_set.filter(needs_review=False)
         for com in coms:
             top.comment_length += len(com.comment)
         top.recalculate()
@@ -24,7 +26,7 @@ def recalc_all():
         top.recalculate()
         top.save()
 
-    args = Argument.objects.filter(status__range=(1,2))
+    args = Debate.objects.filter(status__range=(1,2))
     for arg in args: 
         arg.calculate_score()
         arg.save()

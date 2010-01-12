@@ -68,7 +68,7 @@ class Comment(models.Model):
     is_removed = models.BooleanField(default=False)
     is_first = models.BooleanField(default=False)
     topic = models.ForeignKey(Topic, null=True, blank=True)
-    parent_id = models.IntegerField()
+    parent_id = models.IntegerField(default=0)
     nesting = models.IntegerField(null=True, blank=True)
     arguments = models.ManyToManyField(Argument, blank=True, null=True)
     arg_proper = models.BooleanField(default=False)
@@ -123,8 +123,7 @@ class Comment(models.Model):
     def get_elapsed(self):
         return elapsed_time(self.pub_date)
 
-    def get_viewable_arguments(self):
-        return self.debates.filter(status__range=(1,5)).count()
+
 
     def get_argue_form(self):
         return ArgueForm({'parent_id': self.id})
@@ -198,6 +197,9 @@ class TopicComment(Comment):
 
     def save(self):
         super(TopicComment, self).save()
+
+    def get_viewable_arguments(self):
+        return Debate.objects.filter(status__range=(1,5), incite=self).count()
 
 
 class Debate(models.Model):
@@ -329,7 +331,7 @@ class Debate(models.Model):
         self.save()
 
     def calculate_score(self):
-        numvotes = Vote.objects.filter(argument=self.id).count()
+        numvotes = nVote.objects.filter(argument=self.id).count()
         delta = datetime.datetime.now() - self.start_date
         hours2 = (delta.days*24 + delta.seconds/(3600) + 1.0)**2
         self.score = float(numvotes / hours2)

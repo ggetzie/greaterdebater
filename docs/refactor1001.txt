@@ -1,0 +1,39 @@
+1. Create new classes TopicComment and ArgComment - these should have
+all fields necessary for comments on topics and comments that are part
+of arguments.
+
+2. Create a new Argument class in the comments models file. This is the same but adds the field "incite" which is a ForeignKey field pointing to a TopicComment
+
+3. Write a python script to copy all existing Comments from the comments_comment table to the new comments_topiccomment and comments_argcomments table.
+
+for all topics:
+    copy comment in topics.comment_set to new TopicComment
+
+for all items.models.argument:
+    copy items.models.argument to a new comments.models.argument
+    new comments.models.argument incite points to TopicComment with
+    same text as items.models.arguments.comment_set[0]
+
+for all votes:
+    copy vote to new nVote object
+    ensure debate field in new nVote points to Debate corresponding to Argument in the argument field of vote object
+
+4. Update views to use the TopicComment and ArgComment classes for saving and displaying comments
+
+5. Delete now duplicated comments from the comments_comment table
+
+6. Delete unnecessary fields from comments.comment model
+   Delete unncessary columns from comments_comment table
+   Delete items.models.argument model
+   Delete items_argument table
+
+
+Migration process:
+
+maintenance page
+hg update
+drop draw table (ensure it is empty)
+syncdb
+run migrate1001 script
+restart apache
+
