@@ -31,9 +31,34 @@ for all votes:
 Migration process:
 
 maintenance page
-hg update
 drop draw table (ensure it is empty)
+hg update
 syncdb
 run migrate1001 script
 restart apache
 
+Dupe deletion process:
+
+for all topics:
+    delete topic.comment_set
+
+for all arguments:
+    delete arg.comment_set
+
+delete all votes
+delete all arguments
+
+delete models for Argument, Vote
+
+from table comments_comment:
+     delete columns:
+     	    is_removed
+	    is_first
+	    parent_id
+	    nesting
+	    arguments
+	    arg_proper
+
+
+manually drop topic_id foreign key constraint
+manually drop topic_id column
