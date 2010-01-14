@@ -10,12 +10,10 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.views.generic import list_detail
 
 from tcd.comments.forms import ArgueForm, CommentForm, RebutForm
-# from tcd.comments.models import Comment, tcdMessage, Draw
 from tcd.comments.models import TopicComment, ArgComment, nVote, Debate, tcdMessage, Draw
 from tcd.comments.utils import build_list
 
 from tcd.items.forms import tcdTopicSubmitForm, Ballot, Flag, Concession, Response, TagEdit
-# from tcd.items.models import Topic, Argument, Vote, Tags
 from tcd.items.models import Topic, Tags
 
 from tcd.profiles.forms import tcdLoginForm, tcdUserCreationForm

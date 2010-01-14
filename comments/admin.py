@@ -12,7 +12,7 @@ class TopicCommentAdmin(admin.ModelAdmin):
     fieldsets = [
         (None,            {'fields': ['user', 'pub_date', 'ntopic', 'first']}),
         ('Flag Info',     {'fields': ['cflaggers', 'needs_review']}),
-        ('Text',          {'fields': ['comment', 'comment_html', 'parent_id', 'nnesting', 'removed']}),
+        ('Text',          {'fields': ['comment', 'comment_html', 'nparent_id', 'nnesting', 'removed']}),
         ]
         
         
@@ -26,7 +26,7 @@ admin.site.register(TopicComment, TopicCommentAdmin)
 class ArgCommentAdmin(admin.ModelAdmin):
     
     fieldsets = [
-        (None,            {'fields': ['user', 'pub_date', 'topic', 'is_first']}),
+        (None,            {'fields': ['user', 'pub_date', 'ntopic']}),
         ('Flag Info',     {'fields': ['cflaggers', 'needs_review']}),
         ('Text',          {'fields': ['comment', 'comment_html']}),
         ('Debate Info', {'fields': ['debate']})

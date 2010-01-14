@@ -1,5 +1,6 @@
 from django.contrib.syndication.feeds import Feed
-from tcd.items.models import Topic, Argument
+from tcd.items.models import Topic
+from tcd.comments.models import Debate
 from tcd.settings import HOSTNAME
 
 class NewTopics(Feed):
@@ -11,9 +12,9 @@ class NewTopics(Feed):
         return Topic.objects.order_by('-sub_date')[:15]
 
 class NewArguments(Feed):
-    title = 'GreaterDebater - New Arguments'
+    title = 'GreaterDebater - New Debates'
     link = HOSTNAME + '/argue/new/'
-    description = 'The latest arguments on GreaterDebater'
+    description = 'The latest debates on GreaterDebater'
 
     def items(self):
-        return Argument.objects.filter(status__range=(1,2)).order_by('-start_date')[:15]
+        return Debate.objects.filter(status__range=(1,2)).order_by('-start_date')[:15]
