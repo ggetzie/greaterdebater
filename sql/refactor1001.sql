@@ -4,7 +4,6 @@ ALTER TABLE comments_comment DROP COLUMN is_removed;
 ALTER TABLE comments_comment DROP COLUMN is_first;
 ALTER TABLE comments_comment DROP COLUMN parent_id;
 ALTER TABLE comments_comment DROP COLUMN nesting;
-ALTER TABLE comments_comment DROP COLUMN arguments;
 ALTER TABLE comments_comment DROP COLUMN arg_proper;
 
 DROP TABLE items_argument;

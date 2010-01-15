@@ -4,7 +4,7 @@ import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'tcd.settings'
 
 from tcd.comments.models import ArgComment, TopicComment, Debate, nVote, Draw, tcdMessage
-from tcd.items.models import LogItem # Argument, Vote
+from tcd.items.models import LogItem
 from tcd.profiles.models import Profile
 import datetime
 
