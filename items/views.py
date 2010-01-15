@@ -457,9 +457,7 @@ def challenge(request, c_id):
                     msg = tcdMessage(user=request.user,
                                      recipient=defendant,
                                      comment=msg_txt,
-                                     subject="Challenge!",
-                                     parent_id=0,
-                                     nesting=0)
+                                     subject="Challenge!")
                     msg.save()
                     request.user.message_set.create(message= ''.join(["Challenged ", 
                                                                       arg.defendant.username, 
@@ -635,9 +633,8 @@ def respond(request):
                                          recipient=arg.plaintiff,
                                          comment=message,
                                          subject="Challenge accepted",
-                                         parent_id=0,
-                                         pub_date=datetime.datetime.now(),
-                                         nesting=0)
+                                         pub_date=datetime.datetime.now())
+
 
                     else:
                         # response == 1, challenge declined
@@ -650,9 +647,8 @@ def respond(request):
                         msg = tcdMessage(user=request.user,
                                          recipient=arg.plaintiff,
                                          comment=message,
-                                         subject="Challenge declined",
-                                         parent_id=0,
-                                         nesting=0)
+                                         subject="Challenge declined")
+
                     msg.save()
                     arg.save()
                     status = "ok"
@@ -702,9 +698,8 @@ def draw(request):
                 msg = tcdMessage(user=request.user,
                                  recipient=recipient,
                                  comment=message,
-                                 subject="Draw?",
-                                 parent_id=0,
-                                 nesting=0)
+                                 subject="Draw?")
+
                 msg.save()
                 draw = Draw(offeror=request.user,
                             recipient=arg.get_opponent(request.user),
@@ -761,9 +756,8 @@ def respond_draw(request):
                 msg = tcdMessage(user=request.user,
                                      recipient = draw.offeror,
                                      comment = message,
-                                     subject = subject,
-                                     parent_id = 0,
-                                     nesting = 0)
+                                     subject = subject)
+
                 draw.delete()
                 msg.save()
                 arg.save()
@@ -812,9 +806,8 @@ def concede(request):
                 msg = tcdMessage(user=request.user,
                                  recipient = recipient,
                                  comment = message,
-                                 subject = "All right, you win",
-                                 parent_id = 0,
-                                 nesting = 0)
+                                 subject = "All right, you win")
+                         
                 msg.save()
                 arg.save()
                 prof.save()

@@ -53,10 +53,10 @@ Equal votes ends the argument in a tie"""
                 prof.score += 1
                 prof.save()
             win_msg = tcdMessage(user=loser, recipient=winner, comment=win_message, 
-                                 subject="And the winner is...", parent_id=0, nesting=0)
+                                 subject="And the winner is...")
 
             lose_msg = tcdMessage(user=winner, recipient=loser, comment=lose_message, 
-                                  subject="And the winner is...", parent_id=0, nesting=0)
+                                  subject="And the winner is...")
             arg.end_date = datetime.datetime.now()
             arg.save()
             win_msg.save()
