@@ -1,0 +1,10 @@
+{% for post in topfive %}
+<H1>{{ post.title }}</H1>
+{% with post.blog.author.username as author %}
+<DIV class="descr">{{ post.pub_date }} by {{ author }}</DIV>
+
+{{ post.firstp }}
+
+<a href="/blog/{{ author }}/{{ post.id }}">more...</a>
+{% endfor %}
+

@@ -8,9 +8,12 @@ from tcd.comments.models import Comment
 class Blog(models.Model):
     author = models.ForeignKey(User)
     start_date = models.DateTimeField()
+    title = models.CharField(max_length=140)
+    tagline = models.CharField(max_length=140)
 
 
 class Post(models.Model):
+    title = models.CharField(max_length=140)
     txt = models.TextField()
     html = models.TextField(blank=True)
     created = models.DateTimeField()
@@ -25,6 +28,7 @@ class Post(models.Model):
 
     def save(self):
         self.html = markdown(post_txt)
+        super(Post, self).save()
 
 class PostComment(Comment):
     blog = models.ForeignKey(Blog)

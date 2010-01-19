@@ -57,7 +57,7 @@ def upload_post(request):
     pass
 
 def save_draft(request, username):   
-    """Store the post in the database, but do no publish"""
+    """Store the post in the database, but do not publish"""
     user = get_object_or_404(User, username=username)
     if request.user == user:
         if request.POST:
@@ -109,7 +109,7 @@ def publish(request, username):
 def edit_post(request):
     pass
 
-xcdef comment(request):
+def comment(request):
     # add a comment
     pass
 

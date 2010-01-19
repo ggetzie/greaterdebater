@@ -1,0 +1,30 @@
+BEGIN;
+
+ALTER TABLE `comments_comment` ADD CONSTRAINT `user_id_refs_id_508b97b8` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`);
+ALTER TABLE `comments_tcdmessage` ADD CONSTRAINT `recipient_id_refs_id_7b753b34` FOREIGN KEY (`recipient_id`) REFERENCES `auth_user` (`id`);
+ALTER TABLE `comments_tcdmessage` ADD CONSTRAINT `comment_ptr_id_refs_id_5911a029` FOREIGN KEY (`comment_ptr_id`) REFERENCES `comments_comment` (`id`);
+ALTER TABLE `comments_topiccomment` ADD CONSTRAINT `ntopic_id_refs_id_46656622` FOREIGN KEY (`ntopic_id`) REFERENCES `items_topic` (`id`);
+ALTER TABLE `comments_topiccomment` ADD CONSTRAINT `comment_ptr_id_refs_id_3ad3c9b` FOREIGN KEY (`comment_ptr_id`) REFERENCES `comments_comment` (`id`);
+ALTER TABLE `comments_debate` ADD CONSTRAINT `incite_id_refs_comment_ptr_id_2516f4a` FOREIGN KEY (`incite_id`) REFERENCES `comments_topiccomment` (`comment_ptr_id`);
+ALTER TABLE `comments_debate` ADD CONSTRAINT `plaintiff_id_refs_id_3fb1a929` FOREIGN KEY (`plaintiff_id`) REFERENCES `auth_user` (`id`);
+ALTER TABLE `comments_debate` ADD CONSTRAINT `defendant_id_refs_id_3fb1a929` FOREIGN KEY (`defendant_id`) REFERENCES `auth_user` (`id`);
+ALTER TABLE `comments_debate` ADD CONSTRAINT `topic_id_refs_id_7383c3f9` FOREIGN KEY (`topic_id`) REFERENCES `items_topic` (`id`);
+ALTER TABLE `comments_argcomment` ADD CONSTRAINT `ntopic_id_refs_id_43dc040b` FOREIGN KEY (`ntopic_id`) REFERENCES `items_topic` (`id`);
+ALTER TABLE `comments_argcomment` ADD CONSTRAINT `comment_ptr_id_refs_id_48254d32` FOREIGN KEY (`comment_ptr_id`) REFERENCES `comments_comment` (`id`);
+ALTER TABLE `comments_argcomment` ADD CONSTRAINT `debate_id_refs_id_5cba38ff` FOREIGN KEY (`debate_id`) REFERENCES `comments_debate` (`id`);
+ALTER TABLE `comments_nvote` ADD CONSTRAINT `voter_id_refs_id_38585a87` FOREIGN KEY (`voter_id`) REFERENCES `auth_user` (`id`);
+ALTER TABLE `comments_nvote` ADD CONSTRAINT `argument_id_refs_id_285d3b3d` FOREIGN KEY (`argument_id`) REFERENCES `comments_debate` (`id`);
+ALTER TABLE `comments_draw` ADD CONSTRAINT `argument_id_refs_id_3fd0c336` FOREIGN KEY (`argument_id`) REFERENCES `comments_debate` (`id`);
+ALTER TABLE `comments_draw` ADD CONSTRAINT `offeror_id_refs_id_60ff56ee` FOREIGN KEY (`offeror_id`) REFERENCES `auth_user` (`id`);
+ALTER TABLE `comments_draw` ADD CONSTRAINT `recipient_id_refs_id_60ff56ee` FOREIGN KEY (`recipient_id`) REFERENCES `auth_user` (`id`);
+ALTER TABLE `comments_comment_cflaggers` ADD CONSTRAINT `comment_id_refs_id_4e1c4df0` FOREIGN KEY (`comment_id`) REFERENCES `comments_comment` (`id`);
+ALTER TABLE `comments_comment_cflaggers` ADD CONSTRAINT `user_id_refs_id_1ab795ab` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`);
+ALTER TABLE `items_topic` ADD CONSTRAINT `user_id_refs_id_ae82aa3` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`);
+ALTER TABLE `items_tags` ADD CONSTRAINT `user_id_refs_id_40bd0e46` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`);
+ALTER TABLE `items_tags` ADD CONSTRAINT `topic_id_refs_id_75be2838` FOREIGN KEY (`topic_id`) REFERENCES `items_topic` (`id`);
+ALTER TABLE `items_topic_tflaggers` ADD CONSTRAINT `topic_id_refs_id_481f079` FOREIGN KEY (`topic_id`) REFERENCES `items_topic` (`id`);
+ALTER TABLE `items_topic_tflaggers` ADD CONSTRAINT `user_id_refs_id_3a495b49` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`);
+ALTER TABLE `profiles_profile` ADD CONSTRAINT `user_id_refs_id_2c67a130` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`);
+ALTER TABLE `profiles_forgotten` ADD CONSTRAINT `user_id_refs_id_d7ff705` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`);
+
+COMMIT;
