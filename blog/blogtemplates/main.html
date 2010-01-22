@@ -1,3 +1,9 @@
+{% extends "blogtemplates/base.html" %}
+
+{% block title %}{{ blog.title }}{% endblock %}
+
+{% block content %}
+
 {% for post in topfive %}
 <H1>{{ post.title }}</H1>
 {% with post.blog.author.username as author %}
@@ -8,3 +14,4 @@
 <a href="/blog/{{ author }}/{{ post.id }}">more...</a>
 {% endfor %}
 
+{% endblock %}

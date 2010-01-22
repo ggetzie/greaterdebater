@@ -1,0 +1,24 @@
+{% extends "blogtemplates/base.html" %}
+
+{% block title %}
+Edit {{ post.title }} | {{ blog.title }}
+{% endblock %}
+
+{% block content %}
+
+<h1 id="title">{{ post.title }}</h1>
+
+<form action='.' method='post'>
+  <table>
+    {{ form }}
+    <tr>
+      <td></td>
+      <td><button onclick="save_draft(); return false;" name="save">Save Draft</button></td>
+      <td><button onclick="publish(); return false;" name="publish">Publish</button></td>
+    </tr>
+  </table>
+</form>
+
+
+
+{% endblock %}
