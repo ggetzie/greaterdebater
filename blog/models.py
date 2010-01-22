@@ -33,5 +33,5 @@ class Post(models.Model):
 class PostComment(Comment):
     blog = models.ForeignKey(Blog)
     post = models.ForeignKey(Post)
-
+    nparent_id = models.IntegerField(default=0)
                              

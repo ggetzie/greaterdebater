@@ -17,12 +17,14 @@ def main(request, username):
     blog = get_object_or_404(Blog, author=user)
     five = blog.post_set.objects.filter(draft=False).order_by('-pub_date')[:5]    
     return render_to_response('blog/main.html',
-                              {'topfive': five},
+                              {'topfive': five,
+                               'blog': blog},
                               context_instance=RequestContext(request))
 
 def post_detail(request, username, id):
     # show a single post
     user = get_object_or_404(User, username=username)
+    blog = get_object_or_404(Blog, author=user)
     post = get_object_or_404(Post, id=id)
     comments = build_list(post.PostComment_set.all(), 0)
     return render_to_response('blog/post_detail.html',
@@ -30,16 +32,30 @@ def post_detail(request, username, id):
                                'comments': comments},
                               context_instance=RequestContext(request))
 
-def post_new(request):
+def edit_post(request, username, id=None):
     user = get_object_or_404(User, username=username)
     if request.user == user:
-        blog = get_object_or_404(blog, author=user)
-        form = PostEdit()
-        return render_to_response('blog/newpost.html',
-                                  {'form': form},
+        blog = get_object_or_404(Blog, author=user)
+        if id:
+            post = get_object_or_404(Post, id=id)
+            
+        else:
+            post = Post(title="Untitled Post",
+                        txt="Enter text here")
+            post.save()
+
+        form = PostEdit(id = post.id,
+                            title = post.title,
+                            tags = post.tags,
+                            txt = post.txt)
+
+        return render_to_resonpse('blog/post_edit.html',
+                                  {'form': form,
+                                   'blog': blog,
+                                   'post': post},
                                   context_instance=RequestContext(request))
     else:
-        return HttpResponseForbidden("<h1>Unauthorized</h1>")
+        return HttpReponseForbidden("<h1>Unauthorized</h1>")
 
 def show_drafts(request):
     """Show all unpublished drafts"""
@@ -47,8 +63,9 @@ def show_drafts(request):
     if request.user == user:
         blog = get_object_or_404(author=user)
         drafts = blog.post_set.filter(draft=True)
-        return render_to_response('blog/drafts.html',
-                                  {'drafts': drafts},
+       return render_to_response('blog/drafts.html',
+                                  {'drafts': drafts,
+                                   'blog': blog},
                                   context_instance=RequestContext(request))
     else:
         return HttpResponseForbidden("<h1>Unauthorized</h1>")
@@ -86,7 +103,7 @@ def save_draft(request, username):
     response = pyfo.pyfo(response, prolog=True, encoding='utf-8')
     return HttpResponse(response)
 
-def publish(request, username):
+def toggle_publish(request, username):
     """Make the post available for public viewing"""
     user = get_object_or_404(User, username=username)
     if request.user == user:
@@ -106,8 +123,7 @@ def publish(request, username):
     response = pyfo.pyfo(response, prolog=True, encoding='utf-8')
     return HttpResponse(response)
 
-def edit_post(request):
-    pass
+
 
 def comment(request):
     # add a comment
