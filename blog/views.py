@@ -41,7 +41,8 @@ def edit_post(request, username, id=None):
             
         else:
             post = Post(title="Untitled Post",
-                        txt="Enter text here")
+                        txt="Enter text here",
+                        created=datetime.datetime.now())
             post.save()
 
         form = PostEdit(id = post.id,

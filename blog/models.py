@@ -20,11 +20,11 @@ class Post(models.Model):
     pub_date = models.DateTimeField(blank=True)
     draft = models.BooleanField(default=True)
     tags = models.TextField(blank=True)
+    blog = models.ForeignKey(Blog)
 
     class Meta:
         verbose_name = 'post'
         verbose_name_plural = 'posts'
-        ordering = ('-pub_date')
 
     def save(self):
         self.html = markdown(post_txt)
