@@ -9,16 +9,16 @@ class PostEdit(forms.Form):
                                widget = forms.widgets.Textarea(attrs={'class': 'required icomment',
                                                                       'rows': 50,
                                                                       'cols':80}))
-    tags = forms.CharField(label="Tags", widget=forms.TextInput(attrs={'size':'70'})
+    tags = forms.CharField(label="Tags", widget=forms.TextInput(attrs={'size':'70'}),
                            required=False, 
                            help_text="Words or short phrases that describe the blog post, comma separated")
 
 
     def clean_tags(self):
         tags = self.cleaned_data.get('tags', '')
-    if tags:
-        tags = tags.split(',')
-        return ','.join([tag.strip().lower() for tag in tags])
-    else:
-        return ''
+        if tags:
+            tags = tags.split(',')
+            return ','.join([tag.strip().lower() for tag in tags])
+        else:
+            return ''
                            

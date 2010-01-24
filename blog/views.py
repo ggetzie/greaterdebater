@@ -77,6 +77,7 @@ def upload_post(request):
 def save_draft(request, username):   
     """Store the post in the database, but do not publish"""
     user = get_object_or_404(User, username=username)
+    status = 'error'
     if request.user == user:
         if request.POST:
             form = PostEdit(request.POST):
@@ -94,36 +95,60 @@ def save_draft(request, username):
                                 created = datetime.datetime.now())
                 post.save()
                 msg = "Draft Saved"
+                status = 'ok'
             else:
                 msg = "Invalid Form"
         else:
             msg = "Not a Post"
     else:
         msg = "Unauthorized"
-    response = ('response', [('message', msg)])
-    response = pyfo.pyfo(response, prolog=True, encoding='utf-8')
+    msgt = loader.get_template('sys_msg.html')
+    mstc = Context({'message': msg,
+                    'nesting': 10})
+    
+    message = mst.render(msgc)
+    
+    xmlcontext = Context({'status': status,
+                          'messages': [message]})
+    rtemp = loader.get_template("AJAXresponse.xml")
+    response = rtemp.render(xmlcontext)
+
     return HttpResponse(response)
 
 def toggle_publish(request, username):
     """Make the post available for public viewing"""
     user = get_object_or_404(User, username=username)
+    status = 'error'
     if request.user == user:
         if request.POST:
             data = request.POST.copy()
             try:
                 post = get_object_or_404(Post, id=data['id'])
-                post.draft = False
+                post.draft = not post.draft
                 post.save()
+                if post.draft:
+                    pstat = "unpublished."
+                else:
+                    pstat = "published."
+                msg = ''.join(["Post status changed to ", pstat])
+                status = 'ok'
             except KeyError:
                 msg = "Invalid id"
         else:
             msg = "Not a Post"
     else:
         msg = "Unauthorized"
-    response = ('response', [('message', msg)])
-    response = pyfo.pyfo(response, prolog=True, encoding='utf-8')
-    return HttpResponse(response)
 
+    msgt = loader.get_template('sys_msg.html')
+    msgc = Context({'message': msg,
+                     'nesting': 10})
+    message = msgt.render(msgc)
+
+    xmlcontext = Context(['status': status,
+                          'messages': [message]])
+    rtemp = loader.get_template('AJAXresponse.xml')
+    response = rtemp.render(xmlcontext)
+    return HttpResponse(response)
 
 
 def comment(request):

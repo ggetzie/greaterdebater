@@ -2,10 +2,11 @@
 <html lang="en">
   <head>
     <title>{% block title %}{% endblock %} | GreaterDebater</title>
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
     {% include "specific_base.html" %}
     {% block htmlhead %}{% endblock %}
   </head>
+
   <body {% block bodyatt %}{% endblock %} >
     <div class="wrapper">
       <a href="/">

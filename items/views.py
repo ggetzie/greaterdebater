@@ -69,6 +69,12 @@ def comments(request, topic_id, page=1):
     except IndexError:
         has_next = False
 
+    if request.user.is_authenticated():
+        prof = get_object_or_404(Profile, user=request.user)
+        newwin = prof.newwin
+    else:
+        newwin = False
+
     return render_to_response('items/topic_detail.html', 
                               {'object': top,                               
                                'rest_c': rest_c[start:end],
@@ -77,7 +83,8 @@ def comments(request, topic_id, page=1):
                                'previous': previous,
                                'has_next': has_next,
                                'next': next,
-                               'form_comment': form_comment},
+                               'form_comment': form_comment,
+                               'newwin': newwin},
                               context_instance=RequestContext(request)
                               )
 

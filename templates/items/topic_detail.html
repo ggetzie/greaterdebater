@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="topic-header">
-  <div class="detail-title"><a href={{ object.url }}>{{ object.title }}</a></div>
+  <div class="detail-title"><a href={{ object.url }} {% if newwin %}target="_blank"{% endif %}>{{ object.title }}</a></div>
 
   <span class="comment_info">
     submitted by <a href="/users/u/{{ object.user }}/profile/">{{ object.user }}</a> {{ object.get_elapsed }} ago

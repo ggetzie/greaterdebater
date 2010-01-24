@@ -1,5 +1,8 @@
 from django.contrib.auth.models import User
 
+from tcd.blog.forms import *
+from tcd.blog.models import *
+
 from tcd.items.forms import *
 from tcd.items.models import *
 
