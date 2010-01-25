@@ -143,6 +143,10 @@ h1,h2,h3 {
 	background: url(img/nav_li.gif) no-repeat;
 }
 
+div.ads {
+    padding: 20px 0px 0px 0px;
+}
+
 /* content */
 .content {
 	float: left;
@@ -167,6 +171,11 @@ h1,h2,h3 {
 	border: 1px solid #AAA;
 	margin-left: 5px;
 	padding: 2px 3px;
+}
+
+form th {
+    vertical-align: top;
+    text-align: right;
 }
 
 /* footer */

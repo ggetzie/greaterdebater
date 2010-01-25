@@ -1,17 +1,15 @@
 {% extends "blogtemplates/base.html" %}
-
 {% block title %}{{ blog.title }}{% endblock %}
-
 {% block content %}
 
+{% if topfive %}
 {% for post in topfive %}
 <H1>{{ post.title }}</H1>
-{% with post.blog.author.username as author %}
-<DIV class="descr">{{ post.pub_date }} by {{ author }}</DIV>
-
-{{ post.firstp }}
-
-<a href="/blog/{{ author }}/{{ post.id }}">more...</a>
+<DIV class="descr">{{ post.pub_date }} by {{ blog.author }}</DIV>
+{{ post.html|truncatewords_html:100 }}
+<a href="/blog/{{ blog.author }}/{{ post.id }}">more...</a>
 {% endfor %}
-
+{% else %}
+Hi {{ request.user.username }}! It looks like {{ blog.author }} hasn't posted anything yet.
+{% endif %}
 {% endblock %}

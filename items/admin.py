@@ -17,20 +17,6 @@ class TopicAdmin(admin.ModelAdmin):
 admin.site.register(Topic, TopicAdmin)
 
 
-# class ArgumentAdmin(admin.ModelAdmin):
-#     fieldsets = [
-#         (None,         {'fields': ['defendant', 'plaintiff', 'title', 'topic']}),
-#         ('Dates',      {'fields': ['start_date', 'end_date']}),
-#         ('Status',     {'fields': ['status', 'score']})
-#         ]
-
-#     list_display = ('start_date', 'title')
-#     list_filter = ('start_date', 'end_date', 'status')
-         
-
-# admin.site.register(Argument, ArgumentAdmin)
-
-
 class TagsAdmin(admin.ModelAdmin):
     fields = ['topic', 'user', 'tags']
     list_display = ('user', 'topic')

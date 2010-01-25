@@ -1,0 +1,14 @@
+{% extends "blogtemplates/base.html" %}
+{% block title %}Saved Drafts | {{ blog.title }}{% endblock %}
+{% block content %}
+
+{% if drafts %}
+{% for post in drafts %}
+<a href="/blog/{{ blog.author }}/edit/{{ post.id }}"><H1>{{ post.title }}</H1></a>
+<DIV class="descr">{{ post.created }}</DIV>
+{{ post.html|truncatewords_html:100 }}
+{% endfor %}
+{% else %}
+No saved drafts
+{% endif %}
+{% endblock %}

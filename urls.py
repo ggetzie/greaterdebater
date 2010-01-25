@@ -19,5 +19,6 @@ urlpatterns = patterns('',
                        (r'^buttons/$', 'django.views.generic.simple.direct_to_template', {'template': 'buttons.html'}),
                        (r'^feeds/(?P<url>.*)/$', 'django.contrib.syndication.views.feed',
                         {'feed_dict': feeds}),
+                       (r'^blog/(?P<username>[A-Za-z\d]+)/', include('tcd.blog.urls')),
                        (r'', include('tcd.items.urls'))
 )

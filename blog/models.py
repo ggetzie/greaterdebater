@@ -24,7 +24,7 @@ class Post(models.Model):
     txt = models.TextField()
     html = models.TextField(blank=True)
     created = models.DateTimeField()
-    pub_date = models.DateTimeField(blank=True)
+    pub_date = models.DateTimeField(blank=True, null=True)
     draft = models.BooleanField(default=True)
     tags = models.TextField(blank=True)
     blog = models.ForeignKey(Blog)
@@ -41,4 +41,4 @@ class PostComment(Comment):
     blog = models.ForeignKey(Blog)
     post = models.ForeignKey(Post)
     nparent_id = models.IntegerField(default=0)
-                             
+    nnesting = models.IntegerField(default=0)

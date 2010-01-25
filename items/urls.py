@@ -42,5 +42,5 @@ urlpatterns = patterns('',
                        
                        # Urls associated with user profiles
                        (r'^users/', include('tcd.profiles.urls')),
-                       
+
 )

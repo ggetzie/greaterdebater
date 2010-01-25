@@ -1,9 +1,9 @@
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
-from django.template import RequestContext
+from django.template import loader, Context, RequestContext
 
-from tcd.blog.models import Post, PostComment
+from tcd.blog.models import Blog, Post, PostComment
 from tcd.blog.forms import PostEdit
 from tcd.comments.utils import build_list
 
@@ -15,8 +15,8 @@ def main(request, username):
     # with titles and first few lines
     user = get_object_or_404(User, username=username)
     blog = get_object_or_404(Blog, author=user)
-    five = blog.post_set.objects.filter(draft=False).order_by('-pub_date')[:5]    
-    return render_to_response('blog/main.html',
+    five = blog.post_set.filter(draft=False).order_by('-pub_date')[:5]    
+    return render_to_response('blogtemplates/main.html',
                               {'topfive': five,
                                'blog': blog},
                               context_instance=RequestContext(request))
@@ -27,7 +27,7 @@ def post_detail(request, username, id):
     blog = get_object_or_404(Blog, author=user)
     post = get_object_or_404(Post, id=id)
     comments = build_list(post.PostComment_set.all(), 0)
-    return render_to_response('blog/post_detail.html',
+    return render_to_response('blogtemplates/post_detail.html',
                               {'post': post,
                                'comments': comments},
                               context_instance=RequestContext(request))
@@ -42,15 +42,15 @@ def edit_post(request, username, id=None):
         else:
             post = Post(title="Untitled Post",
                         txt="Enter text here",
-                        created=datetime.datetime.now())
-            post.save()
+                        created=datetime.datetime.now(),
+                        blog=blog)
+            
+        data = {'title': post.title,
+                'tags': post.tags,
+                'txt': post.txt}
+        form = PostEdit(data)
 
-        form = PostEdit(id = post.id,
-                            title = post.title,
-                            tags = post.tags,
-                            txt = post.txt)
-
-        return render_to_resonpse('blog/post_edit.html',
+        return render_to_response('blogtemplates/post_edit.html',
                                   {'form': form,
                                    'blog': blog,
                                    'post': post},
@@ -58,13 +58,13 @@ def edit_post(request, username, id=None):
     else:
         return HttpReponseForbidden("<h1>Unauthorized</h1>")
 
-def show_drafts(request):
+def show_drafts(request, username):
     """Show all unpublished drafts"""
     user = get_object_or_404(User, username=username)
     if request.user == user:
-        blog = get_object_or_404(author=user)
+        blog = get_object_or_404(Blog, author=user)
         drafts = blog.post_set.filter(draft=True)
-       return render_to_response('blog/drafts.html',
+        return render_to_response('blogtemplates/drafts.html',
                                   {'drafts': drafts,
                                    'blog': blog},
                                   context_instance=RequestContext(request))
@@ -77,10 +77,11 @@ def upload_post(request):
 def save_draft(request, username):   
     """Store the post in the database, but do not publish"""
     user = get_object_or_404(User, username=username)
+    blog = get_object_or_404(Blog, author=user)
     status = 'error'
     if request.user == user:
         if request.POST:
-            form = PostEdit(request.POST):
+            form = PostEdit(request.POST)
             if form.is_valid():
                 if form.cleaned_data['id']:
                     post = Post.objects.get(pk=form.cleaned_data['id'])
@@ -91,8 +92,8 @@ def save_draft(request, username):
                     post = Post(txt = form.cleaned_data['txt'],
                                 tags = form.cleaned_data['tags'],
                                 title = form.cleaned_data['title'],
-                                draft = True,
-                                created = datetime.datetime.now())
+                                created = datetime.datetime.now(),
+                                blog=blog)
                 post.save()
                 msg = "Draft Saved"
                 status = 'ok'
@@ -103,10 +104,10 @@ def save_draft(request, username):
     else:
         msg = "Unauthorized"
     msgt = loader.get_template('sys_msg.html')
-    mstc = Context({'message': msg,
+    msgc = Context({'message': msg,
                     'nesting': 10})
     
-    message = mst.render(msgc)
+    message = msgt.render(msgc)
     
     xmlcontext = Context({'status': status,
                           'messages': [message]})
@@ -144,8 +145,8 @@ def toggle_publish(request, username):
                      'nesting': 10})
     message = msgt.render(msgc)
 
-    xmlcontext = Context(['status': status,
-                          'messages': [message]])
+    xmlcontext = Context({'status': status,
+                          'messages': [message]})
     rtemp = loader.get_template('AJAXresponse.xml')
     response = rtemp.render(xmlcontext)
     return HttpResponse(response)
@@ -154,7 +155,3 @@ def toggle_publish(request, username):
 def comment(request):
     # add a comment
     pass
-
-
-
-
