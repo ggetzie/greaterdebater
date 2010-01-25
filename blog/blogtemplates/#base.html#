@@ -56,7 +56,9 @@
 	  </UL>
 	  {% endifequal %}
 
+	  {% comment %}
 	  {% include "blogtemplates/ads.html" %}
+	  {% endcomment %}
 	  
 	</DIV>
 	

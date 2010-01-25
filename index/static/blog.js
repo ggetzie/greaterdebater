@@ -1,0 +1,1 @@
+../../blog/blogtemplates/blog.js
