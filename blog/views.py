@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import loader, Context, RequestContext
+from django.views.generic import list_detail
 
 from tcd.blog.models import Blog, Post, PostComment
 from tcd.blog.forms import PostEdit
@@ -23,8 +24,7 @@ def main(request, username):
 
 def post_detail(request, username, id):
     # show a single post
-    user = get_object_or_404(User, username=username)
-    blog = get_object_or_404(Blog, author=user)
+    blog = get_object_or_404(Blog, author__username=username)
     post = get_object_or_404(Post, id=id)
     comments = build_list(post.postcomment_set.all(), 0)
     return render_to_response('blogtemplates/post_detail.html',
@@ -32,6 +32,19 @@ def post_detail(request, username, id):
                                'blog': blog,
                                'comments': comments},
                               context_instance=RequestContext(request))
+
+def archive(request, username, page=1):
+    paginate_by = 15
+    blog = get_object_or_404(Blog, author__username=username)
+    posts = Post.objects.filter(blog=blog, draft=False).order_by('-pub_date')
+
+    return list_detail.object_list(request=request, 
+                                   queryset=posts,
+                                   paginate_by = paginate_by,
+                                   page=page,
+                                   template_name="blogtemplates/archive.html",
+                                   template_object_name="post",
+                                   extra_context={'blog': blog})
 
 def edit_post(request, username, id=None):
     user = get_object_or_404(User, username=username)

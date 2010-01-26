@@ -1,0 +1,22 @@
+{% extends "blogtemplates/base.html" %}
+{% block title %}{{ blog.title }}{% endblock %}
+{% block content %}
+
+{% if post_list %}
+{% for post in post_list %}
+<div id="postdiv{{ post.id }}">
+<H1>{{ post.title }}</H1>
+<DIV class="descr">{{ post.pub_date|date:"g:i o\n M d, Y" }} by {{ blog.author }}</DIV>
+{{ post.html|truncatewords_html:100|safe }}
+{% ifequal request.user blog.author %}
+  <a href="#" onclick="delete_post({{ post.id }}); return false;">Delete</a>
+  <a href="/blog/{{ blog.author }}/edit/{{ post.id }}">Edit</a>
+{% endifequal %}
+<p><a href="/blog/{{ blog.author }}/post/{{ post.id }}">more...</a></p>
+</div>
+
+{% endfor %}
+{% else %}
+Hi {{ request.user.username }}! Nothing in the archive yet.
+{% endif %}
+{% endblock %}

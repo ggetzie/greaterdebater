@@ -20,6 +20,12 @@ urlpatterns = patterns('',
                        # author only
                        (r'^drafts/?$', 'tcd.blog.views.show_drafts'),
 
+                       # Show all prevous posts by date
+                       (r'^archive/?$', 'tcd.blog.views.archive'),
+
+                       # Show all prevous posts by date, pages
+                       (r'^archive/(?P<page>\d+)/?$', 'tcd.blog.views.archive'),
+
                        # change post status to draft=False
                        # POST only, AJAX method
                        (r'^publish/?$', 'tcd.blog.views.publish'),
