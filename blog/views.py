@@ -26,9 +26,10 @@ def post_detail(request, username, id):
     user = get_object_or_404(User, username=username)
     blog = get_object_or_404(Blog, author=user)
     post = get_object_or_404(Post, id=id)
-    comments = build_list(post.PostComment_set.all(), 0)
+    comments = build_list(post.postcomment_set.all(), 0)
     return render_to_response('blogtemplates/post_detail.html',
                               {'post': post,
+                               'blog': blog,
                                'comments': comments},
                               context_instance=RequestContext(request))
 
@@ -116,25 +117,26 @@ def save_draft(request, username):
 
     return HttpResponse(response)
 
-def toggle_publish(request, username):
+def publish(request, username):
     """Make the post available for public viewing"""
     user = get_object_or_404(User, username=username)
     status = 'error'
     if request.user == user:
         if request.POST:
             data = request.POST.copy()
-            try:
-                post = get_object_or_404(Post, id=data['id'])
-                post.draft = not post.draft
-                post.save()
-                if post.draft:
-                    pstat = "unpublished."
-                else:
-                    pstat = "published."
-                msg = ''.join(["Post status changed to ", pstat])
-                status = 'ok'
-            except KeyError:
-                msg = "Invalid id"
+            form = PostEdit(data)
+            if form.is_valid():
+                try:
+                    post = get_object_or_404(Post, id=form.cleaned_data['id'])
+                    post.draft = False
+                    post.pub_date = datetime.datetime.now()
+                    post.save()
+                    msg = "Post published"
+                    status = 'ok'
+                except KeyError:
+                    msg = "Invalid id"
+            else:
+                msg = "Invalid Form"
         else:
             msg = "Not a Post"
     else:

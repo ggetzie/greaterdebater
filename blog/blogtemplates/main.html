@@ -6,8 +6,8 @@
 {% for post in topfive %}
 <H1>{{ post.title }}</H1>
 <DIV class="descr">{{ post.pub_date }} by {{ blog.author }}</DIV>
-{{ post.html|truncatewords_html:100 }}
-<a href="/blog/{{ blog.author }}/{{ post.id }}">more...</a>
+{{ post.html|truncatewords_html:100|safe }}
+<a href="/blog/{{ blog.author }}/post/{{ post.id }}">more...</a>
 {% endfor %}
 {% else %}
 Hi {{ request.user.username }}! It looks like {{ blog.author }} hasn't posted anything yet.

@@ -8,17 +8,26 @@ Edit {{ post.title }} | {{ blog.title }}
 
 <h1 id="title">{{ post.title }}</h1>
 
-<form method='post' id="#postform">
+<form method='post' id="postform">
   <table>
     {{ form }}
     <tr>
-      <td></td>
-      <td><button onclick="submit_form('{{ blog.author }}', 'save'); return false;" 
-		  name="save">Save Draft</button></td>
-      <td><button onclick="submit_form('{{ blog.author }}', 'publish'); return false;" 
-		  name="publish">Publish</button></td>
+      <th></th>
+      <td>
+	<input type="hidden" id="id" value={{ post.id }}>
+      </td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>
+	<button onclick="submit_form('{{ blog.author }}', 'save'); return false;" 
+		  name="save">Save Draft</button>
+	<button onclick="submit_form('{{ blog.author }}', 'publish'); return false;" 
+		  name="publish">Publish</button>
+      </td>
     </tr>
   </table>
+
 </form>
 
 

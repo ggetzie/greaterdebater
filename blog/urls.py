@@ -22,7 +22,7 @@ urlpatterns = patterns('',
 
                        # change post status to draft=False
                        # POST only, AJAX method
-                       (r'^publish/?$', 'tcd.blog.views.toggle_publish'),
+                       (r'^publish/?$', 'tcd.blog.views.publish'),
 
                        # save a post in progress as a draft
                        # POST only, AJAX method

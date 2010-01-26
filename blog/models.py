@@ -18,6 +18,9 @@ class Blog(models.Model):
         about_html = markdown(self.about_txt)
         super(Blog, self).save()
 
+    def __unicode__(self):
+        return self.title
+
 
 class Post(models.Model):
     title = models.CharField(max_length=140)
