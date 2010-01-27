@@ -14,16 +14,19 @@ Edit {{ post.title }} | {{ blog.title }}
     <tr>
       <th></th>
       <td>
-	<input type="hidden" id="id" value={{ post.id }}>
-      </td>
-    </tr>
-    <tr>
-      <th></th>
-      <td>
 	<button onclick="submit_form('{{ blog.author }}', 'save'); return false;" 
 		  name="save">Save Draft</button>
+	{% if post.id %}
 	<button onclick="submit_form('{{ blog.author }}', 'publish'); return false;" 
 		  name="publish">Publish</button>
+	<a href="/blog/{{ blog.author.username }}/post/{{ post.id }}"><button name="Preview">Preview</button></a>
+	<span id="delete">
+	  <a href="#" onclick="swap('#delete','#confirm_delete'); return false">Delete this post</a>
+	</span>
+	<span id="confirm_delete" class="confirm">
+	  Are you sure? <a href="#" onclick="delete_post('{{ blog.author.username }}', {{ post.id }}); return false;">Yes</a> or <a href="#" onclick="swap('#delete','#confirm_delete'); return false">No</a>?
+	</span>
+	{% endif %}
       </td>
     </tr>
   </table>

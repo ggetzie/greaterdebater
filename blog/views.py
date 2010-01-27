@@ -46,22 +46,32 @@ def archive(request, username, page=1):
                                    template_object_name="post",
                                    extra_context={'blog': blog})
 
-def edit_post(request, username, id=None):
+def new_post(request, username):
     user = get_object_or_404(User, username=username)
     if request.user == user:
         blog = get_object_or_404(Blog, author=user)
-        if id:
-            post = get_object_or_404(Post, id=id)
-            
-        else:
-            post = Post(title="Untitled Post",
-                        txt="Enter text here",
-                        created=datetime.datetime.now(),
-                        blog=blog)
-            
+        form = PostEdit({'title': "Untitled Post",
+                         'txt': "Enter text here"})
+        return render_to_response('blogtemplates/post_edit.html',
+                                  {'form': form,
+                                   'blog': blog},
+                                  context_instance=RequestContext(request))
+    else:
+        return HttpResponseForbidden("<h1>Unauthorized</h1>")
+                                   
+
+        
+def edit_post(request, username, id):
+    user = get_object_or_404(User, username=username)
+    if request.user == user:
+        blog = get_object_or_404(Blog, author=user)
+        post = get_object_or_404(Post, id=id)
+
         data = {'title': post.title,
                 'tags': post.tags,
-                'txt': post.txt}
+                'txt': post.txt,
+                'id': post.id}
+
         form = PostEdit(data)
 
         return render_to_response('blogtemplates/post_edit.html',
@@ -77,7 +87,7 @@ def show_drafts(request, username):
     user = get_object_or_404(User, username=username)
     if request.user == user:
         blog = get_object_or_404(Blog, author=user)
-        drafts = blog.post_set.filter(draft=True)
+        drafts = blog.post_set.filter(draft=True).order_by('-created')
         return render_to_response('blogtemplates/drafts.html',
                                   {'drafts': drafts,
                                    'blog': blog},
@@ -166,6 +176,35 @@ def publish(request, username):
     response = rtemp.render(xmlcontext)
     return HttpResponse(response)
 
+def delete(request, username):
+    user = get_object_or_404(User, username=username)
+    blog = get_object_or_404(Blog, author=user)
+    status = 'error'
+    if request.user == blog.author:
+        if request.POST:
+            data = request.POST.copy()
+            post = get_object_or_404(Post, id=data['id'])
+            post.delete()
+            status = 'ok'
+            msg = "Post Deleted"
+        else:
+            msg = "Not a POST"
+    else:
+        msg = "Unauthorized"
+    if status == 'error':
+        msgt = loader.get_template('sys_msg.html')
+        msgc = Context({'message': msg,
+                        'nesting': 10})
+        message = msgt.render(msgc)
+    else:
+        message = msg
+    xmlt = loader.get_template('AJAXresponse.xml')
+    xmlc = Context({'status': status,
+                    'messages': [message]})
+    response = xmlt.render(xmlc)
+    return HttpResponse(response)
+    
+            
 
 def comment(request):
     # add a comment

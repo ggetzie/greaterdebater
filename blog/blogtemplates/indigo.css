@@ -178,6 +178,18 @@ form th {
     text-align: right;
 }
 
+form button {
+    margin-right: 15px;
+}
+
+form a {
+    text-decoration: none;
+}
+
+.confirm {
+    display: none;
+}
+
 /* footer */
 .footer {
 	background: #0094D6 url(img/bgfooter.gif) repeat-x;

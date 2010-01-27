@@ -6,7 +6,7 @@
 
 <H1>{{ post.title }}</H1>
 
-<DIV class="descr">{{ post.pub_date }} by {{ blog.author }}</DIV>
+<DIV class="descr">{{ post.pub_date|date }} by {{ blog.author }}</DIV>
 
 {{ post.html|safe }}
 

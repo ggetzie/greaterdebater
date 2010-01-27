@@ -4,15 +4,17 @@
 
 {% if post_list %}
 {% for post in post_list %}
-<div id="postdiv{{ post.id }}">
-<H1>{{ post.title }}</H1>
-<DIV class="descr">{{ post.pub_date|date:"g:i o\n M d, Y" }} by {{ blog.author }}</DIV>
-{{ post.html|truncatewords_html:100|safe }}
-{% ifequal request.user blog.author %}
-  <a href="#" onclick="delete_post({{ post.id }}); return false;">Delete</a>
-  <a href="/blog/{{ blog.author }}/edit/{{ post.id }}">Edit</a>
-{% endifequal %}
-<p><a href="/blog/{{ blog.author }}/post/{{ post.id }}">more...</a></p>
+<div id="post{{ post.id }}">
+  <H1>{{ post.title }}</H1>
+  <DIV class="descr">{{ post.pub_date|date }} by {{ blog.author }}</DIV>
+  {{ post.html|truncatewords_html:100|safe }}
+  <p><a href="/blog/{{ blog.author }}/post/{{ post.id }}">more...</a></p>
+
+  {% ifequal request.user blog.author %}
+  <p>
+    <a href="/blog/{{ blog.author }}/edit/{{ post.id }}"><button>Edit</button></a>
+  </p>
+  {% endifequal %}
 </div>
 
 {% endfor %}

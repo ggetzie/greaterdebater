@@ -11,7 +11,7 @@ urlpatterns = patterns('',
                        (r'^post/(?P<id>[\d]+)/?$', 'tcd.blog.views.post_detail'),
 
                        # start a new post, for blog author only
-                       (r'^edit/?$', 'tcd.blog.views.edit_post'),
+                       (r'^new/?$', 'tcd.blog.views.new_post'),
 
                        # edit a post, whether saved of published
                        (r'^edit/(?P<id>[\d]+)/?$', 'tcd.blog.views.edit_post'),
@@ -32,5 +32,9 @@ urlpatterns = patterns('',
 
                        # save a post in progress as a draft
                        # POST only, AJAX method
-                       (r'^save/?$', 'tcd.blog.views.save_draft')
+                       (r'^save/?$', 'tcd.blog.views.save_draft'),
+
+                       # Delete a post 
+                       # POST only, AJAX method
+                       (r'^delete/?$', 'tcd.blog.views.delete')
                        )
