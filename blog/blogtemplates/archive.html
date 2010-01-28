@@ -4,11 +4,11 @@
 
 {% if post_list %}
 {% for post in post_list %}
-<div id="post{{ post.id }}">
+<div id="post{{ post.id }}" class="postsummary">
   <H1>{{ post.title }}</H1>
   <DIV class="descr">{{ post.pub_date|date }} by {{ blog.author }}</DIV>
   {{ post.html|truncatewords_html:100|safe }}
-  <p><a href="/blog/{{ blog.author }}/post/{{ post.id }}">more...</a></p>
+  <a href="/blog/{{ blog.author }}/post/{{ post.id }}">more...</a>
 
   {% ifequal request.user blog.author %}
   <p>

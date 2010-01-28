@@ -162,6 +162,10 @@ div.ads {
 	margin-left: 18px;
 }
 
+div.postsummary {
+    margin-bottom: 20px;
+}
+
 /* search form */
 .styled {
 	border: 3px double #E5E5E5;
@@ -188,6 +192,10 @@ form a {
 
 .confirm {
     display: none;
+}
+
+p button {
+    margin-top: 5px;
 }
 
 /* footer */

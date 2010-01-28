@@ -133,11 +133,40 @@ def save_draft(request, username):
     
     message = msgt.render(msgc)
     
-    xmlcontext = Context({'status': status,
+    xmlc = Context({'status': status,
                           'messages': [message]})
-    rtemp = loader.get_template("AJAXresponse.xml")
-    response = rtemp.render(xmlcontext)
+    xmlt = loader.get_template("AJAXresponse.xml")
+    response = xmlt.render(xmlc)
 
+    return HttpResponse(response)
+
+def preview(request, username):
+    blog = Blog.objects.get(author__username=username)
+    status="error"
+    if request.POST:
+        form = PostEdit(request.POST)
+        if form.is_valid():
+            post = get_object_or_404(Post, id=form.cleaned_data['id'])
+            post.txt = form.cleaned_data['txt']
+            post.tags = form.cleaned_data['tags']
+            post.title = form.cleaned_data['title']
+            post.save()
+            status = "ok"
+            msg = "Changes Saved"
+        else:
+            msg = "Invalid Form"
+    else:
+        msg = "Not a Post"
+
+    msgt = loader.get_template('sys_msg.html')
+    msgc = Context({'message': msg,
+                    'nesting': 10})
+
+    xmlt = loader.get_template('AJAXresponse.xml')
+    xmlc = Context({'status': status,
+                    'messages': [msgt.render(msgc)]})
+
+    response = xmlt.render(xmlc)
     return HttpResponse(response)
 
 def publish(request, username):
@@ -153,6 +182,9 @@ def publish(request, username):
                     post = get_object_or_404(Post, id=form.cleaned_data['id'])
                     post.draft = False
                     post.pub_date = datetime.datetime.now()
+                    post.txt = form.cleaned_data['txt']
+                    post.tags = form.cleaned_data['tags']
+                    post.title = form.cleaned_data['title']
                     post.save()
                     msg = "Post published"
                     status = 'ok'

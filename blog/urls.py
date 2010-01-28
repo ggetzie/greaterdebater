@@ -34,6 +34,10 @@ urlpatterns = patterns('',
                        # POST only, AJAX method
                        (r'^save/?$', 'tcd.blog.views.save_draft'),
 
+                       # save changes and show post HTML
+                       # POST only, AJAX method
+                       (r'^preview/?$', 'tcd.blog.views.preview'),
+
                        # Delete a post 
                        # POST only, AJAX method
                        (r'^delete/?$', 'tcd.blog.views.delete')

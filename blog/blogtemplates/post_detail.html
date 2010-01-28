@@ -10,4 +10,9 @@
 
 {{ post.html|safe }}
 
+<a href="http://www.greaterdebater.com/submit" onclick="window.location =
+    'http://www.greaterdebater.com/submit?url=' +
+    encodeURIComponent(window.location)
+    + '&title=' + encodeURIComponent(document.title); return false;">Debate It!</a>
+
 {% endblock %}

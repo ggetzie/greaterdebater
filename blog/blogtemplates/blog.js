@@ -7,10 +7,14 @@ function submit_form(username, action) {
     if ($('#id_id').val() != 'None') {
 	pdata.id = $('#id_id').val();
     }
-    
+
     $.post(url, pdata,
 	   function(xml) {
-	       $('#postform').after($('message', xml).html());
+	       if (action == 'save' || $('status', xml) == 'error') {
+		   $('#postform').after($('message', xml).html());
+	       } else {
+		   window.location = '/blog/' + username + '/post/' + pdata.id.toString();
+	       }
 	   });
 };
 

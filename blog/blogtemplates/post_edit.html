@@ -17,9 +17,10 @@ Edit {{ post.title }} | {{ blog.title }}
 	<button onclick="submit_form('{{ blog.author }}', 'save'); return false;" 
 		  name="save">Save Draft</button>
 	{% if post.id %}
+	<button onclick="submit_form('{{ blog.author }}', 'preview'); return false;"
+		name="preview">Preview</button>
 	<button onclick="submit_form('{{ blog.author }}', 'publish'); return false;" 
 		  name="publish">Publish</button>
-	<a href="/blog/{{ blog.author.username }}/post/{{ post.id }}"><button name="Preview">Preview</button></a>
 	<span id="delete">
 	  <a href="#" onclick="swap('#delete','#confirm_delete'); return false">Delete this post</a>
 	</span>
