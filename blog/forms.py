@@ -22,3 +22,8 @@ class PostEdit(forms.Form):
         else:
             return ''
                            
+class PostCommentForm(forms.Form):
+    comment =  forms.CharField(widget=forms.widgets.Textarea(attrs={'class': 'required icomment',
+                                                                    'rows': 5,
+                                                                    'cols': 50}))
+    post_id = forms.IntegerField(widget=forms.widgets.HiddenInput())

@@ -3,7 +3,8 @@
   <head>
     <title>{% block title %}{% endblock %} | GreaterDebater</title>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
-    {% include "specific_base.html" %}
+    <script type="text/javascript" charset="utf-8" src="{{ MEDIA_URL}}tcd.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}tcdstyle.css" />
     {% block htmlhead %}{% endblock %}
   </head>
 

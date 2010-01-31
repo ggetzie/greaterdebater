@@ -37,6 +37,11 @@ h1 {
 	font-size: 1.4em;
 	margin-bottom: 4px;
 }
+
+h2 {
+    font-size: 1.1em;
+    margin-bottom: 4px;
+}
 code {
 	background: url(img/bgcode.gif);
 	border: 1px solid #F0F0F0;
@@ -164,6 +169,14 @@ div.ads {
 
 div.postsummary {
     margin-bottom: 20px;
+}
+
+div.share {
+    margin-bottom: 50px;
+}
+
+div.comments {
+    margin-top: 30px;
 }
 
 /* search form */

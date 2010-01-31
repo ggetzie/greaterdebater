@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from markdown import markdown
 
 from tcd.comments.models import Comment
+from tcd.settings import HOSTNAME
 
 class Blog(models.Model):
     author = models.ForeignKey(User)
@@ -20,6 +21,15 @@ class Blog(models.Model):
 
     def __unicode__(self):
         return self.title
+
+    def get_absolute_url(self):
+        return ''.join([HOSTNAME, '/blog/', self.author.username, '/'])
+
+    def getrssurl(self):
+        if self.altfeedurl:
+            return self.altfeedurl
+        else:
+            return ''.join([HOSTNAME, '/feeds/blog/', str(self.id)])
 
 
 class Post(models.Model):
@@ -39,6 +49,9 @@ class Post(models.Model):
     def save(self):
         self.html = markdown(self.txt)
         super(Post, self).save()
+
+    def get_absolute_url(self):
+        return ''.join([self.blog.get_absolute_url(), 'post/', str(self.id), '/'])
 
 class PostComment(Comment):
     blog = models.ForeignKey(Blog)

@@ -34,13 +34,7 @@ urlpatterns = patterns('',
                        # Add tags to a topic
                        (r'^topics/addtags/$', 'tcd.items.views.addtags'),
 
-                       # Urls associated with the commenting system
-                       (r'^comments/', include('tcd.comments.urls')),                                              
-
                        # Urls associated with arguments
                        (r'^argue/', include('tcd.items.argue_urls')),
-                       
-                       # Urls associated with user profiles
-                       (r'^users/', include('tcd.profiles.urls')),
 
-)
+                       )

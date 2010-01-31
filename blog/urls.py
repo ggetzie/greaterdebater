@@ -26,6 +26,9 @@ urlpatterns = patterns('',
                        # Show all prevous posts by date, pages
                        (r'^archive/(?P<page>\d+)/?$', 'tcd.blog.views.archive'),
 
+                       # Add a comment to a post
+                       (r'^addcomment/?$', 'tcd.blog.views.addcomment'),
+
                        # change post status to draft=False
                        # POST only, AJAX method
                        (r'^publish/?$', 'tcd.blog.views.publish'),

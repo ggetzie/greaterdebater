@@ -1,11 +1,11 @@
 {% if user.is_authenticated %}
 <div id="add-comment">
-<form action="/comments{{ redirect }}add/" method="post" accept-charset="utf-8">
-	<div class="form-row"><label for="id_comment">Posting as {{ user }} (<a href='http://en.wikipedia.org/wiki/Markdown'>formatting help</a>)</label><br />{{ form_comment.comment }}</div>
-	<div><input type="hidden" name="parent_id" value=0></div>
-	<div><input type="hidden" name="nesting" value=-40></div>
-	<div><input type="hidden" name="toplevel" value=1></div>
-	<div><input type="submit" value="Add Comment"></div>
-</form>
+  <form action="/comments{{ redirect }}add/" method="post" accept-charset="utf-8">
+    <div class="form-row"><label for="id_comment">Posting as {{ user }} (<a href='http://en.wikipedia.org/wiki/Markdown'>formatting help</a>)</label><br />{{ form_comment.comment }}</div>
+    <div><input type="hidden" name="parent_id" value=0></div>
+    <div><input type="hidden" name="nesting" value=-40></div>
+    <div><input type="hidden" name="toplevel" value=1></div>
+    <div><input type="submit" value="Add Comment"></div>
+  </form>
 </div>
 {% endif %}

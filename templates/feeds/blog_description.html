@@ -1,0 +1,10 @@
+by {{ obj.blog.author.username}} on {{ obj.pub_date|date }}
+<br />
+<div>
+  {{ obj.html|safe }}
+</div>
+
+<br />
+<div>
+  <a href="{{ obj.get_absolute_url }}">view comments</a>
+</div>

@@ -1,11 +1,11 @@
 from django.contrib.auth.models import User
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import loader, Context, RequestContext
 from django.views.generic import list_detail
 
 from tcd.blog.models import Blog, Post, PostComment
-from tcd.blog.forms import PostEdit
+from tcd.blog.forms import PostEdit, PostCommentForm
 from tcd.comments.utils import build_list
 
 import pyfo
@@ -26,12 +26,40 @@ def post_detail(request, username, id):
     # show a single post
     blog = get_object_or_404(Blog, author__username=username)
     post = get_object_or_404(Post, id=id)
-    comments = build_list(post.postcomment_set.all(), 0)
+    comments = post.postcomment_set.order_by('-pub_date')
+    
     return render_to_response('blogtemplates/post_detail.html',
                               {'post': post,
                                'blog': blog,
-                               'comments': comments},
+                               'comments': comments,
+                               'pcform': PostCommentForm(initial={'post_id': post.id})},
                               context_instance=RequestContext(request))
+
+def addcomment(request, username):
+    blog = get_object_or_404(Blog, author__username=username)
+    redirect_to = blog.get_absolute_url()
+    if request.POST:
+        form = PostCommentForm(request.POST)
+        post = get_object_or_404(Post, id=request.POST['post_id'])
+        redirect_to = ''.join([blog.get_absolute_url(), 'post/', str(post.id)])
+        if form.is_valid():
+            if not request.user.is_authenticated():
+                request.user.message_set.create(message="Please log in to post a comment")
+                redirect_to = ''.join(['/login?next=', blog.get_absolute_url(), 'post/', str(post.id)])
+            else:
+                comment = PostComment(blog=blog,
+                                      post=post,
+                                      user=request.user,
+                                      comment=form.cleaned_data['comment'])
+                comment.save()
+
+        else:
+            message = "<p>Oops! A problem occurred.</p>"
+            request.user.message_set.create(message=message+str(form.errors))
+    else:
+        request.user.message_set.create(message="Not a POST")
+    return HttpResponseRedirect(redirect_to)
+    
 
 def archive(request, username, page=1):
     paginate_by = 15

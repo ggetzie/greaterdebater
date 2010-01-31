@@ -28,6 +28,7 @@ import datetime
 
 from tcd.comments.forms import ArgueForm
 from tcd.items.models import Topic
+from tcd.settings import HOSTNAME
 from tcd.utils import elapsed_time
 
 """

@@ -4,15 +4,58 @@
 
 {% block content %}
 
+{% if messages %}
+<div id="sys_messages">
+  {% for message in messages %}
+  <p>{{ message|safe }}</p>
+  {% endfor %}
+</div>
+{% endif %}
+
 <H1>{{ post.title }}</H1>
 
 <DIV class="descr">{{ post.pub_date|date }} by {{ blog.author }}</DIV>
 
 {{ post.html|safe }}
 
-<a href="http://www.greaterdebater.com/submit" onclick="window.location =
-    'http://www.greaterdebater.com/submit?url=' +
-    encodeURIComponent(window.location)
-    + '&title=' + encodeURIComponent(document.title); return false;">Debate It!</a>
+<div class="share">
+  <a href="http://www.greaterdebater.com/submit" onclick="window.location =
+							  'http://www.greaterdebater.com/submit?url=' +
+							  encodeURIComponent(window.location)
+							  + '&title=' + encodeURIComponent(document.title); return false;">Debate It!</a>
+</div>
 
+{% if request.user.is_authenticated %}
+<div id="add-comment">
+  <h2>Leave a comment</h2>
+  <form action="/blog/{{ blog.author.username }}/addcomment" method="post" accept-charset="utf-8">
+    <label for="id_comment">Posting as {{ request.user.username }} (<a href='http://en.wikipedia.org/wiki/Markdown'>formatting help</a>)</label>
+    <br />
+    {{ pcform.comment }}
+    <div>{{ pcform.post_id }}</div>
+    <div><input type="submit" value="Add Comment" /></div>
+  </form>
+</div>
+{% else %}
+<p>
+  Please <a href="/login?next={{ request.path }}">log in</a> to your GreaterDebater account to leave a comment.
+  <br />
+  Don't have an account yet? <a href="/login?next={{ request.path }}">Register</a> in just seconds.
+</p>
+{% endif %}
+
+
+<div class="comments">
+  <h2>Comments</h2>
+  {% if comments %}
+  {% for comment in comments %}
+  <div class="comment">
+    <span class="comment_info">by {{ comment.user.username }} | {{ comment.pub_date|date }}</span>
+    {{ comment.comment_html|safe }}
+  </div>
+  {% endfor %}
+  {% else %}
+  <p>No comments yet</p>
+  {% endif %}
+</div>
 {% endblock %}
