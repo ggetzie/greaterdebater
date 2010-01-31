@@ -26,6 +26,9 @@ urlpatterns = patterns('',
                        # Show all prevous posts by date, pages
                        (r'^archive/(?P<page>\d+)/?$', 'tcd.blog.views.archive'),
 
+                       # Show all prevous posts by date, pages
+                       (r'^about/?$', 'tcd.blog.views.about'),
+
                        # Add a comment to a post
                        (r'^addcomment/?$', 'tcd.blog.views.addcomment'),
 

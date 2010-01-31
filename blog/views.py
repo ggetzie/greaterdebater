@@ -74,6 +74,11 @@ def archive(request, username, page=1):
                                    template_object_name="post",
                                    extra_context={'blog': blog})
 
+def about(request, username):
+    return render_to_response('blogtemplates/about.html',
+                              {'blog': get_object_or_404(Blog, author__username=username)},
+                              context_instance=RequestContext(request))
+
 def new_post(request, username):
     user = get_object_or_404(User, username=username)
     if request.user == user:

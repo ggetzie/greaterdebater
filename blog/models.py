@@ -16,7 +16,7 @@ class Blog(models.Model):
     altfeedurl = models.URLField(blank=True, verify_exists=False)
 
     def save(self):
-        about_html = markdown(self.about_txt)
+        self.about_html = markdown(self.about_txt)
         super(Blog, self).save()
 
     def __unicode__(self):
