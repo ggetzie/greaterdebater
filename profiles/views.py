@@ -53,7 +53,9 @@ def register(request):
             next = "/"    
     return render_to_response("registration/register.html", 
                               {'form' : form,
-                               'redirect' : next})
+                               'redirect' : next},
+                              context_instance=RequestContext(request)
+                              )
 
 def login(request):
     """Log in a user"""
@@ -93,7 +95,8 @@ account. Please check your email and follow the link provided to reset your pass
                               {'form': form,
                                'rform': rform,
                                'redirect': next,
-                               'message': message})
+                               'message': message},
+                              context_instance=RequestContext(request))
 def profile(request, value):
     """Display a users profile"""
     

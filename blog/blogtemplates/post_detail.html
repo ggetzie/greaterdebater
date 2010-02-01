@@ -38,9 +38,9 @@
 </div>
 {% else %}
 <p>
-  Please <a href="/login?next={{ request.path }}">log in</a> to your GreaterDebater account to leave a comment.
+  Please <a href="/users/login?next={{ request.path }}">log in</a> to your GreaterDebater account to leave a comment.
   <br />
-  Don't have an account yet? <a href="/login?next={{ request.path }}">Register</a> in just seconds.
+  Don't have an account yet? <a href="/users/login?next={{ request.path }}">Register</a> in just seconds.
 </p>
 {% endif %}
 
