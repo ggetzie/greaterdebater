@@ -5,6 +5,7 @@ from markdown import markdown
 
 from tcd.comments.models import Comment
 from tcd.settings import HOSTNAME
+from tcd.utils import autolink
 
 class Blog(models.Model):
     author = models.ForeignKey(User)
@@ -48,6 +49,7 @@ class Post(models.Model):
 
     def save(self):
         self.html = markdown(self.txt)
+        self.html = autolink(self.html)
         super(Post, self).save()
 
     def get_absolute_url(self):

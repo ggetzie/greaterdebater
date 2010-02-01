@@ -1,6 +1,7 @@
 import datetime
 import random
 import types
+import re
 
 def random_string(length):
     """Returns an alphanumeric string of random characters with the given length"""
@@ -67,6 +68,35 @@ def tag_string(tag_d):
     else:
         return ''
 
+def autolink(html):
+    # match all the urls
+    # this returns a tuple with two groups
+    # if the url is part of an existing link, the second element
+    # in the tuple will be "> or </a>
+    # if not, the second element will be an empty string
+    urlre = re.compile("(\(?https?://[-A-Za-z0-9+&@#/%?=~_()|!:,.;]*[-A-Za-z0-9+&@#/%=~_()|])(\">|</a>)?")
+    urls = urlre.findall(html)
+    clean_urls = []
+
+    # remove the duplicate matches
+    # and replace urls with a link
+    for url in urls:
+        # ignore urls that are part of a link already
+        if url[1]: continue
+        c_url = url[0]
+        # ignore parens if they enclose the entire url
+        if c_url[0] == '(' and c_url[len(c_url)-1] == ')':
+            c_url = c_url[1:len(c_url)-1]
+
+        if c_url in clean_urls: continue            
+        clean_urls.append(c_url)
+        # substitute only where the url is not already part of a
+        # link element.
+        html = re.sub("(?<!(=\"|\">))" + re.escape(c_url), 
+                      "<a rel=\"nofollow\" href=\"" + c_url + "\">" + c_url + "</a>",
+                      html)
+    return html
+
 def remove_blank_tags(obj):
     """check a string of tags and tag counts for an entry where the
     tag is an empty string and remove that entry
@@ -109,3 +139,4 @@ def update_tags(oldtagstr, newtaglst):
         else:
             td[tag] = 1
     return tag_string(td)
+

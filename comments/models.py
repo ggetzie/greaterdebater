@@ -29,7 +29,7 @@ import datetime
 from tcd.comments.forms import ArgueForm
 from tcd.items.models import Topic
 from tcd.settings import HOSTNAME
-from tcd.utils import elapsed_time
+from tcd.utils import autolink, elapsed_time
 
 """
 We cache lexer aliases to speed parsing. To update them, get lexers_aliases like this :
@@ -82,33 +82,7 @@ class Comment(models.Model):
         if not self.id:
             self.pub_date = datetime.datetime.now()          
         self.comment_html = self.hilight(self.comment)
-        
-        # match all the urls
-        # this returns a tuple with two groups
-        # if the url is part of an existing link, the second element
-        # in the tuple will be "> or </a>
-        # if not, the second element will be an empty string
-        urlre = re.compile("(\(?https?://[-A-Za-z0-9+&@#/%?=~_()|!:,.;]*[-A-Za-z0-9+&@#/%=~_()|])(\">|</a>)?")
-        urls = urlre.findall(self.comment_html)
-        clean_urls = []
-        
-        # remove the duplicate matches
-        # and replace urls with a link
-        for url in urls:
-            # ignore urls that are part of a link already
-            if url[1]: continue
-            c_url = url[0]
-            if c_url[0] == '(' and c_url[len(c_url)-1] == ')':
-                c_url = c_url[1:len(c_url)-1]
-
-            if c_url in clean_urls: continue            
-            clean_urls.append(c_url)
-            # substitute only where the url is not already part of a
-            # link element.
-            self.comment_html = re.sub("(?<!(=\"|\">))" + re.escape(c_url), 
-                                       "<a rel=\"nofollow\" href=\"" + c_url + "\">" + c_url + "</a>",
-                                       self.comment_html)
-            
+        self.comment_html = autolink(self.comment_html)
         super(Comment, self).save()
 
     def __unicode__(self):
