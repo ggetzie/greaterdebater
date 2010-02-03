@@ -5,10 +5,10 @@
 {% if topfive %}
 {% for post in topfive %}
 <div class="postsummary">
-  <H1>{{ post.title }}</H1>
+  <a href="/blog/{{ blog.author.username }}/post/{{ post.id }}"><H1>{{ post.title }}</H1></a>
   <DIV class="descr">{{ post.pub_date|date }} by {{ blog.author }}</DIV>
   {{ post.html|truncatewords_html:100|safe }}
-  <a href="/blog/{{ blog.author }}/post/{{ post.id }}">more...</a>
+  <a href="/blog/{{ blog.author.username }}/post/{{ post.id }}">more...</a>
 </div>
 {% endfor %}
 {% else %}

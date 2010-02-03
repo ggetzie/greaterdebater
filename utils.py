@@ -88,7 +88,9 @@ def autolink(html):
         if c_url[0] == '(' and c_url[len(c_url)-1] == ')':
             c_url = c_url[1:len(c_url)-1]
 
-        if c_url in clean_urls: continue            
+
+        if c_url in clean_urls: continue # We've already linked this url
+
         clean_urls.append(c_url)
         # substitute only where the url is not already part of a
         # link element.
@@ -126,7 +128,7 @@ def update_tags(oldtagstr, newtaglst):
     e.g. 'politics,funny,technology\n7,5,2' 
     
     newtaglst is a list of strings to be added, increment the count if
-    the tag is already present, or add a new entry with a count of 1
+
     if it's not.
 
     return a new string in the same format as oldtagstr with the new

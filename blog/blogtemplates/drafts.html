@@ -4,10 +4,11 @@
 
 {% if drafts %}
 {% for post in drafts %}
-<div id="post{{ post.id}}">
+<div id="post{{ post.id}}" class="postsummary">
   <a href="/blog/{{ blog.author }}/edit/{{ post.id }}"><H1>{{ post.title }}</H1></a>
   <DIV class="descr">{{ post.created|date }}</DIV>
-  {{ post.html|truncatewords_html:100|safe }}
+  {{ post.html|truncatewords_html:50|safe }}
+  <a href="/blog/{{ blog.author }}/edit/{{ post.id }}">more...</a>
 </div>
 {% endfor %}
 {% else %}
