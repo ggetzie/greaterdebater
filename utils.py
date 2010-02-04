@@ -85,9 +85,8 @@ def autolink(html):
         if url[1]: continue
         c_url = url[0]
         # ignore parens if they enclose the entire url
-        if c_url[0] == '(' and c_url[len(c_url)-1] == ')':
-            c_url = c_url[1:len(c_url)-1]
-
+        if c_url[0] == '(' and c_url[-1] == ')':
+            c_url = c_url[1:-1]
 
         if c_url in clean_urls: continue # We've already linked this url
 

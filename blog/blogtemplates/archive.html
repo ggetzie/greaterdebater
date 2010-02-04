@@ -22,3 +22,7 @@
 Hi {{ request.user.username }}! Nothing in the archive yet.
 {% endif %}
 {% endblock %}
+
+{% block ads %}
+{% include "blogtemplates/ads.html" %}
+{% endblock %}

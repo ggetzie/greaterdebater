@@ -15,3 +15,8 @@
 Hi {{ request.user.username }}! It looks like {{ blog.author }} hasn't posted anything yet.
 {% endif %}
 {% endblock %}
+
+
+{% block ads %}
+{% include "blogtemplates/ads.html" %}
+{% endblock %}

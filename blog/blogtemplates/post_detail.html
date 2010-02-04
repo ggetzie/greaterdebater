@@ -13,7 +13,7 @@
 {% endif %}
 
 <H1>{{ post.title }}</H1>
-
+{% if show_post %}
 <DIV class="descr">{{ post.pub_date|date }} by {{ blog.author }}</DIV>
 
 {{ post.html|safe }}
@@ -58,4 +58,16 @@
   <p>No comments yet</p>
   {% endif %}
 </div>
+{% else %}
+<p>
+  This post is not yet published. Check back soon!
+</p>
+{% endif %}
+
+
+{% endblock %}
+
+
+{% block ads %}
+{% include "blogtemplates/ads.html" %}
 {% endblock %}
