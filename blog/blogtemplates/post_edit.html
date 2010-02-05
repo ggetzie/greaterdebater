@@ -19,8 +19,7 @@ Edit {{ post.title }} | {{ blog.title }}
 	{% if post.id %}
 	<button onclick="submit_form('{{ blog.author }}', 'preview'); return false;"
 		name="preview">Preview</button>
-	<button onclick="submit_form('{{ blog.author }}', 'publish'); return false;" 
-		  name="publish">Publish</button>
+
 	<span id="delete">
 	  <a href="#" onclick="swap('#delete','#confirm_delete'); return false">Delete this post</a>
 	</span>
@@ -28,6 +27,15 @@ Edit {{ post.title }} | {{ blog.title }}
 	  Are you sure? <a href="#" onclick="delete_post('{{ blog.author.username }}', {{ post.id }}); return false;">Yes</a> or <a href="#" onclick="swap('#delete','#confirm_delete'); return false">No</a>?
 	</span>
 	{% endif %}
+      </td>
+      <td>
+	<span id="publish">
+	  <button onclick="swap('#publish','#confirm_publish'); return false;"
+		   name="publish">Publish</button>
+	</span>
+	<span id="confirm_publish" class="confirm">
+	  Are you sure? <a href="#" onclick="submit_form('{{ blog.author.username }}', 'publish'); return false;">Yes</a> or <a href="#" onclick="swap('#publish','#confirm_publish'); return false">No</a>?
+	</span>
       </td>
     </tr>
   </table>

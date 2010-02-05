@@ -87,11 +87,18 @@ img {
 .title {
     float: left;
     padding: 28px 0 0 76px;
+
 }
 .title h1 {
     color: #FFF;
     font: normal 2em Verdana,sans-serif;
 }
+
+#tagline {
+    color: #FFF;
+    font-size: 0.9em;
+}
+
 /* navigation */
 .navigation {
     float: left;
