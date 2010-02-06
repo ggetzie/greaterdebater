@@ -25,6 +25,12 @@
 							  + '&title=' + encodeURIComponent(document.title); return false;">Debate It!</a>
 </div>
 
+{% ifequal request.user blog.author %}
+<p>
+  <a href="/blog/{{ blog.author.username }}/edit/{{ post.id }}">edit</a>
+</p>
+{% endifequal %}
+
 {% if request.user.is_authenticated %}
 <div id="add-comment">
   <h2>Leave a comment</h2>

@@ -5,7 +5,7 @@ from django.template import loader, Context, RequestContext
 from django.views.generic import list_detail
 
 from tcd.blog.models import Blog, Post, PostComment
-from tcd.blog.forms import PostEdit, PostCommentForm
+from tcd.blog.forms import PostEdit, PostCommentForm, PostNew
 from tcd.comments.utils import build_list
 
 import pyfo
@@ -86,9 +86,22 @@ def new_post(request, username):
     user = get_object_or_404(User, username=username)
     if request.user == user:
         blog = get_object_or_404(Blog, author=user)
-        form = PostEdit({'title': "Untitled Post",
-                         'txt': "Enter text here"})
-        return render_to_response('blogtemplates/post_edit.html',
+        if request.POST:
+            form = PostNew(request.POST)
+            if form.is_valid():
+                post = Post(title=form.cleaned_data['title'],
+                            txt=form.cleaned_data['txt'],
+                            tags=form.cleaned_data['tags'],
+                            created=datetime.datetime.now(),
+                            blog=blog)
+                post.save()
+                redirect_to = ''.join(['/blog/', blog.author.username, '/edit/', str(post.id)])
+                return HttpResponseRedirect(redirect_to)
+        else:
+            form = PostNew({'title': "Untitled Post",
+                            'txt': "Enter text here"})
+
+        return render_to_response('blogtemplates/post_new.html',
                                   {'form': form,
                                    'blog': blog},
                                   context_instance=RequestContext(request))
@@ -143,17 +156,12 @@ def save_draft(request, username):
         if request.POST:
             form = PostEdit(request.POST)
             if form.is_valid():
-                if form.cleaned_data['id']:
-                    post = Post.objects.get(pk=form.cleaned_data['id'])
-                    post.txt = form.cleaned_data['txt']
-                    post.tags = form.cleaned_data['tags']
-                    post.title = form.cleaned_data['title']
-                else:
-                    post = Post(txt = form.cleaned_data['txt'],
-                                tags = form.cleaned_data['tags'],
-                                title = form.cleaned_data['title'],
-                                created = datetime.datetime.now(),
-                                blog=blog)
+
+                post = Post.objects.get(pk=form.cleaned_data['id'])
+                post.txt = form.cleaned_data['txt']
+                post.tags = form.cleaned_data['tags']
+                post.title = form.cleaned_data['title']
+
                 post.save()
                 msg = "Draft Saved"
                 status = 'ok'
