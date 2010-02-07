@@ -34,6 +34,8 @@ from models import ArgComment, TopicComment, Debate
 from tcd.items.models import Topic
 from tcd.items.forms import Flag
 
+from tcd.profiles.models import Profile
+
 from tcd.utils import calc_start
 
 import datetime
@@ -55,26 +57,34 @@ def add(request, topic_id):
     if request.POST:
         form=CommentForm(request.POST)
         if form.is_valid():
-            if not request.user.is_authenticated():
+            if request.user.is_authenticated():
+                prof = get_object_or_404(Profile, user=request.user)
+                ratemsg = prof.check_rate()
+                if ratemsg:
+                    request.user.message_set.create(message=ratemsg)
+                else:
+                    top = get_object_or_404(Topic, pk=topic_id)
+                    params = {'comment': form.cleaned_data['comment'],
+                              'user': request.user,
+                              'ntopic': top}
+                    if form.cleaned_data['toplevel'] == 1:
+                        params['nparent_id'] = 0
+                        params['nnesting'] = 10
+                    else:
+                        params['nparent_id'] = form.cleaned_data['parent_id']
+                        params['nnesting'] = form.cleaned_data['nesting'] + 40
+                    c = TopicComment(**params)
+                    c.save()		    
+
+                    top.comment_length += len(c.comment)
+                    top.recalculate()
+                    top.save()
+                    
+                    prof.last_post = c.pub_date
+                    prof.save()
+            else:
                 request.user.message_set.create(message="Please log in to post a comment")
                 redirect_to = ''.join(['/login?next=/', str(topic_id), '/'])
-            else:		    
-                top = get_object_or_404(Topic, pk=topic_id)
-                params = {'comment': form.cleaned_data['comment'],
-                          'user': request.user,
-                          'ntopic': top}
-                if form.cleaned_data['toplevel'] == 1:
-                    params['nparent_id'] = 0
-                    params['nnesting'] = 10
-                else:
-                    params['nparent_id'] = form.cleaned_data['parent_id']
-                    params['nnesting'] = form.cleaned_data['nesting'] + 40
-                c = TopicComment(**params)
-                c.save()		    
-                
-                top.comment_length += len(c.comment)
-                top.recalculate()
-                top.save()
         else:
             message = "<p>Oops! A problem occurred.</p>"
             request.user.message_set.create(message=message+str(form.errors))

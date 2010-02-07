@@ -41,6 +41,14 @@ def time_plural(num, unit):
     else:
         return ''.join([str(num), " ", unit, "s"])
 
+def wordtime(seconds):
+    if seconds > 3600:
+        return time_plural(seconds/3600+1, "hour")
+    elif seconds > 60:
+        return time_plural(seconds/60+1, "minute")
+    else:
+        return time_plural(seconds, "second")
+
     
 def tag_dict(tag_str):
     """returns a dictionary where keys are tags and values

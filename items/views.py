@@ -212,6 +212,15 @@ def delete_topic(request):
 
 def submit(request):
     """Add a new topic submitted by the user"""
+
+    # Look for a url being submitted, if there's already
+    # a topic that has it, redirect to that topic
+    try:
+        topic = Topic.objects.get(url=request.GET['url'])
+        return HttpResponseRedirect(''.join(["/", str(topic.id), "/"]))
+    except (MultiValueDictKeyError, Topic.DoesNotExist):
+        pass
+
     if request.user.is_authenticated():
         user = request.user.username
         if request.method == 'POST':
@@ -222,53 +231,62 @@ def submit(request):
                     topic = Topic.objects.get(url=form.cleaned_data['url'])
                     return HttpResponseRedirect(''.join(["/", str(topic.id), "/"]))
                 except ObjectDoesNotExist:
-
-                    topic = Topic(user=request.user,
-                                  title=form.cleaned_data['title'],
-                                  score=1,
-                                  sub_date=datetime.datetime.now(),
-                                  comment_length=0,
-                                  last_calc=datetime.datetime.now()
-                                  )
-                    topic.save()
-                    next = ''.join(["/", str(topic.id), "/"])
-                    if data['url']:
-                        topic.url = form.cleaned_data['url']
+                    prof = get_object_or_404(Profile, user=request.user)
+                    ratemsg = prof.check_rate()
+                    if ratemsg:
+                        request.user.message_set.create(message=ratemsg)
+                        return HttpResponseRedirect(request.path)
                     else:
-                        topic.url = ''.join([HOSTNAME, '/', str(topic.id), '/'])
 
-                    dtags = form.cleaned_data['tags']
-                    if dtags:
-                        # create the count of all tags for the topic
-                        tags = '\n'.join([dtags, ','.join(['1']*(dtags.count(',')+1))])
-                        topic.tags = tags
-                        
-                        # create a Tags object to indicate the submitter
-                        # added these tags to this topic                        
-                        utags = Tags(user=request.user, topic=topic, tags=dtags)
-                        utags.save()
-                        
-                        # update the count of all tags used by the submitter
-                        prof = Profile.objects.get(user=request.user)
-                        prof.tags = update_tags(prof.tags, dtags.split(','))
+                        topic = Topic(user=request.user,
+                                      title=form.cleaned_data['title'],
+                                      score=1,
+                                      sub_date=datetime.datetime.now(),
+                                      comment_length=0,
+                                      last_calc=datetime.datetime.now()
+                                      )
+                        topic.save()
+                        next = ''.join(["/", str(topic.id), "/"])
+                        if data['url']:
+                            topic.url = form.cleaned_data['url']
+                        else:
+                            topic.url = ''.join([HOSTNAME, '/', str(topic.id), '/'])
+
+                        dtags = form.cleaned_data['tags']
+                        if dtags:
+                            # create the count of all tags for the topic
+                            tags = '\n'.join([dtags, ','.join(['1']*(dtags.count(',')+1))])
+                            topic.tags = tags
+
+                            # create a Tags object to indicate the submitter
+                            # added these tags to this topic                        
+                            utags = Tags(user=request.user, topic=topic, tags=dtags)
+                            utags.save()
+
+                            # update the count of all tags used by the submitter
+                            prof = Profile.objects.get(user=request.user)
+                            prof.tags = update_tags(prof.tags, dtags.split(','))
+                            prof.save()
+
+                        topic.save()
+
+                        prof.last_post = topic.sub_date
                         prof.save()
 
-                    topic.save()
-                                            
-                    if form.cleaned_data['comment']:
-                        comment = TopicComment(user=request.user,
-                                               ntopic=topic,
-                                               pub_date=datetime.datetime.now(),
-                                               comment=form.cleaned_data['comment'],
-                                               first=True,
-                                               nparent_id=0,
-                                               nnesting=0)
-                        comment.save()
+                        if form.cleaned_data['comment']:
+                            comment = TopicComment(user=request.user,
+                                                   ntopic=topic,
+                                                   pub_date=datetime.datetime.now(),
+                                                   comment=form.cleaned_data['comment'],
+                                                   first=True,
+                                                   nparent_id=0,
+                                                   nnesting=0)
+                            comment.save()
 
-                        topic.comment_length += len(comment.comment)
-                        topic.recalculate()
-                        topic.save()
-                    return HttpResponseRedirect(next)
+                            topic.comment_length += len(comment.comment)
+                            topic.recalculate()
+                            topic.save()
+                        return HttpResponseRedirect(next)
         else:
             try:
                 form = tcdTopicSubmitForm(initial={'title':request.GET['title'],

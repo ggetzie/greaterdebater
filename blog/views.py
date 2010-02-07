@@ -7,7 +7,7 @@ from django.views.generic import list_detail
 from tcd.blog.models import Blog, Post, PostComment
 from tcd.blog.forms import PostEdit, PostCommentForm, PostNew
 from tcd.comments.utils import build_list
-
+from tcd.profiles.models import Profile
 import pyfo
 import datetime
 
@@ -46,16 +46,23 @@ def addcomment(request, username):
         post = get_object_or_404(Post, id=request.POST['post_id'])
         redirect_to = ''.join([blog.get_absolute_url(), 'post/', str(post.id)])
         if form.is_valid():
-            if not request.user.is_authenticated():
+            if request.user.is_authenticated():
+                prof = get_object_or_404(Profile, user=request.user)
+                ratemsg = prof.check_rate()
+                if ratemsg:
+                    request.user.message_set.create(message=ratemsg)
+                else:
+                    comment = PostComment(blog=blog,
+                                          post=post,
+                                          user=request.user,
+                                          comment=form.cleaned_data['comment'])
+                    comment.save()
+
+                    prof.last_post = comment.pub_date
+                    prof.save()
+            else:
                 request.user.message_set.create(message="Please log in to post a comment")
                 redirect_to = ''.join(['/login?next=', blog.get_absolute_url(), 'post/', str(post.id)])
-            else:
-                comment = PostComment(blog=blog,
-                                      post=post,
-                                      user=request.user,
-                                      comment=form.cleaned_data['comment'])
-                comment.save()
-
         else:
             message = "<p>Oops! A problem occurred.</p>"
             request.user.message_set.create(message=message+str(form.errors))
