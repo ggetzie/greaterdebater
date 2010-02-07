@@ -11,7 +11,7 @@ class Profile(models.Model):
     newwin = models.BooleanField(default=False)
     mailok = models.BooleanField(default=False)
     tags = models.TextField(blank=True)
-    last_post = models.DateTimeField(blank=True)
+    last_post = models.DateTimeField(default=datetime.datetime(month=1, day=1, year=1970))
     rate = models.PositiveSmallIntegerField(default=0)
     
     def __unicode__(self):

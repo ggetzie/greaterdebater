@@ -42,7 +42,8 @@ def register(request):
                                          password=data['password1'])
             auth.login(request, new_user)
             new_user_profile = Profile(user=new_user,
-                                       score=0)
+                                       score=0
+                                       )
             new_user_profile.save()
             return HttpResponseRedirect(next)
     else:
