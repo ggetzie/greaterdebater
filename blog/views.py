@@ -185,7 +185,7 @@ def save_draft(request, username):
     message = msgt.render(msgc)
     
     xmlc = Context({'status': status,
-                          'messages': [message]})
+                    'messages': [message]})
     xmlt = loader.get_template("AJAXresponse.xml")
     response = xmlt.render(xmlc)
 

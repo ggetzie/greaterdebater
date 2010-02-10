@@ -34,6 +34,9 @@ urlpatterns = patterns('',
                        # Add tags to a topic
                        (r'^topics/addtags/$', 'tcd.items.views.addtags'),
 
+                       # Delete one tag from a topic
+                       (r'^topics/removetag/$', 'tcd.items.views.remove_tag'),
+
                        # Urls associated with arguments
                        (r'^argue/', include('tcd.items.argue_urls')),
 

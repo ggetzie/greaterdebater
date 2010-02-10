@@ -1,0 +1,29 @@
+{% extends "registration/profile/profile_base.html" %}
+
+{% block title %}Your tags for {{ topic.title}}{% endblock %}
+
+{% block content %}
+<h3 class="prof-head">Your tags for: {{ topic.title }}</h3>
+
+
+{% if tag_list %}
+<ul class="topic-list">
+  {% for tag in tag_list %}
+  <li> 
+    {{ tag }} - <a href="#" onclick="remove_tag({{ topic.id }}, {{ request.user.id }}, '{{ tag }}');
+				     return false;">remove</a>
+  </li>
+  {% endfor %}
+</ul>
+
+{% else %}
+<p>No tags for this topic</p>
+{% endif %}
+
+<p>
+  <a href="/users/u/{{ request.user.username }}/saved/">Return to saved topics</a>
+</p>
+{% endblock %}
+
+
+

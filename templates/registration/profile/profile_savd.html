@@ -48,6 +48,7 @@
 	{% endwith %}
 	<div id="tags{{ object.topic.id }}" class="tags">
 	  {% include "items/tag_div_user.html" %}
+	  <a href="/users/u/{{ request.user.username }}/tagedit/{{ object.topic.id }}/">edit tags</a>
 	</div>
     </div>
   </li>

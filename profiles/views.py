@@ -164,6 +164,17 @@ def profile_saved(request, value, tag=None, page=1):
     else:
         return HttpResponseForbidden("<h1>Unauthorized</h1>")
 
+def tagedit(request, value, topic_id):
+    topic = get_object_or_404(Topic, pk=topic_id)
+    user = get_object_or_404(User, username=value)
+    tags = get_object_or_404(Tags, topic=topic, user=user)
+    tag_list = tags.tags.split(',')
+    return render_to_response("registration/profile/tagedit.html",
+                              {'topic':topic,
+                               'tag_list':tag_list,
+                               'username':user},
+                              context_instance=RequestContext(request))
+
 
 def profile_args(request, value):
     """Display a list of all arguments a user has been involved in."""
@@ -442,4 +453,5 @@ resubmit with a new randomly generated code."""
         return code
     except MySQLdb.IntegrityError:
         save_forgotten(user)
+
 

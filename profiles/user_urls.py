@@ -50,6 +50,9 @@ urlpatterns = patterns('',
                        (r'^saved/(?P<tag>[\w\s\'!@\?\$%#&]+)/page/(?P<page>(\d+|last))/?$', 
                         'tcd.profiles.views.profile_saved'),
 
+                       # Show all tags associated with a topic for editing
+                       (r'^tagedit/(?P<topic_id>\d+)/?$', 'tcd.profiles.views.tagedit'),
+
                        # Display a list of messages for the user
                        (r'^messages/?$', 'tcd.profiles.views.profile_msgs'), 
                        (r'^messages/page/(?P<page>(\d+|last))/?$', 'tcd.profiles.views.profile_msgs'), 

@@ -13,7 +13,8 @@ from tcd.comments.forms import ArgueForm, CommentForm, RebutForm
 from tcd.comments.models import TopicComment, ArgComment, nVote, Debate, tcdMessage, Draw
 from tcd.comments.utils import build_list
 
-from tcd.items.forms import tcdTopicSubmitForm, Ballot, Flag, Concession, Response, TagEdit
+from tcd.items.forms import tcdTopicSubmitForm, Ballot, Flag, Concession, Response, TagEdit, \
+    TagRemove
 from tcd.items.models import Topic, Tags
 
 from tcd.profiles.forms import tcdLoginForm, tcdUserCreationForm
@@ -436,7 +437,62 @@ def addtags(request):
                              ])
     response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')
     return HttpResponse(response)
-    
+
+def remove_tag(request):
+    status = "error"
+    if request.POST:
+        form = TagRemove(request.POST)
+        if form.is_valid():
+            try:
+                topic = Topic.objects.get(pk=form.cleaned_data['topic_id'])
+                prof = Profile.objects.get(user__id=form.cleaned_data['user_id'])
+                tags = Tags.objects.get(topic=topic, user=prof.user)
+                tag = form.cleaned_data['tag']
+
+                topic_dict = tag_dict(topic.tags)
+                if topic_dict[tag] == 1:
+                    del topic_dict[tag]
+                else:
+                    topic_dict[tag] -= 1
+                topic.tags = tag_string(topic_dict)
+                topic.save()
+
+                prof_dict = tag_dict(prof.tags)
+                if prof_dict[tag] == 1:
+                    del prof_dict[tag]
+                else:
+                    prof_dict[tag] -= 1
+                prof.tags = tag_string(prof_dict)
+                prof.save()
+
+                
+                tags_list = tags.tags.split(',')
+                tags_list.remove(tag)
+                if tags_list:
+                    tags.tags = ','.join(tags_list)
+                    tags.save()
+                else:
+                    tags.delete()
+                
+                msg = "Tag removed"
+                status = "ok"
+            except ObjectDoesNotExist:
+                msg = "Invalid topic, user or tag"
+        else:
+            msg = "Invalid Form"
+    else:
+        msg = "Not a POST"
+
+    msgt = loader.get_template('sys_msg.html')
+    msgc = Context({'message': msg,
+                    'nesting': 10})
+    message = msgt.render(msgc)
+
+    xmlt = loader.get_template('AJAXresponse.xml')
+    xmlc = Context({'status': status,
+                    'messages': [message]})
+    response = xmlt.render(xmlc)
+    return HttpResponse(response)
 
 
 def challenge(request, c_id):

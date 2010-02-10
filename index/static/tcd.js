@@ -149,6 +149,20 @@ function addtags(topic_id, source) {
 	   });
 }
 
+function remove_tag(topic_id, user_id, tag) {
+    $.post("/topics/removetag/", {topic_id: topic_id,
+				  user_id: user_id,
+				  tag: tag},
+	   function(xml) {
+	       if ($("status", xml).text() == "ok") {
+		   $("li:contains(" + tag + ")").html($("message", xml).html());
+		   
+	       } else {
+		   $("h3.prof-head").after($("message", xml).html())
+	       }
+	   });
+}
+
 function flag_topic(topic_id, user_id) {    
 
     $.post("/tflag/", {object_id: topic_id},		      
