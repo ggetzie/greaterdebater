@@ -13,6 +13,9 @@ class Profile(models.Model):
     tags = models.TextField(blank=True)
     last_post = models.DateTimeField(default=datetime.datetime(month=1, day=1, year=1970))
     rate = models.PositiveSmallIntegerField(default=0)
+    feedcoms = models.BooleanField(default=False)
+    feedtops = models.BooleanField(default=False)
+    feeddebs = models.BooleanField(default=False)
     
     def __unicode__(self):
         return self.user.username
