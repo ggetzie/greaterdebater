@@ -444,38 +444,41 @@ def remove_tag(request):
         form = TagRemove(request.POST)
         if form.is_valid():
             try:
-                topic = Topic.objects.get(pk=form.cleaned_data['topic_id'])
                 prof = Profile.objects.get(user__id=form.cleaned_data['user_id'])
-                tags = Tags.objects.get(topic=topic, user=prof.user)
-                tag = form.cleaned_data['tag']
+                if prof.user == request.user:
+                    topic = Topic.objects.get(pk=form.cleaned_data['topic_id'])
+                    tags = Tags.objects.get(topic=topic, user=prof.user)
+                    tag = form.cleaned_data['tag']
 
-                topic_dict = tag_dict(topic.tags)
-                if topic_dict[tag] == 1:
-                    del topic_dict[tag]
-                else:
-                    topic_dict[tag] -= 1
-                topic.tags = tag_string(topic_dict)
-                topic.save()
+                    topic_dict = tag_dict(topic.tags)
+                    if topic_dict[tag] == 1:
+                        del topic_dict[tag]
+                    else:
+                        topic_dict[tag] -= 1
+                    topic.tags = tag_string(topic_dict)
+                    topic.save()
 
-                prof_dict = tag_dict(prof.tags)
-                if prof_dict[tag] == 1:
-                    del prof_dict[tag]
-                else:
-                    prof_dict[tag] -= 1
-                prof.tags = tag_string(prof_dict)
-                prof.save()
+                    prof_dict = tag_dict(prof.tags)
+                    if prof_dict[tag] == 1:
+                        del prof_dict[tag]
+                    else:
+                        prof_dict[tag] -= 1
+                    prof.tags = tag_string(prof_dict)
+                    prof.save()
 
-                
-                tags_list = tags.tags.split(',')
-                tags_list.remove(tag)
-                if tags_list:
-                    tags.tags = ','.join(tags_list)
-                    tags.save()
+
+                    tags_list = tags.tags.split(',')
+                    tags_list.remove(tag)
+                    if tags_list:
+                        tags.tags = ','.join(tags_list)
+                        tags.save()
+                    else:
+                        tags.delete()
+
+                    msg = "Tag removed"
+                    status = "ok"
                 else:
-                    tags.delete()
-                
-                msg = "Tag removed"
-                status = "ok"
+                    msg = "Can't remove another user's tag"
             except ObjectDoesNotExist:
                 msg = "Invalid topic, user or tag"
         else:
