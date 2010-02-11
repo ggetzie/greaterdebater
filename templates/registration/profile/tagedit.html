@@ -10,7 +10,7 @@
 <ul class="topic-list">
   {% for tag in tag_list %}
   <li> 
-    {{ tag }} - <a href="#" onclick="remove_tag({{ topic.id }}, {{ request.user.id }}, '{{ tag }}');
+    {{ tag }} - <a href="#" onclick="remove_tag({{ topic.id }}, {{ request.user.id }}, '{{ tag|escapejs }}');
 				     return false;">remove</a>
   </li>
   {% endfor %}
