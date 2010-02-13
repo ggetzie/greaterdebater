@@ -2,8 +2,9 @@ from django.contrib.syndication.feeds import Feed, FeedDoesNotExist
 from django.core.exceptions import ObjectDoesNotExist
 
 from tcd.blog.models import Blog, Post
-from tcd.comments.models import Debate
+from tcd.comments.models import Debate, TopicComment
 from tcd.items.models import Topic
+from tcd.profiles.models import Profile
 from tcd.settings import HOSTNAME
 
 class NewTopics(Feed):
@@ -43,3 +44,48 @@ class BlogFeed(Feed):
     def items(self, obj):
         return Post.objects.filter(blog=obj, draft=False).order_by('-pub_date')[:30]
         
+class UserFeed(Feed):
+
+    def get_object(self, username):
+        if len(username) != 1:
+            return ObjectDoesNotExist
+        
+        prof = Profile.objects.get(user__username__exact=username[0])
+        
+        if not (prof.feedcoms or prof.feedtops or prof.feeddebs):
+            return ObjectDoesNotExist
+
+        return prof
+
+    def title(self, obj):
+        return "GreaterDebater activity for " + obj.user.username
+
+    def link(self, obj):
+        return obj.get_absolute_url()
+
+    def items(self, obj):
+        return activity(obj)
+
+def activity(prof):
+    coms = None
+    tops = None
+    debs = None
+    qsets = []
+    if prof.feedcoms:
+        coms = list(TopicComment.objects.filter(user=prof.user, first=False).order_by("-pub_date")[:50])
+        qsets.append(coms)
+    if prof.feedtops:
+        tops = list(Topic.objects.filter(user=prof.user).order_by("-sub_date")[:50])
+        qsets.append(tops)
+    if prof.feeddebs:
+        debset = Debate.objects.filter(plaintiff=prof.user, status__in=(range(1,6))) | \
+            Debate.objects.filter(defendant=prof.user, status__in=(range(1,6)))
+        debs = list(debset.order_by("-start_date")[:50])
+        qsets.append(debs)
+
+    if len(qsets) == 1: return qsets[0]
+    itemlist = []
+    for qset in qsets: itemlist.extend(qset)
+    itemlist.sort(key=lambda x: x.get_date(), reverse=True)
+    return itemlist[:30]
+                

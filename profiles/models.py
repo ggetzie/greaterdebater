@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from tcd.settings import HOSTNAME
 from tcd.utils import wordtime
 
 import datetime
@@ -47,7 +48,9 @@ class Profile(models.Model):
             self.rate = 0
             self.save()
             return ""
-        
+
+    def get_absolute_url(self):
+        return '/'.join([HOSTNAME, 'users', 'u', self.user.username])
 
 class Forgotten(models.Model):
     """Temporarily associate a user with a randomly generated 32 character string.

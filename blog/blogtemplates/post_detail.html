@@ -14,7 +14,7 @@
 
 <H1>{{ post.title }}</H1>
 {% if show_post %}
-<DIV class="descr">{{ post.pub_date|date }} by {{ blog.author }}</DIV>
+<DIV class="descr">by {{ blog.author }} at {{ post.pub_date|date }}</DIV>
 
 {{ post.html|safe }}
 

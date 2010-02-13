@@ -183,7 +183,7 @@ def list(request):
     pass
 
 def comment_detail(request, comment_id):
-    comment = get_object_or_404(Comment, pk=comment_id)
+    comment = get_object_or_404(TopicComment, pk=comment_id)
     return render_to_response("comments/comment_detail.html",
                               {'comment': comment},
                               context_instance=RequestContext(request))

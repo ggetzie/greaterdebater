@@ -1,13 +1,14 @@
 from django.conf.urls.defaults import *
 from django.contrib import admin
-from tcd.feeds import NewTopics, NewArguments, BlogFeed
+from tcd.feeds import NewTopics, NewArguments, BlogFeed, UserFeed
 
 admin.autodiscover()
 
 feeds = {
     'newtopics': NewTopics,
     'newargs':   NewArguments,
-    'blog': BlogFeed
+    'blog': BlogFeed,
+    'user': UserFeed
 }
 
 urlpatterns = patterns('',

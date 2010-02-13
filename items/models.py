@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.template import loader, Context
 
 from tcd.profiles.models import Profile
 from tcd.utils import elapsed_time
@@ -80,6 +81,17 @@ class Topic(models.Model):
         self.comment_length = clen
         self.recalculate()
         self.save()
+
+    def get_date(self):
+        return self.sub_date
+
+    def get_description(self):
+        dest = loader.get_template('feeds/newtopics_description.html')
+        desc = Context({'obj': self})
+        return dest.render(desc)
+
+    def get_title(self):
+        return ' '.join(['Topic:', self.title])
 
     
 class LogItem(models.Model):

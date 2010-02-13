@@ -1,9 +1,6 @@
-<br />
 {% for comment in obj.first_two %}
 by {{ comment.user }} - {{ comment.get_elapsed }} ago
-<div>
-    {{ comment.comment_html|safe }}
-</div>
+{{ comment.comment_html|safe }}
 <br />
 {% endfor %}
 

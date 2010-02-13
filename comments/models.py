@@ -18,6 +18,7 @@
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
+from django.template import loader, Context
 from django.utils.encoding import smart_unicode, force_unicode
 
 from pygments import highlight, lexers, formatters
@@ -155,7 +156,7 @@ class tcdMessage(Comment):
         ordering = ('-pub_date',)
 
 
-
+        
 class TopicComment(Comment):
     ntopic = models.ForeignKey(Topic)
     first = models.BooleanField(default=False)
@@ -169,6 +170,22 @@ class TopicComment(Comment):
     def get_viewable_arguments(self):
         return Debate.objects.filter(status__range=(1,5), incite=self).count()
 
+    def get_date(self):
+        return self.pub_date
+
+    def get_description(self):
+        dest = loader.get_template('feeds/comdesc.html')
+        desc = Context({'obj': self})
+        return dest.render(desc)
+    
+    def get_title(self):
+        titlet = loader.get_template('feeds/comtitle.html')
+        titlec = Context({'obj': self})
+        return titlet.render(titlec)
+    
+    def get_absolute_url(self):
+        return '/'.join([HOSTNAME, 'comments', str(self.id)])
+    
 
 class Debate(models.Model):
     plaintiff = models.ForeignKey(User, related_name='plaintiff_set')
@@ -312,6 +329,17 @@ class Debate(models.Model):
 
     def get_absolute_url(self):
         return '/'.join([HOSTNAME, 'argue', str(self.id)])
+
+    def get_date(self):
+        return self.start_date
+                        
+    def get_description(self):
+        dest = loader.get_template('feeds/newargs_description.html')
+        desc = Context({'obj': self})
+        return dest.render(desc)
+
+    def get_title(self):
+        return ' '.join(['Debate:', self.title])
 
 class ArgComment(Comment):
     ntopic = models.ForeignKey(Topic)
