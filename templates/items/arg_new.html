@@ -10,11 +10,7 @@
 {% block content %}
 <h3 class="section-title">Newest Debates</h3>
 
-<div class="rss-link">
-  <a href="http://feeds.feedburner.com/Greaterdebater-NewArguments">
-    <img src="{{ MEDIA_URL }}img/feed-icon-14x14.png" /></a> 
-  <a href="http://feeds.feedburner.com/Greaterdebater-NewArguments">Subscribe to RSS</a>
-</div>
+
 
 {% include "items/arg_list.html" %}
 
@@ -25,6 +21,14 @@
   {% if has_next %}
   <a id="next" href="/argue/new/page/{{ next }}/">Next</a>
   {% endif %}
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div class="rss-link">
+  <a href="http://feeds.feedburner.com/Greaterdebater-NewArguments">
+    <img src="{{ MEDIA_URL }}img/feed-icon-14x14.png" /></a> 
+  <a href="http://feeds.feedburner.com/Greaterdebater-NewArguments">Subscribe to RSS</a>
 </div>
 {% endblock %}
 

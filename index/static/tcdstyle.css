@@ -97,7 +97,6 @@ ul.errorlist ul {
 }
 
 .rss-link {
-    float: right;
     font-size: x-small;
 }
 
@@ -264,6 +263,10 @@ div.topic_info {
     font-size: small;
 }    
 
+div.topic-menu {
+    font-size: small;
+}
+
 div.topic-header {
     padding-bottom: 15px;
     margin-bottom: 15px;
@@ -294,7 +297,7 @@ div.detail-title {
 }
 
 .comment-menu {
-    font-size: small;    
+    font-size: x-small;    
 }
 
 div#topmenu {
@@ -314,18 +317,29 @@ div#content {
     margin: 5px 0px 0px 20px;
 }
 
-div#ads {
-    width: 160px;
-    float: right;
-    margin-right: -7px;
-}
 
 div#content-wrapper {
     margin-top: 20px;
 }
 
+div#sidebar {
+    padding: 20px 10px 0px 0px;
+    width: 320px;
+    float: right;
+    margin-right: -7px;
+}
+
 div#ad-wrapper {
     padding: 20px 10px 0px 0px;
+    width: 160px;
+    float: right;
+    margin-right: -7px;
+}
+
+div#sideinfo {
+    padding: 20px 0px 20px 0px;
+    float: left;
+    width: 150px;
 }
 
 div.defendant {

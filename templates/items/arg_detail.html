@@ -97,6 +97,17 @@
 
 {% endblock %}
 
+{% block sidebar %}
+<div id="sideinfo">
+  <a class="google_buzz"
+     href="http://www.google.com/reader/link?url={{ object.get_absolute_url }}&title=Debate%3A%20{{ object.title|urlencode }}"
+     target="_blank" rel="nofollow">
+    <img src="{{ MEDIA_URL }}img/google-buzz.png"
+	 alt="Google Buzz">
+  </a>
+</div>
+{% endblock %}
+
 {% block ads %}
 {% include "ads.html" %}
 {% endblock %}

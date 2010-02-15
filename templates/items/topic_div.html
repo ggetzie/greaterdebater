@@ -3,7 +3,7 @@
     <a href="{{ object.url }}" class="title" {% if newwin %}target="_blank"{% endif %}>{{ object.title }}</a><span class="domain">({{ object.get_domain }})</span>
   </div>
 
-  <div class="comment-menu">
+  <div class="topic-menu">
     submitted by <a href="/users/u/{{ object.user }}/profile/">{{ object.user }}</a> {{ object.get_elapsed }} ago
     {% if user.is_authenticated %}
 

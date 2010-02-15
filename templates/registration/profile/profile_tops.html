@@ -10,7 +10,7 @@
   <li> 
     <div id="topic_div{{ object.id }}">
       <a class="title" href={{ object.url }} {% if newwin %}target="_blank"{% endif %}>{{ object.title }}</a> <br />
-      <div class="comment-menu">
+      <div class="topic-menu">
 	submitted by <a href="/users/u/{{ object.user }}/profile/">{{ object.user }}</a>
 	{{ object.get_elapsed }} ago | 
 	{% with object.com_count as num %}

@@ -198,7 +198,8 @@ def comment_detail(request, comment_id):
                               {'rest_c': comtree, 
                                'object': comment.ntopic, 
                                'onecom': True,
-                               'newwin': newwin},
+                               'newwin': newwin,
+                               'com': comment},
                               context_instance=RequestContext(request))
                                     
 def arguments(request, comment_id, page=1):

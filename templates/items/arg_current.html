@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% block title %}Most Active Debates{% endblock %}
 
+{% block htmlhead %}
+<link rel="alternate" type="application/rss+xml"
+      title="GreaterDebater - New Debates"
+      href="http://feeds.feedburner.com/Greaterdebater-NewArguments">
+{% endblock %}
+
 {% block content %}
 <h3 class="section-title">Most Active Debates</h3>
 
@@ -15,6 +21,14 @@
   {% endif %}
 </div>
 
+{% endblock %}
+
+{% block sidebar %}
+<div class="rss-link">
+  <a href="http://feeds.feedburner.com/Greaterdebater-NewArguments">
+    <img src="{{ MEDIA_URL }}img/feed-icon-14x14.png" /></a> 
+  <a href="http://feeds.feedburner.com/Greaterdebater-NewArguments">Subscribe to RSS</a>
+</div>
 {% endblock %}
 
 {% block ads %}

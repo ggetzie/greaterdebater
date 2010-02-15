@@ -139,7 +139,11 @@
 	  {% endblock %}
 	</div>
 
-	<div id="ad-wrapper">
+	<div id="sidebar">
+	  <div id="sideinfo">
+	    {% block sidebar %}
+	    {% endblock %}
+	  </div>
 	  {% block ads %}
 	  {% endblock %}
 	</div>

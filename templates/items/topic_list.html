@@ -2,21 +2,19 @@
 
 {% block title %}{{ ttype }} Topics{% endblock %}
 
+{% block htmlhead %}
+  <link rel="alternate" type="application/rss+xml"
+	title="GreaterDebater - New Topics"
+	href="http://feeds.feedburner.com/Greaterdebater-NewTopics">
+{% endblock %}
+
 {% block content %}
 {% if object_list %}
 
 <h3 class="section-title">{{ ttype }} Topics</h3>
 
-{% ifequal ttype "Newest" %}
-<div class="rss-link">
-  <a href="http://feeds.feedburner.com/Greaterdebater-NewTopics">
-    <img src="{{ MEDIA_URL}}img/feed-icon-14x14.png" /></a> 
-  <a href="http://feeds.feedburner.com/Greaterdebater-NewTopics">Subscribe to RSS</a>
-  <link rel="alternate" type="application/rss+xml"
-	title="GreaterDebater - New Topics"
-	href="http://feeds.feedburner.com/Greaterdebater-NewTopics">
-</div>
-{% endifequal %}
+
+
 
 <ol start={{ start }} class="topic-list">
   {% for object in object_list %}
@@ -39,6 +37,14 @@
   {% endif %}
 </div>
 
+{% endblock %}
+
+{% block sidebar %}
+<div class="rss-link">
+  <a href="http://feeds.feedburner.com/Greaterdebater-NewTopics">
+    <img src="{{ MEDIA_URL}}img/feed-icon-14x14.png" /></a> 
+  <a href="http://feeds.feedburner.com/Greaterdebater-NewTopics">Subscribe to RSS</a>
+</div>
 {% endblock %}
 
 {% block ads %}

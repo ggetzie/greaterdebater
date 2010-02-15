@@ -40,7 +40,7 @@
   <li> 
     <div id="topic_div{{ object.topic.id }}">
       <a class="title" href={{ object.topic.url }} {% if newwin %}target="_blank"{% endif %}>{{ object.topic.title }}</a> <br />
-      <div class="comment-menu">
+      <div class="topic-menu">
 	submitted by <a href="/users/u/{{ object.topic.user }}/profile/">{{ object.topic.user }}</a>
 	{{ object.topic.get_elapsed }} ago | 
 	{% with object.topic.com_count as num %}

@@ -69,7 +69,23 @@
 
 {% endblock %}
 
+{% block sidebar %}
+  <a class="google_buzz"
+     {% if onecom %}
+     href="http://www.google.com/reader/link?url={{ com.get_absolute_url }}&title={{ com.user.username }}%20comments%20on%20{{ object.title|urlencode }}"
+     {% else %}
+     href="http://www.google.com/reader/link?url={{ object.get_absolute_url }}&title={{ object.title|urlencode }}"
+     {% endif %}
+     
+     target="_blank" rel="nofollow">
+    <img src="{{ MEDIA_URL }}img/google-buzz.png"
+	 alt="Google Buzz">
+  </a>
+{% endblock %}
+
 {% block ads %}
-{% include "ads.html" %}
+<div id="ad-wrapper">
+  {% include "ads.html" %}
+</div>
 {% endblock %}
 
