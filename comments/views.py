@@ -30,6 +30,7 @@ from django.views.generic import list_detail
 from forms import CommentForm, DeleteForm
 # from models import Comment
 from models import ArgComment, TopicComment, Debate
+from utils import build_list
 
 from tcd.items.models import Topic
 from tcd.items.forms import Flag
@@ -184,8 +185,20 @@ def list(request):
 
 def comment_detail(request, comment_id):
     comment = get_object_or_404(TopicComment, pk=comment_id)
-    return render_to_response("comments/comment_detail.html",
-                              {'comment': comment},
+    comtree = [comment]
+    comtree.extend(build_list(TopicComment.objects.filter(ntopic=comment.ntopic,
+                                                          needs_review=False, first=False),
+                              comment.id))
+    if request.user.is_authenticated():
+        prof = get_object_or_404(Profile, user=request.user)
+        newwin = prof.newwin
+    else:
+        newwin = False
+    return render_to_response("items/topic_detail.html",
+                              {'rest_c': comtree, 
+                               'object': comment.ntopic, 
+                               'onecom': True,
+                               'newwin': newwin},
                               context_instance=RequestContext(request))
                                     
 def arguments(request, comment_id, page=1):

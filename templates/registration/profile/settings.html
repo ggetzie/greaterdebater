@@ -6,22 +6,81 @@
 <a href="/users/u/{{ request.user }}/reset/">Reset Password</a>
 
 <div class="form">
-  <h4>Settings</h4>
+  <h3>Settings</h3>
   {% if form.errors %}
   {{ form.errors }}
   {% endif %}
   <form action="/users/u/{{ request.user }}/settings/" name="settings" method="post">
-    <div>
-      {{ form.request_email }}
-    </div>
-    <div>
-      <label for="id_email">Email: </label> {{ form.email }}
-    </div>
-    <div>
-      <label for="id_newwindows">Open links in new window: </label> {{ form.newwindows }}
-    </div>
-    <div>
-	<input type="submit" value="Save" />
-    </div>
+    <table>
+      <tr>
+	{{ form.request_email }}
+      </tr>
+      <tr>
+	<th>
+	  <label for="id_email">Email: </label> 
+	</th>
+	<td>
+	  {{ form.email }}
+	</td>
+      </tr>
+      <tr>
+	<th>
+	  <label for="id_newwindows">Open links in new window: </label>
+	</th>
+	<td>
+	  {{ form.newwindows }}
+	</td>
+      </tr>
+      <tr>
+	<td colspan=2>
+	  <p>
+	    {% if prof.has_feed %}
+	    Your RSS feed can be found at <a href="{{ prof.feedurl }}">{{ prof.feedurl }}</a>
+	    {% else %}
+	    Select one or more options below to share your GreaterDebater activity in an RSS feed
+	    {% endif %}
+	  </p>
+	</td>
+      </tr>
+      <tr>
+	<th>
+	  Share in my RSS feed:
+	</th>
+      </tr>
+      <tr>
+	<td></td>
+	<td>
+	  <table>
+	    <tr>
+	      <th>
+		<label for="id_feedcoms">Comments: </label> 
+	      </th>
+	      <td>
+		{{ form.feedcoms }}
+	      </td>
+	    </tr>
+	    <tr>
+	      <th>
+		<label for="id_feedtops">Topics: </label>
+	      </th>
+	      <td>
+		{{ form.feedtops }}
+	      </td>
+	    </tr>
+	    <tr>
+	      <th>
+		<label for="id_feeddebs">Debates: </label>
+	      </th>
+	      <td>
+		{{ form.feeddebs }}
+	      </td>
+	    </tr>
+	  </table>
+	</td>
+      </tr>
+    </table>
+    <p>
+      <input type="submit" value="Save" />
+    </p>
 </div>
 {% endblock %}

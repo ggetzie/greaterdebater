@@ -2,5 +2,9 @@
 {% block title %}Comment {{ comment.id }}{% endblock %}
 
 {% block content %}
-{% include "comments/one_comment.html" %}
+{% for comment in comtree %}
+<div id="comment_div{{ comment.id }}" class="comment_div" style="margin-left: {{ comment.nnesting }}px">
+  {% include "comments/one_comment.html" %}
+</div>
+{% endfor %}
 {% endblock %}

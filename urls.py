@@ -1,15 +1,19 @@
 from django.conf.urls.defaults import *
 from django.contrib import admin
-from tcd.feeds import NewTopics, NewArguments, BlogFeed, UserFeed
+from tcd.feeds import NewTopics, NewArguments, BlogFeed, UserFeed, UserFeedAtom
 
 admin.autodiscover()
 
-feeds = {
+rssfeeds = {
     'newtopics': NewTopics,
     'newargs':   NewArguments,
     'blog': BlogFeed,
-    'user': UserFeed
-}
+    'user': UserFeed,
+    }
+
+atomfeeds = {
+    'user': UserFeedAtom
+    }
 
 urlpatterns = patterns('',
                        # Admin app
@@ -36,9 +40,13 @@ urlpatterns = patterns('',
                        # Buttons for bloggers
                        (r'^buttons/$', 'django.views.generic.simple.direct_to_template', {'template': 'buttons.html'}),
 
+                       # Atom feeds
+                       (r'^atom/(?P<url>.*)/$', 'django.contrib.syndication.views.feed',
+                        {'feed_dict': atomfeeds}),
+
                        # RSS feeds
                        (r'^feeds/(?P<url>.*)/$', 'django.contrib.syndication.views.feed',
-                        {'feed_dict': feeds}),
+                        {'feed_dict': rssfeeds}),
                        
                        # Blog system
                        (r'^blog/(?P<username>[A-Za-z\d]+)/', include('tcd.blog.urls')),
@@ -47,4 +55,4 @@ urlpatterns = patterns('',
                        (r'^users/', include('tcd.profiles.urls')),
 
                        (r'', include('tcd.items.urls'))
-)
+                       )

@@ -33,7 +33,13 @@
   {% endif %}
   {% endwith %}
 
+  {% if onecom %}
+  <p>You are viewing a single comment's thread. <br />
+    <a href="/{{ object.id }}">Click Here</a> to view all comments for this topic
+  </p>
+  {% else %}
   {% include "comments/form.html" %}
+  {% endif %}
 </div>
 
 

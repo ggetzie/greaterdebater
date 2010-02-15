@@ -1,5 +1,6 @@
 from django.contrib.syndication.feeds import Feed, FeedDoesNotExist
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.feedgenerator import Atom1Feed
 
 from tcd.blog.models import Blog, Post
 from tcd.comments.models import Debate, TopicComment
@@ -24,7 +25,7 @@ class NewArguments(Feed):
         return Debate.objects.filter(status__range=(1,2)).order_by('-start_date')[:15]
 
 class BlogFeed(Feed):
-    desciption_template = 'feeds/blog_description.html'
+    desciption_template = 'feeds/bdesc.html'
 
     def get_object(self, blog_id):
         if len(blog_id) != 1:
@@ -45,6 +46,7 @@ class BlogFeed(Feed):
         return Post.objects.filter(blog=obj, draft=False).order_by('-pub_date')[:30]
         
 class UserFeed(Feed):
+    description = "Recent activity on GreaterDebater."
 
     def get_object(self, username):
         if len(username) != 1:
@@ -64,7 +66,11 @@ class UserFeed(Feed):
         return obj.get_absolute_url()
 
     def items(self, obj):
-        return activity(obj)
+        return activity(obj)[:15]
+
+class UserFeedAtom(UserFeed):
+    feed_type = Atom1Feed
+    subtitle = UserFeed.description
 
 def activity(prof):
     coms = None
@@ -87,5 +93,5 @@ def activity(prof):
     itemlist = []
     for qset in qsets: itemlist.extend(qset)
     itemlist.sort(key=lambda x: x.get_date(), reverse=True)
-    return itemlist[:30]
+    return itemlist
                 

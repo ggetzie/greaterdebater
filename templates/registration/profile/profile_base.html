@@ -1,5 +1,18 @@
 {% extends "base.html" %}
 
+{% block htmlhead %}
+{% with username.profile_set.get as prof %}
+{% if prof.has_feed %}
+<link rel="alternate" type="application/rss+xml"
+      title="rss - GreaterDebater activity for {{ username.username }}"
+      href="{{ prof.feedurl }}" />
+<link rel="alternate" type="application/atom+xml"
+      title="atom - GreaterDebater activity for {{ username.username }}"
+      href="{{ prof.atomfeedurl }}" />
+{% endif %}
+{% endwith %}
+{% endblock %}
+
 {% block title %}{{ username }}'s profile{% endblock %}
 
 {% block sub_header %}

@@ -52,6 +52,15 @@ class Profile(models.Model):
     def get_absolute_url(self):
         return '/'.join([HOSTNAME, 'users', 'u', self.user.username])
 
+    def has_feed(self):
+        return self.feedcoms or self.feedtops or self.feeddebs
+
+    def feedurl(self):
+        return '/'.join([HOSTNAME, 'feeds', 'user', self.user.username, ''])
+
+    def atomfeedurl(self):
+        return '/'.join([HOSTNAME, 'atom', 'user', self.user.username, ''])
+
 class Forgotten(models.Model):
     """Temporarily associate a user with a randomly generated 32 character string.
     When a forget password request is made, a url with this string will be emailed to

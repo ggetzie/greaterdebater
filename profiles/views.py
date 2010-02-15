@@ -256,7 +256,8 @@ def profile_msgs(request, value, page=1):
                 'template_name': "registration/profile/profile_msgs.html",
                 'template_object_name': 'messages',
                 'paginate_by': 25,
-                'page': page
+                'page': page,
+                'extra_context': {'username': user}
                 }
         return object_list_foreign_field(**args)
     else:
@@ -300,18 +301,25 @@ def profile_stgs(request, value):
             if form.is_valid():
                 user.email = form.cleaned_data['email']
                 prof.newwin = form.cleaned_data['newwindows']
+                prof.feedcoms = form.cleaned_data['feedcoms']
+                prof.feedtops = form.cleaned_data['feedtops']
+                prof.feeddebs = form.cleaned_data['feeddebs']
                 user.save()
                 prof.save()
                 request.user.message_set.create(message="Changes saved.")
         else:
             form = SettingsForm({'newwindows': prof.newwin,
+                                 'feedcoms': prof.feedcoms,
+                                 'feedtops': prof.feedtops,
+                                 'feeddebs': prof.feeddebs,
                                  'request_email': user.email,
                                  'email': user.email})
 
 
         return render_to_response("registration/profile/settings.html",
                                   {'username': user,
-                                   'form': form},
+                                   'form': form,
+                                   'prof': prof},
                                   context_instance=RequestContext(request))
     else:
         return HttpResponseForbidden("<h1>Unauthorized</h1>")
