@@ -6,7 +6,7 @@ $(document).ready(function() {
 
     $('.jsddm > li').bind('mouseover', jsddm_open);
     $('.jsddm > li').bind('mouseout',  jsddm_timer)
-
+    
 });
 
 document.onclick = jsddm_close;
@@ -20,6 +20,17 @@ function displayFormComment(form_id) {
 
     $(form_id).slideToggle();
 }		
+
+
+function check_messages() {
+    $("#msgcount").html("Checking for messages...")
+    $.get("/users/check_messages/",
+	  function(xml) {
+	      $("#msgcount").html($("message", xml).html())
+	  });
+}
+
+		  
 
 function vote(argument, voter, voted_for){
     var votediv = $("#vote").html();

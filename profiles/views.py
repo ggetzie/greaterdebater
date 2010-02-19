@@ -4,7 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
 from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
-from django.template import loader, RequestContext
+from django.template import loader, RequestContext, Context
 from django.views.generic import list_detail
 
 from tcd.comments.models import TopicComment, ArgComment, Debate, tcdMessage
@@ -287,6 +287,36 @@ def message_detail(request, value, object_id):
                                   context_instance=RequestContext(request))
     else:
         return HttpResponseForbidden("<h1>Unauthorized</h1>")
+
+def check_messages(request):
+    status = "error"
+    num = 0
+    if request.user.is_authenticated():
+        msgs = tcdMessage.objects.filter(recipient=request.user, is_read=False)
+        if len(msgs) == 1: 
+            plural = '' 
+        else: 
+            plural = 's'
+
+        if len(msgs) > 0:
+            css = "class='unread_msg'"
+        else:
+            css = ''
+
+        message=''.join(["<a href='/users/u/", request.user.username,
+                         "/messages/'", css, ">", str(len(msgs)),
+                         " new message", plural, "</a>"])
+        status = "ok"
+    else:
+        message = "Not Logged In"
+    xmlt = loader.get_template("AJAXresponse.xml")
+    xmlc = Context({'status': status,
+                    'messages': [message]})
+    response = xmlt.render(xmlc)
+    return HttpResponse(response)
+    
+    
+        
 
 def profile_stgs(request, value):
     """ Display the users current settings and allow them to be modified """

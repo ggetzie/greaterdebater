@@ -2,8 +2,11 @@
 
 {% block htmlhead %}  
 <link rel="alternate" type="application/rss+xml"
-	title="GreaterDebater - New Topics"
+	title="New Topics - GreaterDebater"
 	href="http://feeds.feedburner.com/Greaterdebater-NewTopics" />
+<link rel="alternate" type="application/rss+xml"
+	title="New Debates - GreaterDebater"
+	href="http://feeds.feedburner.com/Greaterdebater-NewArguments"/>
 {% endblock %}
 
 {% block title %}Home{% endblock %}
@@ -48,6 +51,27 @@
 {% else %}
 <p>No topics are available</p>
 {% endif %}
+
+{% endblock %}
+
+{% block sidebar %}
+<h1>RSS Feeds</h1>
+<ul>
+  <li>
+    <div class="rss-link">
+      <a href="http://feeds.feedburner.com/Greaterdebater-NewTopics">
+	<img src="{{ MEDIA_URL}}img/feed-icon-14x14.png" /></a> 
+      <a href="http://feeds.feedburner.com/Greaterdebater-NewTopics">New Topics</a>
+    </div>
+  </li>
+  <li>
+    <div class="rss-link">
+      <a href="http://feeds.feedburner.com/Greaterdebater-NewArguments">
+	<img src="{{ MEDIA_URL }}img/feed-icon-14x14.png" /></a> 
+      <a href="http://feeds.feedburner.com/Greaterdebater-NewArguments">New Debates</a>
+    </div>
+  </li>
+</ul>
 
 {% endblock %}
 

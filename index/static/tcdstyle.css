@@ -220,7 +220,7 @@ a.unread {
     font-weight: bold
 }
 
-tr.unread_msg {
+.unread_msg {
     font-weight: bold
 }
 
@@ -324,22 +324,38 @@ div#content-wrapper {
 
 div#sidebar {
     padding: 20px 10px 0px 0px;
-    width: 320px;
+    width: 350px;
     float: right;
     margin-right: -7px;
 }
 
 div#ad-wrapper {
-    padding: 20px 10px 0px 0px;
+    padding: 0px 10px 0px 0px;
     width: 160px;
     float: right;
     margin-right: -7px;
 }
 
-div#sideinfo {
-    padding: 20px 0px 20px 0px;
+.sideinfo {
+    padding: 0px 0px 20px 0px;
     float: left;
-    width: 150px;
+    width: 180px;
+
+}
+
+.sideinfo h1 {
+    font-size: 1.1em;
+    margin-top: 0px;
+}
+
+.sideinfo ul {
+    list-style: none;
+    margin-left: -35px;
+}
+
+.sideinfo li {
+    padding-bottom: 10px;
+    font-size: small;
 }
 
 div.defendant {
@@ -382,11 +398,11 @@ div#tos h2 {
     text-align: center;
 }
 
-div#sys_messages {
-    margin: 40px 300px 0px 300px;
-    text-align: center;
-    border: thin solid red;
-    font-weight: bold;
+div.sys_messages {
+    border:thin solid red;
+    font-weight:bold;
+    margin:40px 300px 0;
+    text-align:center;
 }
 
 .confirm {

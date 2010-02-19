@@ -126,9 +126,15 @@ def front_page(request):
     topics = Topic.objects.filter(needs_review=False).order_by('-score', '-sub_date')[:10]
 
     if request.user.is_authenticated():
-        if tcdMessage.objects.filter(recipient=request.user, is_read=False):        
-            request.user.message_set.create(message=''.join(["<a href='/users/u/", request.user.username,
-                                                 "/messages/'>You have unread messages</a>"]))
+#         msgs = tcdMessage.objects.filter(recipient=request.user, is_read=False)
+#         if msgs:
+#             if len(msgs) > 1: 
+#                 plural='s' 
+#             else: 
+#                 plural =''
+#             tcd_message=''.join(["<a href='/users/u/", request.user.username,
+#                                  "/messages/'>", str(len(msgs)),
+#                                  " new message", plural, "</a>"])
         prof = get_object_or_404(Profile, user=request.user)
         newwin = prof.newwin
     else:

@@ -8,7 +8,7 @@
   </alerts>
   <messages>
     {% for message in messages %}
-    <message>{{ message }}</message>
+    <message>{{ message|safe }}</message>
     {% endfor %}
   </messages>
 </response>

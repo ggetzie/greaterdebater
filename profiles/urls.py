@@ -27,6 +27,9 @@ urlpatterns = patterns('',
                        (r'^thanks/$', 'django.views.generic.simple.direct_to_template', 
                         {'template': 'registration/thanks.html'}),
                        
+                       # Check messages
+                       (r'^check_messages/$', 'tcd.profiles.views.check_messages'),
+
                        # Delete private messages
                        (r'^delete_messages/$', 'tcd.profiles.views.delete_messages'),
 

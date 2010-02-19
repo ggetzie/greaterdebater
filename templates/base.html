@@ -3,7 +3,7 @@
   <head>
     <title>{% block title %}{% endblock %} | GreaterDebater</title>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
-    <script type="text/javascript" charset="utf-8" src="{{ MEDIA_URL}}tcd.js"></script>
+    <script id="tcdjs" type="text/javascript" charset="utf-8" src="{{ MEDIA_URL}}tcd.js"></script>
     <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}tcdstyle.css" />
 
     <script type="text/javascript">
@@ -118,20 +118,21 @@
 
       </div>
 
-      {% if messages %}
-      <div id="sys_messages">
 
-	{% for message in messages %}
-	<p>{{ message|safe }}</p>
-	{% endfor %}
-
-      </div>
-      {% endif %}
 
       {% endblock %}
 
       {% block sub_header %}
       {% endblock %}
+
+      {% if messages %}
+      <div class="sys_messages">
+	{% for message in messages %}
+	<p>{{ message|safe }}</p>
+	{% endfor %}
+      </div>
+      {% endif %}
+
       
       <div id="content-wrapper">
 	<div id="content">
@@ -140,9 +141,21 @@
 	</div>
 
 	<div id="sidebar">
-	  <div id="sideinfo">
+	  <div class="sideinfo">
 	    {% block sidebar %}
 	    {% endblock %}
+	  </div>
+	  <div class="sideinfo">
+	    {% if request.user.is_authenticated %}
+	    <script type="text/javascript">
+	      check_messages();
+	    </script>
+
+	    <h1>Messages</h1>
+	    <ul>
+	      <li id="msgcount"></li>
+	    </ul>
+	    {% endif %}
 	  </div>
 	  {% block ads %}
 	  {% endblock %}
