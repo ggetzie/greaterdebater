@@ -23,7 +23,7 @@
     <th width=150>Date</th></tr>
   {% if messages_list %}
   {% for msg in messages_list %}
-    <tr class="{% ifequal msg.is_read 0 %}unread_msg{% else %}read_msg{% endifequal %}" id="message_row{{ msg.id }}">
+    <tr class="{% ifequal msg.is_read 0 %}unread_msg{% else %}read_msg{% endifequal %} topic-menu" id="message_row{{ msg.id }}">
       <td>
 	<input type="checkbox" id="message{{ msg.id }}" class="message" value={{ msg.id }} />
       </td>
