@@ -92,8 +92,6 @@ class Comment(models.Model):
     def get_elapsed(self):
         return elapsed_time(self.pub_date)
 
-
-
     def get_argue_form(self):
         return ArgueForm({'parent_id': self.id})
             
@@ -163,6 +161,10 @@ class TopicComment(Comment):
     removed = models.BooleanField(default=False)
     nnesting = models.IntegerField()
     nparent_id = models.IntegerField(default=0)
+    followers = models.ManyToManyField(User,
+                                       verbose_name="Users following this comment",
+                                       related_name="cfollow_set",
+                                       blank=True)
 
     def save(self):
         super(TopicComment, self).save()

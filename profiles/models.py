@@ -11,12 +11,22 @@ class Profile(models.Model):
     score = models.IntegerField()
     newwin = models.BooleanField(default=False)
     mailok = models.BooleanField(default=False)
+    
+    # all tags used by this user
     tags = models.TextField(blank=True)
     last_post = models.DateTimeField(default=datetime.datetime(month=1, day=1, year=1970))
+
+    # Level of infraction into spam protection
     rate = models.PositiveSmallIntegerField(default=0)
+
+    # items to include in the user's personal RSS feed
     feedcoms = models.BooleanField(default=False)
     feedtops = models.BooleanField(default=False)
     feeddebs = models.BooleanField(default=False)
+
+    # Always follow user's own topics or comments?
+    followtops = models.BooleanField(default=False)
+    followcoms = models.BooleanField(default=False)
     
     def __unicode__(self):
         return self.user.username

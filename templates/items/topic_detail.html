@@ -38,7 +38,13 @@
     <a href="/{{ object.id }}">Click Here</a> to view all comments for this topic
   </p>
   {% else %}
+  {% if request.user.is_authenticated %}
   {% include "comments/form.html" %}
+  {% else %}
+  <p>
+    Please <a href="/users/login?next={{ request.path }}">log in</a> or <a href="/users/login?next={{ request.path }}">register</a> for an account to leave a comment.
+  </p>
+  {% endif %}
   {% endif %}
 </div>
 

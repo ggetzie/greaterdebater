@@ -24,6 +24,11 @@ class Topic(models.Model):
     needs_review = models.BooleanField(default=False)
     tags = models.TextField(blank=True)
 
+    followers = models.ManyToManyField(User,
+                                       verbose_name="Users following this topic",
+                                       related_name="tfollow_set",
+                                       blank=True)
+
     
     class Meta:
         ordering = ['-sub_date']
