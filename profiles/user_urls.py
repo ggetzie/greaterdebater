@@ -19,6 +19,7 @@ comments_dict = {'model': TopicComment,
 urlpatterns = patterns('',
 
                        # Display the main profile page, showing the score
+                       (r'^$', 'tcd.profiles.views.profile'),
                        (r'^profile/?', 'tcd.profiles.views.profile'),
 
                        # Display all of the arguments a user has been involved in, paginated

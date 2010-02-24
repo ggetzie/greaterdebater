@@ -1,3 +1,6 @@
+from django.http import HttpResponse
+from django.template import loader, Context
+
 from tcd.comments.models import TopicComment
 
 def build_list(comments, p_id):
@@ -15,3 +18,4 @@ def build_list(comments, p_id):
             comment_list.append(comment)
             comment_list.extend(build_list(comments, comment.id))
     return comment_list
+

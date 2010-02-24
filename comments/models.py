@@ -153,8 +153,23 @@ class tcdMessage(Comment):
     class Meta:
         ordering = ('-pub_date',)
 
+class fcomMessage(Comment):
+    recipient= models.ForeignKey(User)
+    is_read = models.BooleanField(default=False)
+    followed = models.ForeignKey(Comment, related_name="followed_comment")
 
-        
+    class Meta:
+        ordering = ('-pub_date',)
+
+class ftopMessage(Comment):
+    recipient = models.ForeignKey(User)
+    is_read = models.BooleanField(default=False)
+    followed = models.ForeignKey(Topic, related_name="followed_topic")
+
+    class Meta:
+        ordering = ('-pub_date',)
+
+
 class TopicComment(Comment):
     ntopic = models.ForeignKey(Topic)
     first = models.BooleanField(default=False)

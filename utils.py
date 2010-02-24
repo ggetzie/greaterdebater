@@ -149,3 +149,17 @@ def update_tags(oldtagstr, newtaglst):
             td[tag] = 1
     return tag_string(td)
 
+def render_to_AJAX(status, messages):
+    """return an HTTP response for an AJAX request"""
+    xmlc = Context({'status': status,
+                    'messages': messages})
+    xmlt = loader.get_template("AJAXresponse.xml")
+    response = xmlt.render(xmlc)
+    return HttpResponse(response)
+
+def render_message(message, nesting):
+    """render a status message to the system message template"""
+    msgc = Context({'message': message,
+                   'nesting': nesting})
+    msgt = loader.get_template('sys_msg.html')
+    return msgt.render(msgc)

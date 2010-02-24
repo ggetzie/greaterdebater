@@ -60,7 +60,7 @@ class Profile(models.Model):
             return ""
 
     def get_absolute_url(self):
-        return '/'.join([HOSTNAME, 'users', 'u', self.user.username])
+        return '/'.join([HOSTNAME, 'users', 'u', self.user.username, 'profile'])
 
     def has_feed(self):
         return self.feedcoms or self.feedtops or self.feeddebs

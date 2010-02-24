@@ -20,6 +20,7 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import render_to_response
 
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
@@ -27,8 +28,7 @@ from django.template import loader, RequestContext, Context
 from django.utils.http import urlquote_plus, urlquote
 from django.views.generic import list_detail
 
-from forms import CommentForm, DeleteForm
-# from models import Comment
+from forms import CommentForm, DeleteForm, FollowForm
 from models import ArgComment, TopicComment, Debate
 from utils import build_list
 
@@ -37,7 +37,7 @@ from tcd.items.forms import Flag
 
 from tcd.profiles.models import Profile
 
-from tcd.utils import calc_start
+from tcd.utils import calc_start, render_to_AJAX, render_message
 
 import datetime
 import pyfo
@@ -249,3 +249,33 @@ def flag(request):
     response = ('response', [('message', t.render(c))])
     response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')    
     return HttpResponse(response)
+
+def toggle_follow(request):
+    status = "error"
+    if not request.POST: return render_to_AJAX(status="error", 
+                                               message=render_message("Not a POST", 10))
+    
+    form = FollowForm(request.POST)
+    if not form.is_valid(): return render_to_AJAX(status="error", 
+                                               message=render_message("Invalid Form", 10))
+    try:
+        itemmap = {"Topic": Topic,
+                   "TopicComment": TopicComment}
+        itemmodel = itemmap[form.cleaned_data['item']]
+        id = form.cleaned_data['id']
+        item = itemmodel.objects.get(pk=id)
+        if request.user in item.followers:
+            item.followers.remove(request.user)
+            message = "%s no longer followed" % form.cleaned_data['item']
+        else:
+            item.followers.add(request.user)
+            message = "%s followed" % form.cleaned_data['item']
+        item.save()
+        status = "ok"
+    except ObjectDoesNotExist:
+        message = "Item not found"
+    except KeyError:
+        message = "No items of that type"
+            
+    return render_to_AJAX(status=status,
+                          message=render_message(message, 10))

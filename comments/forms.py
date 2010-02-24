@@ -55,3 +55,7 @@ class RebutForm(forms.Form):
     nesting = forms.IntegerField(widget=forms.widgets.HiddenInput(), required=False)
     toplevel = forms.IntegerField(widget=forms.widgets.HiddenInput(), required=False)
     arg_id = forms.IntegerField(widget=forms.widgets.HiddenInput())
+
+class FollowForm(forms.Form):
+    item = forms.CharField(widget=forms.widgets.HiddenInput())
+    id = forms.IntegerField(widget=forms.widgets.HiddenInput())
