@@ -6,17 +6,18 @@
   <div class="detail-title"><a href={{ object.url }} {% if newwin %}target="_blank"{% endif %}>{{ object.title }}</a></div>
 
   <span class="comment_info">
-    submitted by <a href="/users/u/{{ object.user }}/profile/">{{ object.user }}</a> {{ object.get_elapsed }} ago |
-  {% if request.user.is_authenticated %}
-  <a id="fTopic{{ object.id }}" href='#' class="menu comment_action"
-     onclick="follow({{ object.id }}, 'Topic'); return false;">
-    {% if user in object.followers.all %}
-    unfollow
-    {% else %}
-    follow
+    submitted by <a href="/users/u/{{ object.user }}/profile/">{{ object.user }}</a> {{ object.get_elapsed }} ago
+    {% if request.user.is_authenticated %}
+    |
+    <a id="fTopic{{ object.id }}" href='#' class="menu comment_action"
+       onclick="follow({{ object.id }}, 'Topic'); return false;">
+      {% if user in object.followers.all %}
+      unfollow
+      {% else %}
+      follow
+      {% endif %}
+    </a>
     {% endif %}
-  </a>
-  {% endif %}
   </span>
 
   {% with object.get_first_comment as comment %}

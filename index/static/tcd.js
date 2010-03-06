@@ -65,8 +65,11 @@ function follow(id, item) {
 				 'id': id},
 	   function(xml) {
 	       message = $('message', xml).text()
-	       if ($("status", xml).text() == "error") {
+	       if ($("status", xml).text() == "alert") {
 		   alert($('message', xml).text());
+	       } else if ($("status", xml).text() == "error") {
+		   fol.html(folhtml)
+		   $("#f"+item+id).after($('message', xml).html());
 	       } else {
 		   fol.html(folhtml)
 		   if (message == "off") {

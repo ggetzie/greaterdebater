@@ -306,8 +306,10 @@ def toggle_follow(request):
         status = "ok"
     except ObjectDoesNotExist:
         message = "Item not found"
+        status = "alert"
     except KeyError:
         message = "No items of type %s" % form.cleaned_data['item']
+        status = "alert"
             
     return render_to_AJAX(status=status,
                           messages=[message])
