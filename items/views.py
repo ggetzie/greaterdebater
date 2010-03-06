@@ -253,6 +253,7 @@ def submit(request):
                                       last_calc=datetime.datetime.now()
                                       )
                         topic.save()
+                        
                         next = ''.join(["/", str(topic.id), "/"])
                         if data['url']:
                             topic.url = form.cleaned_data['url']
@@ -279,6 +280,10 @@ def submit(request):
 
                         prof.last_post = topic.sub_date
                         prof.save()
+
+                        if prof.followtops:
+                            topic.followers.add(request.user)
+                            topic.save()
 
                         if form.cleaned_data['comment']:
                             comment = TopicComment(user=request.user,
