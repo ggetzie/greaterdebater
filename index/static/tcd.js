@@ -26,11 +26,58 @@ function check_messages() {
     $("#msgcount").html("Checking for messages...")
     $.get("/users/check_messages/",
 	  function(xml) {
-	      $("#msgcount").html($("message", xml).html())
+	      $("#user_msgs").append($("message", xml).html())
 	  });
 }
 
-		  
+function mark_read(id) {
+    $("#reply"+id).removeAttr("onmouseout");
+    $.post("/users/mark_read/", {'id': id},
+	   function(xml) {
+	       if ($("status", xml).text() == "error") {
+		   $("div.unread_msg").removeAttr("onmouseout");
+		   alert($('message',xml).text());
+
+	       } else {
+		   $("#reply"+id).removeClass("unread_msg");
+		   count = $('message', xml).next().text()
+		   if (count == "0") {
+		       $("#replycount").removeClass("unread_msg");
+		   }
+		   if (count == "1") {
+		       suffix = "y"
+		   } else {
+		       suffix = "ies"
+		   }
+		   $("#replycount").html(count + " new repl" + suffix);
+	       }
+	       
+	   })
+}
+	  		   
+
+function follow(id, item) {
+    var fol = $("#f"+item+id).parent()
+    var folhtml = fol.html()
+    fol.html("Loading...")
+    
+    $.post('/comments/follow/', {'item': item,
+				 'id': id},
+	   function(xml) {
+	       message = $('message', xml).text()
+	       if ($("status", xml).text() == "error") {
+		   alert($('message', xml).text());
+	       } else {
+		   fol.html(folhtml)
+		   if (message == "off") {
+		       $("#f"+item+id).html("follow")
+		   } else if (message == "on") {
+		       $("#f"+item+id).html("unfollow")
+		   }
+	       }
+	       
+	   })
+}		  
 
 function vote(argument, voter, voted_for){
     var votediv = $("#vote").html();
@@ -65,7 +112,7 @@ function unvote(argument, voter) {
 	   function(xml) {
 	       if ($("error", xml).text() == "True") {		   
 		   $("#vote").html(votediv);
-		   $("#sys_messages").html( $("message", xml).text() );
+		   $("#vote").after( $("message", xml).text() );
 	       } else {
 		   window.location.reload();
 	       }});

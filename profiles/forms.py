@@ -88,6 +88,8 @@ class SettingsForm(forms.Form):
     feedcoms = forms.BooleanField(label="Comments", required=False)
     feedtops = forms.BooleanField(label="Topics", required=False)
     feeddebs = forms.BooleanField(label="Debates", required=False)
+    followcoms = forms.BooleanField(label="Always follow my comments", required=False)
+    followtops = forms.BooleanField(label="Always follow my topics", required=False)
     
     
     def clean_email(self):

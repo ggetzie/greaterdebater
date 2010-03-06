@@ -29,7 +29,7 @@ from django.utils.http import urlquote_plus, urlquote
 from django.views.generic import list_detail
 
 from forms import CommentForm, DeleteForm, FollowForm
-from models import ArgComment, TopicComment, Debate
+from models import ArgComment, TopicComment, Debate, fcomMessage
 from utils import build_list
 
 from tcd.items.models import Topic
@@ -55,40 +55,66 @@ except AttributeError:
     
 def add(request, topic_id):
     redirect_to = ''.join(['/', topic_id, '/'])
-    if request.POST:
-        form=CommentForm(request.POST)
-        if form.is_valid():
-            if request.user.is_authenticated():
-                prof = get_object_or_404(Profile, user=request.user)
-                ratemsg = prof.check_rate()
-                if ratemsg:
-                    request.user.message_set.create(message=ratemsg)
-                else:
-                    top = get_object_or_404(Topic, pk=topic_id)
-                    params = {'comment': form.cleaned_data['comment'],
-                              'user': request.user,
-                              'ntopic': top}
-                    if form.cleaned_data['toplevel'] == 1:
-                        params['nparent_id'] = 0
-                        params['nnesting'] = 10
-                    else:
-                        params['nparent_id'] = form.cleaned_data['parent_id']
-                        params['nnesting'] = form.cleaned_data['nesting'] + 40
-                    c = TopicComment(**params)
-                    c.save()		    
+    # Only logged-in users can comment
+    if not request.user.is_authenticated():
+        redirect_to = ''.join(['/users/login/?next=/', str(topic_id), '/'])
+        return HttpResponseRedirect(redirect_to)
 
-                    top.comment_length += len(c.comment)
-                    top.recalculate()
-                    top.save()
-                    
-                    prof.last_post = c.pub_date
-                    prof.save()
-            else:
-                request.user.message_set.create(message="Please log in to post a comment")
-                redirect_to = ''.join(['/login?next=/', str(topic_id), '/'])
-        else:
-            message = "<p>Oops! A problem occurred.</p>"
-            request.user.message_set.create(message=message+str(form.errors))
+    # Only POST requests are valid
+    if not request.POST:
+        request.user.message_set.create(message="Not a POST")
+        return HttpResponseRedirect(redirect_to)
+
+    # Validate the form
+    form=CommentForm(request.POST)
+    if not form.is_valid():
+        message = "<p>Oops! A problem occurred.</p>"
+        request.user.message_set.create(message=message+str(form.errors))
+        return HttpResponseRedirect(redirect_to)
+
+    # Check if this user has exceeded the rate limit for posting
+    prof = get_object_or_404(Profile, user=request.user)
+    ratemsg = prof.check_rate()
+    if ratemsg:
+        request.user.message_set.create(message=ratemsg)
+        return HttpResponseRedirect(redirect_to)    
+
+    # Save the comment
+    top = get_object_or_404(Topic, pk=topic_id)
+    params = {'comment': form.cleaned_data['comment'],
+              'user': request.user,
+              'ntopic': top}
+    if form.cleaned_data['toplevel'] == 1:
+        params['nparent_id'] = 0
+        params['nnesting'] = 10
+    else:
+        params['nparent_id'] = form.cleaned_data['parent_id']
+        params['nnesting'] = form.cleaned_data['nesting'] + 40
+    c = TopicComment(**params)
+    c.save()
+    if prof.followcoms: c.followers.add(request.user)
+    c.save()
+
+    if c.nparent_id == 0:
+        followers = top.followers.all()
+    else:
+        parent = TopicComment.objects.get(id=c.nparent_id)
+        followers = parent.followers.all()
+
+    for follower in followers:
+        msg = fcomMessage(recipient=follower,
+                          is_read=False,
+                          reply=c,
+                          pub_date=datetime.datetime.now())
+        msg.save()
+    
+    top.comment_length += len(c.comment)
+    top.recalculate()
+    top.save()
+
+    prof.last_post = c.pub_date
+    prof.save()
+
     return HttpResponseRedirect(redirect_to)    
                     
 def edit(request, topic_id):
@@ -162,7 +188,7 @@ def delete(request):
     msg_template = loader.get_template('items/msg_div.html')
     msg_context = Context({'id': comment.id,
                           'message': message,
-                          'nesting': comment.nesting})
+                          'nesting': comment.nnesting})
     response = ('response', [('message', msg_template.render(msg_context)),
                              ('status', "error"),
                              ('id', comment.id)])
@@ -252,30 +278,36 @@ def flag(request):
 
 def toggle_follow(request):
     status = "error"
+    if not request.user.is_authenticated(): return render_to_AJAX(status="error", 
+                                                                  messages=[render_message("Not logged in", 10)])
+
     if not request.POST: return render_to_AJAX(status="error", 
-                                               message=render_message("Not a POST", 10))
+                                               messages=[render_message("Not a POST", 10)])
     
     form = FollowForm(request.POST)
     if not form.is_valid(): return render_to_AJAX(status="error", 
-                                               message=render_message("Invalid Form", 10))
+                                               messages=[render_message("Invalid Form", 10)])
+    nesting = 10
     try:
         itemmap = {"Topic": Topic,
                    "TopicComment": TopicComment}
         itemmodel = itemmap[form.cleaned_data['item']]
         id = form.cleaned_data['id']
         item = itemmodel.objects.get(pk=id)
-        if request.user in item.followers:
+        if itemmodel == TopicComment: nesting = item.nnesting
+
+        if request.user in item.followers.all():
             item.followers.remove(request.user)
-            message = "%s no longer followed" % form.cleaned_data['item']
+            message = "off"
         else:
             item.followers.add(request.user)
-            message = "%s followed" % form.cleaned_data['item']
+            message = "on"
         item.save()
         status = "ok"
     except ObjectDoesNotExist:
         message = "Item not found"
     except KeyError:
-        message = "No items of that type"
+        message = "No items of type %s" % form.cleaned_data['item']
             
     return render_to_AJAX(status=status,
-                          message=render_message(message, 10))
+                          messages=[message])

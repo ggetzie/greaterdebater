@@ -36,6 +36,9 @@ urlpatterns = patterns('',
                        # Delete private messages
                        (r'^delete_current_message/$', 'tcd.profiles.views.delete_current_message'),
 
+                       # Mark reply as read
+                       (r'^mark_read/$', 'tcd.profiles.views.mark_read'),
+
                        # Urls for displaying differnt parts of users' profiles
                        (r'^u/(?P<value>[A-Za-z\d]+)/', include('tcd.profiles.user_urls')),
                        )

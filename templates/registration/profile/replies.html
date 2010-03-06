@@ -1,0 +1,43 @@
+{% extends "registration/profile/profile_base.html" %}
+
+{% block title %}Replies to your followed topics and comments{% endblock %}
+
+
+{% block content %}
+<h3 class="prof-head">Replies</h3>
+
+<div id="comments">
+  {% if replies_list %}
+  {% for msg in replies_list %}
+  {% with msg.reply as comment %}
+  <div id="reply{{ msg.id }}"
+       {% if not msg.is_read %}
+       class="unread_msg"
+       onmouseout="mark_read({{ msg.id }});"
+       {% endif %}>
+    <p class=comment_topic>
+      on <a href="/{{ comment.ntopic_id }}/">{{ comment.ntopic.title }}</a>
+    </p>
+    <div id="comment_div{{ comment.id }}" class="comment_div">
+
+      {% include "comments/one_comment.html" %}    
+    </div>
+  </div>
+  {% endwith %}
+  {% endfor %}
+  {% else %}
+  No Replies
+  {% endif %}
+</div>
+
+<div class="pages">
+  {% if has_previous %}
+  <a id="prev" href="/users/u/{{ username }}/replies/{{ previous }}/">prev</a>
+  {% endif %}
+
+  {% if has_next %}
+  <a id="next" href="/users/u/{{ username }}/replies/{{ next }}/">next</a>
+  {% endif %}
+</div>
+
+{% endblock %}

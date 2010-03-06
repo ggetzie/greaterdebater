@@ -59,7 +59,11 @@ urlpatterns = patterns('',
                        (r'^messages/page/(?P<page>(\d+|last))/?$', 'tcd.profiles.views.profile_msgs'), 
 
                        # Display the body of a message
-                       (r'^messages/(?P<object_id>[\d]+)$', 'tcd.profiles.views.message_detail'),
+                       (r'^messages/(?P<object_id>[\d]+)/?$', 'tcd.profiles.views.message_detail'),
+
+                       # Display replies to user's followed topics or comments
+                       (r'^replies/?$', 'tcd.profiles.views.replies'),
+                       (r'^replies/(?P<page>(\d+))/?$', 'tcd.profiles.views.replies'),
 
                        # Display the user's current settings and allow them to be modified
                        (r'^settings/?$', 'tcd.profiles.views.profile_stgs'), 

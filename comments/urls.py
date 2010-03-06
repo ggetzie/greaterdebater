@@ -31,7 +31,7 @@ urlpatterns = patterns('',
                        (r'^(?P<topic_id>\d+)/edit/$', 'comments.views.edit'),
 
                        # View a single comment on a page by itself
-                       (r'^(?P<comment_id>\d+)/$', 'comments.views.comment_detail'),
+                       (r'^(?P<comment_id>\d+)/?$', 'comments.views.comment_detail'),
 
                        # Delete a comment
                        (r'[delete|undelete]/$', 'comments.views.delete'),
@@ -42,4 +42,8 @@ urlpatterns = patterns('',
 
                        # Flag a comment as spam
                        (r'^flag/$', 'comments.views.flag'),
+
+                       # Follow or unfollow a topic or comment for
+                       # updates when new replies are made
+                       (r'^follow/$', 'comments.views.toggle_follow'),
                        )

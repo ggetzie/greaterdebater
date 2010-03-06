@@ -16,18 +16,25 @@
   
   {% if user.is_authenticated %}  
   
-  <a class="menu" href='#' class="comment_action"
+  <a href='#' class="menu comment_action"
      onclick="displayFormComment('#reply{{ comment.id }}'); return false;">reply</a>
 
+  <a id="fTopicComment{{ comment.id }}" href='#' class="menu comment_action"
+     onclick="follow({{ comment.id }}, 'TopicComment'); return false;">
+    {% if user in comment.followers.all %}
+    unfollow
+    {% else %}
+    follow
+    {% endif %}
+  </a>
   
   {% ifequal user comment.user %}
-  
-  <a class="menu" href='#' class="comment_action"
+  <a href='#' class="menu comment_action"
      onclick="displayFormComment('#edit{{ comment.id }}'); return false;">edit</a>
 
 
   <span class="menu" id="delete{{ comment.id }}">
-    <a class="menu" href='#' class="comment_action"
+    <a href='#' class="menu comment_action"
        onclick="swap('#delete{{ comment.id }}', '#confirm_delete{{ comment.id }}'); return false;">delete</a>
   </span>
 

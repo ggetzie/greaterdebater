@@ -153,23 +153,6 @@ class tcdMessage(Comment):
     class Meta:
         ordering = ('-pub_date',)
 
-class fcomMessage(Comment):
-    recipient= models.ForeignKey(User)
-    is_read = models.BooleanField(default=False)
-    followed = models.ForeignKey(Comment, related_name="followed_comment")
-
-    class Meta:
-        ordering = ('-pub_date',)
-
-class ftopMessage(Comment):
-    recipient = models.ForeignKey(User)
-    is_read = models.BooleanField(default=False)
-    followed = models.ForeignKey(Topic, related_name="followed_topic")
-
-    class Meta:
-        ordering = ('-pub_date',)
-
-
 class TopicComment(Comment):
     ntopic = models.ForeignKey(Topic)
     first = models.BooleanField(default=False)
@@ -202,6 +185,15 @@ class TopicComment(Comment):
     
     def get_absolute_url(self):
         return '/'.join([HOSTNAME, 'comments', str(self.id)])
+
+class fcomMessage(models.Model):
+    recipient= models.ForeignKey(User)
+    is_read = models.BooleanField(default=False)
+    reply = models.ForeignKey(TopicComment, related_name="followed_comment")
+    pub_date = models.DateTimeField()
+
+    class Meta:
+        ordering = ('-pub_date',)
     
 
 class Debate(models.Model):

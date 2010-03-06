@@ -145,16 +145,12 @@
 	    {% block sidebar %}
 	    {% endblock %}
 	  </div>
-	  <div class="sideinfo">
+	  <div id="user_msgs" class="sideinfo">
 	    {% if request.user.is_authenticated %}
 	    <script type="text/javascript">
 	      check_messages();
 	    </script>
 
-	    <h1>Messages</h1>
-	    <ul>
-	      <li id="msgcount"></li>
-	    </ul>
 	    {% endif %}
 	  </div>
 	  {% block ads %}

@@ -23,7 +23,7 @@
     <th width=150>Date</th></tr>
   {% if messages_list %}
   {% for msg in messages_list %}
-    <tr class="{% ifequal msg.is_read 0 %}unread_msg{% else %}read_msg{% endifequal %} topic-menu" id="message_row{{ msg.id }}">
+    <tr class="{% if not msg.is_read %}unread_msg{% endif %} topic-menu" id="message_row{{ msg.id }}">
       <td>
 	<input type="checkbox" id="message{{ msg.id }}" class="message" value={{ msg.id }} />
       </td>
@@ -31,7 +31,9 @@
 	{{ msg.user }}
       </td>
       <td>
-	<a href="/users/u/{{ user.username }}/messages/{{ msg.comment_ptr_id }}">{{ msg.subject }}</a>
+	<a href="/users/u/{{ user.username }}/messages/{{ msg.comment_ptr_id }}">
+	  {{ msg.subject }}
+	</a>
       </td>
       <td>
 	{% ifequal msg.pub_date.date msg.pub_date.today.date %}

@@ -1,0 +1,13 @@
+<h1>Messages</h1>
+<ul>
+  <li>
+    <a href="/users/u/{{ username }}/messages/" {{ css|first }}>
+      {{ tcdnum }} new message{{ tcdnum|pluralize }}
+    </a>
+  </li>
+  <li>
+    <a id="replycount" href="/users/u/{{ username }}/replies/" {{ css|last }}>
+      {{ cfnum }} new repl{{ cfnum|pluralize:"y,ies" }}
+    </a>
+  </li>
+</ul>

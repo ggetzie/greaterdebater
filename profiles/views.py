@@ -7,7 +7,8 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import loader, RequestContext, Context
 from django.views.generic import list_detail
 
-from tcd.comments.models import TopicComment, ArgComment, Debate, tcdMessage
+from tcd.comments.models import TopicComment, ArgComment, Debate, tcdMessage, \
+    fcomMessage
 
 from tcd.items.models import Topic, Tags
 from tcd.items.views import object_list_field, object_list_foreign_field, calc_start
@@ -17,7 +18,7 @@ from tcd.profiles.forms import tcdUserCreationForm, tcdPasswordResetForm, tcdLog
 from tcd.profiles.models import Profile, Forgotten
 
 from tcd.settings import HOSTNAME
-from tcd.utils import random_string, tag_dict, tag_string
+from tcd.utils import random_string, tag_dict, tag_string, render_to_AJAX, render_message
 
 import datetime
 import MySQLdb
@@ -265,58 +266,85 @@ def profile_msgs(request, value, page=1):
 
 def message_detail(request, value, object_id):
     user = get_object_or_404(User, username=value)
-    if user == request.user:
-        message_list = tcdMessage.objects.filter(recipient=user).order_by('-pub_date')    
-        message = message_list.get(comment_ptr=object_id)
-        try:
-            next = message_list.filter(pub_date__gt=message.pub_date).order_by('pub_date')[0].id
-        except IndexError:
-            next = ""
-        try:
-            prev = message_list.filter(pub_date__lt=message.pub_date).order_by('-pub_date')[0].id
-        except IndexError:
-            prev = ""
-        if not message.is_read:
-            message.is_read = True
-            message.save()
-        return render_to_response("registration/profile/message_detail.html",
-                                  {'comment': message,
-                                   'username': user,
-                                   'next': str(next),
-                                   'prev': str(prev)},
-                                  context_instance=RequestContext(request))
-    else:
-        return HttpResponseForbidden("<h1>Unauthorized</h1>")
+    if user != request.user: return HttpResponseForbidden("<h1>Unauthorized</h1>")
 
+    message_list = tcdMessage.objects.filter(recipient=user).order_by('-pub_date')    
+    message = message_list.get(comment_ptr=object_id)
+    try:
+        next = message_list.filter(pub_date__gt=message.pub_date).order_by('pub_date')[0].id
+    except IndexError:
+        next = ""
+    try:
+        prev = message_list.filter(pub_date__lt=message.pub_date).order_by('-pub_date')[0].id
+    except IndexError:
+        prev = ""
+    if not message.is_read:
+        message.is_read = True
+        message.save()
+    return render_to_response("registration/profile/message_detail.html",
+                              {'comment': message,
+                               'username': user,
+                               'next': str(next),
+                               'prev': str(prev)},
+                              context_instance=RequestContext(request))
+
+def replies(request, value, page=1):
+    user = get_object_or_404(User, username=value)
+    if user != request.user: return HttpResponseForbidden("<h1>Unauthorized</h1>")
+    new_replies = fcomMessage.objects.filter(recipient=user)
+    return list_detail.object_list(request=request,
+                                   queryset=new_replies,
+                                   page=page,
+                                   paginate_by=25,
+                                   template_name="registration/profile/replies.html",
+                                   template_object_name="replies",
+                                   extra_context={'username': user})
+
+def mark_read(request):
+    status="error"
+    if not request.POST: return render_to_AJAX(status=status,
+                                               messages=[render_message("Not a POST", 10)])
+    try:
+        msg = fcomMessage.objects.get(pk=request.POST['id'])
+        msg.is_read = True
+        msg.save()
+        count = len(fcomMessage.objects.filter(recipient=request.user, is_read=False))
+        messages = [render_message("marked as read", 10), count]
+        status = "ok"
+    except ObjectDoesNotExist:
+        messages = ["Message does not exist"]
+
+    return render_to_AJAX(status=status,
+                          messages=messages)
+                                   
 def check_messages(request):
     status = "error"
     num = 0
-    if request.user.is_authenticated():
-        msgs = tcdMessage.objects.filter(recipient=request.user, is_read=False)
-        if len(msgs) == 1: 
-            plural = '' 
-        else: 
-            plural = 's'
+    if not request.user.is_authenticated():
+            return render_to_AJAX(status=status,
+                                  messages=["Not Logged In"])
 
-        if len(msgs) > 0:
-            css = "class='unread_msg'"
+    msgs = tcdMessage.objects.filter(recipient=request.user, is_read=False)
+    cmsgs = fcomMessage.objects.filter(recipient=request.user, is_read=False)
+
+    css = []
+    for m in (msgs, cmsgs):
+        if len(m) > 0:
+            css.append("class=unread_msg")
         else:
-            css = ''
+            css.append('')
 
-        message=''.join(["<a href='/users/u/", request.user.username,
-                         "/messages/'", css, ">", str(len(msgs)),
-                         " new message", plural, "</a>"])
-        status = "ok"
-    else:
-        message = "Not Logged In"
-    xmlt = loader.get_template("AJAXresponse.xml")
-    xmlc = Context({'status': status,
-                    'messages': [message]})
-    response = xmlt.render(xmlc)
-    return HttpResponse(response)
-    
-    
-        
+    msgt = loader.get_template('registration/profile/user_msgs.html')
+    msgc = Context({'css': css,
+                    'tcdnum': len(msgs),
+                    'cfnum': len(cmsgs),
+                    'username': request.user.username})
+    message = msgt.render(msgc)
+    status = "ok"
+
+    return render_to_AJAX(status=status,
+                          messages=[message])
+                          
 
 def profile_stgs(request, value):
     """ Display the users current settings and allow them to be modified """
@@ -324,35 +352,38 @@ def profile_stgs(request, value):
     user = get_object_or_404(User, username=value)
     prof = get_object_or_404(Profile, user=user)
 
-    if request.user == user:
+    if request.user != user: return HttpResponseForbidden("<h1>Unauthorized</h1>")
 
-        if request.POST:
-            form = SettingsForm(request.POST)
-            if form.is_valid():
-                user.email = form.cleaned_data['email']
-                prof.newwin = form.cleaned_data['newwindows']
-                prof.feedcoms = form.cleaned_data['feedcoms']
-                prof.feedtops = form.cleaned_data['feedtops']
-                prof.feeddebs = form.cleaned_data['feeddebs']
-                user.save()
-                prof.save()
-                request.user.message_set.create(message="Changes saved.")
-        else:
-            form = SettingsForm({'newwindows': prof.newwin,
-                                 'feedcoms': prof.feedcoms,
-                                 'feedtops': prof.feedtops,
-                                 'feeddebs': prof.feeddebs,
-                                 'request_email': user.email,
-                                 'email': user.email})
-
-
-        return render_to_response("registration/profile/settings.html",
-                                  {'username': user,
-                                   'form': form,
-                                   'prof': prof},
-                                  context_instance=RequestContext(request))
+    if request.POST:
+        form = SettingsForm(request.POST)
+        if form.is_valid():
+            user.email = form.cleaned_data['email']
+            prof.newwin = form.cleaned_data['newwindows']
+            prof.feedcoms = form.cleaned_data['feedcoms']
+            prof.feedtops = form.cleaned_data['feedtops']
+            prof.feeddebs = form.cleaned_data['feeddebs']
+            prof.followcoms = form.cleaned_data['followcoms']
+            prof.followtops = form.cleaned_data['followtops']
+            user.save()
+            prof.save()
+            request.user.message_set.create(message="Changes saved.")
     else:
-        return HttpResponseForbidden("<h1>Unauthorized</h1>")
+        form = SettingsForm({'newwindows': prof.newwin,
+                             'feedcoms': prof.feedcoms,
+                             'feedtops': prof.feedtops,
+                             'feeddebs': prof.feeddebs,
+                             'request_email': user.email,
+                             'email': user.email,
+                             'followcoms': prof.followcoms,
+                             'followtops': prof.followtops
+                             })
+
+
+    return render_to_response("registration/profile/settings.html",
+                              {'username': user,
+                               'form': form,
+                               'prof': prof},
+                              context_instance=RequestContext(request))
 
 def reset_password(request, value, code=None):
     """ Reset a user's password """
@@ -408,8 +439,6 @@ def feedback(request):
                       ['feedback@greaterdebater.com'],
                       fail_silently=False)            
             return HttpResponseRedirect("/users/thanks")
-
-
     feedback_context = {'form': form}             
     return render_to_response("registration/feedback.html",
                               feedback_context,
@@ -475,7 +504,6 @@ def delete_current_message(request):
 
         message.delete()
         return HttpResponse(redirect)
-            
 
 def save_forgotten(user):
     """When saving a temporary entry to the forgotten password table, there is a 
@@ -491,5 +519,3 @@ resubmit with a new randomly generated code."""
         return code
     except MySQLdb.IntegrityError:
         save_forgotten(user)
-
-

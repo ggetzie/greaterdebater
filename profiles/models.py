@@ -1,5 +1,5 @@
-from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
 
 from tcd.settings import HOSTNAME
 from tcd.utils import wordtime

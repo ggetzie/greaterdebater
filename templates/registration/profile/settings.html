@@ -32,6 +32,22 @@
 	</td>
       </tr>
       <tr>
+	<th>
+	  <label for="id_followcoms">Always follow my comments: </label>
+	</th>
+	<td>
+	  {{ form.followcoms }}
+	</td>
+      </tr>
+      <tr>
+	<th>
+	  <label for="id_followtops">Always follow my topics: </label>
+	</th>
+	<td>
+	  {{ form.followtops }}
+	</td>
+      </tr>
+      <tr>
 	<td colspan=2>
 	  <p>
 	    {% if prof.has_feed %}
