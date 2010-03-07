@@ -6,14 +6,14 @@
 <span id= "comment_info{{ comment.id }}" class="comment_info {% if comment.removed %}removed{% endif %}"> by <a href="/users/u/{{ comment.user }}/profile/">{{ comment.user }}</a> {{ comment.get_elapsed }} ago   
 {% ifnotequal user comment.user %}
   <span id="flag_link{{ comment.id }}">
-    | <a class="menu" href='#' class="comment_action"
+    | <a href='#' class="menu comment_action"
 	 onclick="swap('#flag_link{{ comment.id }}', '#confirm_flag{{ comment.id }}'); return false;">flag</a>
   </span>
   
   <span class="confirm" id="confirm_flag{{ comment.id }}">       
-    | Flag this as spam? <a class="menu" href='#' class="comment_action"
+    | Flag this as spam? <a href='#' class="menu comment_action"
 			    onclick="flag_comment({{ comment.id }}, {{ user.id }}); swap('#flag_link{{ comment.id }}', '#confirm_flag{{ comment.id }}'); return false;">Yes</a>
-    / <a class="menu" href='#' class="comment_action"
+    / <a href='#' class="menu comment_action"
 	 onclick="swap('#flag_link{{ comment.id }}', '#confirm_flag{{ comment.id }}'); return false;">No</a>
   </span>
 {% endifnotequal %}

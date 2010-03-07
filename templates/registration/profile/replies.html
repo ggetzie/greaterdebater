@@ -16,7 +16,7 @@
        onmouseout="mark_read({{ msg.id }});"
        {% endif %}>
     <p class=comment_topic>
-      on <a href="/{{ comment.ntopic_id }}/">{{ comment.ntopic.title }}</a>
+      on <a href="/comments/{{ comment.id }}?context=1">{{ comment.ntopic.title }}</a>
     </p>
     <div id="comment_div{{ comment.id }}" class="comment_div">
 

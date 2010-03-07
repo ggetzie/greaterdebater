@@ -189,3 +189,19 @@ def do_comment_count(parser,token):
         raise template.TemplateSyntaxError, "%r tag has invalid content-type '%s.%s'" % (tokens[0], package, module)
     return CommentsCountNode(content_type,bits[3])
 register.tag('comments_count', do_comment_count)
+
+@register.filter
+def relnest(value, rootnest):
+    # calculates the desired nesting for a comment
+    # relative to the root comment's nesting (rootnest)
+    # use when displaying the comment_detail page showing a 
+    # single comment and all its children
+
+    # top level comments start with a nesting of 10
+    # each generation of child comments adds 40
+    if rootnest:
+        rootgen = (rootnest-10)/40
+        thisgen = (value-10)/40
+        return 10 + (thisgen-rootgen) * 40
+    else:
+        return value

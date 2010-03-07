@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load comments_tags %}
 {% block title %}{{ object.title }}{% endblock %}
 
 {% block content %}
@@ -66,7 +67,13 @@
 <h4>Comments</h4>
 <div id="comments">
   {% for comment in rest_c %}
-  <div id="comment_div{{ comment.id }}" class="comment_div" style="margin-left: {{ comment.nnesting }}px">
+  <div id="comment_div{{ comment.id }}" class="comment_div{% if comment.id == com %} hilite{% endif %}" 
+       {% if onecom %}
+       style="margin-left: {{ comment.nnesting|relnest:rootnest }}px"
+       {% else %}
+       style="margin-left: {{ comment.nnesting }}px"
+       {% endif %}
+       >
     {% include "comments/one_comment.html" %}
   </div>
   {% endfor %}

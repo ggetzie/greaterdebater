@@ -211,6 +211,16 @@ def list(request):
 
 def comment_detail(request, comment_id):
     comment = get_object_or_404(TopicComment, pk=comment_id)
+
+    if 'context' in request.GET:
+        try:
+            context = int(request.GET['context'])
+        except ValueError:
+            context=1
+        for i in range(context):
+            if comment.nparent_id == 0: break
+            comment = get_object_or_404(TopicComment, pk=comment.nparent_id)
+    
     comtree = [comment]
     comtree.extend(build_list(TopicComment.objects.filter(ntopic=comment.ntopic,
                                                           needs_review=False, first=False),
@@ -220,12 +230,14 @@ def comment_detail(request, comment_id):
         newwin = prof.newwin
     else:
         newwin = False
+    
     return render_to_response("items/topic_detail.html",
                               {'rest_c': comtree, 
                                'object': comment.ntopic, 
                                'onecom': True,
                                'newwin': newwin,
-                               'com': comment},
+                               'com': int(comment_id),
+                               'rootnest': comtree[0].nnesting},
                               context_instance=RequestContext(request))
                                     
 def arguments(request, comment_id, page=1):

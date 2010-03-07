@@ -2,6 +2,10 @@
 
   <a id="collapse{{ comment.id }}" class="menu" href="javascript:collapse('#comment_div{{ comment.id }}', 0);">[-]</a>
   <a id="permalink{{ comment.id }}" class="menu" href="{{ comment.get_absolute_url }}">permalink</a>
+  {% if comment.nparent_id != 0 %}
+  <a id="parentlink{{ comment.id }}" class="menu" href="/comments/{{ comment.nparent_id }}/">parent</a>
+  {% endif %}
+
   {% if comment.removed %}
 
   {% ifequal user comment.user %}

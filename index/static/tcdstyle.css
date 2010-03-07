@@ -259,6 +259,11 @@ div.comment_div {
     margin-bottom: 15px;
 }
 
+div.hilite {
+    background: #FFFFBB;
+    padding: 0px 3px 3px 3px;
+}
+
 div.comment_div p {
     margin-top: 5px;
     margin-bottom: 5px;
