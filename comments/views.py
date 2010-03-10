@@ -119,30 +119,39 @@ def add(request, topic_id):
                     
 def edit(request, topic_id):
     redirect_to = ''.join(['/', topic_id, '/'])
-    if request.POST:
-        form=CommentForm(request.POST)
-        if form.is_valid():
-            # parent_id is the id of the comment being edited
-            # This is so we can reuse the same form for edits as for reply
-            c = get_object_or_404(TopicComment, pk=form.cleaned_data['parent_id'])
-            if c.user == request.user:
-                # Adjust the score for the topic based on the new comment length
-                top = c.ntopic
-                deltalen = len(form.cleaned_data['comment']) - len(c.comment)
-                top.comment_length += deltalen
-                top.recalculate()
-                top.save()
-                
-                # save the edited version of the comment
-                c.comment = form.cleaned_data['comment']
-                c.last_edit = datetime.datetime.now()
-                c.save()
-            else:
-                message = "<p>Can't edit another user's comment!"
-                request.user.message_set.create(message)
-        else:
-            message = "<p>Oops! A problem occurred.</p>"
-            request.user.message_set.create(message=message+str(form.errors))
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect(redirect_to)
+    
+    if not request.POST:
+        message = "Not a POST"
+        request.user.message_set.create(message)
+        return HttpResponseRedirect(redirect_to)
+
+    form=CommentForm(request.POST)
+    if not form.is_valid():
+        message = "<p>Oops! A problem occurred.</p>"
+        request.user.message_set.create(message=message+str(form.errors))
+        return HttpResponseRedirect(redirect_to)
+
+    # parent_id is the id of the comment being edited
+    # This is so we can reuse the same form for edits as for reply
+    c = get_object_or_404(TopicComment, pk=form.cleaned_data['parent_id'])
+    if c.user != request.user:
+        message = "<p>Can't edit another user's comment!</p>"
+        request.user.message_set.create(message)
+        return HttpResponseRedirect(redirect_to)
+
+    # Adjust the score for the topic based on the new comment length
+    top = c.ntopic
+    deltalen = len(form.cleaned_data['comment']) - len(c.comment)
+    top.comment_length += deltalen
+    top.recalculate()
+    top.save()
+
+    # save the edited version of the comment
+    c.comment = form.cleaned_data['comment']
+    c.last_edit = datetime.datetime.now()
+    c.save()
     return HttpResponseRedirect(redirect_to)
                                 
 def delete(request):

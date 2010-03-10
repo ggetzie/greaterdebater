@@ -357,6 +357,13 @@ class ArgComment(Comment):
     def save(self):
         super(ArgComment, self).save()
 
+    def natural_key(self):
+        return [self.user, self.pub_date]
+
+class ArgCommentManager(models.Manager):
+    def get_by_natural_key(self, user, pub_date):
+        return self.get(user=user, pub_date=pub_date)
+
 
 class nVote(models.Model):
 

@@ -9,9 +9,11 @@ from testsetup import testsetup
 import datetime
 
 class ViewTest(TestCase):
+    fixtures = ['testdata.json']
 
     def setUp(self):
-        testsetup()
+        # testsetup()
+        pass
 
     def confirm(self, response, msglist):
         for msg in msglist:
@@ -34,15 +36,16 @@ class ViewTest(TestCase):
         response = self.client.post('/comments/follow/',
                                     {'item': 'Topic',
                                      'id': top.id})
+        
         self.confirm(response, ['<status>ok</status>',
-                                     'Topic followed'])
+                                '<message>on</message>'])
         
         # success TopicComment
         response = self.client.post('/comments/follow/',
                                     {'item': 'TopicComment',
                                      'id': tcom.id})
         self.confirm(response, ['<status>ok</status>',
-                                     'TopicComment followed'])
+                                '<message>on</message>'])
         
         # Success unfollow Topic
         self.client.login(username='user1', password='password')
@@ -53,14 +56,15 @@ class ViewTest(TestCase):
                                     {'item': 'Topic',
                                      'id': top.id})
         self.confirm(response, ['<status>ok</status>',
-                                     'Topic no longer followed'])
+                                '<message>off</message>'])
 
         # Success unfollow TopicComment
         response = self.client.post('/comments/follow/',
                                     {'item': 'TopicComment',
                                      'id': tcom.id})
         self.confirm(response, ['<status>ok</status>',
-                                     'TopicComment no longer followed'])
+                                '<message>off</message>'])
+
         
         # GET request
         response = self.client.get('/comments/follow/')
@@ -78,14 +82,14 @@ class ViewTest(TestCase):
         response = self.client.post('/comments/follow/',
                                     {'item': 'Topic',
                                      'id': 9999})
-        self.confirm(response, ['<status>error</status>',
+        self.confirm(response, ['<status>alert</status>',
                                      'Item not found'])
 
         # Bad item type
         response = self.client.post('/comments/follow/',
                                     {'item': 'foo',
                                      'id': top.id})
-        self.confirm(response, ['<status>error</status>',
+        self.confirm(response, ['<status>alert</status>',
                                      'No items of type foo'])
 
     def test_add(self):
@@ -99,9 +103,10 @@ class ViewTest(TestCase):
         parent = TopicComment.objects.filter(ntopic=top,
                                              needs_review=False,
                                              first=False)[0]
-        url = '/'.join(['', 'comments', str(top.id), 'add', ''])
-        redirect1 = ''.join(['/users/login/?next=/', str(top.id), '/'])
-        redirect2 = ''.join(['/', str(top.id), '/'])
+        url = '/comments/' + str(top.id) + '/add/'
+
+        redirect1 = '/users/login/?next=/' + str(top.id) + '/'
+        redirect2 = '/' + str(top.id) + '/'
 
         topcomment = {'comment': "test top comment",
                       'toplevel': 1}
@@ -149,3 +154,15 @@ class ViewTest(TestCase):
         self.assertRedirects(response, redirect2)
         self.assertContains(response, "Oops! A problem occurred.")
         
+    def test_edit(self):
+        top = Topic.objects.all().order_by('sub_date')[1]
+        com = TopicComment.objects.get(ntopic=top, nparent_id=0, first=False)
+        oldlen = sum([len(c.comment) for c in top.topiccomment_set.all()])
+        
+        url = '/comments/' + str(top.id) + '/edit/'
+        redirect = '/' + str(top.id) + '/'
+
+        # User not logged in
+        response = self.client.post(url, {'comment': 'test edit', })
+        self.assertRedirects(response, redirect)
+                                          

@@ -1,5 +1,9 @@
 {% extends "blogtemplates/base.html" %}
 
+{% block head %}
+<script type="text/javascript" charset="utf-8" src="{{ MEDIA_URL }}blog.js"></script>
+{% endblock %}
+
 {% block title %}
 Edit {{ post.title }} | {{ blog.title }}
 {% endblock %}
