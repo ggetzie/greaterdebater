@@ -1,13 +1,9 @@
-{% if voted_for %}
-<p>You voted for {{ voted_for }}
-  {% if current %}
-  <a id="unvote" class="comment-menu" href="#" onClick="unvote({{ object.id }}, {{ request.user.id }}); return false;">Unvote</a>
-  {% endif %}
-</p>
-{% endif %}
-
-<p>{% if current %}Current{% else %}Final{% endif %} Tally:</p>
-
-{{ pvotes }} vote{{ pvotes|pluralize }} for {{ object.plaintiff }}<br />
-{{ dvotes }} vote{{ dvotes|pluralize }} for {{ object.defendant }}
-
+<div id="arg_actions">
+  <div id="vote" class="arg_responses">
+    <p>
+      Who's winning? Cast your vote below.
+    </p>
+    <a class="menu" href='#' onclick="vote({{ object.id }}, {{ request.user.id }}, 'P'); return false;">Vote for {{ object.plaintiff.username}}</a> |
+    <a class="menu" href='#' onclick="vote({{ object.id }}, {{ request.user.id }}, 'D'); return false;">Vote for {{ object.defendant.username}}</a>
+  </div>
+</div>

@@ -1,0 +1,9 @@
+<div id="arg_actions">
+  <div class="arg_responses arg_query" id="draw_query">
+    <p>
+      A draw has been offered
+    </p>
+    <a class="menu" href="#" onclick="respond_draw({{ object.id }}, {{ request.user.id }}, 0); return false;">Accept</a> |
+    <a class="menu" href="#" onclick="respond_draw({{ object.id }}, {{ request.user.id }}, 1); return false;">Decline</a>
+  </div>
+</div>

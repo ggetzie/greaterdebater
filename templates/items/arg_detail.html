@@ -33,67 +33,7 @@
 </div>
 
 
-{% if show_arg_actions %}
-<div id="arg_actions">
-  {% if current %}
-
-  {% if new_arg %}
-  <!--   The argument has been proposed but not accepted or declined, the defendant is viewing the page -->
-  <div class="arg_query arg_responses" id="arg_responses">
-    Begin this debate?<br />
-    <ul class="flat-list">
-      <li><a href="#" onclick="respond_challenge({{ object.id}}, {{ request.user.id }}, 0); return false;">Accept</a></li>
-      <li><a href="#" onclick="respond_challenge({{ object.id}}, {{ request.user.id }}, 1); return false;">Decline</a></li>
-    </ul>
-  </div>
-  {% endif %}
-
-  {% if show_draw %}
-  <!-- A draw has been proposed, the user viewing the page is currently up in the argument -->
-  <div class="arg_responses arg_query" id="draw_query">
-    <p>
-      A draw has been offered
-    </p>
-    <a class="menu" href="#" onclick="respond_draw({{ object.id }}, {{ request.user.id }}, 0); return false;">Accept</a> |
-    <a class="menu" href="#" onclick="respond_draw({{ object.id }}, {{ request.user.id }}, 1); return false;">Decline</a>
-  </div>
-  {% endif %}
-  
-  {% if show_actions %}
-  {% include "items/turn_actions.html" %}  
-  {% endif %}
-
-  {% if show_votes %}
-  <div id="vote" class="arg_responses">
-    {% if voted_for %}
-
-    {% include "items/vote_div.html" %} 
-    {% else %}    
-    <p>
-      Who's winning? Cast your vote below.
-    </p>
-    <a class="menu" href='#' onclick="vote({{ object.id }}, {{ request.user.id }}, 'P'); return false;">Vote for {{ object.plaintiff.username}}</a> |
-    <a class="menu" href='#' onclick="vote({{ object.id }}, {{ request.user.id }}, 'D'); return false;">Vote for {{ object.defendant.username}}</a>
-    {% endif %}
-  </div>
-  {% endif %}
-
-  {% else %}
-  <div id="vote" class="arg_responses">
-    {% include "items/vote_div.html" %}
-  </div>
-  {% endif %}
-</div>
-
-{% else %}
-{% if not request.user.is_authenticated %}
-<div id="arg_actions">
-  <div class="arg_responses">
-    <a href="/users/login?next={{ request.path }}">Log in or register</a> to cast your vote for the greater debater!
-  </div>
-</div>
-{% endif %}
-{% endif %}
+{{ arg_actions }}
 
 {% endblock %}
 

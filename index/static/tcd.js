@@ -265,7 +265,7 @@ function respond_draw(arg_id, user_id, response) {
 		       // if the draw was declined, show the options to reply
 		       $("#draw_query").remove();
 		       turn_actions = $("turn_actions", xml).text()
-		       $("#arg_actions").html(turn_actions);
+		       $("#arg_actions").replaceWith(turn_actions);
 		   }
 	       }
 
@@ -287,7 +287,7 @@ function respond_challenge(arg_id, user_id, response) {
 		       // if the challenge was accepted
 		       // change the status and add the options to reply
 		       turn_actions = $("turn_actions", xml).text()
-		       $("#arg_actions").html(turn_actions);
+		       $("#arg_actions").replaceWith(turn_actions);
 		   } else {
 		       // if the challenge was declined, remove the arg_actions div
 		       $("#arg_actions").remove();

@@ -931,17 +931,13 @@ def concede(request):
 
 def arg_detail(request, object_id):
     arg = get_object_or_404(Debate, pk=object_id)
-    voted_for = None
+    voted_for = ''
     votes = nVote.objects.filter(argument=arg)
-    current = False
-    new_arg = False
-    show_actions = False
-    show_votes = False
-    show_draw = False
-    
+    arg_actions = ''
     last_c = arg.argcomment_set.order_by("-pub_date")[0]
-    if request.user.is_authenticated():
 
+    if request.user.is_authenticated():
+        # find who the user voted for, if they voted
         try: 
             vote = votes.get(voter=request.user)
             if vote.voted_for == "P":
@@ -951,55 +947,71 @@ def arg_detail(request, object_id):
             else:                
                 request.user.message_set.create(message="Something funky about your vote")
         except nVote.DoesNotExist:
-            pass
+            pass        
 
     if arg.status in range(0,3):
-        # The argument hasn't ended
-        current = True
-
-    if current and (request.user.is_authenticated() == False or request.user == arg.whos_up(invert=1)):
-        # The viewer is either not logged in or a participant and it's not his turn
-        # Don't show any controls
-        show_arg_actions = False
-    else:
-        show_arg_actions = True
-
-    if request.user == arg.defendant and arg.status == 0:
-        # defendant hasn't accepted or declined the challenge yet
-        # and is viewing the argument, show the options
-        # to accept or decline the argument
-        new_arg = True
-
-    if current == True and request.user == arg.whos_up() and arg.draw_set.all():
-        # A draw has been proposed and the recipient is viewing the argument
-        # show the option to decline or accept the draw
-        show_draw = True
-        
-    if current == True and new_arg == False and not arg.draw_set.all() and request.user == arg.whos_up():
-        # No draw is pending, the person viewing the argument 
-        # is a participant and it's his turn show the options
-        # to respond
-        show_actions = True
-
-    if current == True and request.user.is_authenticated() and not request.user in [arg.plaintiff, arg.defendant]:
-        # The person viewing the argument is a registered user
-        # and not a participant, show the voting box
-        show_votes = True
+        if request.user.is_authenticated():
+            if request.user == arg.whos_up():
+                if arg.status == 0:
+                    # The challenge has been proposed but not accepted
+                    argt=loader.get_template("items/arg_new_respond.html")
+                    argc = Context({'object': arg,
+                                    'request': request})
+                    arg_actions = argt.render(argc)
+                elif arg.draw_set.all():
+                    # A draw has been offered
+                    argt=loader.get_template("items/draw_actions.html")
+                    argc = Context({'object': arg,
+                                    'request': request})
+                    arg_actions = argt.render(argc)
+                else:
+                    # normal turn
+                    argt=loader.get_template("items/turn_actions.html")
+                    argc = Context({'object': arg,
+                                    'last_c': last_c,
+                                    'user': request.user})
+                    arg_actions = argt.render(argc)
+            elif request.user == arg.whos_up(invert=1):
+                # The user is a participant, but it's not his turn
+                arg_actions = ''
+            else:
+                # The user is not a participant in this debate
+                if voted_for:
+                    argt = loader.get_template("items/vote_tally.html")
+                    argc = Context({'pvotes': votes.filter(voted_for='P').count(),
+                                    'dvotes': votes.filter(voted_for='D').count(),
+                                    'object': arg,
+                                    'current': True,
+                                    'voted_for': voted_for
+                                    })
+                    arg_actions = argt.render(argc)    
+                else:
+                    argt = loader.get_template("items/vote_div.html")
+                    argc = Context({'object': arg,
+                                    'request': request})
+                    arg_actions = argt.render(argc)
+        else:
+            # debate is in progress, tell user to log in to vote
+            argt = loader.get_template("items/arg_login.html")
+            argc = Context({'request': request})
+            arg_actions = argt.render(argc)    
+    else: 
+        # debate has ended, show the final vote tally
+        argt = loader.get_template("items/vote_tally.html")
+        argc = Context({'pvotes': votes.filter(voted_for='P').count(),
+                        'dvotes': votes.filter(voted_for='D').count(),
+                        'object': arg,
+                        'current': False,
+                        'voted_for': voted_for
+                        })
+        arg_actions = argt.render(argc)    
 
     return render_to_response("items/arg_detail.html",
                               {'object': arg,
                                'incite': arg.incite,
                                'comments': arg.argcomment_set.order_by('pub_date'),
-                               'new_arg': new_arg,
-                               'voted_for': voted_for, 
                                'last_c': last_c,
-                               'current': current,
-                               'pvotes': votes.filter(voted_for="P").count(),
-                               'dvotes': votes.filter(voted_for="D").count(), 
-                               'show_actions': show_actions,
-                               'show_votes': show_votes,
-                               'show_arg_actions': show_arg_actions,
-                               'show_draw': show_draw
+                               'arg_actions': arg_actions
                                },
                               context_instance=RequestContext(request))
 

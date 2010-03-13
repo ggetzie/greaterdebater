@@ -258,6 +258,7 @@ class Debate(models.Model):
         # returns the user whose turn it is in an argument
         # if invert == 1, returns the user whose turn it is NOT
         participants = (self.defendant, self.plaintiff)
+        if not invert in (0,1): return None
         if self.status in [0, 2]:
             return participants[invert]
         elif self.status == 1:

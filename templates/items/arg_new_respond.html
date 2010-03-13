@@ -1,0 +1,9 @@
+<div id="arg_actions">
+  <div class="arg_query arg_responses" id="arg_responses">
+    Begin this debate?<br />
+    <ul class="flat-list">
+      <li><a href="#" onclick="respond_challenge({{ object.id}}, {{ request.user.id }}, 0); return false;">Accept</a></li>
+      <li><a href="#" onclick="respond_challenge({{ object.id}}, {{ request.user.id }}, 1); return false;">Decline</a></li>
+    </ul>
+  </div>
+</div>
