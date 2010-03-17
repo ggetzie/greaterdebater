@@ -123,8 +123,7 @@ def edit(request, topic_id):
         return HttpResponseRedirect(redirect_to)
     
     if not request.POST:
-        message = "Not a POST"
-        request.user.message_set.create(message)
+        request.user.message_set.create(message="Not a POST")
         return HttpResponseRedirect(redirect_to)
 
     form=CommentForm(request.POST)
@@ -137,8 +136,7 @@ def edit(request, topic_id):
     # This is so we can reuse the same form for edits as for reply
     c = get_object_or_404(TopicComment, pk=form.cleaned_data['parent_id'])
     if c.user != request.user:
-        message = "<p>Can't edit another user's comment!</p>"
-        request.user.message_set.create(message)
+        request.user.message_set.create(message="<p>Can't edit another user's comment!</p>")
         return HttpResponseRedirect(redirect_to)
 
     # Adjust the score for the topic based on the new comment length
@@ -157,53 +155,51 @@ def edit(request, topic_id):
 def delete(request):
     """Unpermanently deletes a comment, undeletes a comment that has been deleted"""
     redirect_to = '/'
-    if request.POST:
-        form=DeleteForm(request.POST)
-        if form.is_valid():
-            comment = get_object_or_404(TopicComment, pk=form.cleaned_data['comment_id'])
-            redirect_to = form.cleaned_data['referring_page']
-            if comment.user == request.user:
-                # Can't delete a comment if there are any 
-                # arguments associated with it
-                debs = Debate.objects.filter(incite=comment)
-                if not debs:
-                    top = comment.ntopic
-                    # Toggle the deleted state of the comment
-                    if comment.removed:
-                        comment.removed = False
-                        top.comment_length += len(comment.comment)                        
-                    else:
-                        comment.removed = True
-                        top.comment_length -= len(comment.comment)                        
-                    top.recalculate()
-                    top.save()
-                    comment.save()
-                    t = loader.get_template('comments/one_comment.html')                
-                    c = Context({'comment': comment,
-                                 'user': request.user})
-                    response = ('response', [('status', 'ok'),
-                                             ('id', comment.id),
-                                             ('comment', t.render(c))])
-                    response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')
-                    return HttpResponse(response)
-                else:
-                    message="Can't delete a comment that has arguments"            
-            else:
-                message="Can't delete a comment that isn't yours"
-        else:
-            message = "Invalid Form"
-    else:
-        message="Not a POST request"
-    msg_template = loader.get_template('items/msg_div.html')
-    msg_context = Context({'id': comment.id,
-                          'message': message,
-                          'nesting': comment.nnesting})
-    response = ('response', [('message', msg_template.render(msg_context)),
-                             ('status', "error"),
-                             ('id', comment.id)])
-    response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')
-    return HttpResponse(response)
+    if not request.POST:
+        return render_to_AJAX(status="error",
+                              messages=[render_message(message="Not a POST", nesting=10)])
+            
+    form=DeleteForm(request.POST)
+    if not form.is_valid():
+        return render_to_AJAX(status="alert",
+                              messages=["Invalid Form"])
 
+    try:
+        comment = TopicComment.objects.get(pk=form.cleaned_data['comment_id'])
+    except TopicComment.DoesNotExist:
+        return render_to_AJAX(status="alert",
+                              messages=["Comment Not Found"])
+
+    if not comment.user == request.user:
+        return render_to_AJAX(status="alert",
+                              messages=["Can't delete a comment that isn't yours"])
+
+    # Can't delete a comment if there are any 
+    # debates associated with it
+    debs = Debate.objects.filter(incite=comment)
+    if debs:
+        return render_to_AJAX(status="error",
+                              messages=[render_message(
+                    message="Can't delete a comment that has debates", nesting=10),
+                                        str(comment.id)])
+
+    top = comment.ntopic
+    # Toggle the deleted state of the comment
+    if comment.removed:
+        comment.removed = False
+        top.comment_length += len(comment.comment)                        
+    else:
+        comment.removed = True
+        top.comment_length -= len(comment.comment)                        
+    top.recalculate()
+    top.save()
+    comment.save()
+    comt = loader.get_template('comments/one_comment.html')                
+    comc = Context({'comment': comment,
+                    'user': request.user})
+    return render_to_AJAX(status='ok',
+                          messages=[comt.render(comc),
+                                    str(comment.id)])
                                     
 def tip(request):	
     from pygments import lexers

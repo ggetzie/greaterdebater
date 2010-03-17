@@ -4,8 +4,8 @@
       <label for="id_comment">Posting as {{ user }}</label>
       <br /><textarea rows=5 cols=50 name="comment" id="draw_text"></textarea>
       <div>
-	<button onclick="$('#draw{{ object.id }}').slideToggle(); return false;" name="cancel">Cancel</button>
 	<button onclick="rebut_argument({{ object.id }}, {{ last_c.id }}, true); return false;" name="draw">Offer Draw</button>
+	<button onclick="$('#draw{{ object.id }}').slideToggle(); return false;" name="cancel">Cancel</button>
       </div>
     </div>
   </form>

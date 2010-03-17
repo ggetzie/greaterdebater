@@ -6,8 +6,8 @@
       <br /><textarea rows=5 cols=50 name="comment">{{ comment.comment }}</textarea>
       <div><input type="hidden" name="parent_id" value={{ comment.id }}></div>
       <div>
-	<button onclick="$('#edit{{ comment.id }}').slideToggle(); return false;" name="cancel">Cancel</button>
 	<input type="submit" value= "Edit">
+	<button onclick="$('#edit{{ comment.id }}').slideToggle(); return false;" name="cancel">Cancel</button>
       </div>
     </div>
   </form>

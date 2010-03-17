@@ -128,13 +128,15 @@ function delete_comment(id) {
     $.post("/comments/delete/", {comment_id: id},	   
 	   function(xml) { 
 	       $(menuid).html(menu);
-	       comID = $("id",xml).text()
+	       comID = $("message",xml).next().text()
 	       divID = '#comment_div' + comID
 	       if($("status",xml).text() == "error") {
-		   msg=$("message",xml).text()
+		   msg=$("message",xml).html()
 		   $('#comment_div' + comID).after(msg)
+	       } else if ( $("status", xml).text() == "alert") {
+		   alert($('message', xml).text());
 	       } else {
-		   $(divID).html($("comment",xml).text())
+		   $(divID).html($("message",xml).html())
 	       }
 
 	   }

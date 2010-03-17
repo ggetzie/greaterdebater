@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.contrib.auth.models import User
 
 from items.models import Topic
 from comments.models import TopicComment
@@ -9,10 +10,10 @@ from testsetup import testsetup
 import datetime
 
 class ViewTest(TestCase):
-    fixtures = ['testdata.json']
+    # fixtures = ['testdata.json']
 
     def setUp(self):
-        # testsetup()
+        testsetup()
         pass
 
     def confirm(self, response, msglist):
@@ -155,14 +156,74 @@ class ViewTest(TestCase):
         self.assertContains(response, "Oops! A problem occurred.")
         
     def test_edit(self):
-        top = Topic.objects.all().order_by('sub_date')[1]
-        com = TopicComment.objects.get(ntopic=top, nparent_id=0, first=False)
-        oldlen = sum([len(c.comment) for c in top.topiccomment_set.all()])
         
-        url = '/comments/' + str(top.id) + '/edit/'
-        redirect = '/' + str(top.id) + '/'
+        com = TopicComment.objects.filter(nparent_id=0, first=False, needs_review=False)[0]
+        
+        url = '/comments/' + str(com.ntopic.id) + '/edit/'
+        redirect = '/' + str(com.ntopic.id) + '/'
 
         # User not logged in
         response = self.client.post(url, {'comment': 'test edit', })
         self.assertRedirects(response, redirect)
                                           
+        # all test user passwords are 'password'
+        self.client.login(username=com.user.username, password='password')
+        
+        # GET Request
+        response = self.client.get(url, follow=True)
+        self.assertRedirects(response, redirect)
+        self.assertContains(response, "Not a POST")
+
+        # Invalid Form
+        response = self.client.post(url, {'comment': '',
+                               'parent_id': com.id}, follow=True)
+
+        self.assertRedirects(response, redirect)
+        self.assertContains(response, "<p>Oops! A problem occurred.</p>")
+        
+
+        # Valid Edit
+        response = self.client.post(url, {'comment': 'test edit',
+                                       'parent_id': com.id}, follow=True)
+        self.assertRedirects(response, redirect)
+        self.assertContains(response, "test edit")
+
+        # Wrong user
+        baduser = User.objects.exclude(id=com.user.id)[0]
+        self.client.login(username=baduser.username, password='password')
+
+        response = self.client.post(url, {'comment': 'test edit',
+                                       'parent_id': com.id}, follow=True)
+        self.assertRedirects(response, redirect)
+        self.assertContains(response, "<p>Can't edit another user's comment!</p>")
+
+    def test_delete(self):
+        com = TopicComment.objects.filter(first=False, needs_review=False)[0]
+        url = '/comments/delete/'
+
+        # GET request        
+        response = self.client.get(url)
+        self.assertContains(response, "Not a POST")
+
+        # Wrong user
+        baduser = User.objects.exclude(id=com.user.id)[0]
+        self.client.login(username=baduser.username, password='password')
+        response = self.client.post(url, {'comment_id': com.id})
+        self.assertContains(response, "delete a comment that isn")
+
+        # Invalid Form
+        self.client.login(username=com.user.username, password='password')
+        response = self.client.post(url, {'comment_id': '',})
+        self.assertContains(response, "Invalid Form")
+        
+        # Valid delete
+        response = self.client.post(url, {'comment_id': com.id})
+        self.assertContains(response, "<status>ok</status>")
+
+        # Valid undelete
+        com = TopicComment.objects.filter(first=False, needs_review=False, removed=True)[0]
+        response = self.client.post(url, {'comment_id': com.id})
+        self.assertContains(response, "<status>ok</status>")
+
+        # Comment with debates associated (can't delete)
+        # TODO add some debates to testsetup.py

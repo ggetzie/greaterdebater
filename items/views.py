@@ -977,6 +977,7 @@ def arg_detail(request, object_id):
             else:
                 # The user is not a participant in this debate
                 if voted_for:
+                    # The user has already cast a vote
                     argt = loader.get_template("items/vote_tally.html")
                     argc = Context({'pvotes': votes.filter(voted_for='P').count(),
                                     'dvotes': votes.filter(voted_for='D').count(),
@@ -986,6 +987,7 @@ def arg_detail(request, object_id):
                                     })
                     arg_actions = argt.render(argc)    
                 else:
+                    # The user hasn't cast a vote yet
                     argt = loader.get_template("items/vote_div.html")
                     argc = Context({'object': arg,
                                     'request': request})
