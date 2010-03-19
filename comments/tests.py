@@ -49,9 +49,9 @@ class ViewTest(TestCase):
                                 '<message>on</message>'])
         
         # Success unfollow Topic
-        self.client.login(username='user1', password='password')
-        top = Topic.objects.filter(followers__username='user1')[0]
-        tcom = TopicComment.objects.filter(followers__username='user1')[0]
+        self.client.login(username='user0', password='password')
+        top = Topic.objects.filter(followers__username='user0')[0]
+        tcom = TopicComment.objects.filter(followers__username='user0')[0]
 
         response = self.client.post('/comments/follow/',
                                     {'item': 'Topic',
@@ -216,14 +216,23 @@ class ViewTest(TestCase):
         response = self.client.post(url, {'comment_id': '',})
         self.assertContains(response, "Invalid Form")
         
-        # Valid delete
+        # Comment with debates associated
         response = self.client.post(url, {'comment_id': com.id})
+        self.assertContains(response, "t delete a comment that has debates")
+
+        # Valid delete
+        coms = TopicComment.objects.filter(first=False, needs_review=False)
+        # Find a comment without any debates
+        for c in coms:
+            if not c.debate_set.all():
+                com2 = c
+                break
+                                          
+        self.client.login(username=com2.user.username, password='password')
+        response = self.client.post(url, {'comment_id': com2.id})
         self.assertContains(response, "<status>ok</status>")
 
         # Valid undelete
         com = TopicComment.objects.filter(first=False, needs_review=False, removed=True)[0]
-        response = self.client.post(url, {'comment_id': com.id})
+        response = self.client.post(url, {'comment_id': com2.id})
         self.assertContains(response, "<status>ok</status>")
-
-        # Comment with debates associated (can't delete)
-        # TODO add some debates to testsetup.py

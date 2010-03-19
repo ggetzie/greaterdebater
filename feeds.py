@@ -14,7 +14,7 @@ class NewTopics(Feed):
     description = 'The latest topics on GreaterDebater'
     
     def items(self):
-        return Topic.objects.order_by('-sub_date')[:15]
+        return Topic.objects.filter(needs_review=False).order_by('-sub_date')[:15]
 
 class NewArguments(Feed):
     title = 'GreaterDebater - New Debates'

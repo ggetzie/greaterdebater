@@ -10,19 +10,21 @@ from settings import HOSTNAME
 
 def testsetup():
     # Create some users
-    user1, prof1 = create_user(username="user1", password="password",
-                               email="user1@test.com")
-    user2, prof2 = create_user(username="user2", password="password",
-                               email="user2@test.com")
-    user3, prof3 = create_user(username="user3", password="password",
-                               email="user3@test.com")
+    users = []
+    profiles = []
+    for i in range(10):
+        username="user"+str(i)
+        u, p = create_user(username=username, password="password",
+                           email=username+"@test.com")
+        users.append(u)
+        profiles.append(p)
 
     # Create some topics
-    topic1 = create_topic(user1, "Topic 1", "tag1", comment="First topic outside link",
+    topic1 = create_topic(users[0], "Topic 1", "tag1", comment="First topic outside link",
                           url="http://google.com")
-    topic2 = create_topic(user2, "Topic 2", "tag2", comment="Second topic self link")
-    topic3 = create_topic(user3, "Topic 3", "tag3") # No first comment
-    topic4 = create_topic(user1, "Topic 4") # No first comment, no tags
+    topic2 = create_topic(users[1], "Topic 2", "tag2", comment="Second topic self link")
+    topic3 = create_topic(users[2], "Topic 3", "tag3") # No first comment
+    topic4 = create_topic(users[3], "Topic 4") # No first comment, no tags
 
     # Comment on some topics
     # Topic 2
@@ -30,17 +32,168 @@ def testsetup():
     #     -com2
     #       -com4
     #     -com3
-    com1 = create_tcomment(user1, topic2, txt="Comment 1")
-    com2 = create_tcomment(user2, topic2, txt="Comment 2", parent=com1)
-    com3 = create_tcomment(user3, topic2, txt="Comment 3", parent=com1)
-    com4 = create_tcomment(user1, topic2, txt="Comment 4", parent=com2)
+    com1 = create_tcomment(users[0], topic2, txt="Comment 1")
+    com2 = create_tcomment(users[1], topic2, txt="Comment 2", parent=com1)
+    com3 = create_tcomment(users[2], topic2, txt="Comment 3", parent=com1)
+    com4 = create_tcomment(users[0], topic2, txt="Comment 4", parent=com2)
 
     # Follow a topic and a comment
-    com1.followers.add(user1)
+    com1.followers.add(users[0])
     com1.save()
-    topic1.followers.add(user1)
+    topic1.followers.add(users[0])
     topic1.save()
 
+    ##  Create some debates
+
+    # Pending debate, status=0
+    deb_pending = Debate(plaintiff=users[1],
+                         defendant=com1.user,
+                         status=0,
+                         incite=com1,
+                         title="Pending Debate",
+                         start_date=datetime.datetime.now(),
+                         topic=com1.ntopic)
+    deb_pending.save()
+    deb_pending_com1 = ArgComment(user=deb_pending.plaintiff,
+                                  ntopic=com1.ntopic,
+                                  debate=deb_pending,
+                                  pub_date=datetime.datetime.now(),
+                                  comment="Pending debate challenge")
+    deb_pending_com1.save()
+
+    # Debate, plaintiff's turn status=1
+    deb_pturn = Debate(plaintiff=users[2],
+                         defendant=com1.user,
+                         status=1,
+                         incite=com1,
+                         title="Debate - Plaintiff turn",
+                         start_date=datetime.datetime.now(),
+                         topic=com1.ntopic)
+    deb_pturn.save()
+    deb_pturn_com1 = ArgComment(user=deb_pending.plaintiff,
+                                  ntopic=com1.ntopic,
+                                  debate=deb_pturn,
+                                  pub_date=datetime.datetime.now(),
+                                  comment="Plantiff turn challenge")
+    deb_pturn_com1.save()
+
+    deb_pturn_com2 = ArgComment(user=deb_pending.defendant,
+                                  ntopic=com1.ntopic,
+                                  debate=deb_pturn,
+                                  pub_date=datetime.datetime.now(),
+                                  comment="Plantiff turn 1st rebuttal")
+    deb_pturn_com2.save()
+
+    # Debate, defendant's turn status=2
+    deb_dturn = Debate(plaintiff=users[3],
+                         defendant=com1.user,
+                         status=2,
+                         incite=com1,
+                         title="Debate - Defendent turn",
+                         start_date=datetime.datetime.now(),
+                         topic=com1.ntopic)
+    deb_dturn.save()
+    deb_dturn_com1 = ArgComment(user=deb_dturn.plaintiff,
+                                  ntopic=com1.ntopic,
+                                  debate=deb_dturn,
+                                  pub_date=datetime.datetime.now(),
+                                  comment="Defendant turn challenge")
+    deb_dturn_com1.save()
+
+    # Debate, defendant wins, status = 3
+    deb_dwin = Debate(plaintiff=users[4],
+                      defendant=com1.user,
+                      status=3,
+                      incite=com1,
+                      title="Debate - Defendent wins",
+                      start_date=datetime.datetime.now(),
+                      end_date=datetime.datetime.now()
+                      topic=com1.ntopic)
+    deb_dwin.save()
+    deb_dwin_com1 = ArgComment(user=deb_dwin.plaintiff,
+                                  ntopic=com1.ntopic,
+                                  debate=deb_dwin,
+                                  pub_date=datetime.datetime.now(),
+                                  comment="Defendant win challenge")
+    deb_dwin_com1.save()
+
+    deb_dwin_com2 = ArgComment(user=deb_dwin.defendant,
+                                  ntopic=com1.ntopic,
+                                  debate=deb_dwin,
+                                  pub_date=datetime.datetime.now(),
+                                  comment="Defendant win 1st rebuttal")
+    deb_dwin_com2.save()
+
+    # Debate, plaintiff wins, status = 4
+    deb_pwin = Debate(plaintiff=users[5],
+                      defendant=com1.user,
+                      status=4,
+                      incite=com1,
+                      title="Debate - Plaintiff wins",
+                      start_date=datetime.datetime.now(),
+                      end_date=datetime.datetime.now()
+                      topic=com1.ntopic)
+    deb_pwin.save()
+    deb_pwin_com1 = ArgComment(user=deb_pwin.plaintiff,
+                                  ntopic=com1.ntopic,
+                                  debate=deb_pwin,
+                                  pub_date=datetime.datetime.now(),
+                                  comment="Plaintiff win challenge")
+    deb_pwin_com1.save()
+
+    deb_pwin_com2 = ArgComment(user=deb_pwin.defendant,
+                                  ntopic=com1.ntopic,
+                                  debate=deb_pwin,
+                                  pub_date=datetime.datetime.now(),
+                                  comment="Plaintiff win 1st rebuttal")
+    deb_pwin_com2.save()
+
+    deb_pwin_com3 = ArgComment(user=deb_pwin.plaintiff,
+                                  ntopic=com1.ntopic,
+                                  debate=deb_pwin,
+                                  pub_date=datetime.datetime.now(),
+                                  comment="Plaintiff win 2nd rebuttal")
+    deb_pwin_com3.save()
+    
+    deb_pwin_vote1 = nVote(argument=deb_pwin,
+                           voter=users[1],
+                           voted_for=deb_pwin.plaintiff)
+    deb_pwin_vote1.save()
+
+    deb_pwin_vote2 = nVote(argument=deb_pwin,
+                           voter=users[2],
+                           voted_for=deb_pwin.plaintiff)
+    deb_pwin_vote2.save()
+
+    deb_pwin_vote3 = nVote(argument=deb_pwin,
+                           voter=users[3],
+                           voted_for=deb_pwin.defendant)
+    deb_pwin_vote3.save()
+
+    # Debate ends in a draw, status = 5
+    deb_draw = Debate(plaintiff=users[5],
+                      defendant=com1.user,
+                      status=5,
+                      incite=com1,
+                      title="Debate - Draw",
+                      start_date=datetime.datetime.now(),
+                      end_date=datetime.datetime.now()
+                      topic=com1.ntopic)
+    deb_draw.save()
+    deb_draw_com1 = ArgComment(user=deb_draw.plaintiff,
+                               ntopic=com1.ntopic,
+                               debate=deb_draw,
+                               pub_date=datetime.datetime.now(),
+                               comment="Draw challenge")
+    deb_draw_com1.save()
+
+    deb_draw_com2 = ArgComment(user=deb_draw.defendant,
+                               ntopic=com1.ntopic,
+                               debate=deb_draw,
+                               pub_date=datetime.datetime.now(),
+                               comment="Draw 1st rebuttal")
+    deb_draw_com2.save()
+                                       
 
 def create_user(username, password, email):
     new_user = User.objects.create_user(username=username,
@@ -135,3 +288,7 @@ def create_tcomment(user, top, txt, parent=None):
     prof.save()
 
     return c
+
+
+
+    

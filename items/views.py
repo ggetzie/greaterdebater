@@ -161,6 +161,9 @@ def tflag(request):
                 top.tflaggers.add(user)
                 if top.tflaggers.count() > 10 or user.is_staff:
                     top.needs_review = True
+                    prof = Profile.user.objects.get(user=top.user)
+                    prof.rate=10
+                    prof.save()
                 top.save()
                 message="Topic flagged"
         else:
@@ -224,7 +227,7 @@ def submit(request):
     # a topic that has it, redirect to that topic
     try:
         topic = Topic.objects.get(url=request.GET['url'])
-        return HttpResponseRedirect(''.join(["/", str(topic.id), "/"]))
+        return HttpResponseRedirect("/" + str(topic.id) + "/")
     except (MultiValueDictKeyError, Topic.DoesNotExist):
         pass
 
@@ -234,6 +237,10 @@ def submit(request):
             data = request.POST.copy()
             form = tcdTopicSubmitForm(data)
             if form.is_valid():
+                cutoff = datetime.datetime(month=3, day=18, year=2010)
+                if request.user.date_joined > cutoff:
+                    request.user.message_set.create(message="Topic submission temporarily disabled for new users")
+                    return HttpResponseRedirect('/')
                 try:
                     topic = Topic.objects.get(url=form.cleaned_data['url'])
                     return HttpResponseRedirect(''.join(["/", str(topic.id), "/"]))
@@ -515,7 +522,7 @@ def challenge(request, c_id):
         form = ArgueForm(request.POST)
         c = get_object_or_404(TopicComment, pk=c_id)
         defendant = c.user
-        redirect = ''.join(['/', str(c.ntopic.id), '/']) 
+        redirect = '/' + str(c.ntopic.id) + '/'
         if form.is_valid():
             if not request.user.is_authenticated():
                 request.user.message_set.create(message="Log in to start an argument")
@@ -537,9 +544,7 @@ def challenge(request, c_id):
                               'user': request.user,
                               'ntopic': c.ntopic,
                               'debate': arg}
-                              # 'parent_id': form.cleaned_data['parent_id'],
-                              # 'nesting': 40,
-                              # 'arg_proper': True}
+
                     opener = ArgComment(**params)
                     opener.save()
                     arg.save()
