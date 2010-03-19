@@ -78,6 +78,11 @@ def add(request, topic_id):
     if ratemsg:
         request.user.message_set.create(message=ratemsg)
         return HttpResponseRedirect(redirect_to)    
+    
+    cutoff = datetime.datetime(month=3, day=18, year=2010)
+    if request.user.date_joined > cutoff:
+        request.user.message_set.create(message="temporarily disabled for new users")
+        return HttpResponseRedirect('/')
 
     # Save the comment
     top = get_object_or_404(Topic, pk=topic_id)
