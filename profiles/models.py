@@ -27,6 +27,10 @@ class Profile(models.Model):
     # Always follow user's own topics or comments?
     followtops = models.BooleanField(default=False)
     followcoms = models.BooleanField(default=False)
+
+    # New user still in probationary period, 
+    # topics and comments need review
+    probation = models.BooleanField(default=True)
     
     def __unicode__(self):
         return self.user.username

@@ -73,6 +73,7 @@ class Comment(models.Model):
                                        related_name="cflaggers",
                                        blank=True)
     needs_review = models.BooleanField(default=False)
+    spam = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'comment'

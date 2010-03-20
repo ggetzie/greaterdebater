@@ -79,16 +79,12 @@ def add(request, topic_id):
         request.user.message_set.create(message=ratemsg)
         return HttpResponseRedirect(redirect_to)    
     
-    cutoff = datetime.datetime(month=3, day=18, year=2010)
-    if request.user.date_joined > cutoff:
-        request.user.message_set.create(message="temporarily disabled for new users")
-        return HttpResponseRedirect('/')
-
     # Save the comment
     top = get_object_or_404(Topic, pk=topic_id)
     params = {'comment': form.cleaned_data['comment'],
               'user': request.user,
-              'ntopic': top}
+              'ntopic': top,
+              'needs_review': prof.probation}
     if form.cleaned_data['toplevel'] == 1:
         params['nparent_id'] = 0
         params['nnesting'] = 10
@@ -97,9 +93,15 @@ def add(request, topic_id):
         params['nnesting'] = form.cleaned_data['nesting'] + 40
     c = TopicComment(**params)
     c.save()
-    if prof.followcoms: c.followers.add(request.user)
-    c.save()
+    
+    if prof.probation:
+        request.user.message_set.create(message="Thank you. Your comment will appear after a brief review.")
 
+    if prof.followcoms: 
+        c.followers.add(request.user)
+        c.save()
+
+    # alert topic or comment followers of a new reply
     if c.nparent_id == 0:
         followers = top.followers.all()
     else:
@@ -123,7 +125,7 @@ def add(request, topic_id):
     return HttpResponseRedirect(redirect_to)    
                     
 def edit(request, topic_id):
-    redirect_to = ''.join(['/', topic_id, '/'])
+    redirect_to = '/' + topic_id + '/'
     if not request.user.is_authenticated():
         return HttpResponseRedirect(redirect_to)
     
@@ -283,6 +285,11 @@ def flag(request):
                     top.comment_length -= len(com.comment)
                     top.recalculate()
                     top.save()
+                    
+                    # disable this user
+                    prof = Profile.objects.get(user=com.user)
+                    prof.rate=10
+                    prof.save()
                 com.save()
                 message="Comment flagged"
         else:

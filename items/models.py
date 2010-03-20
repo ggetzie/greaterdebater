@@ -22,6 +22,7 @@ class Topic(models.Model):
                                        related_name='tflaggers_set',
                                        blank=True)
     needs_review = models.BooleanField(default=False)
+    spam = models.BooleanField(default=False)
     tags = models.TextField(blank=True)
 
     followers = models.ManyToManyField(User,

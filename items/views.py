@@ -38,7 +38,8 @@ def comments(request, topic_id, page=1):
     has_next = True
     top = get_object_or_404(Topic, pk=topic_id)
     comments = top.topiccomment_set.filter(first=False,
-                                           needs_review=False)
+                                           needs_review=False,
+                                           spam=False)
     rest_c = build_list(comments.order_by('-pub_date'), 0)
     form_comment = CommentForm()
 
@@ -99,13 +100,13 @@ def topics(request, page=1, sort="hot"):
         newwin = prof.newwin
     else:
         newwin = False
-
+    queryset = Topic.objects.filter(needs_review=False, spam=False)
     if sort == "new":
-        queryset = Topic.objects.filter(needs_review=False).order_by('-sub_date')
+        queryset = queryset.order_by('-sub_date')
         pager = "new" 
         ttype = "Newest"
     else:
-        queryset = Topic.objects.filter(needs_review=False).order_by('-score', '-sub_date')
+        queryset = queryset.order_by('-score', '-sub_date')
         pager = "hot" 
         ttype = "Most Active"
     
@@ -123,18 +124,9 @@ def topics(request, page=1, sort="hot"):
 def front_page(request):
     """Display the home page of GreaterDebater.com, show five hottest arguments and ten hottest topics"""
     args = Debate.objects.filter(status__range=(1,2))[:5]
-    topics = Topic.objects.filter(needs_review=False).order_by('-score', '-sub_date')[:10]
+    topics = Topic.objects.filter(needs_review=False, spam=False).order_by('-score', '-sub_date')[:10]
 
     if request.user.is_authenticated():
-#         msgs = tcdMessage.objects.filter(recipient=request.user, is_read=False)
-#         if msgs:
-#             if len(msgs) > 1: 
-#                 plural='s' 
-#             else: 
-#                 plural =''
-#             tcd_message=''.join(["<a href='/users/u/", request.user.username,
-#                                  "/messages/'>", str(len(msgs)),
-#                                  " new message", plural, "</a>"])
         prof = get_object_or_404(Profile, user=request.user)
         newwin = prof.newwin
     else:
@@ -231,94 +223,7 @@ def submit(request):
     except (MultiValueDictKeyError, Topic.DoesNotExist):
         pass
 
-    if request.user.is_authenticated():
-        user = request.user.username
-        if request.method == 'POST':
-            data = request.POST.copy()
-            form = tcdTopicSubmitForm(data)
-            if form.is_valid():
-                cutoff = datetime.datetime(month=3, day=18, year=2010)
-                if request.user.date_joined > cutoff:
-                    request.user.message_set.create(message="Topic submission temporarily disabled for new users")
-                    return HttpResponseRedirect('/')
-                try:
-                    topic = Topic.objects.get(url=form.cleaned_data['url'])
-                    return HttpResponseRedirect(''.join(["/", str(topic.id), "/"]))
-                except ObjectDoesNotExist:
-                    prof = get_object_or_404(Profile, user=request.user)
-                    ratemsg = prof.check_rate()
-                    if ratemsg:
-                        request.user.message_set.create(message=ratemsg)
-                        return HttpResponseRedirect(request.path)
-                    else:
-
-                        topic = Topic(user=request.user,
-                                      title=form.cleaned_data['title'],
-                                      score=1,
-                                      sub_date=datetime.datetime.now(),
-                                      comment_length=0,
-                                      last_calc=datetime.datetime.now()
-                                      )
-                        topic.save()
-                        
-                        next = ''.join(["/", str(topic.id), "/"])
-                        if data['url']:
-                            topic.url = form.cleaned_data['url']
-                        else:
-                            topic.url = ''.join([HOSTNAME, '/', str(topic.id), '/'])
-
-                        dtags = form.cleaned_data['tags']
-                        if dtags:
-                            # create the count of all tags for the topic
-                            tags = '\n'.join([dtags, ','.join(['1']*(dtags.count(',')+1))])
-                            topic.tags = tags
-
-                            # create a Tags object to indicate the submitter
-                            # added these tags to this topic                        
-                            utags = Tags(user=request.user, topic=topic, tags=dtags)
-                            utags.save()
-
-                            # update the count of all tags used by the submitter
-                            prof = Profile.objects.get(user=request.user)
-                            prof.tags = update_tags(prof.tags, dtags.split(','))
-                            prof.save()
-
-                        topic.save()
-
-                        prof.last_post = topic.sub_date
-                        prof.save()
-
-                        if prof.followtops:
-                            topic.followers.add(request.user)
-                            topic.save()
-
-                        if form.cleaned_data['comment']:
-                            comment = TopicComment(user=request.user,
-                                                   ntopic=topic,
-                                                   pub_date=datetime.datetime.now(),
-                                                   comment=form.cleaned_data['comment'],
-                                                   first=True,
-                                                   nparent_id=0,
-                                                   nnesting=0)
-                            comment.save()
-
-                            topic.comment_length += len(comment.comment)
-                            topic.recalculate()
-                            topic.save()
-                        return HttpResponseRedirect(next)
-        else:
-            try:
-                form = tcdTopicSubmitForm(initial={'title':request.GET['title'],
-                                                   'url':request.GET['url']})
-            except MultiValueDictKeyError:
-                form = tcdTopicSubmitForm()
-                
-
-        return render_to_response("items/submit.html",
-                                  {'form': form},
-                                  context_instance=RequestContext(request))
-
-    else:        
+    if not request.user.is_authenticated():
         
         try:
             # If the user has not logged in but is trying to submit with the bookmarklet
@@ -335,6 +240,94 @@ def submit(request):
                                    'form': tcdLoginForm(),
                                    'rform': tcdUserCreationForm()},
                                   context_instance=RequestContext(request))
+
+    user = request.user.username
+    if request.method == 'POST':
+        data = request.POST.copy()
+        form = tcdTopicSubmitForm(data)
+        if form.is_valid():
+            try:
+                topic = Topic.objects.get(url=form.cleaned_data['url'])
+                return HttpResponseRedirect("/" + str(topic.id) + "/")
+            except ObjectDoesNotExist:
+                # Make sure the user is not submitting too fast
+                prof = get_object_or_404(Profile, user=request.user)
+                ratemsg = prof.check_rate()
+                if ratemsg:
+                    request.user.message_set.create(message=ratemsg)
+                    return HttpResponseRedirect(request.path)
+
+                topic = Topic(user=request.user,
+                              title=form.cleaned_data['title'],
+                              score=1,
+                              sub_date=datetime.datetime.now(),
+                              comment_length=0,
+                              last_calc=datetime.datetime.now(),
+                              needs_review=prof.probation
+                              )
+                topic.save()
+
+                if prof.probation:
+                    next = '/'
+                    request.user.message_set.create(message="Thank you! Your topic will appear after a brief review.")
+                else:
+                    next = "/" + str(topic.id) + "/"
+
+                if data['url']:
+                    topic.url = form.cleaned_data['url']
+                else:
+                    topic.url = HOSTNAME + '/' + str(topic.id) + '/'
+
+                dtags = form.cleaned_data['tags']
+                if dtags:
+                    # create the count of all tags for the topic
+                    tags = '\n'.join([dtags, ','.join(['1']*(dtags.count(',')+1))])
+                    topic.tags = tags
+
+                    # create a Tags object to indicate the submitter
+                    # added these tags to this topic                        
+                    utags = Tags(user=request.user, topic=topic, tags=dtags)
+                    utags.save()
+
+                    # update the count of all tags used by the submitter
+                    prof = Profile.objects.get(user=request.user)
+                    prof.tags = update_tags(prof.tags, dtags.split(','))
+                    prof.save()
+
+                topic.save()
+
+                prof.last_post = topic.sub_date
+                prof.save()
+
+                if prof.followtops:
+                    topic.followers.add(request.user)
+                    topic.save()
+
+                if form.cleaned_data['comment']:
+                    comment = TopicComment(user=request.user,
+                                           ntopic=topic,
+                                           pub_date=datetime.datetime.now(),
+                                           comment=form.cleaned_data['comment'],
+                                           first=True,
+                                           nparent_id=0,
+                                           nnesting=0)
+                    comment.save()
+
+                    topic.comment_length += len(comment.comment)
+                    topic.recalculate()
+                    topic.save()
+                return HttpResponseRedirect(next)
+    else:
+        try:
+            form = tcdTopicSubmitForm(initial={'title':request.GET['title'],
+                                               'url':request.GET['url']})
+        except MultiValueDictKeyError:
+            form = tcdTopicSubmitForm()
+
+
+    return render_to_response("items/submit.html",
+                              {'form': form},
+                              context_instance=RequestContext(request))
 
 def edit_topic(request, topic_id, page):
     """Allow the submitter of a topic to edit its title or url"""
