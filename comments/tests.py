@@ -14,7 +14,6 @@ class ViewTest(TestCase):
 
     def setUp(self):
         testsetup()
-        pass
 
     def confirm(self, response, msglist):
         for msg in msglist:
@@ -154,6 +153,15 @@ class ViewTest(TestCase):
                                           'toplevel': 1}, follow=True)
         self.assertRedirects(response, redirect2)
         self.assertContains(response, "Oops! A problem occurred.")
+
+        # User on probation
+        prob = Profile.objects.filter(probation=True)[0]
+        self.client.login(username=prob.user.username, password='password')
+        response = self.client.post(url, {'comment': "some kind of crap",
+                                          'toplevel': 1}, follow=True)
+        self.assertRedirects(response, redirect2)
+        self.assertContains(response, "Thank you. Your comment will appear after a brief review.")
+        self.assertNotContains(response, "some kind of crap")
         
     def test_edit(self):
         

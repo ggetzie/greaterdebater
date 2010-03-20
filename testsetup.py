@@ -16,8 +16,13 @@ def testsetup():
         username="user"+str(i)
         u, p = create_user(username=username, password="password",
                            email=username+"@test.com")
+        if i < 8: 
+            p.probation = False
+            p.save()
         users.append(u)
         profiles.append(p)
+        
+    
 
     # Create some topics
     topic1 = create_topic(users[0], "Topic 1", "tag1", comment="First topic outside link",
@@ -107,7 +112,7 @@ def testsetup():
                       incite=com1,
                       title="Debate - Defendent wins",
                       start_date=datetime.datetime.now(),
-                      end_date=datetime.datetime.now()
+                      end_date=datetime.datetime.now(),
                       topic=com1.ntopic)
     deb_dwin.save()
     deb_dwin_com1 = ArgComment(user=deb_dwin.plaintiff,
@@ -131,7 +136,7 @@ def testsetup():
                       incite=com1,
                       title="Debate - Plaintiff wins",
                       start_date=datetime.datetime.now(),
-                      end_date=datetime.datetime.now()
+                      end_date=datetime.datetime.now(),
                       topic=com1.ntopic)
     deb_pwin.save()
     deb_pwin_com1 = ArgComment(user=deb_pwin.plaintiff,
@@ -157,17 +162,17 @@ def testsetup():
     
     deb_pwin_vote1 = nVote(argument=deb_pwin,
                            voter=users[1],
-                           voted_for=deb_pwin.plaintiff)
+                           voted_for='P')
     deb_pwin_vote1.save()
 
     deb_pwin_vote2 = nVote(argument=deb_pwin,
                            voter=users[2],
-                           voted_for=deb_pwin.plaintiff)
+                           voted_for='P')
     deb_pwin_vote2.save()
 
     deb_pwin_vote3 = nVote(argument=deb_pwin,
                            voter=users[3],
-                           voted_for=deb_pwin.defendant)
+                           voted_for='D')
     deb_pwin_vote3.save()
 
     # Debate ends in a draw, status = 5
@@ -177,7 +182,7 @@ def testsetup():
                       incite=com1,
                       title="Debate - Draw",
                       start_date=datetime.datetime.now(),
-                      end_date=datetime.datetime.now()
+                      end_date=datetime.datetime.now(),
                       topic=com1.ntopic)
     deb_draw.save()
     deb_draw_com1 = ArgComment(user=deb_draw.plaintiff,
