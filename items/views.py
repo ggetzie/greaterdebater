@@ -14,7 +14,7 @@ from tcd.comments.models import TopicComment, ArgComment, nVote, Debate, tcdMess
 from tcd.comments.utils import build_list
 
 from tcd.items.forms import tcdTopicSubmitForm, Ballot, Flag, Concession, Response, TagEdit, \
-    TagRemove
+    TagRemove, DecideForm
 from tcd.items.models import Topic, Tags
 
 from tcd.profiles.forms import tcdLoginForm, tcdUserCreationForm
@@ -22,13 +22,16 @@ from tcd.profiles.models import Profile
 
 from tcd.settings import HOSTNAME
 
-from tcd.utils import calc_start, tag_dict, tag_string, update_tags
+from tcd.utils import calc_start, tag_dict, tag_string, update_tags, render_to_AJAX, render_message
 
 
 import datetime
 import random
 import pyfo
 import urllib
+
+models={'comment': TopicComment,
+        'topic':  Topic}
 
 def comments(request, topic_id, page=1):
     """The view for topic_detail.html 
@@ -1046,8 +1049,7 @@ def review(request, model, page=1):
     if not (request.user.is_authenticated() and request.user.is_staff):
         return HttpResponseForbidden("<h1>Unauthorized</h1>")
 
-    models={'comments': TopicComment,
-            'topics':  Topic}
+    paginate_by=50
 
     item=models[model]
 
@@ -1055,13 +1057,49 @@ def review(request, model, page=1):
                                   spam=False)
     prof = get_object_or_404(Profile, user=request.user)
     return list_detail.object_list(request=request, queryset=queryset,
-                                   paginate_by=50, page=page,
+                                   paginate_by=paginate_by, page=page,
                                    template_object_name = model,
                                    template_name="items/review_" + model +".html",
-                                   extra_context={'newwin': prof.newwin})
+                                   extra_context={'newwin': prof.newwin,
+                                                  'start': calc_start(page, paginate_by, queryset.count())})
 
-                                   
+def decide(request, model):
+    if not (request.user.is_authenticated() and request.user.is_staff):
+        return render_to_AJAX(status="alert", messages=["Unauthorized"])
+    
+    if not request.POST:
+        return render_to_AJAX(status="alert", messages=["Not a POST"])
+    
+    form = DecideForm(request.POST)
+    if not form.is_valid():
+        return render_to_AJAX(status="alert", messages=["Invalid Form"])
+    
+    item = models[model]
+    try:
+        object = item.objects.get(id=form.cleaned_data['id'], needs_review=True)
+    except item.DoesNotExist:
+        return render_to_AJAX(status="alert", messages=["Object not found"])
 
+    if form.cleaned_data['decision'] == 0:
+        object.needs_review = False
+        object.save()
+        message = render_message(model + " approved", 10)
+    else:
+        # 'decision' == 1, other values will cause an invalid form
+        object.spam = True
+        object.save()
+        prof = Profile.objects.get(user=object.user)
+        prof.rate = 10
+        prof.save()
+        message = render_message(model + " marked as spam. User disabled.", 10)
+
+    return render_to_AJAX(status="ok", messages=[message])
+    
+        
+        
+        
+        
+    
 def object_list_field(request, model, field, value, sort=None, paginate_by=None, page=None,
                       fv_dict=None, allow_empty=True, template_name=None, 
                       template_loader=loader, extra_context=None, context_processors=None,

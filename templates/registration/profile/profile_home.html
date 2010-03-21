@@ -1,5 +1,12 @@
 {% extends "registration/profile/profile_base.html" %}
 
 {% block content %}
+
 Score: {{ user_info.score }}
+
+{% if user.is_staff and username == request.user %}
+<p>
+  <a href="/review/topic/">Review</a>
+</p>
+{% endif %}
 {% endblock %}

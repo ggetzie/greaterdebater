@@ -11,7 +11,7 @@ class TopicCommentAdmin(admin.ModelAdmin):
     
     fieldsets = [
         (None,            {'fields': ['user', 'pub_date', 'ntopic', 'first']}),
-        ('Flag Info',     {'fields': ['cflaggers', 'needs_review']}),
+        ('Flag Info',     {'fields': ['cflaggers', 'needs_review', 'spam']}),
         ('Text',          {'fields': ['comment', 'comment_html', 'nparent_id', 'nnesting', 'removed']}),
         ]
         

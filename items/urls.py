@@ -40,4 +40,12 @@ urlpatterns = patterns('',
                        # Urls associated with arguments
                        (r'^argue/', include('tcd.items.argue_urls')),
 
+                       # Review topics or comments that might be spam
+                       (r'^review/(?P<model>(topic|comment))/?$', 'items.views.review'),
+                       (r'^review/(?P<model>(topic|comment))/(?P<page>\d+)/?$', 'items.views.review'),
+
+                       # Decide whether a topic is spam
+                       (r'^decide/(?P<model>(topic|comment))/?$', 'items.views.decide'),
+
+
                        )

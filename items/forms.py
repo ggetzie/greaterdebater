@@ -89,3 +89,7 @@ class Response(forms.Form):
     response = forms.TypedChoiceField(widget=forms.widgets.HiddenInput(), 
                                       choices=[(0, 'accept'), (1, 'decline')],
                                       coerce=int)
+
+class DecideForm(forms.Form):
+    id = forms.IntegerField()
+    decision = forms.TypedChoiceField(choices=[(0, 'approve'), (1, 'spam')], coerce=int)

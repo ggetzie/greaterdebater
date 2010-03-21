@@ -5,7 +5,7 @@ from tcd.items.models import Topic, Tags
 class TopicAdmin(admin.ModelAdmin):
     fieldsets = [
         (None,        {'fields': ['user', 'sub_date', 'title', 'url']}),
-        ('Flag Info', {'fields': ['tflaggers', 'needs_review']}),
+        ('Flag Info', {'fields': ['tflaggers', 'needs_review', 'spam']}),
         ('Scoring',   {'fields': ['score', 'comment_length', 'last_calc']}),
         (None,        {'fields': ['tags']})
         ]

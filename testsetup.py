@@ -21,8 +21,9 @@ def testsetup():
             p.save()
         users.append(u)
         profiles.append(p)
-        
-    
+
+    users[0].is_staff=True
+    users[0].save()
 
     # Create some topics
     topic1 = create_topic(users[0], "Topic 1", "tag1", comment="First topic outside link",
@@ -30,6 +31,8 @@ def testsetup():
     topic2 = create_topic(users[1], "Topic 2", "tag2", comment="Second topic self link")
     topic3 = create_topic(users[2], "Topic 3", "tag3") # No first comment
     topic4 = create_topic(users[3], "Topic 4") # No first comment, no tags
+    topic5 = create_topic(users[8], "Topic 5") # user on probation
+    topic6 = create_topic(users[9], "Topic 6") # user on probation
 
     # Comment on some topics
     # Topic 2
@@ -41,6 +44,8 @@ def testsetup():
     com2 = create_tcomment(users[1], topic2, txt="Comment 2", parent=com1)
     com3 = create_tcomment(users[2], topic2, txt="Comment 3", parent=com1)
     com4 = create_tcomment(users[0], topic2, txt="Comment 4", parent=com2)
+    com5 = create_tcomment(users[8], topic1, txt="Comment 5") # user on probation
+    com6 = create_tcomment(users[9], topic1, txt="Comment 6") # user on probation
 
     # Follow a topic and a comment
     com1.followers.add(users[0])
@@ -223,7 +228,8 @@ def create_topic(user, title, tags='', url='', comment=''):
                   score=1,
                   sub_date=datetime.datetime.now(),
                   comment_length=0,
-                  last_calc=datetime.datetime.now())
+                  last_calc=datetime.datetime.now(),
+                  needs_review=prof.probation)
     topic.save()
 
     if url:
@@ -270,9 +276,12 @@ def create_topic(user, title, tags='', url='', comment=''):
 
 def create_tcomment(user, top, txt, parent=None):
 
+    prof = Profile.objects.get(user=user)
+
     params = {'comment': txt,
               'user': user,
-              'ntopic': top}
+              'ntopic': top,
+              'needs_review': prof.probation}
 
     if parent:
         params['nparent_id'] = parent.id
@@ -288,7 +297,7 @@ def create_tcomment(user, top, txt, parent=None):
     top.recalculate()
     top.save()
 
-    prof = Profile.objects.get(user=user)
+
     prof.last_post = c.pub_date
     prof.save()
 
