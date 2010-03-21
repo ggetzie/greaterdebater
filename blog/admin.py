@@ -21,12 +21,12 @@ admin.site.register(Post, PostAdmin)
 class PostCommentAdmin(admin.ModelAdmin):
     fieldsets = [
         (None,        {'fields': ['user', 'pub_date', 'post', 'blog']}),
-        ('Flag Info', {'fields': ['cflaggers', 'needs_review']}),
+        ('Flag Info', {'fields': ['cflaggers', 'needs_review', 'spam']}),
         ('Text',      {'fields': ['comment', 'comment_html', 'nparent_id', 'nnesting']})
         ]
 
     list_display = ('user', 'comment', 'post', 'blog')
-    list_filter = ('pub_date', 'needs_review')
+    list_filter = ('pub_date', 'needs_review', 'spam')
 
 admin.site.register(PostComment, PostCommentAdmin)
 

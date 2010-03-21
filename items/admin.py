@@ -11,7 +11,7 @@ class TopicAdmin(admin.ModelAdmin):
         ]
 
     list_display = ('sub_date', 'title')
-    list_filter = ('sub_date', 'needs_review', 'user')
+    list_filter = ('sub_date', 'needs_review', 'spam', 'user')
          
 
 admin.site.register(Topic, TopicAdmin)

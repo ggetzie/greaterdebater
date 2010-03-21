@@ -18,7 +18,7 @@ class TopicCommentAdmin(admin.ModelAdmin):
         
 
     list_display = ('user', 'pub_date', 'comment')
-    list_filter = ['pub_date', 'needs_review', 'first', 'removed']
+    list_filter = ['pub_date', 'needs_review', 'spam', 'first', 'removed']
 
 
 admin.site.register(TopicComment, TopicCommentAdmin)
