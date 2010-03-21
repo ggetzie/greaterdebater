@@ -26,7 +26,8 @@ def post_detail(request, username, id):
     # show a single post
     blog = get_object_or_404(Blog, author__username=username)
     post = get_object_or_404(Post, id=id)
-    comments = post.postcomment_set.order_by('-pub_date')
+    comments = post.postcomment_set.filter(needs_review=False,
+                                           spam=False).order_by('-pub_date')
     
     return render_to_response('blogtemplates/post_detail.html',
                               {'post': post,
@@ -41,35 +42,41 @@ def post_detail(request, username, id):
 def addcomment(request, username):
     blog = get_object_or_404(Blog, author__username=username)
     redirect_to = blog.get_absolute_url()
-    if request.POST:
-        form = PostCommentForm(request.POST)
-        post = get_object_or_404(Post, id=request.POST['post_id'])
-        redirect_to = ''.join([blog.get_absolute_url(), 'post/', str(post.id)])
-        if form.is_valid():
-            if request.user.is_authenticated():
-                prof = get_object_or_404(Profile, user=request.user)
-                ratemsg = prof.check_rate()
-                if ratemsg:
-                    request.user.message_set.create(message=ratemsg)
-                else:
-                    comment = PostComment(blog=blog,
-                                          post=post,
-                                          user=request.user,
-                                          comment=form.cleaned_data['comment'])
-                    comment.save()
 
-                    prof.last_post = comment.pub_date
-                    prof.save()
-            else:
-                request.user.message_set.create(message="Please log in to post a comment")
-                redirect_to = ''.join(['/login?next=', blog.get_absolute_url(), 'post/', str(post.id)])
-        else:
-            message = "<p>Oops! A problem occurred.</p>"
-            request.user.message_set.create(message=message+str(form.errors))
-    else:
+    if not request.user.is_authenticated():
+        redirect_to = '/login?next=' + blog.get_absolute_url() + 'post/' +  str(post.id) + '/'
+        return HttpResponseRedirect(redirect_to)
+
+    if not request.POST:
         request.user.message_set.create(message="Not a POST")
+        return HttpResponseRedirect(redirect_to)
+
+    prof = get_object_or_404(Profile, user=request.user)
+    form = PostCommentForm(request.POST)
+    post = get_object_or_404(Post, id=request.POST['post_id'])
+    redirect_to = ''.join([blog.get_absolute_url(), 'post/', str(post.id)])
+    if not form.is_valid():
+        message = "<p>Oops! A problem occurred.</p>"
+        request.user.message_set.create(message=message+str(form.errors))
+        return HttpResponseRedirect(redirect_to)
+           
+    ratemsg = prof.check_rate()
+    if ratemsg:
+        request.user.message_set.create(message=ratemsg)
+        return HttpResponseRedirect(redirect_to)
+
+    comment = PostComment(blog=blog,
+                          post=post,
+                          user=request.user,
+                          comment=form.cleaned_data['comment'],
+                          needs_review=prof.probation)
+    comment.save()
+
+    prof.last_post = comment.pub_date
+    prof.save()
+    if prof.probation:
+        request.user.message_set.create(message="Thank you! Your comment will appear after a brief review.")
     return HttpResponseRedirect(redirect_to)
-    
 
 def archive(request, username, page=1):
     paginate_by = 15

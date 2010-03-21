@@ -1041,6 +1041,25 @@ def args_list(request, sort, page=1):
                                    template_object_name = 'args',
                                    template_name = template_name,
                                    extra_context=extra_context)
+
+def review(request, model, page=1):
+    if not (request.user.is_authenticated() and request.user.is_staff):
+        return HttpResponseForbidden("<h1>Unauthorized</h1>")
+
+    models={'comments': TopicComment,
+            'topics':  Topic}
+
+    item=models[model]
+
+    queryset = item.objects.filter(needs_review=True,
+                                  spam=False)
+    prof = get_object_or_404(Profile, user=request.user)
+    return list_detail.object_list(request=request, queryset=queryset,
+                                   paginate_by=50, page=page,
+                                   template_object_name = model,
+                                   template_name="items/review_" + model +".html",
+                                   extra_context={'newwin': prof.newwin})
+
                                    
 
 def object_list_field(request, model, field, value, sort=None, paginate_by=None, page=None,

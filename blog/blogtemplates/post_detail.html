@@ -56,7 +56,7 @@
   {% if comments %}
   {% for comment in comments %}
   <div class="comment">
-    <span class="comment_info">by {{ comment.user.username }} | {{ comment.pub_date|date }}</span>
+    <span class="comment_info">by {{ comment.user.username }} at {{ comment.pub_date|date }}</span>
     {{ comment.comment_html|safe }}
   </div>
   {% endfor %}
