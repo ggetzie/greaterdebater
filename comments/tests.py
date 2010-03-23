@@ -156,6 +156,7 @@ class ViewTest(TestCase):
 
         # User on probation
         prob = Profile.objects.filter(probation=True)[0]
+        reset_postlimit(prob)
         self.client.login(username=prob.user.username, password='password')
         response = self.client.post(url, {'comment': "some kind of crap",
                                           'toplevel': 1}, follow=True)
