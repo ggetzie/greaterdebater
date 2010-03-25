@@ -156,7 +156,7 @@ def tflag(request):
                 top.tflaggers.add(user)
                 if top.tflaggers.count() > 10 or user.is_staff:
                     top.needs_review = True
-                    prof = Profile.user.objects.get(user=top.user)
+                    prof = Profile.objects.get(user=top.user)
                     prof.rate=10
                     prof.save()
                 top.save()

@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 
 from items.models import Topic
-from comments.models import TopicComment
+from comments.models import TopicComment, Debate
 from profiles.models import Profile
 
 from testsetup import testsetup
@@ -245,3 +245,97 @@ class ViewTest(TestCase):
         com = TopicComment.objects.filter(first=False, needs_review=False, removed=True)[0]
         response = self.client.post(url, {'comment_id': com2.id})
         self.assertContains(response, "<status>ok</status>")
+
+    def test_comment_detail(self):
+        topcom = TopicComment.objects.filter(first=False, 
+                                             needs_review=False, 
+                                             spam=False,
+                                             nparent_id=0)[0]
+
+        childcom = TopicComment.objects.filter(first=False, 
+                                             needs_review=False, 
+                                             spam=False,
+                                             nparent_id__gt=0)[0]
+
+        parentcom = TopicComment.objects.get(id=childcom.nparent_id)
+        
+        topurl = '/comments/' + str(topcom.id) + '/'
+        contexturl = '/comments/' + str(childcom.id) + '/?context=1'
+
+        # Test without context
+        response = self.client.get(topurl)
+        self.assertContains(response, "You are viewing a single comment's thread")
+        self.assertContains(response, topcom.comment_html)
+
+        # Test with context
+        response = self.client.get(contexturl)
+        self.assertContains(response, "You are viewing a single comment's thread")
+        self.assertContains(response, childcom.comment_html)
+        self.assertContains(response, parentcom.comment_html)
+
+
+        user = User.objects.all()[0]
+        self.client.login(username=user.username, password='password')
+
+        # Test without context logged in
+        response = self.client.get(topurl)
+        self.assertContains(response, "You are viewing a single comment's thread")
+        self.assertContains(response, topcom.comment_html)
+
+        # Test with context logged in
+        response = self.client.get(contexturl)
+        self.assertContains(response, "You are viewing a single comment's thread")
+        self.assertContains(response, childcom.comment_html)
+        self.assertContains(response, parentcom.comment_html)
+
+    def test_arguments(self):
+        deb = Debate.objects.filter(status__range=(1,5))[0]
+        url = '/comments/' + str(deb.incite.id) + '/arguments/'
+
+        response = self.client.get(url)
+        self.assertContains(response, deb.title)
+        self.assertContains(response, deb.incite.comment_html)
+        
+    def test_flag(self):
+        url = '/comments/flag/'
+        staffuser = User.objects.filter(is_staff=True)[0]
+        reguser = User.objects.filter(is_staff=False)[0]
+        com = TopicComment.objects.filter(needs_review=False,
+                                          spam=False,
+                                          first=False).exclude(user__id__in=[staffuser.id, reguser.id])[0]
+        #User not logged in
+        response = self.client.post(url, {'object_id': com.id})
+        self.assertContains(response, "Not logged in")
+        
+        
+        self.client.login(username=reguser.username, password='password')
+        
+        # Get request
+        response = self.client.get(url)
+        self.assertContains(response, "Not a POST")
+        
+        # invalid form
+        response = self.client.post(url, {'object_id': ''})
+        self.assertContains(response, "Invalid Form")
+
+        # bad id
+        response = self.client.post(url, {'object_id': 99999})
+        self.assertContains(response, "Object not found")
+
+        # valid flag from nonstaff user
+        response = self.client.post(url, {'object_id': com.id})
+        self.assertContains(response, "Comment flagged")
+
+        checkcom = TopicComment.objects.get(id=com.id)
+        self.assertTrue(reguser in checkcom.cflaggers.all())
+
+        # valid flag from staff user
+        self.client.login(username=staffuser.username, password='password')
+        response = self.client.post(url, {'object_id': com.id})
+        self.assertContains(response, "Comment flagged")
+
+        checkcom = TopicComment.objects.get(id=com.id)
+        self.assertTrue(staffuser in  checkcom.cflaggers.all())
+                            
+        prof = Profile.objects.get(user=checkcom.user)
+        self.assertEqual(prof.rate, 10)

@@ -32,10 +32,10 @@ from forms import CommentForm, DeleteForm, FollowForm
 from models import ArgComment, TopicComment, Debate, fcomMessage
 from utils import build_list
 
-from tcd.items.models import Topic
-from tcd.items.forms import Flag
+from items.models import Topic
+from items.forms import Flag
 
-from tcd.profiles.models import Profile
+from profiles.models import Profile
 
 from tcd.utils import calc_start, render_to_AJAX, render_message
 
@@ -268,42 +268,51 @@ def arguments(request, comment_id, page=1):
                                    template_object_name="args")
                                     
 def flag(request):
-    if request.POST:
-        form = Flag(request.POST)
-        if form.is_valid():
-            com = TopicComment.objects.get(pk=form.cleaned_data['object_id'])
-            user = request.user
-            if user in com.cflaggers.all():
-                message="You've already flagged this comment"
-            else:
-                com.cflaggers.add(user)
-                if com.cflaggers.count() > 10 or user.is_staff:
-                    com.needs_review = True
-                    # remove this comment's length from the score
-                    # for this topic
-                    top = com.topic
-                    top.comment_length -= len(com.comment)
-                    top.recalculate()
-                    top.save()
-                    
-                    # disable this user
-                    prof = Profile.objects.get(user=com.user)
-                    prof.rate=10
-                    prof.save()
-                com.save()
-                message="Comment flagged"
-        else:
-            message = "Invalid Form"
-    else:
-        message = "Not a Post"
+    if not request.user.is_authenticated():
+        message = render_message("Not logged in", 10)
+        return render_to_AJAX(status="error",
+                              messages=[message])
+    
+    if not request.POST:
+        message = render_message("Not a POST", 10)
+        return render_to_AJAX(status="error",
+                              messages=[message])
 
-    t = loader.get_template('items/msg_div.html')
-    c = Context({'id': com.id,
-                 'message': message,
-                 'nesting': com.nesting})
-    response = ('response', [('message', t.render(c))])
-    response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')    
-    return HttpResponse(response)
+    form = Flag(request.POST)
+    if not form.is_valid():
+        message = render_message("Invalid Form", 10)
+        return render_to_AJAX(status="error",
+                              messages=[message])
+        
+    try:
+        com = TopicComment.objects.get(pk=form.cleaned_data['object_id'])
+    except TopicComment.DoesNotExist:
+        message = render_message("Object not found", 10)
+        return render_to_AJAX(status="alert",
+                              messages=[message])
+    user = request.user
+    if user in com.cflaggers.all():
+        message="You've already flagged this comment"
+    else:
+        com.cflaggers.add(user)
+        if com.cflaggers.count() > 10 or user.is_staff:
+            com.needs_review = True
+            # remove this comment's length from the score
+            # for this topic
+            top = com.ntopic
+            top.comment_length -= len(com.comment)
+            top.recalculate()
+            top.save()
+
+            # disable this user
+            prof = Profile.objects.get(user=com.user)
+            prof.rate=10
+            prof.save()
+        com.save()
+        message="Comment flagged"
+
+    return render_to_AJAX(status="ok",
+                          messages=[render_message(message, com.nnesting)])
 
 def toggle_follow(request):
     status = "error"

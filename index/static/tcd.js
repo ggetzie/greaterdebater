@@ -239,8 +239,12 @@ function flag_topic(topic_id, user_id) {
 function flag_comment(comment_id, user_id) {
     $.post("/comments/flag/", {object_id: comment_id},
 	   function(xml){
-	       msg = $("message",xml).text();
-	       $("#comment_div" + comment_id).after(msg);
+	       if ($("status",xml).text() == 'alert') {
+		   alert( $("message",xml).text());
+	       } else {
+		   msg = $("message",xml).html();
+		   $("#comment_div" + comment_id).after(msg);
+	       }
 	   }
 	  )
 }
