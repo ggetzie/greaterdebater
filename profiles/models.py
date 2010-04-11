@@ -20,7 +20,7 @@ class Profile(models.Model):
     rate = models.PositiveSmallIntegerField(default=0)
 
     # items to include in the user's personal RSS feed
-    feedcoms = models.BooleanField(default=Falsen)
+    feedcoms = models.BooleanField(default=False)
     feedtops = models.BooleanField(default=False)
     feeddebs = models.BooleanField(default=False)
 
