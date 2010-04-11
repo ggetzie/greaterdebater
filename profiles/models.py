@@ -20,13 +20,13 @@ class Profile(models.Model):
     rate = models.PositiveSmallIntegerField(default=0)
 
     # items to include in the user's personal RSS feed
-    feedcoms = models.BooleanField(default=False)
+    feedcoms = models.BooleanField(default=Falsen)
     feedtops = models.BooleanField(default=False)
     feeddebs = models.BooleanField(default=False)
 
     # Always follow user's own topics or comments?
-    followtops = models.BooleanField(default=False)
-    followcoms = models.BooleanField(default=False)
+    followtops = models.BooleanField(default=True)
+    followcoms = models.BooleanField(default=True)
 
     # New user still in probationary period, 
     # topics and comments need review

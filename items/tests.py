@@ -1,10 +1,14 @@
+from django.db.models import Max
 from django.contrib.auth.models import User
 from django.test import TestCase
 
 from comments.models import TopicComment
 from items.models import Topic
+from items.forms import tcdTopicSubmitForm
 from profiles.models import Profile
 from testsetup import testsetup
+
+import datetime
 
 class ViewTest(TestCase):
 
@@ -24,21 +28,87 @@ class ViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_submit_topic(self):
-        # This should test POST request as well
-        response = self.client.get('/submit/')
-        self.assertEqual(response.status_code, 200)
+        url = '/submit/'
+        # User not logged in
+        response = self.client.get(url)
+        self.assertContains(response, "Please log in or create an account to continue submitting your topic")
 
+        prof = Profile.objects.filter(probation=False)[0]
+        user = prof.user
+        prof.last_post = datetime.datetime(month=1, day=1, year=1970)
+        prof.save()
+        self.client.login(username=user.username, password="password")
+
+        # Invalid Form
+        response = self.client.post(url, {'title': "",
+                                          'url': "",
+                                          'comment': "",
+                                          'tags': ""})
+        self.assertFormError(response, "form", "title", "This field is required.")
+
+
+        # Valid submission
+        redirect = '/%d/' % (Topic.objects.aggregate(Max('id'))['id__max'] + 1)
+        response = self.client.post(url, {'title': "Test Topic",
+                                          'url': "",
+                                          'comment': "A topic for testing",
+                                          'tags': "test"}, follow=True)
+
+        self.assertRedirects(response, redirect)
+        self.assertContains(response, "Test Topic")
+        
     def test_comments(self):
         top = Topic.objects.filter(needs_review=False,
                                    spam=False)[0]
         response = self.client.get('/' + str(top.id) + '/')
         self.assertEqual(response.status_code, 200)
 
-    def test_tflag(self):
-        # This should be POST needs better testing
-        # AJAX function - check response msg in XML
-        response = self.client.get('/tflag/')
+        user = User.objects.exclude(id=top.user.id)[0]
+        self.client.login(username=user.username,
+                          password='password')
+        response = self.client.get('/' + str(top.id) + '/')
         self.assertEqual(response.status_code, 200)
+        
+
+    def test_tflag(self):
+        url = '/tflag/'
+        staffuser = User.objects.filter(is_staff=True)[0]
+        reguser = User.objects.filter(is_staff=False)[0]
+        top = Topic.objects.filter(needs_review=False,
+                                   spam=False).exclude(user__in=[staffuser, reguser])[0]
+
+        # Not logged in
+        response = self.client.post(url, {'object_id':top.id})
+        self.assertContains(response, "Not logged in")
+
+        self.client.login(username=reguser.username, password='password')
+
+        # GET request
+        response = self.client.get(url)
+        self.assertContains(response, "Not a POST")
+
+        # Invalid form
+        response = self.client.post(url, {'object_id':''})
+        self.assertContains(response, "Invalid Form")
+
+        # Nonexistent topic
+        response = self.client.post(url, {'object_id':99999})
+        self.assertContains(response, "Topic not found")
+
+        # Valid regular user flag
+        response = self.client.post(url, {'object_id':top.id})
+        self.assertContains(response, "Topic flagged")
+        checktop = Topic.objects.get(id=top.id)
+        self.assertTrue(reguser in top.tflaggers.all())
+
+        # Valid staff user flag
+        self.client.login(username=staffuser.username, password='password')
+        response = self.client.post(url, {'object_id':top.id})
+        self.assertContains(response, "Topic flagged")
+        checktop = Topic.objects.get(id=top.id)
+        self.assertTrue(staffuser in top.tflaggers.all())
+        prof = Profile.objects.get(user=top.user)
+        self.assertEqual(prof.rate, 10)
 
     def test_delete_topic(self):
         # This should be POST needs better testing
@@ -170,3 +240,6 @@ class ViewTest(TestCase):
 #         self.assertEqual(response.status_code, 302)
 
     
+
+
+	

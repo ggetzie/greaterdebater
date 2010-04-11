@@ -144,39 +144,43 @@ def front_page(request):
                               )
 
 def tflag(request):    
-    top=None
-    if request.POST:
-        form = Flag(request.POST)
-        if form.is_valid():
-            top = Topic.objects.get(pk=form.cleaned_data['object_id'])
-            user = request.user
-            if user in top.tflaggers.all():
-                message="You've already flagged this topic"
-            else:                
-                top.tflaggers.add(user)
-                if top.tflaggers.count() > 10 or user.is_staff:
-                    top.needs_review = True
-                    prof = Profile.objects.get(user=top.user)
-                    prof.rate=10
-                    prof.save()
-                top.save()
-                message="Topic flagged"
-        else:
-            message = "Invalid Form"
-    else:
-        message = "Not a Post"
+    
+    if not request.user.is_authenticated():
+        message = render_message("Not logged in", 10)
+        return render_to_AJAX(status="error",
+                              messages=[message])
+    if not request.POST:
+        message = render_message("Not a POST", 10)
+        return render_to_AJAX(status="error",
+                              messages=[message])
 
-    t = loader.get_template('items/msg_div.html')
-    if top:
-        id = top.id
-    else:
-        id = 1
-    c = Context({'id': id,
-                 'message': message,
-                 'nesting': "10"})
-    response = ('response', [('message', t.render(c))])
-    response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')    
-    return HttpResponse(response)
+    form = Flag(request.POST)
+    if not form.is_valid():
+        message = render_message("Invalid Form", 10)
+        return render_to_AJAX(status="error",
+                              messages=[message])
+
+    try:
+        top = Topic.objects.get(pk=form.cleaned_data['object_id'])
+    except Topic.DoesNotExist:
+        message = render_message("Topic not found", 10)
+        return render_to_AJAX(status="alert",
+                              messages=[message])
+    user = request.user
+    if user in top.tflaggers.all():
+        message="You've already flagged this topic"
+    else:                
+        top.tflaggers.add(user)
+        if top.tflaggers.count() > 10 or user.is_staff:
+            top.needs_review = True
+            prof = Profile.objects.get(user=top.user)
+            prof.rate=10
+            prof.save()
+        top.save()
+        message="Topic flagged"
+
+    return render_to_AJAX(status="ok",
+                          messages=[render_message(message, 10)])
 
 def delete_topic(request):
     message = "ok"
@@ -245,92 +249,100 @@ def submit(request):
                                   context_instance=RequestContext(request))
 
     user = request.user.username
-    if request.method == 'POST':
-        data = request.POST.copy()
-        form = tcdTopicSubmitForm(data)
-        if form.is_valid():
-            try:
-                topic = Topic.objects.get(url=form.cleaned_data['url'])
-                return HttpResponseRedirect("/" + str(topic.id) + "/")
-            except ObjectDoesNotExist:
-                # Make sure the user is not submitting too fast
-                prof = get_object_or_404(Profile, user=request.user)
-                ratemsg = prof.check_rate()
-                if ratemsg:
-                    request.user.message_set.create(message=ratemsg)
-                    return HttpResponseRedirect(request.path)
-
-                topic = Topic(user=request.user,
-                              title=form.cleaned_data['title'],
-                              score=1,
-                              sub_date=datetime.datetime.now(),
-                              comment_length=0,
-                              last_calc=datetime.datetime.now(),
-                              needs_review=prof.probation
-                              )
-                topic.save()
-
-                if prof.probation:
-                    next = '/'
-                    request.user.message_set.create(message="Thank you! Your topic will appear after a brief review.")
-                else:
-                    next = "/" + str(topic.id) + "/"
-
-                if data['url']:
-                    topic.url = form.cleaned_data['url']
-                else:
-                    topic.url = HOSTNAME + '/' + str(topic.id) + '/'
-
-                dtags = form.cleaned_data['tags']
-                if dtags:
-                    # create the count of all tags for the topic
-                    tags = '\n'.join([dtags, ','.join(['1']*(dtags.count(',')+1))])
-                    topic.tags = tags
-
-                    # create a Tags object to indicate the submitter
-                    # added these tags to this topic                        
-                    utags = Tags(user=request.user, topic=topic, tags=dtags)
-                    utags.save()
-
-                    # update the count of all tags used by the submitter
-                    prof = Profile.objects.get(user=request.user)
-                    prof.tags = update_tags(prof.tags, dtags.split(','))
-                    prof.save()
-
-                topic.save()
-
-                prof.last_post = topic.sub_date
-                prof.save()
-
-                if prof.followtops:
-                    topic.followers.add(request.user)
-                    topic.save()
-
-                if form.cleaned_data['comment']:
-                    comment = TopicComment(user=request.user,
-                                           ntopic=topic,
-                                           pub_date=datetime.datetime.now(),
-                                           comment=form.cleaned_data['comment'],
-                                           first=True,
-                                           nparent_id=0,
-                                           nnesting=0)
-                    comment.save()
-
-                    topic.comment_length += len(comment.comment)
-                    topic.recalculate()
-                    topic.save()
-                return HttpResponseRedirect(next)
-    else:
+    if not request.method == 'POST':
         try:
             form = tcdTopicSubmitForm(initial={'title':request.GET['title'],
                                                'url':request.GET['url']})
         except MultiValueDictKeyError:
             form = tcdTopicSubmitForm()
 
+        return render_to_response("items/submit.html",
+                                  {'form': form},
+                                  context_instance=RequestContext(request))
 
-    return render_to_response("items/submit.html",
-                              {'form': form},
-                              context_instance=RequestContext(request))
+    data = request.POST.copy()
+    form = tcdTopicSubmitForm(data)
+    if not form.is_valid():
+        return render_to_response("items/submit.html",
+                                  {'form': form},
+                                  context_instance=RequestContext(request))
+
+    try:
+        topic = Topic.objects.get(url=form.cleaned_data['url'])
+        return HttpResponseRedirect("/" + str(topic.id) + "/")
+    except ObjectDoesNotExist:
+        # Make sure the user is not submitting too fast
+        prof = get_object_or_404(Profile, user=request.user)
+        ratemsg = prof.check_rate()
+        if ratemsg:
+            request.user.message_set.create(message=ratemsg)
+            return HttpResponseRedirect(request.path)
+
+        topic = Topic(user=request.user,
+                      title=form.cleaned_data['title'],
+                      score=1,
+                      sub_date=datetime.datetime.now(),
+                      comment_length=0,
+                      last_calc=datetime.datetime.now(),
+                      needs_review=prof.probation
+                      )
+        topic.save()
+
+        if prof.probation:
+            next = '/'
+            request.user.message_set.create(message="Thank you! Your topic will appear after a brief review.")
+        else:
+            next = "/" + str(topic.id) + "/"
+
+        if data['url']:
+            topic.url = form.cleaned_data['url']
+        else:
+            topic.url = HOSTNAME + '/' + str(topic.id) + '/'
+
+        dtags = form.cleaned_data['tags']
+        if dtags:
+            # create the count of all tags for the topic
+            tags = '\n'.join([dtags, ','.join(['1']*(dtags.count(',')+1))])
+            topic.tags = tags
+
+            # create a Tags object to indicate the submitter
+            # added these tags to this topic                        
+            utags = Tags(user=request.user, topic=topic, tags=dtags)
+            utags.save()
+
+            # update the count of all tags used by the submitter
+            prof = Profile.objects.get(user=request.user)
+            prof.tags = update_tags(prof.tags, dtags.split(','))
+            prof.save()
+
+        topic.save()
+
+        prof.last_post = topic.sub_date
+        prof.save()
+
+        if prof.followtops:
+            topic.followers.add(request.user)
+            topic.save()
+
+        if form.cleaned_data['comment']:
+            comment = TopicComment(user=request.user,
+                                   ntopic=topic,
+                                   pub_date=datetime.datetime.now(),
+                                   comment=form.cleaned_data['comment'],
+                                   first=True,
+                                   nparent_id=0,
+                                   nnesting=0)
+            comment.save()
+
+            topic.comment_length += len(comment.comment)
+            topic.recalculate()
+            topic.save()
+        return HttpResponseRedirect(next)
+
+
+
+
+
 
 def edit_topic(request, topic_id, page):
     """Allow the submitter of a topic to edit its title or url"""
