@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Bookmarklet for iPhone{% endblock %}
+
+{% block content %} 
+<p>
+  To create a bookmarklet for quickly submitting topics from your
+  iPhone, follow the steps below:
+</p>
+
+<ol>
+  <li>
+    <p>
+      Copy this text:
+    </p>
+    <p>
+      <code>
+	javascript:location.href='http://greaterdebater.com/submit?url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title)
+      </code>
+    </p>
+  </li>
+  <li>
+    Open your bookmarks menu and create a new bookmark.
+  </li>
+  <li>
+    Paste the text into the bookmark's address field. Enter the title
+    as "Submit to GreaterDebater" (or whatever you wish to call it)
+  </li>
+  <li>
+    Save the bookmark.
+  </li>
+</ol>
+
+<p>
+  That's all there is to it! Now, when viewing an article on your
+  iPhone that you'd like to submit to GreaterDebater, simply visit
+  that saved bookmark and you'll be redirected to the submit page with
+  the title and url fields already filled out.
+</p>
+{% endblock %}

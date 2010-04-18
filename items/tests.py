@@ -16,15 +16,41 @@ class ViewTest(TestCase):
         testsetup()
     
     def test_frontpage(self):
-        response = self.client.get('/')
+        url = '/'
+        # not logged in
+        response = self.client.fget(url)
+        self.assertEqual(response.status_code, 200)
+
+        # logged in
+        user = User.objects.all()[0]
+        self.client.login(username=user.username, password="password")
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_hot(self):
-        response = self.client.get('/hot/')
+        url = '/hot/'
+        
+        # not logged in
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        # logged in
+        user = User.objects.all()[0]
+        self.client.login(username=user.username, password="password")
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_new(self):
-        response = self.client.get('/new/')
+        url = '/new/'
+        
+        # not logged in
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        # logged in
+        user = User.objects.all()[0]
+        self.client.login(username=user.username, password="password")
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_submit_topic(self):
@@ -56,6 +82,27 @@ class ViewTest(TestCase):
 
         self.assertRedirects(response, redirect)
         self.assertContains(response, "Test Topic")
+
+        # Submitting too fast
+        response = self.client.post(url, {'title': "Test Topic",
+                                          'url': "",
+                                          'comment': "A topic for testing",
+                                          'tags': "test"}, follow=True)
+        self.assertContains(response, "Post rate limit exceeded")
+
+        # User on probation
+        prof = Profile.objects.filter(probation=True)[0]
+        prof.last_post = datetime.datetime(month=1, day=1, year=1970)
+        prof.save()
+        self.client.login(username=prof.user.username, password="password")
+        response = self.client.post(url, {'title': "Test Topic",
+                                          'url': "",
+                                          'comment': "A topic for testing",
+                                          'tags': "test"}, follow=True)
+
+        self.assertRedirects(response, '/')
+        self.assertContains(response, "Thank you! Your topic will appear after a brief review.")
+        
         
     def test_comments(self):
         top = Topic.objects.filter(needs_review=False,

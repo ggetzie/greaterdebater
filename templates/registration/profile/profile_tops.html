@@ -5,7 +5,7 @@
 {% block content %}
 <h3 class="prof-head">Topics</h3>
 {% if topics_list %}
-<ul class="topic-list">
+<ol class="topic-list" start={{ start }}>
   {% for object in topics_list %}
   <li> 
     <div id="topic_div{{ object.id }}">

@@ -21,6 +21,10 @@ urlpatterns = patterns('',
                        
                        # Submit a new topic
                        (r'^submit/$', 'tcd.items.views.submit'),
+
+                       # iPhone bookmarklet instructions
+                       (r'^iphonebk/?$', 'django.views.generic.simple.direct_to_template', 
+                        {'template': 'items/iphonebk.html'}),
                        
                        # Edit the title, url or description of a topic
                        (r'^edit/(?P<topic_id>\d+)/(?P<page>\d+)/?$', 'tcd.items.views.edit_topic'),
