@@ -199,7 +199,7 @@ def delete_topic(request):
 
     if not request.user == top.user:
         message = render_message("Can't delete a topic that isn't yours", 10)
-        return render_to_AJAX(status="error", messages=[message])
+        return render_to_AJAX(status="alert", messages=[message])
 
 
     coms = top.topiccomment_set.filter(first=False, removed=False,

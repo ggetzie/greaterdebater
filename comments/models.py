@@ -350,7 +350,7 @@ class Debate(models.Model):
         return dest.render(desc)
 
     def get_title(self):
-        return ' '.join(['Debate:', self.title])
+        return self.title
 
 class ArgComment(Comment):
     ntopic = models.ForeignKey(Topic)

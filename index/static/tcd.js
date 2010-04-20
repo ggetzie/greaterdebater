@@ -151,11 +151,15 @@ function delete_topic(id) {
     $.post("/topics/delete/", {topic_id: id},	   
 	   function(xml) { 	 
 	       topic_menu.html(tinside);
-	       divID = '#topic_div' + id;	       
-	       msg=$("message",xml).text()
-	       $(divID).after(msg)
-	       if ($("status",xml).text() == "ok") {
-		   $(divID).remove()
+	       if ($("status", xml).text() == "alert") {
+		   alert($("message",xml).text());
+	       } else {
+		   divID = '#topic_div' + id;	       
+		   msg=$("message",xml).html()
+		   $(divID).after(msg)
+		   if ($("status",xml).text() == "ok") {
+		       $(divID).remove()
+		   }
 	       }
 	   }
 	  );	       

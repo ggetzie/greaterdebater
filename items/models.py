@@ -97,7 +97,7 @@ class Topic(models.Model):
         return dest.render(desc)
 
     def get_title(self):
-        return ' '.join(['Topic:', self.title])
+        return self.title
 
     
 class LogItem(models.Model):
