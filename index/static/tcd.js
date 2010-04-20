@@ -154,7 +154,7 @@ function delete_topic(id) {
 	       divID = '#topic_div' + id;	       
 	       msg=$("message",xml).text()
 	       $(divID).after(msg)
-	       if ($("status",xml).text() == "success") {		   
+	       if ($("status",xml).text() == "ok") {
 		   $(divID).remove()
 	       }
 	   }

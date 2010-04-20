@@ -183,41 +183,36 @@ def tflag(request):
                           messages=[render_message(message, 10)])
 
 def delete_topic(request):
-    message = "ok"
-    status = "fail"
-    if request.POST:
-        try:
-            top = Topic.objects.get(pk=request.POST['topic_id'])
-        except MultiValueDictKeyError:
-            message = "Invalid Form"
-            error_context = Context({'message': message,
-                                     'nesting': "10"})
-            error_template = loader.get_template('items/msg_div.html')
-            response = ('response', [('message', error_template.render(error_context))])
-            response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')    
-            return HttpResponse(response)
-        if request.user == top.user:
-            coms = top.topiccomment_set.filter(first=False, removed=False)
-            if coms:
-                message = "Can't delete a topic that has comments"
-            else:
-                top.delete()
-                message = "Topic deleted. FOREVER."
-                status = "success"
-        else:
-            message = "Can't delete a topic that isn't yours"
-    else:
-        message = "Not a POST"
+    
+    if not request.POST:
+        message = render_message("Not a POST", 10)
+        return render_to_AJAX(status="error", messages=[message])
+    
+    try:
+        top = Topic.objects.get(pk=request.POST['topic_id'])
+    except Topic.DoesNotExist:
+        message = render_message("Topic not found", 10)
+        return render_to_AJAX(status="alert", messages=[message])
+    except MultiValueDictKeyError:
+        message = render_message("Invalid Form", 10)
+        return render_to_AJAX(status="alert", messages=[message])
 
-    c = Context({'message': message,
-                 'nesting': "10"})
-    t = loader.get_template('items/msg_div.html')
-    response = ('response', [('message', t.render(c)),
-                             ('status', status)
-                             ]
-                )
-    response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')    
-    return HttpResponse(response)
+    if not request.user == top.user:
+        message = render_message("Can't delete a topic that isn't yours", 10)
+        return render_to_AJAX(status="error", messages=[message])
+
+
+    coms = top.topiccomment_set.filter(first=False, removed=False,
+                                       needs_review=False, spam=False)
+    if coms:
+        message = render_message("Can't delete a topic that has comments", 10)
+        return render_to_AJAX(status="error", messages=[message])
+
+    top.delete()
+    message = render_message("Topic deleted. FOREVER.", 10)
+    return render_to_AJAX(status="ok", messages=[message])
+
+    
 
 def submit(request):
     """Add a new topic submitted by the user"""
