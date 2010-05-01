@@ -11,7 +11,7 @@ from testsetup import testsetup
 
 import datetime
 
-def topic_and_comments(tops, with_comments=True):
+def topic_with_comments(tops, with_comments=True):
     """find a topic with or without comments, 
     excluding first comments, comments needing review,
     comments marked as spam, and comments that are removed"""
@@ -150,13 +150,13 @@ class ViewTest(TestCase):
         self.assertContains(response, escape("Can't delete a topic that isn't yours"))
         
         # Valid user, but topic already has comments
-        top = topic_and_comments(Topic.objects.all())
+        top = topic_with_comments(Topic.objects.all())
         self.client.login(username=top.user.username, password="password")
         response = self.client.post(url, {'topic_id': top.id})
         self.assertContains(response, escape("Can't delete a topic that has comments"))
 
         # Valid user, topic has no comments, successful delete
-        top = topic_and_comments(Topic.objects.all(), with_comments=False)
+        top = topic_with_comments(Topic.objects.all(), with_comments=False)
         self.client.login(username=top.user.username, password="password")
         response = self.client.post(url, {'topic_id': top.id})
         self.assertContains(response, "Topic deleted. FOREVER.")
@@ -217,12 +217,22 @@ class ViewTest(TestCase):
         # This should test POST requests as well
         # also has to test that request comes from topic owner
         
-        # topic owner GET request
+
         top = Topic.objects.filter(needs_review=False,
                                    spam=False)[0]
+        url = '/edit/' + str(top.id) + '/1/'
+
+        baduser = User.objects.exclude(id=top.user.id)[0]
+        self.client.login(username=baduser.username, password='password')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+        # topic owner GET request
         self.client.login(username=top.user.username, password='password')
-        response = self.client.get('/edit/' + str(top.id) + '/1/')
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+
+        
 
     def test_review(self):
         # not logged in

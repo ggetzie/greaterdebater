@@ -344,6 +344,9 @@ def edit_topic(request, topic_id, page):
     top = get_object_or_404(Topic, pk=topic_id)
     c = TopicComment.objects.filter(ntopic=top, first=True)
     redirect = ''.join(['/users/u/', request.user.username, '/submissions/', page])    
+    if not request.user == top.user:
+        return HttpResponseForbidden("<h1>Unauthorized</h1>")
+
     if request.method == 'POST':
         if request.user == top.user:
             data = request.POST.copy()
