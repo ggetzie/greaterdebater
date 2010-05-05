@@ -343,7 +343,7 @@ def edit_topic(request, topic_id, page):
     """Allow the submitter of a topic to edit its title or url"""
     top = get_object_or_404(Topic, pk=topic_id)
     c = TopicComment.objects.filter(ntopic=top, first=True)
-    redirect = ''.join(['/users/u/', request.user.username, '/submissions/', page])    
+    redirect = '/users/u/' + request.user.username + '/submissions/' + page
     if not request.user == top.user:
         return HttpResponseForbidden("<h1>Unauthorized</h1>")
 
@@ -395,131 +395,132 @@ def edit_topic(request, topic_id, page):
 
 def addtags(request):
     """A user submits tags to add to a topic"""
-    error = True
-    tagdiv = None
-    message = None
-    if request.POST:
-        form = TagEdit(request.POST)
-        if form.is_valid():
-            user = request.user
-            prof = get_object_or_404(Profile, user=user)
-            top = get_object_or_404(Topic, pk=form.cleaned_data['topic_id'])
-            source = form.cleaned_data['source']
 
-            new_tags = form.cleaned_data['tags'].split(',')
-            unique_tags = []
-            try:
-                current_user_tags = Tags.objects.get(user=user, topic=top)
-                cutags = current_user_tags.tags.split(',')
-            except ObjectDoesNotExist:
-                current_user_tags = Tags(user=user, topic=top, tags='')
-                cutags = []
+    if not request.user.is_authenticated():
+        message = render_message("Not logged in", 10)
+        return render_to_AJAX(status='error',
+                              messages=[message])
 
-            # don't let a user add a particular tag to a particular
-            # topic more than once
-            for tag in new_tags:
-                if not tag in cutags:
-                    cutags.append(tag)
-                    unique_tags.append(tag)
+    if not request.POST:
+        return render_to_AJAX(status='error',
+                              messages=["Not a POST"])
+    
+    form = TagEdit(request.POST)
+    if not form.is_valid():
+        message = render_message(str(form['tags'].errors), 10)
+        return render_to_AJAX(status='error',
+                              messages=[message])
 
-            current_user_tags.tags = ','.join(cutags)
-            current_user_tags.save()
-            
-            top.tags = update_tags(top.tags, unique_tags)
-            top.save()
+    user = request.user
+    prof = get_object_or_404(Profile, user=user)
+    top = get_object_or_404(Topic, pk=form.cleaned_data['topic_id'])
+    source = form.cleaned_data['source']
 
-            prof.tags = update_tags(prof.tags, unique_tags)
-            prof.save()
+    new_tags = [tag.strip() for tag in form.cleaned_data['tags'].split(',')]
+    unique_tags = []
+    try:
+        current_user_tags = Tags.objects.get(user=user, topic=top)
+        cutags = current_user_tags.tags.split(',')
+    except ObjectDoesNotExist:
+        current_user_tags = Tags(user=user, topic=top, tags='')
+        cutags = []
 
-            if source == 1:
-                utags = Tags.objects.get(user=prof.user, topic=top)
-                tagload = loader.get_template('items/tag_div_user.html')
-                tagcontext = Context({'object': utags,
-                                       'source': source,
-                                      'request': request})
-            else:
-                tagload = loader.get_template('items/tag_div.html')            
-                tagcontext = Context({'object': top,
-                                      'source': source,
-                                      'request': request})
-            tagdiv = tagload.render(tagcontext)
-            error = False
-        else:            
-            message = str(form['tags'].errors)
+    # don't let a user add a particular tag to a particular
+    # topic more than once
+    for tag in new_tags:
+        if not tag in cutags:
+            cutags.append(tag)
+            unique_tags.append(tag)
+
+    current_user_tags.tags = ','.join(cutags)
+    current_user_tags.save()
+
+    top.tags = update_tags(top.tags, unique_tags)
+    top.save()
+
+    prof.tags = update_tags(prof.tags, unique_tags)
+    prof.save()
+
+    if source == 1:
+        utags = Tags.objects.get(user=prof.user, topic=top)
+        tagload = loader.get_template('items/tag_div_user.html')
+        tagcontext = Context({'object': utags,
+                               'source': source,
+                              'request': request})
     else:
-        message = "Not a Post"
+        tagload = loader.get_template('items/tag_div.html')            
+        tagcontext = Context({'object': top,
+                              'source': source,
+                              'request': request})
+    tagdiv = tagload.render(tagcontext)
 
-    c = Context({'message': message,
-                 'id': request.POST['topic_id'],
-                 'fsize': 'font-size: small;',
-                 'nesting': "10"})
-    t = loader.get_template('items/msg_div.html')
-
-    response = ('response', [('error', error),                                         
-                             ('message', t.render(c)),
-                             ('tagdiv', tagdiv)
-                             ])
-    response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')
-    return HttpResponse(response)
+    # c = Context({'message': message,
+    #              'id': request.POST['topic_id'],
+    #              'fsize': 'font-size: small;',
+    #              'nesting': "10"})
+    # t = loader.get_template('items/msg_div.html')
+    
+    return render_to_AJAX(status='ok',
+                          messages=[tagdiv])
 
 def remove_tag(request):
-    status = "error"
-    if request.POST:
-        form = TagRemove(request.POST)
-        if form.is_valid():
-            try:
-                prof = Profile.objects.get(user__id=form.cleaned_data['user_id'])
-                if prof.user == request.user:
-                    topic = Topic.objects.get(pk=form.cleaned_data['topic_id'])
-                    tags = Tags.objects.get(topic=topic, user=prof.user)
-                    tag = form.cleaned_data['tag']
 
-                    topic_dict = tag_dict(topic.tags)
-                    if topic_dict[tag] == 1:
-                        del topic_dict[tag]
-                    else:
-                        topic_dict[tag] -= 1
-                    topic.tags = tag_string(topic_dict)
-                    topic.save()
+    if not request.POST:
+        message = render_message("Not a POST", 10)
+        return render_to_AJAX(status="error", messages=[message])
+    
+    if not request.user.is_authenticated():
+        message = render_message("Not logged in", 10)
+        return render_to_AJAX(status="error", messages=[message])
 
-                    prof_dict = tag_dict(prof.tags)
-                    if prof_dict[tag] == 1:
-                        del prof_dict[tag]
-                    else:
-                        prof_dict[tag] -= 1
-                    prof.tags = tag_string(prof_dict)
-                    prof.save()
+    form = TagRemove(request.POST)
+    
+    if not form.is_valid():
+        return render_to_AJAX(status="alert",
+                              messages=["Invalid Form"])
 
+    try:
+        prof = Profile.objects.get(user__id=form.cleaned_data['user_id'])
+        if not prof.user == request.user:
+            message = render_message("Can't remove another user's tag", 10)
+            return render_to_AJAX(status="error", messages=[message])
 
-                    tags_list = tags.tags.split(',')
-                    tags_list.remove(tag)
-                    if tags_list:
-                        tags.tags = ','.join(tags_list)
-                        tags.save()
-                    else:
-                        tags.delete()
+        topic = Topic.objects.get(pk=form.cleaned_data['topic_id'])
+        tags = Tags.objects.get(topic=topic, user=prof.user)
+        tag = form.cleaned_data['tag']
 
-                    msg = "Tag removed"
-                    status = "ok"
-                else:
-                    msg = "Can't remove another user's tag"
-            except ObjectDoesNotExist:
-                msg = "Invalid topic, user or tag"
+        topic_dict = tag_dict(topic.tags)
+        if topic_dict[tag] == 1:
+            del topic_dict[tag]
         else:
-            msg = "Invalid Form"
-    else:
-        msg = "Not a POST"
+            topic_dict[tag] -= 1
+        topic.tags = tag_string(topic_dict)
+        topic.save()
 
-    msgt = loader.get_template('sys_msg.html')
-    msgc = Context({'message': msg,
-                    'nesting': 10})
-    message = msgt.render(msgc)
+        prof_dict = tag_dict(prof.tags)
+        if prof_dict[tag] == 1:
+            del prof_dict[tag]
+        else:
+            prof_dict[tag] -= 1
+        prof.tags = tag_string(prof_dict)
+        prof.save()
 
-    xmlt = loader.get_template('AJAXresponse.xml')
-    xmlc = Context({'status': status,
-                    'messages': [message]})
-    response = xmlt.render(xmlc)
-    return HttpResponse(response)
+        tags_list = tags.tags.split(',')
+        tags_list.remove(tag)
+        if tags_list:
+            tags.tags = ','.join(tags_list)
+            tags.save()
+        else:
+            tags.delete()
+
+        msg = render_message("Tag removed", 10)
+        return render_to_AJAX(status="ok",
+                              messages=[msg])
+
+    except ObjectDoesNotExist:
+        msg = "Invalid topic, user or tag"
+        return render_to_AJAX(status="alert",
+                              messages=[msg])
 
 
 def challenge(request, c_id):

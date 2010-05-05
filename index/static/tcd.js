@@ -206,12 +206,12 @@ function addtags(topic_id, source) {
 				source: source,
 				tags: tags},
 	   function(xml) {
-	       if ($("error", xml).text() == "True") {		   
+	       if ($("status", xml).text() == "error") {		   
 		   $(tagdiv).html(oldtags);
-		   $(tagdiv).before($("message", xml).text());
+		   $(tagdiv).before($("message", xml).html());
 		
 	       } else {
-		   $(tagdiv).html($("tagdiv", xml).text());
+		   $(tagdiv).html($("message", xml).html());
 	       }
 	   });
 }

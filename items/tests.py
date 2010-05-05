@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.utils.html import escape
 
 from comments.models import TopicComment
-from items.models import Topic
+from items.models import Topic, Tags
 from items.forms import tcdTopicSubmitForm
 from profiles.models import Profile
 from testsetup import testsetup
@@ -222,17 +222,37 @@ class ViewTest(TestCase):
                                    spam=False)[0]
         url = '/edit/' + str(top.id) + '/1/'
 
+        # GET request, user does not own the topic
         baduser = User.objects.exclude(id=top.user.id)[0]
         self.client.login(username=baduser.username, password='password')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
 
-        # topic owner GET request
+        # POST reques, use does not own the topic
+        response = self.client.post(url, {'title': 'bad title',
+                                          'comment' : 'bad comment'})
+        self.assertEqual(response.status_code, 403)
+
+        # GET request topic owner
         self.client.login(username=top.user.username, password='password')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-
         
+        # POST request, invalid form
+        response = self.client.post(url, {'title': '',
+                                          'comment': 'edited comment'}, 
+                                    follow=True)
+        self.assertFormError(response, 'form', 'title', 'This field is required.')
+
+        redirect = '/users/u/' + top.user.username + '/submissions/1'
+
+        # POST request, valid
+        response = self.client.post(url, {'title': 'edited title',
+                                          'comment': 'edited comment'},
+                                    follow=True)
+        self.assertRedirects(response, redirect)
+        self.assertContains(response, "edited title")
+
 
     def test_review(self):
         # not logged in
@@ -334,21 +354,75 @@ class ViewTest(TestCase):
         prof = Profile.objects.get(user=com.user)
         self.assertEqual(prof.rate, 10)
 
-    
+    def test_addtags(self):
+        url = '/topics/addtags/'
+        top = Topic.objects.all()[0]
+        tags = {'source': 0,
+                'topic_id': top.id}
+        # user not logged in
+        tags['tags'] = 'test tag'
+        response = self.client.post(url, tags)
+        self.assertContains(response, "Not logged in")
+
+        user = Profile.objects.filter(probation=False, rate=0)[0].user
+        self.client.login(username=user.username, password='password')
+
+        # GET request
+        response = self.client.get(url)
+        self.assertContains(response, "Not a POST")
+
+        # Empty form
+        tags['tags'] = ''
+        response = self.client.post(url, tags)
+        self.assertContains(response, "This field is required")
+
+        # Invalid character in tag field
+        tags['tags'] = '<bad>'
+        response = self.client.post(url, tags)
+        self.assertContains(response, 
+                            escape("Only letters, numbers, spaces and characters _ ! @ ? $ % # ' & are allowed in tags"))
+
+        # Valid tag
+        tags['tags'] = 'test tag'
+        response = self.client.post(url, tags)
+        self.assertContains(response, 'test tag')
+
+    def test_remove_tag(self):
+        url = '/topics/removetag/'
+        tags = Tags.objects.all()[0]
+        tag = tags.display_tags()[0]
+        baduser = User.objects.exclude(id=tags.user.id)[0]
+        postdata = {'user_id': tags.user.id,
+                    'topic_id': tags.topic.id,
+                    'tag': tag}
+
+        # user not logged in
+        response = self.client.post(url, postdata)
+        self.assertContains(response, "Not logged in")
+
+        # GET Request
+        response = self.client.get(url)
+        self.assertContains(response, "Not a POST")
         
+        # Wrong user
+        self.client.login(username=baduser.username, password='password')
+        response = self.client.post(url, postdata)
+        self.assertContains(response, escape("Can't remove another user's tag"))
 
-#     def test_addtags(self):
-#         # This should test only POST requests
-#         # AJAX function - check response msg in XML
-#         response = self.client.get('/topics/addtags/')
-#         self.assertEqual(response.status_code, 200)
+        # Invalid Form
+        self.client.login(username=tags.user.username, password='password')
+        response = self.client.post(url, {'topic_id': '',
+                                          'user_id': '',
+                                          'tag': tag})
+        self.assertContains(response, "Invalid Form")
 
-#     def test_challenge(self):
-#         # This should test post requests
-#         response = self.client.get('/argue/challenge/1/')
-#         self.assertEqual(response.status_code, 302)
+        # Valid but nonexistent topic_id
+        bad_id = Topic.objects.aggregate(Max('id'))['id__max'] + 1
+        response = self.client.post(url, {'topic_id': bad_id,
+                                          'user_id': tags.user.id,
+                                          'tag': tag})
+        self.assertContains(response, escape("Invalid topic, user or tag"))
 
-    
-
-
-	
+        # Valid removal
+        response = self.client.post(url, postdata)
+        self.assertContains(response, "Tag removed")
