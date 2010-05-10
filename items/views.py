@@ -126,7 +126,7 @@ def topics(request, page=1, sort="hot"):
 
 def front_page(request):
     """Display the home page of GreaterDebater.com, show five hottest arguments and ten hottest topics"""
-    args = Debate.objects.filter(status__range=(1,2))[:5]
+    args = Debate.objects.order_by('start_date')[:5]
     topics = Topic.objects.filter(needs_review=False, spam=False).order_by('-score', '-sub_date')[:10]
 
     if request.user.is_authenticated():
@@ -1105,10 +1105,6 @@ def decide(request, model):
         message = render_message(model + " marked as spam. User disabled.", 10)
 
     return render_to_AJAX(status="ok", messages=[message])
-    
-        
-        
-        
         
     
 def object_list_field(request, model, field, value, sort=None, paginate_by=None, page=None,

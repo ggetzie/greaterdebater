@@ -48,7 +48,7 @@ class ViewTest(TestCase):
         response = self.client.get('/' + str(top.id) + '/')
         self.assertEqual(response.status_code, 200)
 
-    def test_hot(self):
+    def test_topics(self):
         url = '/hot/'
         
         # not logged in
@@ -61,7 +61,6 @@ class ViewTest(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
-    def test_new(self):
         url = '/new/'
         
         # not logged in
@@ -161,7 +160,7 @@ class ViewTest(TestCase):
         response = self.client.post(url, {'topic_id': top.id})
         self.assertContains(response, "Topic deleted. FOREVER.")
 
-    def test_submit_topic(self):
+    def test_submit(self):
         url = '/submit/'
         # User not logged in
         response = self.client.get(url)
@@ -211,8 +210,6 @@ class ViewTest(TestCase):
         self.assertRedirects(response, '/')
         self.assertContains(response, "Thank you! Your topic will appear after a brief review.")
 
-
-
     def test_edit_topic(self):
         # This should test POST requests as well
         # also has to test that request comes from topic owner
@@ -253,6 +250,78 @@ class ViewTest(TestCase):
         self.assertRedirects(response, redirect)
         self.assertContains(response, "edited title")
 
+    def test_addtags(self):
+        url = '/topics/addtags/'
+        top = Topic.objects.all()[0]
+        tags = {'source': 0,
+                'topic_id': top.id}
+        # user not logged in
+        tags['tags'] = 'test tag'
+        response = self.client.post(url, tags)
+        self.assertContains(response, "Not logged in")
+
+        user = Profile.objects.filter(probation=False, rate=0)[0].user
+        self.client.login(username=user.username, password='password')
+
+        # GET request
+        response = self.client.get(url)
+        self.assertContains(response, "Not a POST")
+
+        # Empty form
+        tags['tags'] = ''
+        response = self.client.post(url, tags)
+        self.assertContains(response, "This field is required")
+
+        # Invalid character in tag field
+        tags['tags'] = '<bad>'
+        response = self.client.post(url, tags)
+        self.assertContains(response, 
+                            escape("Only letters, numbers, spaces and characters _ ! @ ? $ % # ' & are allowed in tags"))
+
+        # Valid tag
+        tags['tags'] = 'test tag'
+        response = self.client.post(url, tags)
+        self.assertContains(response, 'test tag')
+
+    def test_remove_tag(self):
+        url = '/topics/removetag/'
+        tags = Tags.objects.all()[0]
+        tag = tags.display_tags()[0]
+        baduser = User.objects.exclude(id=tags.user.id)[0]
+        postdata = {'user_id': tags.user.id,
+                    'topic_id': tags.topic.id,
+                    'tag': tag}
+
+        # user not logged in
+        response = self.client.post(url, postdata)
+        self.assertContains(response, "Not logged in")
+
+        # GET Request
+        response = self.client.get(url)
+        self.assertContains(response, "Not a POST")
+        
+        # Wrong user
+        self.client.login(username=baduser.username, password='password')
+        response = self.client.post(url, postdata)
+        self.assertContains(response, escape("Can't remove another user's tag"))
+
+        # Invalid Form
+        self.client.login(username=tags.user.username, password='password')
+        response = self.client.post(url, {'topic_id': '',
+                                          'user_id': '',
+                                          'tag': tag})
+        self.assertContains(response, "Invalid Form")
+
+        # Valid but nonexistent topic_id
+        bad_id = Topic.objects.aggregate(Max('id'))['id__max'] + 1
+        response = self.client.post(url, {'topic_id': bad_id,
+                                          'user_id': tags.user.id,
+                                          'tag': tag})
+        self.assertContains(response, escape("Invalid topic, user or tag"))
+
+        # Valid removal
+        response = self.client.post(url, postdata)
+        self.assertContains(response, "Tag removed")
 
     def test_review(self):
         # not logged in
@@ -353,76 +422,3 @@ class ViewTest(TestCase):
         self.assertEqual(com.spam, True)
         prof = Profile.objects.get(user=com.user)
         self.assertEqual(prof.rate, 10)
-
-    def test_addtags(self):
-        url = '/topics/addtags/'
-        top = Topic.objects.all()[0]
-        tags = {'source': 0,
-                'topic_id': top.id}
-        # user not logged in
-        tags['tags'] = 'test tag'
-        response = self.client.post(url, tags)
-        self.assertContains(response, "Not logged in")
-
-        user = Profile.objects.filter(probation=False, rate=0)[0].user
-        self.client.login(username=user.username, password='password')
-
-        # GET request
-        response = self.client.get(url)
-        self.assertContains(response, "Not a POST")
-
-        # Empty form
-        tags['tags'] = ''
-        response = self.client.post(url, tags)
-        self.assertContains(response, "This field is required")
-
-        # Invalid character in tag field
-        tags['tags'] = '<bad>'
-        response = self.client.post(url, tags)
-        self.assertContains(response, 
-                            escape("Only letters, numbers, spaces and characters _ ! @ ? $ % # ' & are allowed in tags"))
-
-        # Valid tag
-        tags['tags'] = 'test tag'
-        response = self.client.post(url, tags)
-        self.assertContains(response, 'test tag')
-
-    def test_remove_tag(self):
-        url = '/topics/removetag/'
-        tags = Tags.objects.all()[0]
-        tag = tags.display_tags()[0]
-        baduser = User.objects.exclude(id=tags.user.id)[0]
-        postdata = {'user_id': tags.user.id,
-                    'topic_id': tags.topic.id,
-                    'tag': tag}
-
-        # user not logged in
-        response = self.client.post(url, postdata)
-        self.assertContains(response, "Not logged in")
-
-        # GET Request
-        response = self.client.get(url)
-        self.assertContains(response, "Not a POST")
-        
-        # Wrong user
-        self.client.login(username=baduser.username, password='password')
-        response = self.client.post(url, postdata)
-        self.assertContains(response, escape("Can't remove another user's tag"))
-
-        # Invalid Form
-        self.client.login(username=tags.user.username, password='password')
-        response = self.client.post(url, {'topic_id': '',
-                                          'user_id': '',
-                                          'tag': tag})
-        self.assertContains(response, "Invalid Form")
-
-        # Valid but nonexistent topic_id
-        bad_id = Topic.objects.aggregate(Max('id'))['id__max'] + 1
-        response = self.client.post(url, {'topic_id': bad_id,
-                                          'user_id': tags.user.id,
-                                          'tag': tag})
-        self.assertContains(response, escape("Invalid topic, user or tag"))
-
-        # Valid removal
-        response = self.client.post(url, postdata)
-        self.assertContains(response, "Tag removed")
