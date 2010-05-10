@@ -126,7 +126,7 @@ def topics(request, page=1, sort="hot"):
 
 def front_page(request):
     """Display the home page of GreaterDebater.com, show five hottest arguments and ten hottest topics"""
-    args = Debate.objects.filter(status__in=[1,5]).order_by('-start_date')[:5]
+    args = Debate.objects.filter(status__in=range(1,6)).order_by('-start_date')[:5]
     topics = Topic.objects.filter(needs_review=False, spam=False).order_by('-score', '-sub_date')[:10]
 
     if request.user.is_authenticated():
