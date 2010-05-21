@@ -262,12 +262,22 @@ def submit(request):
                                   {'form': form},
                                   context_instance=RequestContext(request))
 
+    prof = get_object_or_404(Profile, user=request.user)
+
+    if prof.probation:
+        next = '/'
+        prevtop = Topic.objects.filter(user=request.user, needs_review=True, spam=False)
+        if prevtop:
+            message = "Your previous topic is still awaiting review. <br />" + \
+                "Please wait until it has been approved before submitting another topic."
+            request.user.message_set.create(message=message)
+            return HttpResponseRedirect(next)
+
     try:
         topic = Topic.objects.get(url=form.cleaned_data['url'])
         return HttpResponseRedirect("/" + str(topic.id) + "/")
     except ObjectDoesNotExist:
         # Make sure the user is not submitting too fast
-        prof = get_object_or_404(Profile, user=request.user)
         ratemsg = prof.check_rate()
         if ratemsg:
             request.user.message_set.create(message=ratemsg)

@@ -7,7 +7,7 @@ from comments.models import TopicComment
 from items.models import Topic, Tags
 from items.forms import tcdTopicSubmitForm
 from profiles.models import Profile
-from testsetup import testsetup
+from testsetup import testsetup, create_user
 
 import datetime
 
@@ -198,17 +198,32 @@ class ViewTest(TestCase):
         self.assertContains(response, "Post rate limit exceeded")
 
         # User on probation
-        prof = Profile.objects.filter(probation=True)[0]
-        prof.last_post = datetime.datetime(month=1, day=1, year=1970)
-        prof.save()
-        self.client.login(username=prof.user.username, password="password")
-        response = self.client.post(url, {'title': "Test Topic",
+        newuser, newprof = create_user(username="dodgeyuser", 
+                                       password="password",
+                                       email="dodgey@dodgey.com")
+
+        self.client.login(username=newuser.username, password="password")
+        response = self.client.post(url, {'title': "Dodgey Test Topic",
                                           'url': "",
                                           'comment': "A topic for testing",
                                           'tags': "test"}, follow=True)
-
+        
+        
         self.assertRedirects(response, '/')
         self.assertContains(response, "Thank you! Your topic will appear after a brief review.")
+
+        # User on probation second submission
+        newprof.last_post = datetime.datetime(month=1, day=1, year=1970)
+        newprof.save()
+        response = self.client.post(url, {'title': "Another dodgey Test Topic",
+                                          'url': "",
+                                          'comment': "A second topic for testing",
+                                          'tags': "test"}, follow=True)
+        print response
+        self.assertRedirects(response, '/')
+        self.assertContains(response, "Your previous topic is still awaiting review. <br />" + \
+                                "Please wait until it has been approved before submitting another topic.")
+        
 
     def test_edit_topic(self):
         # This should test POST requests as well
