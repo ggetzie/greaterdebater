@@ -30,6 +30,7 @@
       </div>
       <div class="topic-actions">
 	<button id="approve" onclick="decide({{ object.id }}, 'topic', 0); return false;">Approve</button>
+	<button id="reject" onclick="decide({{ object.id }}, 'topic', 2); return false;">Reject</button>
 	<button id="markspam" onclick="decide({{ object.id }}, 'topic', 1); return false;">Spam</button>
       </div>
     </div>

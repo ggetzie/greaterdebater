@@ -7,7 +7,7 @@ from comments.models import TopicComment
 from items.models import Topic, Tags
 from items.forms import tcdTopicSubmitForm
 from profiles.models import Profile
-from testsetup import testsetup, create_user
+from testsetup import testsetup, create_user, create_topic, create_tcomment
 
 import datetime
 
@@ -219,7 +219,7 @@ class ViewTest(TestCase):
                                           'url': "",
                                           'comment': "A second topic for testing",
                                           'tags': "test"}, follow=True)
-        print response
+
         self.assertRedirects(response, '/')
         self.assertContains(response, "Your previous topic is still awaiting review. <br />" + \
                                 "Please wait until it has been approved before submitting another topic.")
@@ -422,7 +422,7 @@ class ViewTest(TestCase):
         top = Topic.objects.filter(needs_review=True, spam=False)[0]
         com = TopicComment.objects.filter(needs_review=True, spam=False)[0]
 
-        # Disapprove Topic
+        # Mark Topic as spam and disable user
         response = self.client.post(turl, {'id': top.id, 'decision': 1})
         self.assertContains(response, "topic marked as spam. User disabled")
         top = Topic.objects.get(id=top.id)
@@ -430,10 +430,34 @@ class ViewTest(TestCase):
         prof = Profile.objects.get(user=top.user)
         self.assertEqual(prof.rate, 10)
 
-        # Disapprove Comment
+        # Mark Comment as spam and disable user
         response = self.client.post(curl, {'id': com.id, 'decision': 1})
         self.assertContains(response, "comment marked as spam. User disabled")
         com = TopicComment.objects.get(id=com.id)
         self.assertEqual(com.spam, True)
         prof = Profile.objects.get(user=com.user)
         self.assertEqual(prof.rate, 10)
+
+        # Add a new topic needing review
+        prof = Profile.objects.filter(probation=True)[0]
+        
+        top = create_topic(user=prof.user, title="Not quite spam", comment="test")
+        top.save()
+        com = create_tcomment(user=prof.user, top=top, txt="some crap")
+        com.save()
+
+        # Reject Topic
+        response = self.client.post(turl, {'id': top.id, 'decision': 2})
+        self.assertContains(response, "topic rejected")
+        top = Topic.objects.get(id=top.id)
+        self.assertEqual(top.spam, True)
+        prof = Profile.objects.get(user=top.user)
+        self.assertNotEqual(prof.rate, 10)
+
+        # Reject Comment
+        response = self.client.post(curl, {'id': com.id, 'decision': 2})
+        self.assertContains(response, "comment rejected")
+        com = TopicComment.objects.get(id=com.id)
+        self.assertEqual(com.spam, True)
+        prof = Profile.objects.get(user=com.user)
+        self.assertNotEqual(prof.rate, 10)

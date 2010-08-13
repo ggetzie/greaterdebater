@@ -1102,17 +1102,24 @@ def decide(request, model):
         return render_to_AJAX(status="alert", messages=["Object not found"])
 
     if form.cleaned_data['decision'] == 0:
+        # Approved
         object.needs_review = False
         object.save()
         message = render_message(model + " approved", 10)
-    else:
-        # 'decision' == 1, other values will cause an invalid form
+    elif form.cleaned_data['decision'] == 1:
+        # Mark spam, disable user
         object.spam = True
         object.save()
         prof = Profile.objects.get(user=object.user)
         prof.rate = 10
         prof.save()
         message = render_message(model + " marked as spam. User disabled.", 10)
+    else:
+        # Rejected, marked spam but user not disabled
+        # 'decision' == 2, other values will cause an invalid form
+        object.spam = True
+        object.save()
+        message = render_message(model + " rejected.", 10)
 
     return render_to_AJAX(status="ok", messages=[message])
         

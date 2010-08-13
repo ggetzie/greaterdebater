@@ -92,4 +92,4 @@ class Response(forms.Form):
 
 class DecideForm(forms.Form):
     id = forms.IntegerField()
-    decision = forms.TypedChoiceField(choices=[(0, 'approve'), (1, 'spam')], coerce=int)
+    decision = forms.TypedChoiceField(choices=[(0, 'approve'), (1, 'spam'), (2, 'rejected')], coerce=int)
