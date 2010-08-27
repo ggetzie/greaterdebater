@@ -1097,28 +1097,33 @@ def decide(request, model):
     
     item = models[model]
     try:
-        object = item.objects.get(id=form.cleaned_data['id'], needs_review=True)
+        obj = item.objects.get(id=form.cleaned_data['id'], needs_review=True)
     except item.DoesNotExist:
         return render_to_AJAX(status="alert", messages=["Object not found"])
 
     if form.cleaned_data['decision'] == 0:
         # Approved
-        object.needs_review = False
-        object.save()
+        obj.needs_review = False
+        if model == "comment":
+            obj.pub_date = datetime.datetime.now()
+        elif model == "topic":
+            obj.sub_date = datetime.datetime.now()
+            
+        obj.save()
         message = render_message(model + " approved", 10)
     elif form.cleaned_data['decision'] == 1:
         # Mark spam, disable user
-        object.spam = True
-        object.save()
-        prof = Profile.objects.get(user=object.user)
+        obj.spam = True
+        obj.save()
+        prof = Profile.objects.get(user=obj.user)
         prof.rate = 10
         prof.save()
         message = render_message(model + " marked as spam. User disabled.", 10)
     else:
         # Rejected, marked spam but user not disabled
         # 'decision' == 2, other values will cause an invalid form
-        object.spam = True
-        object.save()
+        obj.spam = True
+        obj.save()
         message = render_message(model + " rejected.", 10)
 
     return render_to_AJAX(status="ok", messages=[message])
