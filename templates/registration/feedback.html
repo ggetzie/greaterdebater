@@ -5,7 +5,7 @@
 
 <div class="form">
   <p>
-    We welcome your feedback! Use the form below to submit your comments and questions.
+    We welcome your feedback! Please send your comments and questions to <a href="mailto:feedback@greaterdebater.com">feedback@greaterdebater.com</a>
   </p>
 
   <p>
@@ -13,6 +13,7 @@
   </p>
 </div>
 
+{% comment %}
 <div class="form">
   <form action="/users/feedback/" method='post'>
     {% if form.error_dict %}
@@ -29,5 +30,6 @@
     </table>
   </form>
 </div>
+{% endcomment %}
 {% endblock %}
 	
