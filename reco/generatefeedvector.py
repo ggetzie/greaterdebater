@@ -66,7 +66,7 @@ def saveentrydata(filename='data/entrydata.txt'):
     wordlist = []
     for w, bc in apcount.items():
         frac = float(bc) / len(entrylist)
-        if frac > 0.05 and frac < 0.1: wordlist.append(w)
+        if frac > 0.01 and frac < 0.11: wordlist.append(w)
 
     out = file(filename, 'w')
     out.write('Entry')

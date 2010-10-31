@@ -34,7 +34,7 @@ def pearson(v1, v2):
     den = sqrt((sum1Sq - pow(sum1, 2) / len(v1)) * (sum2Sq - pow(sum2, 2) / len(v1)))
     if den == 0: return 0
     
-    return 1.0 - num/den
+    return num/den
 
 def euclidean(v1, v2):
     sum_of_squares = sum([pow(v1[i] - v2[i], 2) for i in range(len(v1))])
