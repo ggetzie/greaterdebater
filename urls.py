@@ -17,7 +17,7 @@ atomfeeds = {
 
 urlpatterns = patterns('',
                        # Admin app
-                       (r'^admin/(.*)', include(admin.site.urls)),
+                       (r'^admin/', include(admin.site.urls)),
                        
                        # About Us page - static
                        (r'^about/$', 'django.views.generic.simple.direct_to_template', 
