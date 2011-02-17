@@ -80,5 +80,6 @@ EMAIL_HOST_USER = 'gabe@greaterdebater.com'
 EMAIL_HOST_PASSWORD = 'mIqXJ2Y0Qt'
 EMAIL_PORT = 587
 
-# Date format
-DATE_FORMAT = "g:ia o\\n M d, Y"
+# Date and time formats
+DATE_FORMAT = "M d, Y"
+TIME_FORMAT = "g:ia"
