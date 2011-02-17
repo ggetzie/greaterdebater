@@ -2,6 +2,7 @@ from django.contrib import auth
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
+from django.contrib import messages
 from django.db import models
 from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
@@ -270,7 +271,7 @@ def submit(request):
         if prevtop:
             message = "Your previous topic is still awaiting review. <br />" + \
                 "Please wait until it has been approved before submitting another topic."
-            request.user.message_set.create(message=message)
+            messages.info(request, message)
             return HttpResponseRedirect(next)
 
     try:
@@ -280,7 +281,7 @@ def submit(request):
         # Make sure the user is not submitting too fast
         ratemsg = prof.check_rate()
         if ratemsg:
-            request.user.message_set.create(message=ratemsg)
+            messages.info(request, ratemsg)
             return HttpResponseRedirect(request.path)
 
         topic = Topic(user=request.user,
@@ -295,7 +296,7 @@ def submit(request):
 
         if prof.probation:
             next = '/'
-            request.user.message_set.create(message="Thank you! Your topic will appear after a brief review.")
+            messages.info(request, "Thank you! Your topic will appear after a brief review.")
         else:
             next = "/" + str(topic.id) + "/"
 
@@ -535,103 +536,90 @@ def remove_tag(request):
 
 def challenge(request, c_id):
     """Create a pending argument as one user challenges another."""
-    if request.POST:
-        form = ArgueForm(request.POST)
-        c = get_object_or_404(TopicComment, pk=c_id)
-        defendant = c.user
-        redirect = '/' + str(c.ntopic.id) + '/'
-        if form.is_valid():
-            if not request.user.is_authenticated():
-                request.user.message_set.create(message="Log in to start an argument")
-            else:
-                if Debate.objects.filter(plaintiff=request.user,
-                                           incite=c):
-                    request.user.message_set.create(message="You may only start one debate per comment")
-                else:
-                    arg = Debate(plaintiff=request.user,
-                                 defendant=defendant,
-                                 start_date=datetime.datetime.now(),
-                                 topic=c.ntopic,                                   
-                                 title=form.cleaned_data['title'],
-                                 status=0,
-                                 incite=c)
-                    arg.save()
+    redirect = '/'
+    if not request.POST:
+        messages.warning(request, "Not a POST")
+        return HttpResponseRedirect(redirect)
 
-                    params = {'comment': form.cleaned_data['argument'],
-                              'user': request.user,
-                              'ntopic': c.ntopic,
-                              'debate': arg}
 
-                    opener = ArgComment(**params)
-                    opener.save()
-                    arg.save()
+    form = ArgueForm(request.POST)
+    c = get_object_or_404(TopicComment, pk=c_id)
+    defendant = c.user
+    redirect = '/' + str(c.ntopic.id) + '/'
 
-                    msg_txt = ''.join([request.user.username, 
-                                       " has challenged you to a debate.\n\n[Click here](/argue/",
-                                       str(arg.id), "/) to view the debate and accept or decline",
-                                       "\n\nIf accepted, the debate will be active for 7 days, ",
-                                       "after which the participant with the most votes will win."])
-                    msg = tcdMessage(user=request.user,
-                                     recipient=defendant,
-                                     comment=msg_txt,
-                                     subject="Challenge!")
-                    msg.save()
-                    request.user.message_set.create(message= ''.join(["Challenged ", 
-                                                                      arg.defendant.username, 
-                                                                      " to a debate"]))
-        else:
-            message = "<p>Oops! A problem occurred.</p>"
-            request.user.message_set.create(message=message+str(form.errors))
-    else:
-        request.user.message_set.create(message="Not a POST")
-        redirect = '/'
+    if not form.is_valid():
+        message = "<p>Oops! A problem occurred.</p>"
+        messages.error(request, message + str(form.errors))
+        return HttpResponseRedirect(redirect)
+
+
+    if not request.user.is_authenticated():
+        messages.warning(request, "Please log in to start a debate")
+        return HttpResponseRedirect(redirect)
+
+    if Debate.objects.filter(plaintiff=request.user,
+                               incite=c):
+        messages.warning(request, "You may only start one debate per comment")
+        return HttpResponseRedirect(redirect)
+
+    arg = Debate(plaintiff=request.user,
+                 defendant=defendant,
+                 start_date=datetime.datetime.now(),
+                 topic=c.ntopic,                                   
+                 title=form.cleaned_data['title'],
+                 status=0,
+                 incite=c)
+    arg.save()
+
+    params = {'comment': form.cleaned_data['argument'],
+              'user': request.user,
+              'ntopic': c.ntopic,
+              'debate': arg}
+
+    opener = ArgComment(**params)
+    opener.save()
+    arg.save()
+
+    msg_txt = ''.join([request.user.username, 
+                       " has challenged you to a debate.\n\n[Click here](/argue/",
+                       str(arg.id), "/) to view the debate and accept or decline",
+                       "\n\nIf accepted, the debate will be active for 7 days, ",
+                       "after which the participant with the most votes will win."])
+    msg = tcdMessage(user=request.user,
+                     recipient=defendant,
+                     comment=msg_txt,
+                     subject="Challenge!")
+    msg.save()
+    messages.info(request, "Challenged " + arg.defendant.username + " to a debate")
     return HttpResponseRedirect(redirect)
 
 def vote(request):
     """Cast a vote for either the plaintiff or defendant in a debate"""
-    message = "ok"
-    error = "True"
-    if request.POST:        
-        form = Ballot(request.POST)
-        if form.is_valid():
-            arg = get_object_or_404(Debate, pk=form.cleaned_data['argument'])
-            voter = get_object_or_404(User, pk=form.cleaned_data['voter'])
-            redirect = ''.join(['/argue/', str(arg.id)])
-            if voter == request.user:
-                vote = nVote(argument=arg,
-                             voter=voter,
-                             voted_for=form.cleaned_data['voted_for'])
-                vote.save()
-                arg.calculate_score()
-                arg.save()
-                all_votes = nVote.objects.filter(argument=arg)
-                if vote.voted_for == "P":
-                    voted_name = arg.plaintiff.username
-                else:
-                    voted_name = arg.defendant.username
-                
-                t = loader.get_template('items/vote_div.html')
-                c = Context({'voted_for': voted_name,
-                             'pvotes': str(all_votes.filter(voted_for="P").count()),
-                             'dvotes': str(all_votes.filter(voted_for="D").count()),
-                             'object': arg,
-                             'current': True,
-                             'request': request})
-                message = t.render(c)
-                error = "False"
-            else:
-                message="Can't cast vote as another user"
-        else:
-            message="Invalid vote"
-                
-    else:
-        message="Not a POST"
+    if not request.POST:
+        return render_to_AJAX(status="alert", messages=["Not a POST"])
+    
+    form = Ballot(request.POST)
 
-    response = ('response', [('error', error),                                         
-                             ('message', message)
-                             ])
-    response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')
-    return HttpResponse(response)
+    if not form.is_valid():
+        return render_to_AJAX(status="alert", messages=["Invalid Form"])
+
+    arg = get_object_or_404(Debate, pk=form.cleaned_data['argument'])
+    voter = get_object_or_404(User, pk=form.cleaned_data['voter'])
+    redirect = ''.join(['/argue/', str(arg.id)])
+
+    if not voter == request.user:
+        return render_to_AJAX(status="alert", messages=["Can't cast vote as another user"])
+
+
+    vote = nVote(argument=arg,
+                 voter=voter,
+                 voted_for=form.cleaned_data['voted_for'])
+    vote.save()
+    arg.calculate_score()
+    arg.save()
+    all_votes = nVote.objects.filter(argument=arg)
+    
+    return render_to_AJAX(status="ok", messages=[])
 
 def unvote(request):
     message = "ok"
@@ -849,6 +837,7 @@ def respond_draw(request):
     status = "error"
     ta_XML = ""
     arg_status = "error"
+    
     if request.POST:
         form = Response(request.POST)
         if form.is_valid():
@@ -967,7 +956,7 @@ def arg_detail(request, object_id):
             elif vote.voted_for == "D":
                 voted_for = arg.defendant
             else:                
-                request.user.message_set.create(message="Something funky about your vote")
+                messages.info(request, "Something funky about your vote")
         except nVote.DoesNotExist:
             pass        
 
@@ -1005,7 +994,8 @@ def arg_detail(request, object_id):
                                     'dvotes': votes.filter(voted_for='D').count(),
                                     'object': arg,
                                     'current': True,
-                                    'voted_for': voted_for
+                                    'voted_for': voted_for,
+                                    'request': request
                                     })
                     arg_actions = argt.render(argc)    
                 else:

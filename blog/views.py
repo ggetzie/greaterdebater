@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import loader, Context, RequestContext
@@ -48,7 +49,7 @@ def addcomment(request, username):
         return HttpResponseRedirect(redirect_to)
 
     if not request.POST:
-        request.user.message_set.create(message="Not a POST")
+        messages.error(request, "Not a POST")
         return HttpResponseRedirect(redirect_to)
 
     prof = get_object_or_404(Profile, user=request.user)
@@ -57,12 +58,12 @@ def addcomment(request, username):
     redirect_to = ''.join([blog.get_absolute_url(), 'post/', str(post.id)])
     if not form.is_valid():
         message = "<p>Oops! A problem occurred.</p>"
-        request.user.message_set.create(message=message+str(form.errors))
+        messages.error(request, message+str(form.errors))
         return HttpResponseRedirect(redirect_to)
            
     ratemsg = prof.check_rate()
     if ratemsg:
-        request.user.message_set.create(message=ratemsg)
+        messages.info(request, ratemsg)
         return HttpResponseRedirect(redirect_to)
 
     comment = PostComment(blog=blog,
@@ -75,7 +76,7 @@ def addcomment(request, username):
     prof.last_post = comment.pub_date
     prof.save()
     if prof.probation:
-        request.user.message_set.create(message="Thank you! Your comment will appear after a brief review.")
+        messages.info(request, "Thank you! Your comment will appear after a brief review.")
     return HttpResponseRedirect(redirect_to)
 
 def archive(request, username, page=1):

@@ -24,6 +24,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
+from django.contrib import messages
 from django.template import loader, RequestContext, Context
 from django.utils.http import urlquote_plus, urlquote
 from django.views.generic import list_detail
@@ -62,21 +63,21 @@ def add(request, topic_id):
 
     # Only POST requests are valid
     if not request.POST:
-        request.user.message_set.create(message="Not a POST")
+        messages.error(request, "Not a POST")
         return HttpResponseRedirect(redirect_to)
 
     # Validate the form
     form=CommentForm(request.POST)
     if not form.is_valid():
         message = "<p>Oops! A problem occurred.</p>"
-        request.user.message_set.create(message=message+str(form.errors))
+        messages.error(request, message+str(form.errors))
         return HttpResponseRedirect(redirect_to)
 
     # Check if this user has exceeded the rate limit for posting
     prof = get_object_or_404(Profile, user=request.user)
     ratemsg = prof.check_rate()
     if ratemsg:
-        request.user.message_set.create(message=ratemsg)
+        messages.info(request, ratemsg)
         return HttpResponseRedirect(redirect_to)    
     
     # Save the comment
@@ -95,7 +96,7 @@ def add(request, topic_id):
     c.save()
     
     if prof.probation:
-        request.user.message_set.create(message="Thank you. Your comment will appear after a brief review.")
+        messages.info(request, "Thank you. Your comment will appear after a brief review.")
 
     if prof.followcoms: 
         c.followers.add(request.user)
@@ -130,20 +131,20 @@ def edit(request, topic_id):
         return HttpResponseRedirect(redirect_to)
     
     if not request.POST:
-        request.user.message_set.create(message="Not a POST")
+        messages.error(request, "Not a POST")
         return HttpResponseRedirect(redirect_to)
 
     form=CommentForm(request.POST)
     if not form.is_valid():
         message = "<p>Oops! A problem occurred.</p>"
-        request.user.message_set.create(message=message+str(form.errors))
+        messages.error(request, message+str(form.errors))
         return HttpResponseRedirect(redirect_to)
 
     # parent_id is the id of the comment being edited
     # This is so we can reuse the same form for edits as for reply
     c = get_object_or_404(TopicComment, pk=form.cleaned_data['parent_id'])
     if c.user != request.user:
-        request.user.message_set.create(message="<p>Can't edit another user's comment!</p>")
+        messages.error(request, "<p>Can't edit another user's comment!</p>")
         return HttpResponseRedirect(redirect_to)
 
     # Adjust the score for the topic based on the new comment length

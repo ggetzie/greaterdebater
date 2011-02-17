@@ -2,6 +2,7 @@ from django.contrib import auth
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
+from django.contrib import messages
 from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import loader, RequestContext, Context
@@ -366,7 +367,7 @@ def profile_stgs(request, value):
             prof.followtops = form.cleaned_data['followtops']
             user.save()
             prof.save()
-            request.user.message_set.create(message="Changes saved.")
+            messages.info(request, "Changes saved")
     else:
         form = SettingsForm({'newwindows': prof.newwin,
                              'feedcoms': prof.feedcoms,
@@ -400,7 +401,7 @@ def reset_password(request, value, code=None):
                 if user == request.user or temp:
                     user.set_password(form.cleaned_data['new_password1'])
                     user.save()
-                    user.message_set.create(message="Password Changed!")                    
+                    messages.info(request, "Password changed!")
                     if temp:
                         user = auth.authenticate(username=user.username, password=form.cleaned_data['new_password1'])
                         if user is not None and user.is_active:

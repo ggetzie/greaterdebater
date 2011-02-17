@@ -93,14 +93,15 @@ function vote(argument, voter, voted_for){
 	       var pvotefor
 	       var dvotefor
 
-	       if ($("error",xml).text() == "True"){
+	       if ($("status",xml).text() == "alert"){
 		   
 		   $("vote").html(votediv);
-		   $("#sys_messages").html( $("message",xml).text());
+		   alert($('message', xml).text());
 
 	       } else {
 
-		   $("#vote").html( $("message",xml).text());
+		   // $("#vote").html( $("message",xml).text());
+		   window.location.reload();
 	       }
 	   });
 };

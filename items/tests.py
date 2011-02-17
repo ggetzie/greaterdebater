@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils.html import escape
 
-from comments.models import TopicComment
+from comments.models import TopicComment, Debate
 from items.models import Topic, Tags
 from items.forms import tcdTopicSubmitForm
 from profiles.models import Profile
@@ -461,3 +461,65 @@ class ViewTest(TestCase):
         self.assertEqual(com.spam, True)
         prof = Profile.objects.get(user=com.user)
         self.assertNotEqual(prof.rate, 10)
+
+    def test_challenge(self):
+        user = Profile.objects.filter(probation=False)[0].user
+        c = TopicComment.objects.filter(first=False, 
+                                        spam=False, 
+                                        needs_review=False).exclude(user=user)[0]
+
+        url = '/argue/challenge/' + str(c.id) + '/'
+        postdata = {'title': "test debate", 
+                    'argument': "just testing, bro"}
+        
+        # GET request
+        response = self.client.get(url, follow=True)
+        self.assertContains(response, "Not a POST")
+
+        # user not logged in
+        response = self.client.post(url, postdata, follow=True)
+        self.assertContains(response, "Please log in to start a debate")
+        
+        self.client.login(username=user.username, password="password")
+        # invalid form
+        response = self.client.post(url, {'title': '', 'argument': ''}, follow=True)
+        self.assertContains(response, "Oops! A problem occurred.")
+
+        # successful challenge
+        response = self.client.post(url, postdata, follow=True)
+        self.assertContains(response, "Challenged " + c.user.username + " to a debate")
+
+        # Second challenge on same comment (not allowed)
+        response = self.client.post(url, postdata, follow=True)
+        self.assertContains(response, "You may only start one debate per comment")
+        
+
+    def test_vote(self):
+        url = '/argue/vote/'
+        deb = Debate.objects.filter(status__in=(1,2))[0]
+        user = User.objects.exclude(username__in=(deb.plaintiff, deb.defendant))[0]
+        postdata = {'argument': deb.id,
+                    'voter': user.id,
+                    'voted_for': 'P'}
+        
+        # GET request
+        response = self.client.get(url)
+        self.assertContains(response, "Not a POST")
+        
+        self.client.login(username = user.username, password='password')
+
+        # Invalid form
+        response = self.client.post(url, {'argument': '',
+                                          'voter': '',
+                                          'voted_for': ''})
+        self.assertContains(response, "Invalid Form")
+
+        # Vote from wrong user
+        response = self.client.post(url, {'argument': deb.id,
+                                          'voter': user.id-1,
+                                          'voted_for': 'P'})
+        self.assertContains(response, "Can't cast vote as another user")
+
+        # legit vote
+        response = self.client.post(url, postdata)
+        self.assertContains(response, "ok")
