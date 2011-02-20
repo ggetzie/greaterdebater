@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils.html import escape
 
-from comments.models import TopicComment, Debate
+from comments.models import TopicComment, Debate, nVote
 from items.models import Topic, Tags
 from items.forms import tcdTopicSubmitForm
 from profiles.models import Profile
@@ -226,9 +226,6 @@ class ViewTest(TestCase):
         
 
     def test_edit_topic(self):
-        # This should test POST requests as well
-        # also has to test that request comes from topic owner
-        
 
         top = Topic.objects.filter(needs_review=False,
                                    spam=False)[0]
@@ -240,7 +237,7 @@ class ViewTest(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
 
-        # POST reques, use does not own the topic
+        # POST request, use does not own the topic
         response = self.client.post(url, {'title': 'bad title',
                                           'comment' : 'bad comment'})
         self.assertEqual(response.status_code, 403)
@@ -523,3 +520,113 @@ class ViewTest(TestCase):
         # legit vote
         response = self.client.post(url, postdata)
         self.assertContains(response, "ok")
+
+    def test_unvote(self):
+        url = '/argue/unvote/'
+        
+        # GET Request
+        response = self.client.get(url)
+        self.assertContains(response, "Not a POST")
+
+        vote = nVote.objects.filter(argument__status__in=(1,2))[0]
+        user = vote.voter
+        self.client.login(username=user.username, password='password')
+        
+        # invalid form
+        response = self.client.post(url, {'argument': '',
+                                          'voter': ''})
+        self.assertContains(response, 'Invalid Form')
+
+        # wrong user id
+        response = self.client.post(url, {'argument': vote.argument.id,
+                                          'voter': user.id + 1})
+        self.assertContains(response, "Can't delete another user's vote")
+
+        # successful unvote
+        response = self.client.post(url, {'argument': vote.argument.id,
+                                          'voter': user.id})
+        self.assertContains(response, "ok")
+
+    def test_rebut(self):
+        # Get active debate where it's the defendant's turn
+        active_deb = Debate.objects.filter(status=2)[0]
+        
+        # Get inactive debate
+        inactive_deb = Debate.objects.filter(status__gt=2)[0]
+        
+
+        url = '/argue/rebut/'
+
+        # GET Request
+        response = self.client.get(url)
+        self.assertContains(response, "Not a POST")
+        
+        # Invalid Form
+        user = active_deb.whos_up()
+        bad_user = User.objects.exclude(id=user.id)[0]
+
+        self.client.login(username=bad_user.username, password='password')
+        response = self.client.post(url, {'arg_id': '',
+                                          'comment': ''})
+
+        self.assertContains(response, "Invalid Form")
+
+        # wrong user
+        response = self.client.post(url, {'arg_id': active_deb.id,
+                                          'comment': 'some rebuttal'})
+        self.assertContains(response, "Not your turn")
+
+        # legit rebuttal
+        self.client.login(username=user.username, password='password')
+        response = self.client.post(url, {'arg_id': active_deb.id,
+                                          'comment': 'some rebuttal'})
+        print response
+        self.assertContains(response, "ok")
+
+        # old argument
+        old_user = inactive_deb.plaintiff
+        self.client.login(username=old_user.username, password='password')
+        response = self.client.post(url, {'arg_id': inactive_deb.id,
+                                          'comment': 'some rebuttal'})
+        self.assertContains(response, "Not your turn")
+
+    def test_respond(self):
+        url = '/argue/respond/'
+        deb = Debate.objects.filter(status=0)[0]
+        good_user = deb.defendant
+        bad_user = User.objects.exclude(id=good_user.id)[0]
+        postdata = {'arg_id': deb.id,
+                    'user_id': good_user.id,
+                    'response': 0}
+
+        # GET request
+        response = self.client.get(url)
+        self.assertContains(response, "Not a POST")
+
+        # Invalid form
+        response = self.client.post(url, {'arg_id':'',
+                                          'user_id':'',
+                                          'response':''})
+        self.assertContains(response, "Invalid Form")
+
+        # Wrong user
+        self.client.login(username=bad_user.username, password='password')
+        response = self.client.post(url, {'arg_id': deb.id,
+                                          'user_id': bad_user.id,
+                                          'response': 0})
+        self.assertContains(response, escape("Can't respond to a challenge that's not for you!"))
+        
+        # Legit response
+        self.client.login(username=good_user.username, password='password')
+        response = self.client.post(url, postdata)
+        self.assertContains(response, 'Challenge accepted')
+        
+
+        # Response already received
+        adeb = Debate.objects.exclude(status=0)[0]
+        self.client.login(username=adeb.defendant.username, password='password')
+        response = self.client.post(url, {'arg_id': adeb.id,
+                                          'user_id': adeb.defendant.id,
+                                          'response': 0})
+
+        

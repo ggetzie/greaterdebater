@@ -10,18 +10,18 @@ from django.template import loader, RequestContext, Context
 from django.utils.datastructures import MultiValueDictKeyError
 from django.views.generic import list_detail
 
-from tcd.comments.forms import ArgueForm, CommentForm, RebutForm
-from tcd.comments.models import TopicComment, ArgComment, nVote, Debate, tcdMessage, Draw
-from tcd.comments.utils import build_list
+from comments.forms import ArgueForm, CommentForm, RebutForm
+from comments.models import TopicComment, ArgComment, nVote, Debate, tcdMessage, Draw
+from comments.utils import build_list
 
-from tcd.items.forms import tcdTopicSubmitForm, Ballot, Flag, Concession, Response, TagEdit, \
+from items.forms import tcdTopicSubmitForm, Ballot, Flag, Concession, Response, TagEdit, \
     TagRemove, DecideForm
-from tcd.items.models import Topic, Tags
+from items.models import Topic, Tags
 
-from tcd.profiles.forms import tcdLoginForm, tcdUserCreationForm
-from tcd.profiles.models import Profile
+from profiles.forms import tcdLoginForm, tcdUserCreationForm
+from profiles.models import Profile
 
-from tcd.settings import HOSTNAME
+from settings import HOSTNAME
 
 from tcd.utils import calc_start, tag_dict, tag_string, update_tags, render_to_AJAX, render_message
 
@@ -622,169 +622,174 @@ def vote(request):
     return render_to_AJAX(status="ok", messages=[])
 
 def unvote(request):
-    message = "ok"
-    error = True
-    if request.POST:
-        form = Ballot(request.POST)
-        if form.is_valid():
-            arg = get_object_or_404(Debate, pk=form.cleaned_data['argument'])
-            voter = get_object_or_404(User, pk=form.cleaned_data['voter'])
-            redirect = ''.join(['/argue/', str(arg.id)])
-            if voter == request.user:
-                vote = get_object_or_404(nVote, argument=arg, voter=voter)
-                vote.delete()
-                arg.calculate_score()
-                error = False
-            else:
-                message = "Can't delete another user's vote"
-        else:
-            message = "Invalid Form"
-    else:
-        message = "Not a Post"
-    response = ('response', [('error', error),
-                             ('message', message)])
-    response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')
-    return HttpResponse(response)
+
+    if not request.POST:
+        return render_to_AJAX(status="alert", messages=["Not a POST"])
+
+    form = Ballot(request.POST)
+    if not form.is_valid():
+        return render_to_AJAX(status="alert", messages=["Invalid Form"])
+
+    arg = get_object_or_404(Debate, pk=form.cleaned_data['argument'])
+    voter = get_object_or_404(User, pk=form.cleaned_data['voter'])
+    redirect = ''.join(['/argue/', str(arg.id)])
+    if not voter == request.user:
+        return render_to_AJAX(status="alert", messages=["Can't delete another user's vote"])
+
+
+    vote = get_object_or_404(nVote, argument=arg, voter=voter)
+    vote.delete()
+    arg.calculate_score()
+    return render_to_AJAX(status="ok", messages=[])
 
 def rebut(request):
     """Add a new post to an argument."""
-    status = "error"
-    arg_status = None    
     t = loader.get_template('items/msg_div.html')
-    id = "1"
-    nesting = "20"
+    ct = Context({'id': "1",
+                 'nesting': "20"})
+                 
+    if not request.POST:
+        ct['message'] = "Not a POST"
+        message = t.render(ct)
+        return render_to_AJAX(status="error", messages=[message])
 
-    if request.POST:
-        form = RebutForm(request.POST)
-        if form.is_valid():            
-            arg = get_object_or_404(Debate, pk=form.cleaned_data['arg_id'])
-            if arg.whos_up() == request.user:
-                if arg.status in (0, 1, 2):
-                    if arg.status == 2:
-                        arg.status = 1
-                    elif arg.status == 1:
-                        arg.status = 2
-                    elif arg.status == 0:
-                        arg.status = 1
-                    params = {'comment': form.cleaned_data['comment'],
-                              'user': request.user,
-                              'ntopic': arg.topic,
-                              'debate': arg}
+    form = RebutForm(request.POST)
 
-                    c = ArgComment(**params)
-                    c.save()
-                    
-                    arg.save()
+    if not form.is_valid():
+        ct['message'] = "Invalid Form"
+        message = t.render(ct)
+        return render_to_AJAX(status="error", messages=[message])
 
-                    top = arg.topic
-                    top.comment_length += len(c.comment)
-                    top.recalculate()
-                    top.save()
+    arg = get_object_or_404(Debate, pk=form.cleaned_data['arg_id'])
 
-                    t = loader.get_template('comments/arg_comment.html')
+    if not arg.whos_up() == request.user:
+        ct['message'] = "Not your turn"
+        message = t.render(ct)
+        return render_to_AJAX(status="error", messages=[message])
 
-                    context = Context({'comment': c,
-                                       'object': arg})
-                    arg_status = arg.get_status()
-                    status = "ok"                                 
-                else:                   
-                    context = Context({'id': id,
-                                       'message': "Argument not active!",
-                                       'nesting': nesting})                    
-            else:
-                context = Context({'id': id,
-                                   'message': "Not your turn",
-                                   'nesting': nesting})                    
-        else:
-            context = Context({'id': id,
-                               'message': "Invalid form - rebut",
-                               'nesting': nesting})                    
-    else:
-        context = Context({'id': id,
-                           'message': "Not a POST",            
-                           'nesting': nesting})                            
+    if arg.status == 2:
+        arg.status = 1
+    elif arg.status == 1:
+        arg.status = 2
+    elif arg.status == 0:
+        arg.status = 1
+    params = {'comment': form.cleaned_data['comment'],
+              'user': request.user,
+              'ntopic': arg.topic,
+              'debate': arg}
 
-    response = ('response', [('message', t.render(context)),
-                             ('status', status),
-                             ('arg_status', arg_status)
-                             ])
-    response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')    
-    return HttpResponse(response)
+    c = ArgComment(**params)
+    c.save()
+
+    arg.save()
+
+    top = arg.topic
+    top.comment_length += len(c.comment)
+    top.recalculate()
+    top.save()
+
+    t = loader.get_template('comments/arg_comment.html')
+    context = Context({'comment': c,
+                       'object': arg})
+    return render_to_AJAX(status="ok", 
+                          messages=[t.render(context),
+                                    arg.get_status()])
 
 def respond(request):
     """Potential opponent accepts or rejects a challenge to an argument."""    
-    status = "error"
-    turn_actions = ""
-    arg_status = "error"
-    arg_response = None
-    if request.POST:
-        form = Response(request.POST)
-        if form.is_valid():
-            arg = get_object_or_404(Debate, pk=form.cleaned_data['arg_id'])
-            if request.user == arg.defendant:
-                redirect = ''.join(["/argue/", str(arg.id), "/"])
-                if arg.status == 0:
-                    response = form.cleaned_data['response']
-                    if response == 0:
-                        # challenge accepted
-                        arg.status = 2
-                        arg.start_date = datetime.datetime.now()
-                        arg_response = "accept"
-                        message = ''.join([arg.defendant.username, 
-                                           " has accepted your challenge.\n\n[View this debate](", redirect, ")",
-                                           "\n\nThis debate will remain active for 7 days. After the time ",
-                                           "is up, the participant with the most votes will be declared the winner."])
-                        msg = tcdMessage(user=request.user,
-                                         recipient=arg.plaintiff,
-                                         comment=message,
-                                         subject="Challenge accepted",
-                                         pub_date=datetime.datetime.now())
+
+    msg_t = loader.get_template("items/msg_div.html")
+    ct = Context({'id': '1',
+                 'nesting': '20'})
+    
+    if not request.POST:
+        ct['message'] = "Not a POST"
+        return render_to_AJAX(status='error', 
+                              messages=[msg_t.render(ct)])
 
 
-                    else:
-                        # response == 1, challenge declined
-                        # a value other than 0 or 1 would cause the form to not validate
-                        arg.status = 6
-                        arg.end_date = datetime.datetime.now()
-                        arg_response = "decline"                        
-                        message = ''.join([ arg.defendant.username, 
-                                            " has declined your challenge."])
-                        msg = tcdMessage(user=request.user,
-                                         recipient=arg.plaintiff,
-                                         comment=message,
-                                         subject="Challenge declined")
+    form = Response(request.POST)
 
-                    msg.save()
-                    arg.save()
-                    status = "ok"
-                    ta_template = loader.get_template("items/turn_actions.html")
-                    ta_c = Context({'object': arg,
-                                    'user': request.user,
-                                    'last_c': arg.argcomment_set.order_by('-pub_date')[0]})
-                    turn_actions = ta_template.render(ta_c)
-                    response_message = msg.subject
-                    arg_status = arg.get_status()
-                else:
-                    response_message = "Challenge already accepted or declined"
-            else:
-                response_message = "Can't respond to a challenge that's not for you!"
-        else:
-            response_message = "Invalid Form"
+    if not form.is_valid():
+        ct['message'] = "Invalid Form"
+        return render_to_AJAX(status='error', 
+                              messages=[msg_t.render(ct)])
+
+    arg = get_object_or_404(Debate, pk=form.cleaned_data['arg_id'])
+
+    if not request.user == arg.defendant:
+        ct['message'] = "Can't respond to a challenge that's not for you!"
+        return render_to_AJAX(status='error', 
+                              messages=[msg_t.render(ct)])
+
+    redirect = '/argue/' + str(arg.id) + '/'
+    
+    if not arg.status == 0:
+        ct['message'] = "Challenge already accepted or declined"
+        return render_to_AJAX(status='error', 
+                              messages=[msg_t.render(ct)])
+
+    response = form.cleaned_data['response']
+    if response == 0:
+        # challenge accepted
+        arg.status = 2
+        arg.start_date = datetime.datetime.now()
+        arg_response = "accept"
+        message = ''.join([arg.defendant.username, 
+                           " has accepted your challenge.\n\n[View this debate](", redirect, ")",
+                           "\n\nThis debate will remain active for 7 days. After the time ",
+                           "is up, the participant with the most votes will be declared the winner."])
+        msg = tcdMessage(user=request.user,
+                         recipient=arg.plaintiff,
+                         comment=message,
+                         subject="Challenge accepted",
+                         pub_date=datetime.datetime.now())
+
+
     else:
-        response_message = "Not a POST"
+        # response == 1, challenge declined
+        # a value other than 0 or 1 would cause the form to not validate
+        arg.status = 6
+        arg.end_date = datetime.datetime.now()
+        arg_response = "decline"                        
+        message = ''.join([ arg.defendant.username, 
+                            " has declined your challenge."])
+        msg = tcdMessage(user=request.user,
+                         recipient=arg.plaintiff,
+                         comment=message,
+                         subject="Challenge declined")
+
+    msg.save()
+    arg.save()
+    status = "ok"
+    ta_template = loader.get_template("items/turn_actions.html")
+    ta_c = Context({'object': arg,
+                    'user': request.user,
+                    'last_c': arg.argcomment_set.order_by('-pub_date')[0]})
+    turn_actions = ta_template.render(ta_c)
+    response_message = msg.subject
+    arg_status = arg.get_status()
 
     msg_t = loader.get_template("items/msg_div.html")
     msg_c = Context({'id': "1",
                      'message': response_message,
                      'nesting': "20"})
-    responseXML = ('response', [('message', msg_t.render(msg_c)),
-                                ('turn_actions', turn_actions),
-                                ('arg_response', arg_response),
-                                ('arg_status', arg_status),
-                                ('status', status)])
-    responseXML = pyfo.pyfo(responseXML, prolog=True, pretty=True, encoding='utf-8')    
-    return HttpResponse(responseXML)
 
+    return render_to_AJAX(status="ok", messages=[msg_t.render(msg_c),
+                                                 turn_actions,
+                                                 arg_response,
+                                                 arg_status])
+                                                 
+
+    # responseXML = ('response', [('message', msg_t.render(msg_c)),
+    #                             ('turn_actions', turn_actions),
+    #                             ('arg_response', arg_response),
+    #                             ('arg_status', arg_status),
+    #                             ('status', status)])
+
+
+    # responseXML = pyfo.pyfo(responseXML, prolog=True, pretty=True, encoding='utf-8')    
+    # return HttpResponse(responseXML)
 
 def draw(request):
     """A user offers that the debate be resolved as a draw."""

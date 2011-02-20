@@ -110,6 +110,19 @@ def testsetup():
                                   comment="Defendant turn challenge")
     deb_dturn_com1.save()
 
+    # Some votes for this debate
+    voters = User.objects.exclude(username__in=(deb_dturn.plaintiff, deb_dturn.defendant))
+    vote1 = nVote(argument=deb_dturn,
+                  voter=voters[0],
+                  voted_for="P")
+    vote1.save()
+
+    vote2 = nVote(argument=deb_dturn,
+                  voter=voters[1],
+                  voted_for="D")
+    vote2.save()
+    
+
     # Debate, defendant wins, status = 3
     deb_dwin = Debate(plaintiff=users[4],
                       defendant=com1.user,

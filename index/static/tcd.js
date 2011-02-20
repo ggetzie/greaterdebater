@@ -10,6 +10,29 @@ $(document).ready(function() {
 });
 
 document.onclick = jsddm_close;
+
+// enable csrf protection for ajax POSTs
+$('html').ajaxSend(function(event, xhr, settings) {
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+        // Only send the token to relative URLs i.e. locally.
+        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+    }
+});
     
 function displayFormComment(form_id) {
 
@@ -294,17 +317,21 @@ function respond_challenge(arg_id, user_id, response) {
 	   function(xml) {
 	       // display the message
 	       if ( $("status", xml).text() == "ok") {
-		   if ( $("arg_response", xml).text() == "accept") {
+		   msg = $("message", xml).html()
+		   turn_actions = $('message', xml).slice(1).html()
+		   arg_response = $('message', xml).slice(2).html()
+		   arg_status = $('message', xml).slice(3).html()
+		   if ( arg_response == "accept") {
 		       // if the challenge was accepted
 		       // change the status and add the options to reply
-		       turn_actions = $("turn_actions", xml).text()
 		       $("#arg_actions").replaceWith(turn_actions);
 		   } else {
 		       // if the challenge was declined, remove the arg_actions div
 		       $("#arg_actions").remove();
 		   }
+		   $("#arg_comments").append(msg);
 		   // In any case, update the status of the argument
-		   $("#arg_status").html( $("arg_status", xml).text() );
+		   $("#arg_status").html( arg_status);
 	       } else if ($("status", xml).text() == "error") {
 		   // Display the error message
 		   $("#arg_responses").html(arg_responses);
@@ -357,16 +384,18 @@ function rebut_argument(arg_id, parent_id, draw) {
 		 arg_id: arg_id},
 	   function(xml) {
 	       $("#turn_actions").html(turn_actions)
-	       msg = $("message", xml).text();
 	       status = $("status", xml).text();
 	       if (status == "error") {
 		   // show the error message somewhere
 		   $("#turn_actions").append(msg);
+		   msg = $("message", xml).text();
 	       } else {
 		   // add the rebuttal comment at the end of the list of comments
+		   msg = $("message", xml).html();
 		   $("#arg_comments").append(msg);
 		   // update the status field
-		   $("#arg_status").html( $("arg_status", xml).text() );
+		   astatus = $("message", xml).next().text()
+		   $("#arg_status").html( astatus);
 		   $("#arg_actions").remove()
 	       }
 	   })
