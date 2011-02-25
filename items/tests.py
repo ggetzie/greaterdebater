@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils.html import escape
 
-from comments.models import TopicComment, Debate, nVote
+from comments.models import TopicComment, Debate, nVote, Draw
 from items.models import Topic, Tags
 from items.forms import tcdTopicSubmitForm
 from profiles.models import Profile
@@ -580,7 +580,6 @@ class ViewTest(TestCase):
         self.client.login(username=user.username, password='password')
         response = self.client.post(url, {'arg_id': active_deb.id,
                                           'comment': 'some rebuttal'})
-        print response
         self.assertContains(response, "ok")
 
         # old argument
@@ -630,3 +629,72 @@ class ViewTest(TestCase):
                                           'response': 0})
 
         
+    def test_draw(self):
+        url = '/argue/draw/'
+        deb = Debate.objects.filter(status__in=(1,2))[0]
+        
+        # GET request
+        response = self.client.get(url)
+        self.assertContains(response, "Not a POST")
+
+        # Invalid form
+        response = self.client.post(url, {'arg_id':'',
+                                          'user_id':'',
+                                          'comment': ''})
+        self.assertContains(response, "Invalid Form")
+        
+        # User offering a draw out of turn
+        bad_user = deb.whos_up(invert=1)
+        self.client.login(username=bad_user.username, password='password')
+        response = self.client.post(url, {'arg_id': deb.id,
+                                          'user_id': bad_user.id,
+                                          'comment': 'A draw I say'})
+        self.assertContains(response, "Not your turn")
+
+        # Legit draw
+        good_user = deb.whos_up()
+        self.client.login(username=good_user.username, password='password')
+        response = self.client.post(url, {'arg_id': deb.id,
+                                          'user_id': good_user.id,
+                                          'comment': 'A draw I say'})
+        self.assertContains(response, "A draw I say")
+        
+        # Draw offer outstanding
+        # opponent tries to offer a draw before responding
+        self.client.login(username=bad_user.username, password='password')
+        response = self.client.post(url, {'arg_id': deb.id,
+                                          'user_id': good_user.id,
+                                          'comment': 'A draw I say'})
+        self.assertContains(response, "A draw has already been offered")
+
+    def test_respond_draw(self):
+        url = '/argue/draw/respond/'
+        drawoffer = Draw.objects.all()[0]
+        deb = drawoffer.argument
+        
+        bu = User.objects.exclude(id = drawoffer.recipient.id)[0]
+        gu = drawoffer.recipient
+
+        # GET request
+        response = self.client.get(url)
+        self.assertContains(response, "Not a POST")
+
+        # invalid form
+        response = self.client.post(url, {'arg_id': '',
+                                          'user_id': '',
+                                          'response': ''})
+        self.assertContains(response, "Invalid Form")
+        
+        # bad user
+        self.client.login(username=bu.username, password='password')
+        response = self.client.post(url, {'arg_id': deb.id,
+                                          'user_id': bu.id,
+                                          'response': 0})
+        self.assertContains(response, escape("You can't respond to this draw offer"))
+        
+        # legit resposne
+        self.client.login(username=gu.username, password='password')
+        response = self.client.post(url, {'arg_id': deb.id,
+                                          'user_id': gu.id,
+                                          'response': 0})
+        self.assertContains(response, "Draw Accepted")

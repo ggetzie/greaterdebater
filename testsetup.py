@@ -80,19 +80,50 @@ def testsetup():
                          start_date=datetime.datetime.now(),
                          topic=com1.ntopic)
     deb_pturn.save()
-    deb_pturn_com1 = ArgComment(user=deb_pending.plaintiff,
+    deb_pturn_com1 = ArgComment(user=deb_pturn.plaintiff,
                                   ntopic=com1.ntopic,
                                   debate=deb_pturn,
                                   pub_date=datetime.datetime.now(),
                                   comment="Plantiff turn challenge")
     deb_pturn_com1.save()
 
-    deb_pturn_com2 = ArgComment(user=deb_pending.defendant,
+    deb_pturn_com2 = ArgComment(user=deb_pturn.defendant,
                                   ntopic=com1.ntopic,
                                   debate=deb_pturn,
                                   pub_date=datetime.datetime.now(),
                                   comment="Plantiff turn 1st rebuttal")
     deb_pturn_com2.save()
+
+    # Debate, plaintiff's turn status = 1
+    # with outstanding draw offer
+    deb_drawoffer = Debate(plaintiff=users[6],
+                           defendant = com1.user,
+                           status=1,
+                           incite=com1,
+                           title = "Debate - Draw offered",
+                           start_date=datetime.datetime.now(),
+                           topic=com1.ntopic)
+    deb_drawoffer.save()
+    deb_drawoffer_com1 = ArgComment(user=deb_drawoffer.plaintiff,
+                                    ntopic=com1.ntopic,
+                                    debate=deb_drawoffer,
+                                    pub_date=datetime.datetime.now(),
+                                    comment="Draw offer challenge")
+    deb_drawoffer_com1.save()
+
+    deb_drawoffer_com2 = ArgComment(user=deb_drawoffer.defendant,
+                                    ntopic=com1.ntopic,
+                                    debate=deb_drawoffer,
+                                    pub_date=datetime.datetime.now(),
+                                    comment="Explaining why for draw")
+    deb_drawoffer_com2.save()
+    
+    drawoffer = Draw(offeror = deb_drawoffer.defendant,
+                     recipient = deb_drawoffer.plaintiff,
+                     offer_date = datetime.datetime.now(),
+                     argument = deb_drawoffer)
+    
+    drawoffer.save()
 
     # Debate, defendant's turn status=2
     deb_dturn = Debate(plaintiff=users[3],

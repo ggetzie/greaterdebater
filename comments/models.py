@@ -383,4 +383,4 @@ class Draw(models.Model):
     argument = models.ForeignKey(Debate)
 
     def __unicode__(self):
-        return ''.join(["Argument ", str(self.argument.id)])
+        return "Draw Offer - " + self.argument.title

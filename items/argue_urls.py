@@ -29,7 +29,6 @@ urlpatterns = patterns('tcd.items.views',
                        
                        # Respond to an offer to call an argument a draw
                        (r'^draw/respond/$', 'respond_draw'),                                              
-                       (r'^draw/(?P<response>(accept|decline))/(?P<a_id>[\d]+)/$', 'respond_draw'),       
 
                        # Concede an argument
                        (r'^concede/$', 'concede'),                     

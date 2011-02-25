@@ -794,107 +794,103 @@ def respond(request):
 def draw(request):
     """A user offers that the debate be resolved as a draw."""
     status = "error"    
-    if request.POST:
-        form = RebutForm(request.POST)
-        if form.is_valid():
-            arg = get_object_or_404(Debate, pk=form.cleaned_data['arg_id'])
-            redirect = ''.join(['/argue/', str(arg.id), '/'])
-            if arg.whos_up() == request.user and not arg.draw_set.all():
-                message = ''.join([request.user.username, 
-                                   " has offered a draw regarding the debate\n "
-                                   "[",  arg.title, "]", "(", redirect, ")",
-                                   "\nView the debate to accept or decline."])
-                recipient = arg.get_opponent(request.user)
-                msg = tcdMessage(user=request.user,
-                                 recipient=recipient,
-                                 comment=message,
-                                 subject="Draw?")
-
-                msg.save()
-                draw = Draw(offeror=request.user,
-                            recipient=arg.get_opponent(request.user),
-                            offer_date=datetime.datetime.now(),
-                            argument=arg)
-                draw.save()
-                return rebut(request)
-            else:
-                response_message="Not your turn, not your debate, or there's already a draw offer outstanding"
-        else:
-            response_message = "Invalid Form - draw"
-    else:
-        response_message = "Not a POST"
     t = loader.get_template('items/msg_div.html')
-    c = Context({'id': "1",
-                 'message': response_message,
-                 'nesting': "20"})
-    response = ('response', [('message', t.render(c)),
-                             ('status', status)
-                             ])
-    response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')    
-    return HttpResponse(response)
+    ct = Context({'id': '1',
+                  'nesting': '20'})
 
+    if not request.POST:
+        ct['message'] = "Not a POST"
+        return render_to_AJAX(status="error", messages=[t.render(ct)])
+
+    form = RebutForm(request.POST)
+    if not form.is_valid():
+        ct['message'] = "Invalid Form"
+        return render_to_AJAX(status="error", messages=[t.render(ct)])
+
+    arg = get_object_or_404(Debate, pk=form.cleaned_data['arg_id'])
+    redirect = ''.join(['/argue/', str(arg.id), '/'])
+    if not arg.whos_up() == request.user:
+        # Note this will also catch a draw offer to an argument that is inactive
+        # because inactive arguments will return None to whos_up()
+        # Also, it will catch offers from users who are not participants 
+        # in the debate
+        ct['message'] = "Not your turn"
+        return render_to_AJAX(status="error", messages=[t.render(ct)])
+
+    if arg.draw_set.all():
+        ct['message'] = "A draw has already been offered"
+        return render_to_AJAX(status="error", messages=[t.render(ct)])
+
+    message = ''.join([request.user.username, 
+                       " has offered a draw regarding the debate\n "
+                       "[",  arg.title, "]", "(", redirect, ")",
+                       "\nView the debate to accept or decline."])
+    recipient = arg.get_opponent(request.user)
+    msg = tcdMessage(user=request.user,
+                     recipient=recipient,
+                     comment=message,
+                     subject="Draw?")
+
+    msg.save()
+    draw = Draw(offeror=request.user,
+                recipient=arg.get_opponent(request.user),
+                offer_date=datetime.datetime.now(),
+                argument=arg)
+    draw.save()
+    return rebut(request)
 
 def respond_draw(request):
     """Opponent responds to an offer of a draw"""
     
-    # default to error status
-    # if the form processes successfully, will be changed to "ok"
-    status = "error"
-    ta_XML = ""
-    arg_status = "error"
-    
-    if request.POST:
-        form = Response(request.POST)
-        if form.is_valid():
-            arg = get_object_or_404(Debate, pk=form.cleaned_data['arg_id'])
-            draw = get_object_or_404(Draw, argument=arg)
-            redirect = ''.join(["/argue/", str(arg.id), "/"])
-            if request.user == draw.recipient:
-                response = form.cleaned_data['response']
-                if response == 0: # draw offer accepted
-                    message = ''.join([request.user.username, " has accepted your offer of a draw",
-                                       " regarding \n[", arg.title, "](", redirect, ")"])
-                    subject = "Draw Accepted"
-                    arg.status = 5            
-                    response_message = subject
-                else: 
-                    # response == 1, the draw was declined 
-                    # if a value other than 0 or 1, the form would not have validated
-                    message = ''.join([request.user.username, " has declined your offer of a draw",
-                                       " regarding \n[", arg.title, "](", redirect, ")"])
-                    subject = "Draw Declined"
-                    response_message = subject
-                msg = tcdMessage(user=request.user,
-                                     recipient = draw.offeror,
-                                     comment = message,
-                                     subject = subject)
-
-                draw.delete()
-                msg.save()
-                arg.save()
-                ta_template = loader.get_template("items/turn_actions.html")
-                ta_c = Context({'object': arg,
-                                'user': request.user,
-                                'last_c': arg.argcomment_set.order_by('-pub_date')[0]})
-                ta_XML = ta_template.render(ta_c)
-                status = "ok"
-                arg_status = arg.get_status()
-            else:
-                response_message = "You can't respond to this draw offer"                
-        else:
-            response_message = "Invalid Form"
-    else:
-        response_message = "Not a POST"
     msg_t = loader.get_template("items/msg_div.html")
     msg_c = Context({'id': "1",
-                     'message': response_message,
                      'nesting': "20"})
-    responseXML = ('response', [('message', msg_t.render(msg_c)),
-                                ('turn_actions', ta_XML),
-                                ('arg_status', arg_status),
-                                ('status', status)])
-    responseXML = pyfo.pyfo(responseXML, prolog=True, pretty=True, encoding='utf-8')    
-    return HttpResponse(responseXML)
+
+    if not request.POST:
+        msg_c['message'] = "Not a POST"
+        return render_to_AJAX(status="error", messages=[msg_t.render(msg_c)])
+
+    form = Response(request.POST)
+    if not form.is_valid():
+        msg_c['message'] = "Invalid Form"
+        return render_to_AJAX(status="error", messages=[msg_t.render(msg_c)])
+
+    arg = get_object_or_404(Debate, pk=form.cleaned_data['arg_id'])
+    draw = get_object_or_404(Draw, argument=arg)
+    redirect = '/argue/' + str(arg.id) + '/'
+    if not request.user == draw.recipient:
+        msg_c['message'] = "You can't respond to this draw offer"
+        return render_to_AJAX(status="error", messages=[msg_t.render(msg_c)])
+
+    response = form.cleaned_data['response']
+    if response == 0: # draw offer accepted
+        message = ''.join([request.user.username, " has accepted your offer of a draw",
+                           " regarding \n[", arg.title, "](", redirect, ")"])
+        subject = "Draw Accepted"
+        arg.status = 5            
+    else: 
+        # response == 1, the draw was declined 
+        # if a value other than 0 or 1, the form would not have validated
+        message = ''.join([request.user.username, " has declined your offer of a draw",
+                           " regarding \n[", arg.title, "](", redirect, ")"])
+        subject = "Draw Declined"
+
+    msg = tcdMessage(user=request.user,
+                     recipient = draw.offeror,
+                     comment = message,
+                     subject = subject)
+    draw.delete()
+    msg.save()
+    arg.save()
+    ta_template = loader.get_template("items/turn_actions.html")
+    ta_c = Context({'object': arg,
+                    'user': request.user,
+                    'last_c': arg.argcomment_set.order_by('-pub_date')[0]})
+    
+    msg_c['message'] = msg.subject
+    return render_to_AJAX(status="ok", messages=[msg_t.render(msg_c),
+                                                 ta_template.render(ta_c), 
+                                                 arg.get_status()])
 
 def concede(request):
     """User concedes a debate, opponent wins"""
