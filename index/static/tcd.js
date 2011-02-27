@@ -286,19 +286,20 @@ function respond_draw(arg_id, user_id, response) {
 				    response: response},
 	   function(xml) {
 	       // display the message
-	       msg = $("message", xml).text();
+	       msg = $("message", xml).html();
 	       $("#turn_actions").html(turn_actions);
 	       $("#arg_actions").parent().append(msg);
+	       arg_status = $("message", xml).slice(2).text();
 	       if ( $("status", xml).text() == "ok") {
-		   if ( $("arg_status", xml).text() == 'draw') {
+		   if ( arg_status == 'draw') {
 		       // if the draw was accepted
 		       // change the status and remove the options to reply
 		       $("#arg_actions").remove();
-		       $("#arg_status").html( $("arg_status", xml).text() );
+		       $("#arg_status").html( arg_status );
 		   } else {
 		       // if the draw was declined, show the options to reply
 		       $("#draw_query").remove();
-		       turn_actions = $("turn_actions", xml).text()
+		       turn_actions = $("message", xml).slice(1).html()
 		       $("#arg_actions").replaceWith(turn_actions);
 		   }
 	       }
@@ -352,12 +353,12 @@ function concede_argument(arg_id, user_id) {
 			      user_id: user_id},
 	   function(xml) {
 	       
-	       msg = $("message", xml).text();
+	       msg = $("message", xml).html();
 	       if ( $("status", xml).text() == "error") {
 		   $("#turn_actions").html(turn_actions);
 		   $("#turn_actions").append(msg);
 	       } else {
-		   $("#arg_status").html( $("arg_status", xml).text() );
+		   $("#arg_status").html( $("message", xml).next().html() );
 		   $("#arg_actions").parent().append(msg);
 		   $("#arg_actions").remove()
 	       }

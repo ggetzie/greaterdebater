@@ -8,6 +8,8 @@ class ProfileAdmin(admin.ModelAdmin):
         ('feedinfo',    {'fields': ['feedcoms', 'feedtops', 'feeddebs']}),
         ('following',   {'fields': ['followtops', 'followcoms']})
         ]
+    
+    search_fields = ['user__username']
         
 admin.site.register(Profile, ProfileAdmin)
 

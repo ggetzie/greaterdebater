@@ -10,8 +10,9 @@ class TopicAdmin(admin.ModelAdmin):
         (None,        {'fields': ['tags']})
         ]
 
-    list_display = ('sub_date', 'title')
-    list_filter = ('sub_date', 'needs_review', 'spam', 'user')
+    list_display = ('sub_date', 'title', 'user')
+    list_filter = ('sub_date', 'needs_review', 'spam')
+    search_fields = ['user__username']
          
 
 admin.site.register(Topic, TopicAdmin)

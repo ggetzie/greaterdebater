@@ -779,17 +779,6 @@ def respond(request):
                                                  turn_actions,
                                                  arg_response,
                                                  arg_status])
-                                                 
-
-    # responseXML = ('response', [('message', msg_t.render(msg_c)),
-    #                             ('turn_actions', turn_actions),
-    #                             ('arg_response', arg_response),
-    #                             ('arg_status', arg_status),
-    #                             ('status', status)])
-
-
-    # responseXML = pyfo.pyfo(responseXML, prolog=True, pretty=True, encoding='utf-8')    
-    # return HttpResponse(responseXML)
 
 def draw(request):
     """A user offers that the debate be resolved as a draw."""
@@ -896,50 +885,49 @@ def concede(request):
     """User concedes a debate, opponent wins"""
     status = "error"
     arg_status = None
-    if request.POST:
-        form = Concession(request.POST)
-        if form.is_valid():
-            arg = get_object_or_404(Debate, pk=form.cleaned_data['arg_id'])
-            user = User.objects.get(pk=form.cleaned_data['user_id'])
-
-            if user == request.user and request.user in (arg.defendant, arg.plaintiff):
-                arg.status += 2
-                arg.end_date = datetime.datetime.now()
-                recipient = arg.get_opponent(request.user)
-                prof = Profile.objects.get(user = recipient)
-                prof.score += 1
-                message = ''.join([request.user.username, " has conceded in the debate\n", 
-                                   "[", arg.title, "]", "(/argue/", str(arg.id), "/)"])
-                msg = tcdMessage(user=request.user,
-                                 recipient = recipient,
-                                 comment = message,
-                                 subject = "All right, you win")
-                         
-                msg.save()
-                arg.save()
-                prof.save()
-                response_message = "Point conceded"
-                status = "ok"
-                arg_status = arg.get_status()
-            else:
-                response_message = "Not your debate"
-        else:
-            response_message = "Invalid form"
-    else: 
-        response_message = "Not a Post"
-
-    t = loader.get_template('items/msg_div.html')
-
-    c = Context({'id': "1",
-                 'message': response_message,
+    msg_t = loader.get_template('items/msg_div.html')
+    msg_c = Context({'id': "1",
                  'nesting': "20"})
-    response = ('response', [('message', t.render(c)),
-                             ('status', status),
-                             ('arg_status', arg_status)
-                             ])
-    response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')    
-    return HttpResponse(response)
+    
+    if not request.POST:
+        msg_c['message'] = "Not a POST"
+        return render_to_AJAX(status="error", 
+                              messages=[msg_t.render(msg_c)])
 
+    form = Concession(request.POST)
+    if not form.is_valid():
+        msg_c['message'] = "Invalid Form"
+        return render_to_AJAX(status="error", 
+                              messages=[msg_t.render(msg_c)])
+
+    arg = get_object_or_404(Debate, pk=form.cleaned_data['arg_id'])
+    user = User.objects.get(pk=form.cleaned_data['user_id'])
+
+    if not request.user == arg.whos_up():
+        msg_c['message'] = "Not your turn"
+        return render_to_AJAX(status="error", 
+                              messages=[msg_t.render(msg_c)])
+
+    arg.status += 2
+    arg.end_date = datetime.datetime.now()
+    recipient = arg.get_opponent(request.user)
+    prof = Profile.objects.get(user = recipient)
+    prof.score += 1
+    message = ''.join([request.user.username, " has conceded in the debate\n", 
+                       "[", arg.title, "]", "(/argue/", str(arg.id), "/)"])
+    msg = tcdMessage(user=request.user,
+                     recipient = recipient,
+                     comment = message,
+                     subject = "All right, you win")
+    
+    msg.save()
+    arg.save()
+    prof.save()
+    msg_c['message'] = "Point conceded"
+
+    return render_to_AJAX(status="ok",
+                          messages=[msg_t.render(msg_c),
+                                    arg.get_status()])
 
 def arg_detail(request, object_id):
     arg = get_object_or_404(Debate, pk=object_id)

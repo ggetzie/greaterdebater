@@ -16,7 +16,7 @@ class TopicCommentAdmin(admin.ModelAdmin):
         ]
         
         
-
+    search_fields = ['user__username']
     list_display = ('user', 'pub_date', 'comment')
     list_filter = ['pub_date', 'needs_review', 'spam', 'first', 'removed']
 

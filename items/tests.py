@@ -698,3 +698,74 @@ class ViewTest(TestCase):
                                           'user_id': gu.id,
                                           'response': 0})
         self.assertContains(response, "Draw Accepted")
+
+    def test_concede(self):
+        url = '/argue/concede/'
+        
+        deb = Debate.objects.filter(status__in=(1,2))[0]
+        gu = deb.whos_up()
+        bu = User.objects.exclude(id=gu.id)[0]
+
+        # GET request
+        response = self.client.get(url)
+        self.assertContains(response, "Not a POST")
+
+        # Invalid form
+        response = self.client.post(url, {'arg_id': '',
+                                          'user_id': ''})
+        self.assertContains(response, "Invalid Form")
+
+        # wrong user
+        self.client.login(username=bu.username, password='password')
+        response = self.client.post(url, {'arg_id': deb.id,
+                                          'user_id': bu.id})
+        self.assertContains(response, "Not your turn")
+
+        # legit concession
+        self.client.login(username=gu.username, password='password')
+        response = self.client.post(url, {'arg_id': deb.id,
+                                          'user_id': gu.id})
+        self.assertContains(response, "Point conceded")
+        
+    def test_arg_detail(self):
+        
+        debs = Debate.objects.all()
+        
+        # Debate status 0
+        deb0 = debs.filter(status=0)[0]
+        response = self.client.get('/argue/' + str(deb0.id) + '/')
+        self.assertEqual(response.status_code, 200)
+
+        # Debate status 1
+        deb1 = debs.filter(status=1)[0]
+        response = self.client.get('/argue/' + str(deb1.id) + '/')
+        self.assertEqual(response.status_code, 200)
+
+        # Debate status 2
+        deb2 = debs.filter(status=2)[0]
+        response = self.client.get('/argue/' + str(deb2.id) + '/')
+        self.assertEqual(response.status_code, 200)
+
+        # Debate status 3
+        deb3 = debs.filter(status=3)[0]
+        response = self.client.get('/argue/' + str(deb3.id) + '/')
+        self.assertEqual(response.status_code, 200)
+
+        # Debate status 4
+        deb4 = debs.filter(status=4)[0]
+        response = self.client.get('/argue/' + str(deb4.id) + '/')
+        self.assertEqual(response.status_code, 200)
+
+        # Debate status 5
+        deb5 = debs.filter(status=2)[0]
+        response = self.client.get('/argue/' + str(deb5.id) + '/')
+        self.assertEqual(response.status_code, 200)
+
+        # Debate with outstanding draw offer
+        drawoffer = Draw.objects.all()[0]
+        debdo = drawoffer.argument
+        response = self.client.get('/argue/' + str(debdo.id) + '/')
+        self.assertEqual(response.status_code, 200)
+        
+        
+    
