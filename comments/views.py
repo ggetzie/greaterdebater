@@ -103,18 +103,19 @@ def add(request, topic_id):
         c.save()
 
     # alert topic or comment followers of a new reply
-    if c.nparent_id == 0:
-        followers = top.followers.all()
-    else:
-        parent = TopicComment.objects.get(id=c.nparent_id)
-        followers = parent.followers.all()
+    if not c.needs_review:
+        if c.nparent_id == 0:
+            followers = top.followers.all()
+        else:
+            parent = TopicComment.objects.get(id=c.nparent_id)
+            followers = parent.followers.all()
 
-    for follower in followers:
-        msg = fcomMessage(recipient=follower,
-                          is_read=False,
-                          reply=c,
-                          pub_date=datetime.datetime.now())
-        msg.save()
+        for follower in followers:
+            msg = fcomMessage(recipient=follower,
+                              is_read=False,
+                              reply=c,
+                              pub_date=datetime.datetime.now())
+            msg.save()
     
     top.comment_length += len(c.comment)
     top.recalculate()

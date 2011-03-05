@@ -436,7 +436,7 @@ class ViewTest(TestCase):
         self.assertEqual(prof.rate, 10)
 
         # Add a new topic needing review
-        prof = Profile.objects.filter(probation=True)[0]
+        prof = Profile.objects.filter(probation=True, rate__lt=10)[0]
         
         top = create_topic(user=prof.user, title="Not quite spam", comment="test")
         top.save()
@@ -733,14 +733,38 @@ class ViewTest(TestCase):
         
         # Debate status 0
         deb0 = debs.filter(status=0)[0]
-        response = self.client.get('/argue/' + str(deb0.id) + '/')
+        deb0url = '/argue/' + str(deb0.id) + '/'
+        response = self.client.get(deb0url)
         self.assertEqual(response.status_code, 200)
+        
+        user = deb0.whos_up()
+        self.client.login(username=user.username, password='password')
+        response = self.client.get(deb0url)
+        self.assertContains(response, "Begin this debate?")
 
         # Debate status 1
         deb1 = debs.filter(status=1)[0]
-        response = self.client.get('/argue/' + str(deb1.id) + '/')
+        deb1url = '/argue/' + str(deb1.id) + '/'
+        self.client.logout()
+        response = self.client.get(deb1url)
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "to cast your vote for the greater debater!")
+        
+        user = deb1.whos_up()
+        self.client.login(username=user.username, password='password')
+        response = self.client.get(deb1url)
+        self.assertContains(response, "Concede argument: Are you sure?")
 
+        user = deb1.whos_up(invert=1)
+        self.client.login(username=user.username, password='password')
+        response = self.client.get(deb1url)
+        self.assertNotContains(response, "Concede argument: Are you sure?")
+
+        user = User.objects.exclude(id__in=(deb1.plaintiff.id, deb1.defendant.id))[0]
+        self.client.login(username=user.username, password='password')
+        response = self.client.get(deb1url)
+        self.assertNotContains(response, "Current Tally:")
+        
         # Debate status 2
         deb2 = debs.filter(status=2)[0]
         response = self.client.get('/argue/' + str(deb2.id) + '/')
@@ -748,8 +772,14 @@ class ViewTest(TestCase):
 
         # Debate status 3
         deb3 = debs.filter(status=3)[0]
-        response = self.client.get('/argue/' + str(deb3.id) + '/')
+        deb3url = '/argue/' + str(deb3.id) + '/'
+        response = self.client.get(deb3url)
         self.assertEqual(response.status_code, 200)
+
+        user = deb3.plaintiff
+        self.client.login(username=user.username, password='password')
+        response = self.client.get(deb3url)
+        self.assertContains(response, "Final Tally:")
 
         # Debate status 4
         deb4 = debs.filter(status=4)[0]
@@ -757,15 +787,29 @@ class ViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # Debate status 5
-        deb5 = debs.filter(status=2)[0]
+        deb5 = debs.filter(status=5)[0]
         response = self.client.get('/argue/' + str(deb5.id) + '/')
         self.assertEqual(response.status_code, 200)
 
         # Debate with outstanding draw offer
         drawoffer = Draw.objects.all()[0]
         debdo = drawoffer.argument
-        response = self.client.get('/argue/' + str(debdo.id) + '/')
+        debdourl = '/argue/' + str(debdo.id) + '/'
+        response = self.client.get(debdourl)
         self.assertEqual(response.status_code, 200)
-        
-        
-    
+
+        user = debdo.whos_up()
+        self.client.login(username=user.username, password='password')
+        response = self.client.get(debdourl)
+        self.assertContains(response, "Accept")
+
+    def test_args_list(self):
+
+        response = self.client.get('/argue/hot/')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get('/argue/new/')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get('/argue/archive/')
+        self.assertEqual(response.status_code, 200)

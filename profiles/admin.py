@@ -9,7 +9,8 @@ class ProfileAdmin(admin.ModelAdmin):
         ('following',   {'fields': ['followtops', 'followcoms']})
         ]
     
-    search_fields = ['user__username']
+    search_fields = ['user__username', 'user__email']
+    list_filter = ('probation',)
         
 admin.site.register(Profile, ProfileAdmin)
 

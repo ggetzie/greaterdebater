@@ -11,7 +11,8 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.views.generic import list_detail
 
 from comments.forms import ArgueForm, CommentForm, RebutForm
-from comments.models import TopicComment, ArgComment, nVote, Debate, tcdMessage, Draw
+from comments.models import TopicComment, ArgComment, nVote, Debate, tcdMessage, Draw, \
+    fcomMessage
 from comments.utils import build_list
 
 from items.forms import tcdTopicSubmitForm, Ballot, Flag, Concession, Response, TagEdit, \
@@ -1085,11 +1086,26 @@ def decide(request, model):
         obj.needs_review = False
         if model == "comment":
             obj.pub_date = datetime.datetime.now()
+            # Alert followers that a reply has been made
+            top = obj.ntopic
+            if obj.nparent_id == 0:
+                followers = top.followers.all()
+            else:
+                parent = TopicComment.objects.get(id=obj.nparent_id)
+                followers = parent.followers.all()
+
+            for follower in followers:
+                msg = fcomMessage(recipient=follower,
+                                  is_read=False,
+                                  reply=obj,
+                                  pub_date=datetime.datetime.now())
+                msg.save()
         elif model == "topic":
             obj.sub_date = datetime.datetime.now()
             
         obj.save()
         message = render_message(model + " approved", 10)
+
     elif form.cleaned_data['decision'] == 1:
         # Mark spam, disable user
         obj.spam = True

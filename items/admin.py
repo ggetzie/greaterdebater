@@ -12,7 +12,7 @@ class TopicAdmin(admin.ModelAdmin):
 
     list_display = ('sub_date', 'title', 'user')
     list_filter = ('sub_date', 'needs_review', 'spam')
-    search_fields = ['user__username']
+    search_fields = ['user__username', 'user__email']
          
 
 admin.site.register(Topic, TopicAdmin)
