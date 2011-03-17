@@ -459,6 +459,55 @@ class ViewTest(TestCase):
         prof = Profile.objects.get(user=com.user)
         self.assertNotEqual(prof.rate, 10)
 
+        # When a user on probation makes a comment, don't alert followers
+        # until after the comment is approved
+        
+        # create a topic with followers
+        gu = Profile.objects.filter(probation=False, user__is_staff=False)[0].user
+        ftopic = create_topic(gu, "Followed topic", "tag1", 
+                              comment="Topic to test proper behavior of following")
+        ftopic.followers.add(gu)
+        
+        # user on probation makes a comment
+        self.client.logout()
+        prof = Profile.objects.filter(probation=True)[0]
+        bu = prof.user
+        # reset rate limit
+        prof.rate = 0
+        prof.last_post = datetime.datetime(month=1, day=1, year=1970)
+        prof.save()
+        self.client.login(username=bu.username, password='password')
+        response = self.client.post('/comments/'+ str(ftopic.id) +'/add/', 
+                                    {'comment': 'probation follow test',
+                                     'toplevel': 1}, 
+                                    follow=True)
+        self.assertRedirects(response, '/' + str(ftopic.id) + '/')
+
+        # Follower checks replies, the above comment should not appear
+        # because it still needs review
+        self.client.logout()
+        self.client.login(username=gu.username, password='password')
+        response = self.client.get('/users/u/' + gu.username + '/replies/')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'probation follow test')
+
+        # Staff user approves comment
+        self.client.logout()
+        admin = User.objects.filter(is_staff=True)[0]
+        self.client.login(username=admin.username, password='password')
+        com = TopicComment.objects.filter(comment='probation follow test')[0]
+        response = self.client.post(curl, {'id': com.id,
+                                           'decision': 0})
+        self.assertContains(response, "comment approved")
+        
+        # Now comment should appear when follower checks replies
+        self.client.logout()
+        self.client.login(username=gu.username, password='password')
+        response = self.client.get('/users/u/' + gu.username + '/replies/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'probation follow test')
+        
+
     def test_challenge(self):
         user = Profile.objects.filter(probation=False)[0].user
         c = TopicComment.objects.filter(first=False, 

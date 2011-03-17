@@ -68,7 +68,10 @@ def login(request):
     if request.method == 'POST':
         data = request.POST.copy()
         form = tcdLoginForm(data)
-        next = request.POST['next']
+        if 'next' in request.POST:
+            next = request.POST['next']
+        else:
+            next = '/'
         if form.is_valid():
             email = form.cleaned_data['email']
             try:
@@ -171,6 +174,8 @@ def tagedit(request, value, topic_id):
     user = get_object_or_404(User, username=value)
     tags = get_object_or_404(Tags, topic=topic, user=user)
     tag_list = tags.tags.split(',')
+    if not user == request.user:
+        return HttpResponseForbidden("<h1>Unauthorized</h1>")
     return render_to_response("registration/profile/tagedit.html",
                               {'topic':topic,
                                'tag_list':tag_list,
