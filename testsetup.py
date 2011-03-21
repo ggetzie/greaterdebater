@@ -53,6 +53,13 @@ def testsetup():
     topic1.followers.add(users[0])
     topic1.save()
 
+    # Create a follow message for replies to a topic
+    fmsg = fcomMessage(recipient=topic1.user,
+                       is_read=False,
+                       reply=com1,
+                       pub_date=datetime.datetime.now())
+    fmsg.save()
+
     ##  Create some debates
 
     # Pending debate, status=0
@@ -64,6 +71,14 @@ def testsetup():
                          start_date=datetime.datetime.now(),
                          topic=com1.ntopic)
     deb_pending.save()
+
+    deb_alert = tcdMessage(recipient=deb_pending.defendant,
+                           comment = "You have been challenged to a Debate",
+                           subject="Challenge!",
+                           pub_date=datetime.datetime.now(), 
+                           user=deb_pending.plaintiff)
+    deb_alert.save()
+
     deb_pending_com1 = ArgComment(user=deb_pending.plaintiff,
                                   ntopic=com1.ntopic,
                                   debate=deb_pending,

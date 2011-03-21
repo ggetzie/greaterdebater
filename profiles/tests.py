@@ -2,7 +2,8 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils.html import escape
 
-from comments.models import TopicComment, Debate, nVote, Draw
+from comments.models import TopicComment, Debate, nVote, Draw, tcdMessage, \
+    fcomMessage
 from items.models import Topic, Tags
 from profiles.models import Profile, Forgotten
 from testsetup import testsetup, create_user, create_topic, create_tcomment
@@ -199,4 +200,175 @@ class ViewTest(TestCase):
         test_get(self, curr_url, user, other_user)
         test_get(self, arch_url, user, other_user)
         
+    def test_profile_msgs(self):
         
+        user = User.objects.all()[0]
+        bad_user = User.objects.exclude(id=user.id)[0]
+        url = '/users/u/' + user.username + '/messages/'
+        
+        # user not logged in
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+        
+        # wrong user
+        self.client.login(username=bad_user.username, password='password')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+        self.client.logout()
+        
+        # legit user 
+        self.client.login(username=user.username, password='password')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        # nonexistent user
+        response = self.client.get('/users/u/nosuchuser/messages/')
+        self.assertEqual(response.status_code, 404)
+        
+    def test_message_detail(self):
+        msg = tcdMessage.objects.all()[0]
+        user = msg.recipient
+        bad_user = User.objects.exclude(id=user.id)[0]
+        url = '/users/u/' + user.username + '/messages/' + str(msg.id) + '/'
+        
+        # user not logged in
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+        # wrong user
+        self.client.login(username=bad_user.username, password='password')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+        self.client.logout()
+        
+        # legit user 
+        self.client.login(username=user.username, password='password')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_replies(self):
+        user = User.objects.all()[0]
+        bad_user = User.objects.exclude(id=user.id)[0]
+        url = '/users/u/' + user.username + '/replies/'
+
+        # user not logged in
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+        
+        # wrong user
+        self.client.login(username=bad_user.username, password='password')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+        self.client.logout()
+        
+        # legit user 
+        self.client.login(username=user.username, password='password')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        # nonexistent user
+        response = self.client.get('/users/u/nosuchuser/replies/')
+        self.assertEqual(response.status_code, 404)
+
+    def test_mark_read(self):
+        url = '/users/mark_read/'
+        fmsg = fcomMessage.objects.all()[0]
+        user = fmsg.recipient
+        bad_user = User.objects.exclude(id=user.id)[0]
+        
+        # GET request
+        response = self.client.get(url)
+        self.assertContains(response, "Not a POST")
+        
+        # bad user
+        self.client.login(username=bad_user.username, password='password')
+        response = self.client.post(url, {'id': fmsg.id})
+        self.assertContains(response, "Not for you")
+        self.client.logout()
+
+        # legit user
+        self.client.login(username=user.username, password='password')
+
+        # bad id
+        response = self.client.post(url, {'id': fmsg.id+99999999999})
+        self.assertContains(response, "Message does not exist")
+
+        # success
+        response = self.client.post(url, {'id': fmsg.id})
+        self.assertContains(response, "ok")
+        fmsg = fcomMessage.objects.get(id=fmsg.id)
+        self.assertEqual(fmsg.is_read, True)
+
+    def test_check_messages(self):
+        url = '/users/check_messages'
+        
+        # user not logged in
+        response = self.client.get(url)
+        self.assertContains(response, "Not Logged In")
+        
+        user = User.objects.all()[0]
+        self.client.login(username=user.username, password='password')
+
+        # legit request
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_profile_stg(self):
+
+        user = User.objects.all()[0]
+        bad_user = User.objects.exclude(id=user.id)[0]
+        url = '/users/u/' + user.username + '/settings/'
+
+        # User not logged in
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+        # wrong user
+        self.client.login(username=bad_user.username, password='password')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+        
+        response = self.client.post(url, {'email': bademail@bademail.com,
+                                          'newwindows': False,
+                                          'feedcoms': False,
+                                          'feedtops': False,
+                                          'feeddebs': False,
+                                          'followcoms': False,
+                                          'followtops': False})
+        self.assertEqual(response.status_code, 403)
+
+        # Invalid Form
+        self.client.login(username=user.username, password='password')
+        response = self.client.post(url, {'email': '',
+                                          'newwindows': '',
+                                          'feedcoms': '',
+                                          'feedtops': '',
+                                          'feeddebs': '',
+                                          'followcoms': '',
+                                          'followtops': '',})
+        self.assertFormError(response, form, 'email', 'This field is required')
+        self.assertFormError(response, form, 'newwindows', 'This field is required')
+        self.assertFormError(response, form, 'feedcoms', 'This field is required')
+        self.assertFormError(response, form, 'feedtops', 'This field is required')
+        self.assertFormError(response, form, 'feeddebs', 'This field is required')
+        self.assertFormError(response, form, 'followcoms', 'This field is required')
+        self.assertFormError(response, form, 'followtops', 'This field is required')
+
+        response = self.client.post(url, {'email': 'notanemail',
+                                          'newwindows': False,
+                                          'feedcoms': False,
+                                          'feedtops': False,
+                                          'feeddebs': False,
+                                          'followcoms': False,
+                                          'followtops': False})
+        self.assertFormError(response, form, 'email', 'Enter a valid email address')
+
+        # Legit
+        response = self.client.post(url, {'email': user.email,
+                                          'newwindows': False,
+                                          'feedcoms': False,
+                                          'feedtops': False,
+                                          'feeddebs': False,
+                                          'followcoms': False,
+                                          'followtops': False})
+        self.assertContians(response, 'Changes saved')

@@ -312,6 +312,9 @@ def mark_read(request):
                                                messages=[render_message("Not a POST", 10)])
     try:
         msg = fcomMessage.objects.get(pk=request.POST['id'])
+        if not request.user == msg.recipient:
+            return render_to_AJAX(status=status,
+                                  messages=[render_message("Not for you", 10)])
         msg.is_read = True
         msg.save()
         count = len(fcomMessage.objects.filter(recipient=request.user, is_read=False))
