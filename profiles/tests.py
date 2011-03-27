@@ -1,4 +1,6 @@
 from django.contrib.auth.models import User
+from django.core import mail
+from django.db.models import Max
 from django.test import TestCase
 from django.utils.html import escape
 
@@ -6,6 +8,7 @@ from comments.models import TopicComment, Debate, nVote, Draw, tcdMessage, \
     fcomMessage
 from items.models import Topic, Tags
 from profiles.models import Profile, Forgotten
+from profiles.views import save_forgotten
 from testsetup import testsetup, create_user, create_topic, create_tcomment
 
 import datetime
@@ -300,7 +303,7 @@ class ViewTest(TestCase):
         self.assertEqual(fmsg.is_read, True)
 
     def test_check_messages(self):
-        url = '/users/check_messages'
+        url = '/users/check_messages/'
         
         # user not logged in
         response = self.client.get(url)
@@ -320,6 +323,7 @@ class ViewTest(TestCase):
         url = '/users/u/' + user.username + '/settings/'
 
         # User not logged in
+        self.client.logout()
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
 
@@ -328,7 +332,7 @@ class ViewTest(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
         
-        response = self.client.post(url, {'email': bademail@bademail.com,
+        response = self.client.post(url, {'email': 'bademail@bademail.com',
                                           'newwindows': False,
                                           'feedcoms': False,
                                           'feedtops': False,
@@ -339,20 +343,9 @@ class ViewTest(TestCase):
 
         # Invalid Form
         self.client.login(username=user.username, password='password')
-        response = self.client.post(url, {'email': '',
-                                          'newwindows': '',
-                                          'feedcoms': '',
-                                          'feedtops': '',
-                                          'feeddebs': '',
-                                          'followcoms': '',
-                                          'followtops': '',})
-        self.assertFormError(response, form, 'email', 'This field is required')
-        self.assertFormError(response, form, 'newwindows', 'This field is required')
-        self.assertFormError(response, form, 'feedcoms', 'This field is required')
-        self.assertFormError(response, form, 'feedtops', 'This field is required')
-        self.assertFormError(response, form, 'feeddebs', 'This field is required')
-        self.assertFormError(response, form, 'followcoms', 'This field is required')
-        self.assertFormError(response, form, 'followtops', 'This field is required')
+        response = self.client.post(url, {'email': ''})
+
+        self.assertFormError(response, 'form', 'email', 'This field is required.')
 
         response = self.client.post(url, {'email': 'notanemail',
                                           'newwindows': False,
@@ -361,14 +354,237 @@ class ViewTest(TestCase):
                                           'feeddebs': False,
                                           'followcoms': False,
                                           'followtops': False})
-        self.assertFormError(response, form, 'email', 'Enter a valid email address')
+        self.assertFormError(response, 'form', 'email', 'Enter a valid e-mail address.')
 
         # Legit
-        response = self.client.post(url, {'email': user.email,
+        response = self.client.post(url, {'email': 'changedemail@test.com',
                                           'newwindows': False,
                                           'feedcoms': False,
                                           'feedtops': False,
                                           'feeddebs': False,
                                           'followcoms': False,
-                                          'followtops': False})
-        self.assertContians(response, 'Changes saved')
+                                          'followtops': False,
+                                          'request_email': user.email})
+        self.assertContains(response, 'Changes saved')
+
+    def test_reset(self):
+        user = User.objects.all()[0]
+        bad_user = User.objects.exclude(id=user.id)[0]
+        url = '/users/u/' + user.username + '/reset/'
+
+        # user not logged in
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+        # wrong user
+        self.client.login(username=bad_user.username, password='password')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.post(url, {'new_password1':'nobananas',
+                                          'new_password2':'nobananas'}, follow=True)
+        self.assertEqual(response.status_code, 403)
+
+        # correct user, GET
+        self.client.logout()
+        self.client.login(username=user.username, password='password')
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 200)
+
+        # Passwords don't match
+        response = self.client.post(url, {'new_password1':'nobananas',
+                                          'new_password2':'something else'}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertFormError(response, 'form', None, 'New password fields must match.')
+        
+        # successful change
+        response = self.client.post(url, {'new_password1':'nobananas',
+                                          'new_password2':'nobananas'}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Password changed!')
+
+        # forgotten password
+        self.client.logout()
+        code = save_forgotten(user)
+        code_url = url + code 
+        response = self.client.get(code_url)
+        self.assertEqual(response.status_code, 200)
+        response = self.client.post(url, {'new_password1':'nobananas',
+                                          'new_password2':'nobananas',
+                                          'code':code}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Password changed!')
+
+        bad_code_url = url + ('b'* 32)
+        response = self.client.get(bad_code_url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_messages(self):
+        user = User.objects.all()[0]
+        bad_user = User.objects.exclude(id=user.id)[0]
+        url = '/users/delete_messages/'
+
+        msgs = []
+        for i in range(10):
+            m = tcdMessage(user=bad_user,
+                                   recipient=user,
+                                   comment="some message number " + str(i),
+                                   subject="message " + str(i))
+            m.save()
+            msgs.append(m)
+
+        message_list = ','.join([str(m.id) for m in msgs])
+        
+        # GET Request
+        response = self.client.get(url)
+        self.assertContains(response, "Not a POST")
+
+        # No message list
+        response = self.client.post(url, {'somecrap': 'andjunk'})
+        self.assertContains(response, "No message list")
+
+        # bad user
+        self.client.login(username=bad_user.username, password='password')
+        response = self.client.post(url, {'message_list': message_list})
+        self.assertContains(response, "Messages could not be deleted")
+
+        # legit user
+        self.client.logout()
+        self.client.login(username=user.username, password='password')
+        response = self.client.post(url, {'message_list': message_list})
+        self.assertContains(response, "Messages deleted")
+
+    def test_delete_current_message(self):
+        url = '/users/delete_current_message/'
+        user = User.objects.all()[0]
+        bad_user = User.objects.exclude(id=user.id)[0]
+
+        
+        for i in range(10):
+            m = tcdMessage(user=bad_user,
+                           recipient=user,
+                           comment="some message number " + str(i),
+                           subject="message " + str(i))
+                           
+            m.save()
+            m.pub_date = datetime.datetime(year=2011,
+                                           month=1,
+                                           day=1,
+                                           hour=1,
+                                           minute=1,
+                                           second=i)
+            m.save()
+        msgs = tcdMessage.objects.filter(recipient=user).order_by("pub_date")
+        
+        # User not logged in
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 403)
+
+        self.client.login(username=bad_user.username, password='password')        
+
+        # GET request
+        response = self.client.get(url, follow=True)
+        self.assertContains(response, "Not a POST")
+        
+        # No message id
+        response = self.client.post(url, {"noid": "included"}, follow=True)
+        self.assertContains(response, "No message id found")
+        
+        # No such message
+        bad_id = tcdMessage.objects.aggregate(Max('id'))['id__max'] + 1
+        response = self.client.post(url, {'message_id': bad_id}, follow=True)
+        self.assertEqual(response.status_code, 404)
+        
+        # bad user
+        response = self.client.post(url, {"message_id": msgs[4].id}, follow=True)
+        self.assertEqual(response.status_code, 403)
+
+        # legit delete
+        self.client.logout()
+        self.client.login(username=user.username, password='password')
+        d_id = msgs[4].id
+        deleted_date = msgs[4].pub_date
+        redirect_id = msgs.filter(pub_date__gt=deleted_date)[0].id
+        response = self.client.post(url, {"message_id": msgs[4].id}, follow=True)
+        self.assertRedirects(response, 
+                             '/users/u/' + user.username + '/messages/' + str(redirect_id))
+        self.assertContains(response, "Message deleted")
+
+        
+    def test_feedback(self):
+        url = '/users/feedback/'
+        
+        # GET request 
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        # Anonyous user
+        response = self.client.post(url, 
+                                    {'subject': "Feedback subject",
+                                     'message': "Hooray! Feedback!"},
+                                    follow=True)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, "Feedback subject")
+        self.assertNotEqual(mail.outbox[0].body.find("Anonymous user"), -1)
+        self.assertEqual(response.status_code, 200)
+
+        # Logged in user
+        user = User.objects.all()[0]
+        mail.outbox=[]
+        self.client.login(username=user.username, password='password')
+        response = self.client.post(url, 
+                                    {'subject': "logged-in Feedback subject",
+                                     'message': "Hooray! Feedback!"},
+                                    follow=True)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, "logged-in Feedback subject")
+        self.assertNotEqual(mail.outbox[0].body.find(user.username), -1)
+        self.assertNotEqual(mail.outbox[0].body.find(user.email), -1)
+        self.assertEqual(response.status_code, 200)
+        
+        # Empty form
+        response = self.client.post(url, 
+                                    {'subject': "",
+                                     'message': ""},
+                                    follow=True)
+        self.assertFormError(response, 'form', 'message', 'This field is required.')
+        self.assertEqual(response.status_code, 200)
+
+        # Form with no subject
+        mail.outbox = []
+        response = self.client.post(url, 
+                                    {'subject': "",
+                                     'message': "I don't need no stinking subject"},
+                                    follow=True)
+        self.assertEqual(mail.outbox[0].subject, 'GreaterDebater Feedback')
+        self.assertEqual(response.status_code, 200)
+
+    def test_forgot_password(self):
+        user = User.objects.all()[0]
+        url = '/users/forgot/'
+
+        # GET Request
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        
+        # Empty Form
+        response = self.client.post(url, {'email': ''}, follow=True)
+        self.assertFormError(response, 'form', 'email', 'This field is required.')
+        self.assertEqual(response.status_code, 200)
+
+        # Invalid email
+        response = self.client.post(url, {'email': 'herpderp'}, follow=True)
+        self.assertFormError(response, 'form', 'email', 'Enter a valid e-mail address.')
+        self.assertEqual(response.status_code, 200)
+
+        # Email not a user
+        response = self.client.post(url, {'email': 'herp@derp.com'}, follow=True)
+        self.assertFormError(response, 'form', None, 'email address not found')
+        self.assertEqual(response.status_code, 200)
+
+        # Legit request
+        response = self.client.post(url, {'email': user.email}, follow=True)
+        self.assertContains(response, 
+                            "An email with instructions for resetting your password has been sent to the address you provided.")
+        self.assertEqual(mail.outbox[0].subject, 'Reset your password at GreaterDebater')
+        

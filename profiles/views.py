@@ -404,18 +404,21 @@ def reset_password(request, value, code=None):
             form = tcdPasswordResetForm(data)
             if form.is_valid():
                 code = form.cleaned_data.get('code', '')
-                if code and len(code) == 32:
+                if code:
                     temp = get_object_or_404(Forgotten, code=code)
-                if user == request.user or temp:
-                    user.set_password(form.cleaned_data['new_password1'])
-                    user.save()
-                    messages.info(request, "Password changed!")
-                    if temp:
-                        user = auth.authenticate(username=user.username, password=form.cleaned_data['new_password1'])
-                        if user is not None and user.is_active:
-                            auth.login(request, user)
-                        temp.delete()
-                    return HttpResponseRedirect(redirect_to)
+                if not (temp or user == request.user):
+                    return HttpResponseForbidden("<h1>Unauthorized</h1>")
+
+                user.set_password(form.cleaned_data['new_password1'])
+                user.save()
+                messages.info(request, "Password changed!")
+                if temp:
+                    user = auth.authenticate(username=user.username, password=form.cleaned_data['new_password1'])
+                    if user is not None and user.is_active:
+                        auth.login(request, user)
+                    temp.delete()
+                return HttpResponseRedirect(redirect_to)
+
     else:
         if code and len(code) == 32:
             temp = get_object_or_404(Forgotten, code=code)
@@ -475,8 +478,9 @@ def forgot_password(request):
                       'admin@greaterdebater.com', 
                       [user.email], 
                       fail_silently=False)
+            messages.info(request, 
+                          "An email with instructions for resetting your password has been sent to the address you provided.")
             return render_to_response("registration/profile/forgot.html",
-                                      {'message': "An email with instructions for resetting your password has been sent to the address you provided."},
                                       context_instance=RequestContext(request))
 
     else:
@@ -486,33 +490,55 @@ def forgot_password(request):
                               context_instance=RequestContext(request))
 
 def delete_messages(request):
-    if request.POST:
-        message_list = request.POST['message_list']
-        message_list = [int(i) for i in message_list.split(',')]
-        messages = tcdMessage.objects.filter(pk__in=message_list)
-        messages.delete()
-        sys_message="Messages Deleted"
-    else:
-        sys_message = "Not a POST"
-    response = ('response', [('message', sys_message)])
-    response = pyfo.pyfo(response, prolog=True, pretty=True, encoding='utf-8')
-    return HttpResponse(response)
+    if not request.POST:
+        return render_to_AJAX(status="error", messages=["Not a POST"])
+    
+    try:
+        message_list=request.POST['message_list']
+    except KeyError:
+        return render_to_AJAX(status="error", messages=["No message list"])
+
+    message_list = [int(i) for i in message_list.split(',')]
+    msgs = tcdMessage.objects.filter(pk__in=message_list)
+    for m in msgs:
+        if not request.user == m.recipient:
+            return render_to_AJAX(status="error", messages=["Messages could not be deleted"])
+    
+    msgs.delete()
+    return render_to_AJAX(status='ok', messages=["Messages deleted."])
 
 def delete_current_message(request):
-    if request.POST:
-        m_id = int(request.POST['message_id'])
-        message_list = tcdMessage.objects.filter(recipient=request.user)
-        message = message_list.get(comment_ptr=m_id)
-        try:
-            redirect = ''.join(['/users/u/', request.user.username, 
-                                '/messages/', 
-                                str(message_list.filter(pub_date__gt=message.pub_date).order_by('pub_date')[0].id)])
-        except IndexError:
-            redirect = ''.join(['/users/u/', request.user.username, 
-                                '/messages/'])
+    if not request.user.is_authenticated():
+        return HttpResponseForbidden("<h1>Unauthorized</h1>")
 
-        message.delete()
-        return HttpResponse(redirect)
+    redirect = '/users/u/' + request.user.username + '/messages/'
+    if not request.POST:
+        messages.error(request, "Not a POST")
+        return HttpResponseRedirect(redirect)
+
+    try:
+        m_id = int(request.POST['message_id'])
+    except KeyError:
+        messages.error(request, "No message id found")
+        return HttpResponseRedirect(redirect)
+                                    
+    message_list = tcdMessage.objects.filter(recipient=request.user).order_by('pub_date')
+    
+    message = get_object_or_404(tcdMessage, pk=m_id)
+    if not message.recipient == request.user:
+        return HttpResponseForbidden("<h1>Unauthorized</h1>")
+
+    try:
+        redirect = ''.join(['/users/u/', request.user.username, 
+                            '/messages/', 
+                            str(message_list.filter(pub_date__gt=message.pub_date).order_by('pub_date')[0].id)])
+    except IndexError:
+        redirect = ''.join(['/users/u/', request.user.username, 
+                            '/messages/'])
+
+    message.delete()
+    messages.info(request, "Message deleted")
+    return HttpResponseRedirect(redirect)
 
 def save_forgotten(user):
     """When saving a temporary entry to the forgotten password table, there is a 
