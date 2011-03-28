@@ -82,6 +82,11 @@ def comments(request, topic_id, page=1):
     else:
         newwin = False
 
+    if top.tags:
+        keywords = ", ".join(top.tags.split('\n')[0].split(','))
+    else:
+        keywords = "greaterdebater, debate, comment, topic"
+
     return render_to_response('items/topic_detail.html', 
                               {'object': top,                               
                                'rest_c': rest_c[start:end],
@@ -91,7 +96,8 @@ def comments(request, topic_id, page=1):
                                'has_next': has_next,
                                'next': next,
                                'form_comment': form_comment,
-                               'newwin': newwin},
+                               'newwin': newwin,
+                               'keywords': keywords},
                               context_instance=RequestContext(request)
                               )
 
