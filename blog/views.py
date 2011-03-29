@@ -295,8 +295,4 @@ def delete(request, username):
     response = xmlt.render(xmlc)
     return HttpResponse(response)
     
-            
 
-def comment(request):
-    # add a comment
-    pass
