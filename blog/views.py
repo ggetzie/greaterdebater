@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import loader, Context, RequestContext
 from django.views.generic import list_detail

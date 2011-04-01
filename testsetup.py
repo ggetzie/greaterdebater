@@ -262,6 +262,39 @@ def testsetup():
                                pub_date=datetime.datetime.now(),
                                comment="Draw 1st rebuttal")
     deb_draw_com2.save()
+
+# Set up a blog
+    bloguser = User.objects.all()[0]
+    blog = Blog(author=bloguser,
+                start_date=datetime.datetime(year=2009,
+                                             month=1,
+                                             day=1),
+                title="The test blog",
+                tagline_txt="The blog where we test bloggging",
+                about_txt="All about running tests")
+    blog.save()
+    blog.start_date=datetime.datetime(year=2009,
+                                      month=1,
+                                      day=1)
+    blog.save()
+
+    for i in range(10):
+        if i % 2:
+           pd = None
+        else:
+            pd = datetime.datetime(year=2009,
+                                   month=i+1,
+                                   day=2)
+        post = Post(title = "test post %i" % i,
+                    txt = "lorem ipsum etc %i" % i,
+                    created = datetime.datetime(year=2009,
+                                                month=i+1,
+                                                day=1),
+                    pub_date = pd,
+                    draft = i % 2 == 0,
+                    tags = "test,tag%i, tag2%i" % (i, i),
+                    blog=blog)
+        post.save()
                                        
 
 def create_user(username, password, email):
