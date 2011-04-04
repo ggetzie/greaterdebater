@@ -47,7 +47,13 @@
       </DIV>
 
       <DIV class="main">
-
+	{% if messages %}
+	<div class="messages">
+	  {% for message in messages %}
+	  <p {% if message.tags %}class="{{ message.tags }}"{% endif %}>{{ message|safe }}</p>
+	  {% endfor %}
+	</div>
+	{% endif %}
 	<DIV class="content">
 	  {% block content %}
 	  {% endblock %}

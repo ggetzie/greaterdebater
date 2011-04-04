@@ -9,6 +9,8 @@ from tcd.blog.models import Blog, Post, PostComment
 from tcd.blog.forms import PostEdit, PostCommentForm, PostNew
 from tcd.comments.utils import build_list
 from tcd.profiles.models import Profile
+from utils import render_to_AJAX, render_message
+
 import pyfo
 import datetime
 
@@ -42,25 +44,26 @@ def post_detail(request, username, id):
 
 def addcomment(request, username):
     blog = get_object_or_404(Blog, author__username=username)
-    redirect_to = blog.get_absolute_url()
-
-    if not request.user.is_authenticated():
-        redirect_to = '/login?next=' + blog.get_absolute_url() + 'post/' +  str(post.id) + '/'
-        return HttpResponseRedirect(redirect_to)
+    redirect_to = '/blog/%s/' % username
 
     if not request.POST:
         messages.error(request, "Not a POST")
         return HttpResponseRedirect(redirect_to)
 
+    if not request.user.is_authenticated():
+        redirect_to = '/users/login?next=/blog/'+ username + '/'
+        return HttpResponseRedirect(redirect_to)
+
     prof = get_object_or_404(Profile, user=request.user)
     form = PostCommentForm(request.POST)
-    post = get_object_or_404(Post, id=request.POST['post_id'])
-    redirect_to = ''.join([blog.get_absolute_url(), 'post/', str(post.id)])
     if not form.is_valid():
         message = "<p>Oops! A problem occurred.</p>"
         messages.error(request, message+str(form.errors))
         return HttpResponseRedirect(redirect_to)
-           
+
+    post = get_object_or_404(Post, id=form.cleaned_data['post_id'])
+    redirect_to = '/blog/%s/post/%i/' % (username, post.id)
+
     ratemsg = prof.check_rate()
     if ratemsg:
         messages.info(request, ratemsg)
@@ -99,52 +102,55 @@ def about(request, username):
 
 def new_post(request, username):
     user = get_object_or_404(User, username=username)
-    if request.user == user:
-        blog = get_object_or_404(Blog, author=user)
-        if request.POST:
-            form = PostNew(request.POST)
-            if form.is_valid():
-                post = Post(title=form.cleaned_data['title'],
-                            txt=form.cleaned_data['txt'],
-                            tags=form.cleaned_data['tags'],
-                            created=datetime.datetime.now(),
-                            blog=blog)
-                post.save()
-                redirect_to = ''.join(['/blog/', blog.author.username, '/edit/', str(post.id)])
-                return HttpResponseRedirect(redirect_to)
-        else:
-            form = PostNew({'title': "Untitled Post",
-                            'txt': "Enter text here"})
-
-        return render_to_response('blogtemplates/post_new.html',
-                                  {'form': form,
-                                   'blog': blog},
-                                  context_instance=RequestContext(request))
-    else:
+    if not request.user == user:
         return HttpResponseForbidden("<h1>Unauthorized</h1>")
-                                   
+    blog = get_object_or_404(Blog, author=user)
+    if request.POST:
+        form = PostNew(request.POST)
+        if form.is_valid():
+            post = Post(title=form.cleaned_data['title'],
+                        txt=form.cleaned_data['txt'],
+                        tags=form.cleaned_data['tags'],
+                        created=datetime.datetime.now(),
+                        blog=blog)
+            post.save()
+            redirect_to = ''.join(['/blog/', blog.author.username, '/edit/', str(post.id)])
+            return HttpResponseRedirect(redirect_to)
+    else:
+        form = PostNew({'title': "Untitled Post",
+                        'txt': "Enter text here"})
+
+    return render_to_response('blogtemplates/post_new.html',
+                              {'form': form,
+                               'blog': blog},
+                              context_instance=RequestContext(request))
 
         
 def edit_post(request, username, id):
+    # Display the post for editing
+
     user = get_object_or_404(User, username=username)
-    if request.user == user:
-        blog = get_object_or_404(Blog, author=user)
-        post = get_object_or_404(Post, id=id)
+    if not request.user.is_authenticated():
+        return HttpResponseForbidden("<h1>Unauthorized</h1>")
+    
+    if not request.user == user:
+        return HttpResponseForbidden("<h1>Unauthorized</h1>")
 
-        data = {'title': post.title,
-                'tags': post.tags,
-                'txt': post.txt,
-                'id': post.id}
+    blog = get_object_or_404(Blog, author=user)
+    post = get_object_or_404(Post, id=id)
 
-        form = PostEdit(data)
+    data = {'title': post.title,
+            'tags': post.tags,
+            'txt': post.txt,
+            'id': post.id}
 
-        return render_to_response('blogtemplates/post_edit.html',
-                                  {'form': form,
-                                   'blog': blog,
-                                   'post': post},
-                                  context_instance=RequestContext(request))
-    else:
-        return HttpReponseForbidden("<h1>Unauthorized</h1>")
+    form = PostEdit(data)
+
+    return render_to_response('blogtemplates/post_edit.html',
+                              {'form': form,
+                               'blog': blog,
+                               'post': post},
+                              context_instance=RequestContext(request))
 
 def show_drafts(request, username):
     """Show all unpublished drafts"""
@@ -167,37 +173,32 @@ def save_draft(request, username):
     user = get_object_or_404(User, username=username)
     blog = get_object_or_404(Blog, author=user)
     status = 'error'
-    if request.user == user:
-        if request.POST:
-            form = PostEdit(request.POST)
-            if form.is_valid():
 
-                post = Post.objects.get(pk=form.cleaned_data['id'])
-                post.txt = form.cleaned_data['txt']
-                post.tags = form.cleaned_data['tags']
-                post.title = form.cleaned_data['title']
+    if not request.POST:
+        msgs = [render_message("Not a POST", 10)]
+        return render_to_AJAX(status="error", messages=msgs)
 
-                post.save()
-                msg = "Draft Saved"
-                status = 'ok'
-            else:
-                msg = "Invalid Form"
-        else:
-            msg = "Not a Post"
-    else:
-        msg = "Unauthorized"
-    msgt = loader.get_template('sys_msg.html')
-    msgc = Context({'message': msg,
-                    'nesting': 10})
-    
-    message = msgt.render(msgc)
-    
-    xmlc = Context({'status': status,
-                    'messages': [message]})
-    xmlt = loader.get_template("AJAXresponse.xml")
-    response = xmlt.render(xmlc)
+    if not request.user.is_authenticated():
+        msgs = [render_message("Unauthorized", 10)]
+        return render_to_AJAX(status="error", messages=msgs)
 
-    return HttpResponse(response)
+    if not request.user == user:
+        msgs = [render_message("Unauthorized", 10)]
+        return render_to_AJAX(status="error", messages=msgs)
+
+    form = PostEdit(request.POST)
+    if not form.is_valid():
+        msgs = [render_message("Invalid Form", 10)]
+        return render_to_AJAX(status="error", messages=msgs)
+
+    post = Post.objects.get(pk=form.cleaned_data['id'])
+    post.txt = form.cleaned_data['txt']
+    post.tags = form.cleaned_data['tags']
+    post.title = form.cleaned_data['title']
+    post.save()
+
+    msgs = [render_message("Draft Saved", 10)]
+    return render_to_AJAX(status="ok", messages=msgs)
 
 def preview(request, username):
     blog = Blog.objects.get(author__username=username)
