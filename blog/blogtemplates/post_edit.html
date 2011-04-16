@@ -13,6 +13,7 @@ Edit {{ post.title }} | {{ blog.title }}
 <h1 id="title">{{ post.title }}</h1>
 
 <form method='post' id="postform">
+  {% csrf_token %}
   <table>
     {{ form }}
     <tr>

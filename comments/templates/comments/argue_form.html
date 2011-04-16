@@ -1,6 +1,7 @@
 {% ifnotequal user comment.user %}
 <div id="argue{{ comment.id }}" class="comment_action">
   <form action="/argue/challenge/{{ comment.id }}/" method="post" accept-charset="utf-8">
+    {% csrf_token %}
     <div class="form-row">
       {% with comment.get_argue_form as form %}
       <label for="id_title">Title</label>

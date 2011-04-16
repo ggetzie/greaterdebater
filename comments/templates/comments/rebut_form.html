@@ -1,5 +1,6 @@
 <div id="rebut{{ object.id }}" class="comment_action">
   <form id="rebut_form">
+    {% csrf_token %}
     <div class="form-row">
       <label for="id_comment">Posting as {{ user }}</label>
       <br /><textarea rows=5 cols=50 name="comment" id="rebut_text"></textarea>

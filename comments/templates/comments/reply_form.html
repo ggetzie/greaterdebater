@@ -1,5 +1,6 @@
 <div id="reply{{ comment.id }}" class="comment_action">
   <form action="/comments/{{ comment.ntopic_id }}/add/" method="post" accept-charset="utf-8">
+    {% csrf_token %}
     <div class="form-row">
       <label for="id_comment">Posting as {{ user }}</label>
       <br /><textarea rows=5 cols=50 name="comment"></textarea>

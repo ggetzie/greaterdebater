@@ -298,17 +298,122 @@ class ViewTest(TestCase):
 
     
     def test_preview(self):
-        user = Blog.objects.all()[0].author
-        url = '/blog/%s/' % user.username
-        pass
+        blog = Blog.objects.all()[0]
+        user = blog.author
+        bad_user = User.objects.exclude(id=user.id)[0]
+        post = Post.objects.filter(draft=True)[0]
+        url = '/blog/%s/preview/' % user.username
+
+        # GET request
+        response = self.client.get(url)
+        self.assertContains(response, "Not a POST")
+
+        # not logged in
+        response = self.client.post(url, {'id': post.id,
+                                          'txt': 'shady edit',
+                                          'tags': "foo, bar, baz, bat",
+                                          'title': 'shady title'})
+        self.assertContains(response, "Unauthorized")
+        
+        # wrong user
+        self.client.logout()
+        self.client.login(username=bad_user.username, password='password')
+        response = self.client.post(url, {'id': post.id,
+                                          'txt': 'shady edit',
+                                          'tags': "foo, bar, baz, bat",
+                                          'title': 'shady title'})
+        self.assertContains(response, "Unauthorized")
+        
+        # invalid form
+        self.client.logout()
+        self.client.login(username=user.username, password='password')
+        response = self.client.post(url, {'id': post.id,
+                                          'txt': '',
+                                          'tags': "",
+                                          'title': ''})
+        self.assertContains(response, "Invalid Form")
+        
+        # legit save
+        response = self.client.post(url, {'id': post.id,
+                                          'txt': 'totally legit edit',
+                                          'tags': "foo, bar, baz, bat",
+                                          'title': 'totally legit title'})
+        self.assertContains(response, "Changes Saved")
     
     def test_publish(self):
-        user = Blog.objects.all()[0].author
-        url = '/blog/%s/' % user.username
-        pass
+        blog = Blog.objects.all()[0]
+        user = blog.author
+        bad_user = User.objects.exclude(id=user.id)[0]
+        post = Post.objects.filter(draft=True)[0]
+        url = '/blog/%s/publish/' % user.username
+
+        # GET request
+        response = self.client.get(url)
+        self.assertContains(response, "Not a POST")
+
+        # not logged in
+        response = self.client.post(url, {'id': post.id,
+                                          'txt': 'shady edit',
+                                          'tags': "foo, bar, baz, bat",
+                                          'title': 'shady title'})
+        self.assertContains(response, "Unauthorized")
+        
+        # wrong user
+        self.client.logout()
+        self.client.login(username=bad_user.username, password='password')
+        response = self.client.post(url, {'id': post.id,
+                                          'txt': 'shady edit',
+                                          'tags': "foo, bar, baz, bat",
+                                          'title': 'shady title'})
+        self.assertContains(response, "Unauthorized")
+        
+        # invalid form
+        self.client.logout()
+        self.client.login(username=user.username, password='password')
+        response = self.client.post(url, {'id': post.id,
+                                          'txt': '',
+                                          'tags': "",
+                                          'title': ''})
+        self.assertContains(response, "Invalid Form")
+        
+        # legit publish
+        response = self.client.post(url, {'id': post.id,
+                                          'txt': 'totally legit edit',
+                                          'tags': "foo, bar, baz, bat",
+                                          'title': 'totally legit title'})
+        self.assertContains(response, "Post published")
+        post = Post.objects.get(pk=post.id)
+        self.assertEqual(post.draft, False)
     
     def test_delete(self):
-        user = Blog.objects.all()[0].author
-        url = '/blog/%s/' % user.username
-        pass
+        blog = Blog.objects.all()[0]
+        user = blog.author
+        bad_user = User.objects.exclude(id=user.id)[0]
+        post = Post.objects.filter(draft=True)[0]
+        url = '/blog/%s/delete/' % user.username
+
+        # GET request
+        response = self.client.get(url)
+        self.assertContains(response, "Not a POST")
+
+        # not logged in
+        response = self.client.post(url, {'id': post.id})
+        self.assertContains(response, "Unauthorized")
+        
+        # wrong user
+        self.client.logout()
+        self.client.login(username=bad_user.username, password='password')
+        response = self.client.post(url, {'id': post.id})
+        self.assertContains(response, "Unauthorized")
+        
+        # legit delete
+        self.client.logout()
+        self.client.login(username=user.username, password='password')
+        response = self.client.post(url, {'id': post.id})
+        self.assertContains(response, "Post Deleted")
+        posts = Post.objects.filter(id=post.id)
+        self.assertQuerysetEqual(posts, [])
+
+
+
         

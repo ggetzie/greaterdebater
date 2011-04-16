@@ -35,6 +35,7 @@
 <div id="add-comment">
   <h2>Leave a comment</h2>
   <form action="/blog/{{ blog.author.username }}/addcomment" method="post" accept-charset="utf-8">
+    {% csrf_token %}
     <label for="id_comment">Posting as {{ request.user.username }} (<a href='http://en.wikipedia.org/wiki/Markdown'>formatting help</a>)</label>
     <br />
     {{ pcform.comment }}

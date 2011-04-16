@@ -172,7 +172,6 @@ def save_draft(request, username):
     """Store the post in the database, but do not publish"""
     user = get_object_or_404(User, username=username)
     blog = get_object_or_404(Blog, author=user)
-    status = 'error'
 
     if not request.POST:
         msgs = [render_message("Not a POST", 10)]
@@ -202,98 +201,92 @@ def save_draft(request, username):
 
 def preview(request, username):
     blog = Blog.objects.get(author__username=username)
-    status="error"
-    if request.POST:
-        form = PostEdit(request.POST)
-        if form.is_valid():
-            post = get_object_or_404(Post, id=form.cleaned_data['id'])
-            post.txt = form.cleaned_data['txt']
-            post.tags = form.cleaned_data['tags']
-            post.title = form.cleaned_data['title']
-            post.save()
-            status = "ok"
-            msg = "Changes Saved"
-        else:
-            msg = "Invalid Form"
-    else:
-        msg = "Not a Post"
+    user = blog.author
 
-    msgt = loader.get_template('sys_msg.html')
-    msgc = Context({'message': msg,
-                    'nesting': 10})
+    if not request.POST:
+        msgs = [render_message("Not a POST", 10)]
+        return render_to_AJAX(status="error",
+                              messages=msgs)
 
-    xmlt = loader.get_template('AJAXresponse.xml')
-    xmlc = Context({'status': status,
-                    'messages': [msgt.render(msgc)]})
+    if not request.user.is_authenticated():
+        msgs = [render_message("Unauthorized", 10)]
+        return render_to_AJAX(status="error", messages=msgs)
 
-    response = xmlt.render(xmlc)
-    return HttpResponse(response)
+    if not request.user == user:
+        msgs = [render_message("Unauthorized", 10)]
+        return render_to_AJAX(status="error", messages=msgs)
+
+    form = PostEdit(request.POST)
+    if not form.is_valid():
+        msgs = [render_message("Invalid Form", 10)]
+        return render_to_AJAX(status="error", messages=msgs)
+                              
+
+    post = get_object_or_404(Post, id=form.cleaned_data['id'])
+    post.txt = form.cleaned_data['txt']
+    post.tags = form.cleaned_data['tags']
+    post.title = form.cleaned_data['title']
+    post.save()
+    msgs = [render_message("Changes Saved", 10)]
+    return render_to_AJAX(status="ok",
+                          messages=msgs)
 
 def publish(request, username):
     """Make the post available for public viewing"""
     user = get_object_or_404(User, username=username)
-    status = 'error'
-    if request.user == user:
-        if request.POST:
-            data = request.POST.copy()
-            form = PostEdit(data)
-            if form.is_valid():
-                try:
-                    post = get_object_or_404(Post, id=form.cleaned_data['id'])
-                    post.draft = False
-                    post.pub_date = datetime.datetime.now()
-                    post.txt = form.cleaned_data['txt']
-                    post.tags = form.cleaned_data['tags']
-                    post.title = form.cleaned_data['title']
-                    post.save()
-                    msg = "Post published"
-                    status = 'ok'
-                except KeyError:
-                    msg = "Invalid id"
-            else:
-                msg = "Invalid Form"
-        else:
-            msg = "Not a Post"
-    else:
-        msg = "Unauthorized"
+    blog = Blog.objects.get(author__username=username)
 
-    msgt = loader.get_template('sys_msg.html')
-    msgc = Context({'message': msg,
-                     'nesting': 10})
-    message = msgt.render(msgc)
+    if not request.POST:
+        msgs = [render_message("Not a POST", 10)]
+        return render_to_AJAX(status="error",
+                              messages=msgs)
 
-    xmlcontext = Context({'status': status,
-                          'messages': [message]})
-    rtemp = loader.get_template('AJAXresponse.xml')
-    response = rtemp.render(xmlcontext)
-    return HttpResponse(response)
+    if not request.user.is_authenticated():
+        msgs = [render_message("Unauthorized", 10)]
+        return render_to_AJAX(status="error", messages=msgs)
+
+    if not request.user == user:
+        msgs = [render_message("Unauthorized", 10)]
+        return render_to_AJAX(status="error", messages=msgs)
+
+    data = request.POST.copy()
+    form = PostEdit(data)
+
+    if not form.is_valid():
+        msgs = [render_message("Invalid Form", 10)]
+        return render_to_AJAX(status="error", messages=msgs)
+
+    post = get_object_or_404(Post, id=form.cleaned_data['id'])
+    post.draft = False
+    post.pub_date = datetime.datetime.now()
+    post.txt = form.cleaned_data['txt']
+    post.tags = form.cleaned_data['tags']
+    post.title = form.cleaned_data['title']
+    post.save()
+
+    msgs = [render_message("Post published", 10)]
+    return render_to_AJAX(status="ok", messages=msgs)
 
 def delete(request, username):
     user = get_object_or_404(User, username=username)
     blog = get_object_or_404(Blog, author=user)
-    status = 'error'
-    if request.user == blog.author:
-        if request.POST:
-            data = request.POST.copy()
-            post = get_object_or_404(Post, id=data['id'])
-            post.delete()
-            status = 'ok'
-            msg = "Post Deleted"
-        else:
-            msg = "Not a POST"
-    else:
-        msg = "Unauthorized"
-    if status == 'error':
-        msgt = loader.get_template('sys_msg.html')
-        msgc = Context({'message': msg,
-                        'nesting': 10})
-        message = msgt.render(msgc)
-    else:
-        message = msg
-    xmlt = loader.get_template('AJAXresponse.xml')
-    xmlc = Context({'status': status,
-                    'messages': [message]})
-    response = xmlt.render(xmlc)
-    return HttpResponse(response)
-    
 
+    if not request.POST:
+        msgs = [render_message("Not a POST", 10)]
+        return render_to_AJAX(status="error",
+                              messages=msgs)
+
+    if not request.user.is_authenticated():
+        msgs = [render_message("Unauthorized", 10)]
+        return render_to_AJAX(status="error", messages=msgs)
+
+    if not request.user == user:
+        msgs = [render_message("Unauthorized", 10)]
+        return render_to_AJAX(status="error", messages=msgs)
+    
+    data = request.POST.copy()
+    post = get_object_or_404(Post, id=data['id'])
+    post.delete()
+    status = 'ok'
+    msgs = [render_message("Post Deleted", 10)]
+    return render_to_AJAX(status="ok", messages=msgs)

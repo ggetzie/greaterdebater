@@ -16,6 +16,7 @@
 {% comment %}
 <div class="form">
   <form action="/users/feedback/" method='post'>
+    {% csrf_token %}
     {% if form.error_dict %}
     <p class="error">Please correct the errors below</p>
     {% endif %}
