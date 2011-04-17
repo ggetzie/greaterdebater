@@ -1,18 +1,18 @@
--templates/comments/edit_form.html:  <form action="/comments/{{ comment.ntopic.id }}/edit/" method="post" accept-charset="utf-8">
--templates/comments/draw_form.html:  <form id="draw_form">
--templates/comments/reply_form.html:  <form action="/comments/{{ comment.ntopic_id }}/add/" method="post" accept-charset="utf-8">
--templates/comments/form.html:  <form action="/comments{{ redirect }}add/" method="post" accept-charset="utf-8">
--templates/comments/argue_form.html:  <form action="/argue/challenge/{{ comment.id }}/" method="post" accept-charset="utf-8">
--templates/comments/rebut_form.html:  <form id="rebut_form">
--templates/registration/login.html:  <form action="/users/login/" name="login" method='post'>
--templates/registration/login.html:  <form action="/users/register/" method="post" name="register">
--templates/registration/register.html:<form action="." method="post" name="register">
--templates/registration/profile/forgot.html:  <form action='.' method='post'>
--templates/registration/profile/settings.html:  <form action="/users/u/{{ request.user }}/settings/" name="settings" method="post">
--templates/registration/profile/reset.html:<form action="." method="post" accept-charset="utf-8">
--templates/registration/feedback.html:  <form action="/users/feedback/" method='post'>
--templates/items/submit.html:<form action='.' method='post'>
--templates/items/edit_topic.html:<form action="{{ request.path }}" method='post'>
--templates/blogtemplates/post_new.html:<form method='post' id="postform" action="/blog/{{ blog.author.username }}/new/">
--templates/blogtemplates/post_edit.html:<form method='post' id="postform">
--templates/blogtemplates/post_detail.html:  <form action="/blog/{{ blog.author.username }}/addcomment" method="post" accept-charset="utf-8">
++-templates/comments/edit_form.html:  <form action="/comments/{{ comment.ntopic.id }}/edit/" method="post" accept-charset="utf-8">
++-templates/comments/draw_form.html:  <form id="draw_form">
++-templates/comments/reply_form.html:  <form action="/comments/{{ comment.ntopic_id }}/add/" method="post" accept-charset="utf-8">
++-templates/comments/form.html:  <form action="/comments{{ redirect }}add/" method="post" accept-charset="utf-8">
++-templates/comments/argue_form.html:  <form action="/argue/challenge/{{ comment.id }}/" method="post" accept-charset="utf-8">
++-templates/comments/rebut_form.html:  <form id="rebut_form">
++-templates/registration/login.html:  <form action="/users/login/" name="login" method='post'>
++-templates/registration/login.html:  <form action="/users/register/" method="post" name="register">
++-templates/registration/register.html:<form action="." method="post" name="register">
++-templates/registration/profile/forgot.html:  <form action='.' method='post'>
++-templates/registration/profile/settings.html:  <form action="/users/u/{{ request.user }}/settings/" name="settings" method="post">
++-templates/registration/profile/reset.html:<form action="." method="post" accept-charset="utf-8">
++-templates/registration/feedback.html:  <form action="/users/feedback/" method='post'>
++-templates/items/submit.html:<form action='.' method='post'>
++-templates/items/edit_topic.html:<form action="{{ request.path }}" method='post'>
++-templates/blogtemplates/post_new.html:<form method='post' id="postform" action="/blog/{{ blog.author.username }}/new/">
++-templates/blogtemplates/post_edit.html:<form method='post' id="postform">
++-templates/blogtemplates/post_detail.html:  <form action="/blog/{{ blog.author.username }}/addcomment" method="post" accept-charset="utf-8">
