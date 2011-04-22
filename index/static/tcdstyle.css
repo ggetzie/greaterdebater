@@ -538,6 +538,12 @@ div#login span {
     display: block;
 }
 
+div#bookmarklet li {
+    padding-bottom: 10px;
+    font-size: small;
+}
+    
+
 
 /* formatting for drop down menu adapted from  */
 /* http://javascript-array.com/scripts/jquery_simple_drop_down_menu/ */
