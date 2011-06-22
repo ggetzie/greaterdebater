@@ -5,6 +5,7 @@ ADMINS = (
 )
 
 FIXTURE_DIRS = ['./fixtures/']
+DATA_DIR = '/usr/local/data/'
 
 MANAGERS = ADMINS
 
