@@ -1,6 +1,7 @@
 
 from django.http import HttpResponse
 from django.template import loader, Context
+from settings import SAVE_PATH
 
 import datetime
 import random
@@ -167,3 +168,15 @@ def render_message(message, nesting):
                    'nesting': nesting})
     msgt = loader.get_template('sys_msg.html')
     return msgt.render(msgc)
+
+def handle_uploaded_file(f):
+    # 1. Check if user has a directory in the uploads folder, if not make one
+    # 2. rename file to username + incrementing number + original extension
+    # 3. set file permissions to 644 rw, owner, r group, r others no execute
+    
+    filename = SAVE_PATH + request.user.username + '_' + form['title']
+    destination = open(filename, 'wb+')
+    for chunk in f.chunks():
+        destination.write(chunk)
+    destination.close()
+    return filename
