@@ -9,8 +9,8 @@ from tcd.blog.models import Blog, Post, PostComment
 from tcd.blog.forms import PostEdit, PostCommentForm, PostNew
 from tcd.comments.utils import build_list
 from tcd.profiles.models import Profile
-from settings import SAVE_PATH
-from utils import render_to_AJAX, render_message, handle_uploaded_file
+#from settings import SAVE_PATH
+from utils import render_to_AJAX, render_message
 
 import pyfo
 import datetime
@@ -292,14 +292,13 @@ def delete(request, username):
     msgs = [render_message("Post Deleted", 10)]
     return render_to_AJAX(status="ok", messages=msgs)
 
-def upload_file(request):
     
-    def upload_file(request):
-    if request.method == 'POST':
-        form = UploadFileForm(request.POST, request.FILES)
-        if form.is_valid():
-            filename = handle_uploaded_file(request.FILES['file'])
-            return HttpResponseRedirect('/success/url/')
-    else:
-        form = UploadFileForm()
-    return render_to_response('upload.html', {'form': form})
+# def upload_file(request):
+#     if request.method == 'POST':
+#         form = UploadFileForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             filename = handle_uploaded_file(request.FILES['file'])
+#             return HttpResponseRedirect('/success/url/')
+#     else:
+#         form = UploadFileForm()
+#     return render_to_response('upload.html', {'form': form})
