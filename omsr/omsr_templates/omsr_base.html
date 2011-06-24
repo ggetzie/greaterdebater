@@ -1,0 +1,183 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html lang="en">
+  <head>
+    <title>{% block title %}{% endblock %} | GreaterDebater</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+    <script id="tcdjs" type="text/javascript" charset="utf-8" src="{{ MEDIA_URL}}tcd.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}tcdstyle.css" />
+
+    <script type="text/javascript">
+      var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+      document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+      try {
+      var pageTracker = _gat._getTracker("UA-11051374-1");
+      pageTracker._trackPageview();
+      } catch(err) {}</script>
+    <meta name="title" content="GreaterDebater - The only place on the internet where you can win an argument">
+    {% block htmlhead %}{% endblock %}
+  </head>
+
+  <body {% block bodyatt %}{% endblock %} >
+    <div class="wrapper">
+      <a href="/">
+	<div id="title">
+	  <h1>
+	    <span class="letter white">
+	      G
+	    </span>
+	    <span class="letter white">
+	      R
+	    </span>
+	    <span class="letter white">
+	      E
+	    </span>
+	    <span class="letter gray1">
+	      A
+	    </span>
+	    <span class="letter gray1">
+	      T
+	    </span>
+	    <span class="letter gray2">
+	      E
+	    </span>
+	    <span class="letter gray2">
+	      R
+	    </span>
+	    <span class="letter gray-2">
+	      D
+	    </span>
+	    <span class="letter gray-2">
+	      E
+	    </span>
+	    <span class="letter gray-1">
+	      B
+	    </span>
+	    <span class="letter gray-1">
+	      A
+	    </span>
+	    <span class="letter black">
+	      T
+	    </span>
+	    <span class="letter black">
+	      E
+	    </span>
+	    <span class="letter black">
+	      R
+	    </span>
+	  </h1>
+	  <span class="tagline">
+	    The only place on the internet where you can win an argument
+	  </span>
+	</div>
+      </a>
+      {% block header %}
+      <div id="header">
+
+	<div id="topmenu" class="header">
+	  <ul class="jsddm">
+
+	    <li><a href="/">Home</a></li>
+
+	    <li>
+	      <a href="#" >Topics</a>
+	      <ul>
+		<li><a href="/hot/">Hot</a></li>
+		<li><a href="/new/">New</a></li>
+		{% if request.user.is_authenticated %}
+		<li><a href="/users/u/{{ request.user }}/saved/">Saved</a></li>		
+		{% endif %}
+	      </ul>
+	    </li>
+	    
+	    <li>
+	      <a href="#">Debates</a>
+	      <ul>
+		<li><a href="/argue/hot/">Hot</a></li>
+		<li><a href="/argue/new/">New</a></li>
+		<li><a href="/argue/archive/">Archive</a></li>
+	      </ul>
+	    </li>
+
+	    <li><a href="/submit/">Submit</a></li>
+	    <li><a href="/blog/gabe/">Blog</a></li>
+	  </ul>
+	</div>
+
+	<div id="login" class="header">
+	  <span>
+	    {% if user.is_authenticated %}
+	    Welcome <a href="/users/u/{{ user.username }}/profile/">{{ user.username }}</a>! |
+	    <a href="/users/logout">Log out</a>
+	    {% else %}
+	    <a href="/users/login?next={{ request.path }}">Log In or Register</a>
+	    {% endif %}
+	  </span>
+	</div>
+
+      </div>
+
+
+
+      {% endblock %}
+
+      {% block sub_header %}
+      {% endblock %}
+
+      {% if messages %}
+      <div class="sys_messages">
+	{% for message in messages %}
+	<p {% if message.tags %}class="{{ message.tags }}"{% endif %}>{{ message|safe }}</p>
+	{% endfor %}
+      </div>
+      {% endif %}
+
+      
+      <div id="content-wrapper">
+	<div id="content">
+	  {% block content %}
+	  {% endblock %}
+	</div>
+
+	<div id="sidebar">
+	  <div class="sideinfo">
+	    {% block sidebar %}
+	    {% endblock %}
+	  </div>
+	  <div id="user_msgs" class="sideinfo">
+	    {% if request.user.is_authenticated %}
+	    <script type="text/javascript">
+	      check_messages();
+	    </script>
+
+	    {% endif %}
+	  </div>
+	  {% block ads %}
+	  {% endblock %}
+	</div>
+
+	<div class="clearfooter"></div>
+      </div>
+
+    </div>
+    
+    <div class="footer">
+      <div class="foot-menu">
+	<ul class="flat-list">
+	  <!--       <li><a href="/about/">About</a></li>| -->
+	  <li><a href="/help/">Help</a></li>|
+	  <li><a href="/buttons/">Buttons</a></li>|
+	  <!--       <li><a href="/FAQ/">FAQ</a></li>| -->
+	  <li><a href="/tos/">Terms of Service</a></li>|
+	  <li><a href="/privacy/">Privacy Policy</a></li>|
+	  <li><a href="/users/feedback/">Feedback</a></li>
+	</ul>
+      </div>
+      <div>
+	<a href="http://www.djangoproject.com/"><img src="http://media.djangoproject.com/img/badges/djangojoint107x25_grey.gif" border="0" alt="A Django joint." title="A Django joint." /></a>
+      </div>
+  </div>
+
+</body>
+</html>
