@@ -27,11 +27,11 @@ class NewArguments(Feed):
 class BlogFeed(Feed):
     desciption_template = 'feeds/bdesc.html'
 
-    def get_object(self, blog_id):
-        if len(blog_id) != 1:
-            return ObjectDoesNotExist
-        else:
-            return Blog.objects.get(id__exact=blog_id[0])
+    def get_object(self, request, blog_id):
+        # if len(blog_id) != 1:
+        #     return ObjectDoesNotExist
+        # else:
+        return Blog.objects.get(id__exact=blog_id)
 
     def title(self, obj):
         return obj.title
@@ -48,11 +48,11 @@ class BlogFeed(Feed):
 class UserFeed(Feed):
     description = "Recent activity on GreaterDebater."
 
-    def get_object(self, username):
-        if len(username) != 1:
-            return ObjectDoesNotExist
+    def get_object(self, request, username):
+        # if len(username) != 1:
+        #     return ObjectDoesNotExist
         
-        prof = Profile.objects.get(user__username__exact=username[0])
+        prof = Profile.objects.get(user__username__exact=username)
         
         if not (prof.feedcoms or prof.feedtops or prof.feeddebs):
             return ObjectDoesNotExist

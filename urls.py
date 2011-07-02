@@ -46,13 +46,18 @@ urlpatterns = patterns('',
                        (r'^buttons/$', 'django.views.generic.simple.direct_to_template', 
                         {'template': 'buttons.html'}),
 
-                       # Atom feeds
-                       (r'^atom/(?P<url>.*)/$', 'django.contrib.syndication.views.feed',
-                        {'feed_dict': atomfeeds}),
+                       # Topics feeds
+                       (r'^feeds/newtopics/$', NewTopics()),
 
-                       # RSS feeds
-                       (r'^feeds/(?P<url>.*)/$', 'django.contrib.syndication.views.feed',
-                        {'feed_dict': rssfeeds}),
+                       # Debate feeds
+                       (r'^feeds/newargs/$', NewArguments()),                       
+                       
+                       # Blog feed
+                       (r'^feeds/blog/(?P<blog_id>\d+)/$', BlogFeed()),                       
+                       
+                       # UserFeed
+                       (r'^feeds/user/(?P<username>[A-Za-z\d]+)/$', UserFeed()),
+
                        
                        # Blog system
                        (r'^blog/(?P<username>[A-Za-z\d]+)/', include('tcd.blog.urls')),
