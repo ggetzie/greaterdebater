@@ -1,6 +1,14 @@
 {% extends "base.html" %}
 {% block title %}{{ object.title }}{% endblock %}
 
+{% block htmlhead %}
+<meta property="og:title" content="{{ object.title }}" />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="{{ MEDIA_URL }}static/gd-small.png" />
+<meta property="og:site_name" content="GreaterDebater" />
+<meta property="og:url" content="{{ object.get_absolute_url }}" />
+{% endblock %}
+
 {% block content %}
 <div id="arg_title">
   <h3>{{ object.title }}</h3>
@@ -45,8 +53,10 @@
 
 <p>
   <div id="fb-root"></div>
-  <script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script>
-  <fb:send href="{{ object.get_absolute_url }}" font="verdana"></fb:send>
+  <script src="http://connect.facebook.net/en_US/all.js#appId=***REMOVED***&amp;xfbml=1"></script>
+  <fb:like href="{{ object.get_absolute_url }}" send="false" layout="box_count" width="450" show_faces="false"
+	   font="verdana"></fb:like>
+
 </p>
 {% endblock %}
 

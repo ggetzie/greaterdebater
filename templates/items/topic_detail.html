@@ -4,6 +4,16 @@
 
 {% block htmlhead %}
 <meta name="keywords" content="{{ keywords }}">
+<meta property="og:title" content="{{ object.title }}" />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="{{ MEDIA_URL }}static/gd-small.png" />
+<meta property="og:site_name" content="GreaterDebater" />
+
+{% if onecom %}
+<meta property="og:url" content="{{ com.get_absolute_url }}" />
+{% else %}
+<meta property="og:url" content="{{ object.get_comments_url }}" />
+{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -108,8 +118,9 @@
 
 <p>
   <div id="fb-root"></div>
-  <script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script>
-  <fb:send href="{{ com.get_absolute_url }}" font="verdana"></fb:send>
+  <script src="http://connect.facebook.net/en_US/all.js#appId=***REMOVED***&amp;xfbml=1"></script>
+  <fb:like href="{{ com.get_absolute_url }}" send="false" layout="box_count" width="450" show_faces="false"
+	   font="verdana"></fb:like>
 </p>
 
 {% else %}
@@ -119,8 +130,9 @@
 
 <p>
   <div id="fb-root"></div>
-  <script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script>
-  <fb:send href="{{ object.get_comments_url }}" font="verdana"></fb:send>
+  <script src="http://connect.facebook.net/en_US/all.js#appId=***REMOVED***&amp;xfbml=1"></script>
+  <fb:like href="{{ object.get_comments_url }}" send="false" layout="box_count" width="450" show_faces="false"
+	   font="verdana"></fb:like>
 </p>
 
 {% endif %}
