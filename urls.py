@@ -60,8 +60,5 @@ urlpatterns = patterns('',
                        # Urls associated with user profiles
                        (r'^users/', include('tcd.profiles.urls')),
 
-                       # Old Man Search Results
-                       (r'^omsr/', include('tcd.omsr.urls')),
-
                        (r'', include('tcd.items.urls'))
                        )

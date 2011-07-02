@@ -14,15 +14,23 @@
 
 <H1>{{ post.title }}</H1>
 {% if show_post %}
-<DIV class="descr">by {{ blog.author }} at {{ post.pub_date|date }}</DIV>
+<DIV class="descr">{{ post.pub_date|date }}</DIV>
 
 {{ post.html|safe }}
 
 <div class="share">
-  <a href="http://www.greaterdebater.com/submit" onclick="window.location =
-							  'http://www.greaterdebater.com/submit?url=' +
-							  encodeURIComponent(window.location)
-							  + '&title=' + encodeURIComponent(document.title); return false;">Debate It!</a>
+  <ul>
+    <li>
+      <a href="http://www.greaterdebater.com/submit" onclick="window.location =
+							      'http://www.greaterdebater.com/submit?url=' +
+							      encodeURIComponent(window.location)
+							      + '&title=' + encodeURIComponent(document.title); return false;">
+	<img src="{{MEDIA_URL}}/gd-small.png" title="Submit to GreaterDebater"></img></a>
+    </li>
+    <li>
+      <g:plusone size="small"></g:plusone>
+    </li>
+  </ul>
 </div>
 
 {% ifequal request.user blog.author %}

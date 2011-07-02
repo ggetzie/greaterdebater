@@ -103,10 +103,7 @@
 
 {% if onecom %}
 <p>
-  <a title="Post to Google Buzz" class="google-buzz-button"
-     href="http://www.google.com/buzz/post"
-     data-button-style="normal-button" data-url="{{ com.get_absolute_url }}"></a>
-  <script type="text/javascript" src="http://www.google.com/buzz/api/button.js"></script>
+  <g:plusone size="tall" href="{{ com.get_absolute_url }}"></g:plusone>
 </p>
 
 <p>
@@ -116,10 +113,7 @@
 
 {% else %}
 <p>
-  <a title="Post to Google Buzz" class="google-buzz-button"
-     href="http://www.google.com/buzz/post"
-     data-button-style="normal-button" data-url="{{ object.get_comments_url }}"></a>
-  <script type="text/javascript" src="http://www.google.com/buzz/api/button.js"></script>
+  <g:plusone size="tall" href="{{ object.get_comments_url }}"></g:plusone>
 </p>
 
 <p>

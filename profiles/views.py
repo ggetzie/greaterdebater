@@ -447,7 +447,7 @@ def feedback(request):
 
             send_mail(subj,
                       message,
-                      'feedback@greaterdebater.com',
+                      'dnr@greaterdebater.com',
                       ['feedback@greaterdebater.com'],
                       fail_silently=False)            
             return HttpResponseRedirect("/users/thanks")
@@ -475,7 +475,7 @@ def forgot_password(request):
                                user.username, "/reset/", code])
             send_mail('Reset your password at GreaterDebater', 
                       message, 
-                      'admin@greaterdebater.com', 
+                      'dnr@greaterdebater.com', 
                       [user.email], 
                       fail_silently=False)
             messages.info(request, 

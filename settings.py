@@ -76,8 +76,8 @@ INSTALLED_APPS = (
 # Email settings
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'gabe@greaterdebater.com'
-EMAIL_HOST_PASSWORD = 'mIqXJ2Y0Qt'
+EMAIL_HOST_USER = 'dnr@greaterdebater.com'
+EMAIL_HOST_PASSWORD = 'AxLaCI2n6N'
 EMAIL_PORT = 587
 
 # Date and time formats

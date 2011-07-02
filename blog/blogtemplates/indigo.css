@@ -189,9 +189,17 @@ div.postsummary {
 }
 
 div.share {
+    margin-top: 30px;
     margin-bottom: 50px;
 }
 
+.share ul {
+    list-style-type: none;
+}
+
+.share ul li {
+    display: inline;
+}
 div.comments {
     margin-top: 30px;
 }
