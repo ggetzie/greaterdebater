@@ -165,6 +165,9 @@ class TopicComment(Comment):
                                        related_name="cfollow_set",
                                        blank=True)
 
+    def __unicode__(self):
+        return "%s comments on %s" % (self.user.username, self.ntopic.title)
+
     def save(self):
         super(TopicComment, self).save()
 

@@ -55,7 +55,7 @@ class Post(models.Model):
     def get_absolute_url(self):
         return ''.join([self.blog.get_absolute_url(), 'post/', str(self.id), '/'])
     
-    def __repr__(self):
+    def __unicode__(self):
         return self.title
 
 class PostComment(Comment):
