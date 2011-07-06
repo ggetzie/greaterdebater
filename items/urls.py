@@ -1,4 +1,5 @@
 from django.conf.urls.defaults import *
+from django.views.generic.base import TemplateView
 from tcd.items.models import Topic
 
 # This file is included in tcd.urls with no prefix
@@ -23,8 +24,7 @@ urlpatterns = patterns('',
                        (r'^submit/$', 'tcd.items.views.submit'),
 
                        # iPhone bookmarklet instructions
-                       (r'^iphonebk/?$', 'django.views.generic.simple.direct_to_template', 
-                        {'template': 'items/iphonebk.html'}),
+                       (r'^iphonebk/?$', TemplateView.as_view(template_name='items/iphonebk.html')),
                        
                        # Edit the title, url or description of a topic
                        (r'^edit/(?P<topic_id>\d+)/(?P<page>\d+)/?$', 'tcd.items.views.edit_topic'),

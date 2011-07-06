@@ -15,8 +15,11 @@ class NewTopics(Feed):
     link = HOSTNAME + '/new/'
     description = 'The latest topics on GreaterDebater'
     
+    description_template = 'feeds/newtopics_description.html'
+
     def items(self):
         return Topic.objects.filter(needs_review=False, spam=False).order_by('-sub_date')[:15]
+        
 
 class NewArguments(Feed):
     title = 'GreaterDebater - New Debates'

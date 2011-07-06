@@ -133,7 +133,7 @@ def topics(request, page=1, sort="hot"):
                                                   })
 
 def front_page(request):
-    """Display the home page of GreaterDebater.com, show five hottest arguments and ten hottest topics"""
+    """Display the home page of GreaterDebater.com, show five hottest arguments and 25 hottest topics"""
     args = Debate.objects.filter(status__in=range(1,6)).order_by('-start_date')[:5]
     topics = Topic.objects.filter(needs_review=False, spam=False).order_by('-score', '-sub_date')[:25]
 
@@ -220,7 +220,6 @@ def delete_topic(request):
     message = render_message("Topic deleted. FOREVER.", 10)
     return render_to_AJAX(status="ok", messages=[message])
 
-    
 
 def submit(request):
     """Add a new topic submitted by the user"""
@@ -282,6 +281,7 @@ def submit(request):
             return HttpResponseRedirect(next)
 
     try:
+        # If the topic already exists, redirect to it
         topic = Topic.objects.get(url=form.cleaned_data['url'])
         return HttpResponseRedirect("/" + str(topic.id) + "/")
     except ObjectDoesNotExist:
@@ -351,10 +351,6 @@ def submit(request):
             topic.recalculate()
             topic.save()
         return HttpResponseRedirect(next)
-
-
-
-
 
 
 def edit_topic(request, topic_id, page):
@@ -1115,6 +1111,7 @@ def decide(request, model):
     elif form.cleaned_data['decision'] == 1:
         # Mark spam, disable user
         obj.spam = True
+        obj.score = 0
         obj.save()
         prof = Profile.objects.get(user=obj.user)
         prof.rate = 10
@@ -1124,6 +1121,7 @@ def decide(request, model):
         # Rejected, marked spam but user not disabled
         # 'decision' == 2, other values will cause an invalid form
         obj.spam = True
+        obj.score = 0
         obj.save()
         message = render_message(model + " rejected.", 10)
 

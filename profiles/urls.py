@@ -2,6 +2,7 @@
 
 from django.conf.urls.defaults import *
 from django.contrib.auth.views import logout
+from django.views.generic.base import TemplateView
 
 
 
@@ -24,8 +25,7 @@ urlpatterns = patterns('',
                        (r'^feedback/$', 'tcd.profiles.views.feedback'),
 
                        # Thank you page for feedback submission
-                       (r'^thanks/$', 'django.views.generic.simple.direct_to_template', 
-                        {'template': 'registration/thanks.html'}),
+                       (r'^thanks/$', TemplateView.as_view(template_name='registration/thanks.html')),
                        
                        # Check messages
                        (r'^check_messages/$', 'tcd.profiles.views.check_messages'),
