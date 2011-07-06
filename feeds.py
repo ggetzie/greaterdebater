@@ -14,8 +14,8 @@ class NewTopics(Feed):
     title = 'GreaterDebater - New Topics'
     link = HOSTNAME + '/new/'
     description = 'The latest topics on GreaterDebater'
-    
     description_template = 'feeds/newtopics_description.html'
+    title_template = 'feeds/newtopics_title.html'
 
     def items(self):
         return Topic.objects.filter(needs_review=False, spam=False).order_by('-sub_date')[:15]
@@ -25,12 +25,15 @@ class NewArguments(Feed):
     title = 'GreaterDebater - New Debates'
     link = HOSTNAME + '/argue/new/'
     description = 'The latest debates on GreaterDebater'
+    description_template = 'feeds/newargs_description.html'
+    title_template = 'feeds/newargs_title.html'
 
     def items(self):
         return Debate.objects.filter(status__range=(1,2)).order_by('-start_date')[:15]
 
 class BlogFeed(Feed):
     description_template = 'feeds/blog_description.html'
+    title_template = 'feeds/blog_title.html'
 
     def get_object(self, request, blog_id):
         return get_object_or_404(Blog, pk=blog_id)
