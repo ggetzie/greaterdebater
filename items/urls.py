@@ -1,30 +1,29 @@
 from django.conf.urls.defaults import *
-from tcd.items.models import Topic
+from django.views.generic.base import TemplateView
+from items.models import Topic
+from items.views import TopicListView, CommentListView
+
+TOPICS_PAGINATE_BY = 25
+COMMENTS_PAGINATE_BY = 100
 
 # This file is included in tcd.urls with no prefix
 
 urlpatterns = patterns('',
-                       # View Topics sorted by highest score
+                       # Landing page
                        (r'^$', 'tcd.items.views.front_page'), 
 
-                       # View Topics sorted by highest score
-                       (r'^(?P<sort>(hot))/?$', 'tcd.items.views.topics'), 
-                       (r'^(?P<sort>(hot))/(?P<page>\d+)/?$', 'tcd.items.views.topics'),                          
+                       # View Topics sorted by highest score or submission date
+                       (r'^(?P<sort>(hot|new))/(?P<page>(\d+|last))?/?$', TopicListView.as_view(paginate_by=TOPICS_PAGINATE_BY)),
 
-                       # View Topics sorted by submission date
-                       (r'^(?P<sort>(new))/?$', 'tcd.items.views.topics'),
-                       (r'^(?P<sort>(new))/(?P<page>\d+)/?$', 'tcd.items.views.topics'),
-                       
                        # View Comments associated with a topic
-                       (r'^(?P<topic_id>\d+)/?$', 'tcd.items.views.comments'),
-                       (r'^(?P<topic_id>\d+)/(?P<page>\d+)/?$', 'tcd.items.views.comments'),
-                       
+                       (r'^(?P<topic_id>\d+)/(?P<page>(\d+|last))?/?$', CommentListView.as_view(paginate_by=COMMENTS_PAGINATE_BY,
+                                                                          template_name='items/topic_detail.html',
+                                                                          context_object_name='rest_c')),
                        # Submit a new topic
                        (r'^submit/$', 'tcd.items.views.submit'),
 
                        # iPhone bookmarklet instructions
-                       (r'^iphonebk/?$', 'django.views.generic.simple.direct_to_template', 
-                        {'template': 'items/iphonebk.html'}),
+                       (r'^iphonebk/?$', TemplateView.as_view(template_name='items/iphonebk.html')),
                        
                        # Edit the title, url or description of a topic
                        (r'^edit/(?P<topic_id>\d+)/(?P<page>\d+)/?$', 'tcd.items.views.edit_topic'),

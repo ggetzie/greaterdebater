@@ -2,9 +2,6 @@
 
 from django.conf.urls.defaults import *
 from django.contrib.auth.models import User
-# from tcd.comments.models import *
-# from tcd.items.models import Argument;
-
 
 urlpatterns = patterns('tcd.items.views',
                        

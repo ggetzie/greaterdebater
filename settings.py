@@ -1,8 +1,6 @@
 from local_settings import *
 
-ADMINS = (
-    ('Gabriel Getzie', 'admin@greaterdebater.com'),
-)
+
 
 FIXTURE_DIRS = ['./fixtures/']
 DATA_DIR = '/usr/local/data/'

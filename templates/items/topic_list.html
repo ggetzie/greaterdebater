@@ -13,7 +13,7 @@
 
 <h3 class="section-title">{{ ttype }} Topics</h3>
 
-<ol start={{ start }} class="topic-list">
+<ol start={{ page_obj.start_index }} class="topic-list">
   {% for object in object_list %}
   <li>
     {% include "items/topic_div.html" %}
@@ -26,11 +26,11 @@
 
 {# pagination #}
 <div class="pages">
-  {% if has_previous %}
-  <a id="prev" href="/{{ page }}/{{ previous }}/">Previous</a>
+  {% if page_obj.has_previous %}
+  <a id="prev" href="/{{ topic_sort }}/{{ page_obj.previous_page_number }}/">Previous</a>
   {% endif %}
-  {% if has_next %}
-  <a id="next" href="/{{ page }}/{{ next }}/">Next</a>
+  {% if page_obj.has_next %}
+  <a id="next" href="/{{ topic_sort }}/{{ page_obj.next_page_number }}/">Next</a>
   {% endif %}
 </div>
 

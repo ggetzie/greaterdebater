@@ -9,6 +9,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import loader, RequestContext, Context
 from django.utils.datastructures import MultiValueDictKeyError
 from django.views.generic import list_detail
+from django.views.generic.list import ListView
 
 from comments.forms import ArgueForm, CommentForm, RebutForm
 from comments.models import TopicComment, ArgComment, nVote, Debate, tcdMessage, Draw, \
@@ -29,108 +30,67 @@ from tcd.utils import calc_start, tag_dict, tag_string, update_tags, render_to_A
 
 import datetime
 import random
-import pyfo
 import urllib
 
 models={'comment': TopicComment,
         'topic':  Topic}
 
-def comments(request, topic_id, page=1):
-    """The view for topic_detail.html 
-    Displays the list of comments associated with a topic."""
-    paginate_by = 100
-    has_previous = False
-    has_next = True
-    top = get_object_or_404(Topic, pk=topic_id)
-    comments = top.topiccomment_set.filter(first=False,
-                                           needs_review=False,
-                                           spam=False)
-    rest_c = build_list(comments.order_by('-pub_date'), 0)
-    form_comment = CommentForm()
+class CommentListView(ListView):
+    def get_queryset(self):
+        top = get_object_or_404(Topic, pk=self.kwargs['topic_id'])
+        comments = top.topiccomment_set.filter(first=False,
+                                              needs_review=False,
+                                              spam=False)
+        rest_c = build_list(comments.order_by('-pub_date'), 0)
+        return rest_c
 
-    if len(rest_c) % paginate_by:
-        last_page = (len(rest_c) / paginate_by) + 1
-    else:
-        last_page = len(rest_c) / paginate_by
+    def get_context_data(self, **kwargs):
+        context = super(CommentListView, self).get_context_data(**kwargs)
+        if self.request.user.is_authenticated():
+            prof = get_object_or_404(Profile, user=self.request.user)
+            newwin = prof.newwin
+        else:
+            newwin = False
+        top = get_object_or_404(Topic, pk=self.kwargs['topic_id'])
+        if top.tags:
+            keywords = ", ".join(top.tags.split('\n')[0].split(','))
+        else:
+            keywords = "greaterdebater, debate, comment, topic"
 
-    if page == 'last':
-        page = last_page
-    elif page == 'first':
-            page = 1
-    else:
-        try:
-            page = int(page)
-        except:
-            raise Http404
+        context.update({'newwin': newwin,
+                        'form_comment': CommentForm(),
+                        'keywords': keywords,
+                        'object': top,
+                        'redirect': '/' + str(top.id) + '/'})
+        return context
 
-    start = (page - 1) * paginate_by
-    end = page * paginate_by
-    previous = page - 1
-    next = page + 1
+class TopicListView(ListView):
 
-    if start > 0:
-        has_previous = True
+    def get_context_data(self, **kwargs):
+        context = super(TopicListView, self).get_context_data(**kwargs)
+        if self.request.user.is_authenticated():
+            prof = get_object_or_404(Profile, user=self.request.user)
+            newwin = prof.newwin
+        else:
+            newwin=False
+        topic_sort = self.kwargs['sort']
+        if topic_sort == 'new':
+            ttype = 'Newest'
+        else:
+            ttype = "Most Active"
+        context.update({'topic_sort': topic_sort,
+                        'ttype': ttype,
+                        'newwin': newwin,
+                        'source': 0})
+        return context
 
-    try:
-        rest_c[end]
-    except IndexError:
-        has_next = False
+    def get_queryset(self):
+        queryset = Topic.objects.filter(needs_review=False, spam=False)
+        if self.kwargs['sort'] == 'new':
+            return queryset.order_by('-sub_date')
+        else:
+            return queryset.order_by('-score', '-sub_date')
 
-    if request.user.is_authenticated():
-        prof = get_object_or_404(Profile, user=request.user)
-        newwin = prof.newwin
-    else:
-        newwin = False
-
-    if top.tags:
-        keywords = ", ".join(top.tags.split('\n')[0].split(','))
-    else:
-        keywords = "greaterdebater, debate, comment, topic"
-
-    return render_to_response('items/topic_detail.html', 
-                              {'object': top,                               
-                               'rest_c': rest_c[start:end],
-                               'redirect': ''.join(["/", str(topic_id), "/"]),
-                               'has_previous': has_previous,
-                               'previous': previous,
-                               'has_next': has_next,
-                               'next': next,
-                               'form_comment': form_comment,
-                               'newwin': newwin,
-                               'keywords': keywords},
-                              context_instance=RequestContext(request)
-                              )
-
-def topics(request, page=1, sort="hot"):
-    """Display the list of topics. Order by highest score (hot) or most recent (new)"""
-    paginate_by = 25
-    start = calc_start(page, paginate_by, Topic.objects.count())
-
-    if request.user.is_authenticated():
-        prof = get_object_or_404(Profile, user=request.user)
-        newwin = prof.newwin
-    else:
-        newwin = False
-    queryset = Topic.objects.filter(needs_review=False, spam=False)
-    if sort == "new":
-        queryset = queryset.order_by('-sub_date')
-        pager = "new" 
-        ttype = "Newest"
-    else:
-        queryset = queryset.order_by('-score', '-sub_date')
-        pager = "hot" 
-        ttype = "Most Active"
-    
-    return list_detail.object_list(request=request, 
-                                   queryset=queryset,
-                                   paginate_by=paginate_by, 
-                                   page=page,
-                                   extra_context={'start': start,
-                                                  'page': pager,
-                                                  'ttype': ttype,
-                                                  'newwin': newwin,
-                                                  'source': 0,
-                                                  })
 
 def front_page(request):
     """Display the home page of GreaterDebater.com, show five hottest arguments and 25 hottest topics"""

@@ -1,5 +1,6 @@
 from django.conf.urls.defaults import *
 from django.contrib import admin
+from django.views.generic.base import TemplateView
 from tcd.feeds import NewTopics, NewArguments, BlogFeed, UserFeed, UserFeedAtom
 
 admin.autodiscover()
@@ -20,31 +21,26 @@ urlpatterns = patterns('',
                        (r'^admin/', include(admin.site.urls)),
                        
                        # About Us page - static
-                       (r'^about/$', 'django.views.generic.simple.direct_to_template', 
-                        {'template': 'about.html'}),
+                       (r'^about/$', TemplateView.as_view(template_name='about.html')),
 
                        # Urls associated with the commenting system
                        (r'^comments/', include('tcd.comments.urls')),                                              
                        
                        # Frequently Asked Questions
-                       (r'^FAQ/$', 'django.views.generic.simple.direct_to_template', 
-                        {'template': 'faq.html'}),
+                       (r'^FAQ/$', TemplateView.as_view(template_name='faq.html')),
 
                        # Help page - static
                        (r'^help/$', 'django.views.generic.simple.direct_to_template', 
                         {'template': 'help.html'}),                       
 
                        # Terms of Service - Static
-                       (r'^tos/$', 'django.views.generic.simple.direct_to_template', 
-                        {'template': 'tos.html'}),
+                       (r'^tos/$', TemplateView.as_view(template_name='tos.html')),
 
                        # Privacy Policy - Static
-                       (r'^privacy/$', 'django.views.generic.simple.direct_to_template', 
-                        {'template': 'privacy.html'}),
+                       (r'^privacy/$', TemplateView.as_view(template_name='privacy.html')),
                        
                        # Buttons for bloggers
-                       (r'^buttons/$', 'django.views.generic.simple.direct_to_template', 
-                        {'template': 'buttons.html'}),
+                       (r'^buttons/$', TemplateView.as_view(template_name='buttons.html')),
 
                        # Topics feeds
                        (r'^feeds/newtopics/$', NewTopics()),

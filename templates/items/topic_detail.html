@@ -94,11 +94,11 @@
 </div>
 
 <div class="pages">
-  {% if has_previous %}
-  <a id="prev" href="/{{ object.id }}/{{ previous }}">Previous</a>
+  {% if page_obj.has_previous %}
+  <a id="prev" href="/{{ object.id }}/{{ page_obj.previous_page_number }}">Previous</a>
   {% endif %}
-  {% if has_next %}
-  <a id="next" href="/{{ object.id }}/{{ next }}">Next</a>
+  {% if page_obj.has_next %}
+  <a id="next" href="/{{ object.id }}/{{ page_obj.next_page_number }}">Next</a>
   {% endif %}
 </div>
 
