@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block htmlhead %}
+<link rel="alternate" type="application/rss+xml"
+      title="GreaterDebater - New Debates"
+      href="http://feeds.feedburner.com/Greaterdebater-NewArguments">
+{% endblock %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<h3 class="section-title">{{ title }}</h3>
+
+
+
+{% include "items/arg_list.html" %}
+
+<div class="pages">
+  {% if page_obj.has_previous %}
+  <a id="prev" href="/argue/{{ sort }}/page/{{ page_obj.previous_page_number }}/">Previous</a>
+  {% endif %}
+  {% if page_obj.has_next %}
+  <a id="next" href="/argue/{{ sort }}/page/{{ page_obj.next_page_number }}/">Next</a>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div class="rss-link">
+  <a href="http://feeds.feedburner.com/Greaterdebater-NewArguments">
+    <img src="{{ MEDIA_URL }}img/feed-icon-14x14.png" /></a> 
+  <a href="http://feeds.feedburner.com/Greaterdebater-NewArguments">Subscribe to RSS</a>
+</div>
+{% endblock %}
+
+{% block ads %}
+{% include "ads.html" %}
+{% endblock %}

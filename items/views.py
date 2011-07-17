@@ -981,32 +981,40 @@ def arg_detail(request, object_id):
                                },
                               context_instance=RequestContext(request))
 
-def args_list(request, sort, page=1):
+class DebateListView(ListView):
+    def get_queryset(self):
+        if self.kwargs['sort'] == "new":
+            args = Debate.objects.filter(status__range=(1,2)).order_by('-start_date')
+        elif self.kwargs['sort'] == "hot":
+            args = Debate.objects.filter(status__range=(1,2))
+        elif self.kwargs['sort'] == "archive":
+            args = Debate.objects.filter(status__range=(3,5)).order_by('-start_date')
+        return args
+    
+    def get_context_data(self, **kwargs):
+        context = super(DebateListView, self).get_context_data(**kwargs)
+        if self.request.user.is_authenticated():
+            prof = get_object_or_404(Profile, user=self.request.user)
+            newwin = prof.newwin
+        else:
+            newwin = False
 
-    if sort == "new":
-        args = Debate.objects.filter(status__range=(1,2)).order_by('-start_date')
-        template_name = "items/arg_new.html"
-    elif sort == "hot":
-        args = Debate.objects.filter(status__range=(1,2))
-        template_name = "items/arg_current.html"
-    elif sort == "archive":
-        args = Debate.objects.filter(status__range=(3,5)).order_by('-start_date')
-        template_name = "items/arg_old.html"
+        if self.kwargs['sort'] == "new":
+            title = 'Newest Debates'
+            sort = 'new'
+        elif self.kwargs['sort'] == "hot":
+            title = 'Most Active Debates'
+            sort = 'hot'
+        elif self.kwargs['sort'] == "archive":
+            title = 'Debate Archive'
+            sort = 'archive'
+            
+        context.update({'newwin': newwin,
+                        'title': title,
+                        'sort': sort})
         
-    if request.user.is_authenticated():
-        prof = get_object_or_404(Profile, user=request.user)
-        newwin = prof.newwin
-    else:
-        newwin = False
+        return context
 
-    paginate_by = 25
-    extra_context = {'start': calc_start(page, paginate_by, args.count()),
-                     'newwin': newwin}
-
-    return list_detail.object_list(request=request, queryset=args, paginate_by=paginate_by,page=page,
-                                   template_object_name = 'args',
-                                   template_name = template_name,
-                                   extra_context=extra_context)
 
 def review(request, model, page=1):
     if not (request.user.is_authenticated() and request.user.is_staff):

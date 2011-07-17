@@ -2,6 +2,7 @@
 
 from django.conf.urls.defaults import *
 from django.contrib.auth.models import User
+from items.views import DebateListView
 
 urlpatterns = patterns('tcd.items.views',
                        
@@ -9,8 +10,10 @@ urlpatterns = patterns('tcd.items.views',
                        # new = current arguments sorted by date
                        # hot = current arguments sorted by score
                        # archive = completed arguments sorted by date
-                       (r'^(?P<sort>(new|hot|archive))/?$', 'args_list'),
-                       (r'^(?P<sort>(new|hot|archive))/page/(?P<page>(\d+|last))/?$', 'args_list'),
+                       (r'^(?P<sort>(new|hot|archive))/(page/)?(?P<page>(\d+|last))?/?$', 
+                        DebateListView.as_view(template_name='items/arg_main.html',
+                                               context_object_name='args_list',
+                                               paginate_by=25)),
 
                        # Challenge a user to an argument
                        (r'^challenge/(?P<c_id>[\d]+)/$', 'challenge'),

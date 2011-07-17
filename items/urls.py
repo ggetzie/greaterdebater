@@ -3,8 +3,6 @@ from django.views.generic.base import TemplateView
 from items.models import Topic
 from items.views import TopicListView, CommentListView
 
-TOPICS_PAGINATE_BY = 25
-COMMENTS_PAGINATE_BY = 100
 
 # This file is included in tcd.urls with no prefix
 
@@ -13,10 +11,10 @@ urlpatterns = patterns('',
                        (r'^$', 'tcd.items.views.front_page'), 
 
                        # View Topics sorted by highest score or submission date
-                       (r'^(?P<sort>(hot|new))/(?P<page>(\d+|last))?/?$', TopicListView.as_view(paginate_by=TOPICS_PAGINATE_BY)),
+                       (r'^(?P<sort>(hot|new))/(?P<page>(\d+|last))?/?$', TopicListView.as_view(paginate_by=25)),
 
                        # View Comments associated with a topic
-                       (r'^(?P<topic_id>\d+)/(?P<page>(\d+|last))?/?$', CommentListView.as_view(paginate_by=COMMENTS_PAGINATE_BY,
+                       (r'^(?P<topic_id>\d+)/(?P<page>(\d+|last))?/?$', CommentListView.as_view(paginate_by=100,
                                                                           template_name='items/topic_detail.html',
                                                                           context_object_name='rest_c')),
                        # Submit a new topic

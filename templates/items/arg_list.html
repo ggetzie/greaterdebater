@@ -1,6 +1,6 @@
 <div class="arg_list">
   {% if args_list %}
-  <ol start={{ start }} class="topic-list">
+  <ol start={{ page_obj.start_index }} class="topic-list">
     {% for arg in args_list %}
     <li>
       <a class="title" href="/argue/{{ arg.id }}"{% if newwin %}target="_blank"{% endif %}>{{ arg.title }}</a><br />
