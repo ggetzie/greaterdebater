@@ -11,8 +11,8 @@
 
 <h3 class="section-title">Topics for review</h3>
 
+{% ifequal model "topic" %}
 {% if topic_list %}
-
 <ol start={{ page_obj.start_index }} class="topic-list">
   {% for object in topic_list %}
   <li>
@@ -40,6 +40,35 @@
 {% else %}
 <p>No topics to review</p>
 {% endif %}
+{% endifequal %}
+
+{% ifequal model "comment" %}
+{% if comment_list %}
+
+<ol start={{ page_obj.start_index }} class="topic-list">
+  {% for comment in comment_list %}
+  <li>
+    <div id="comment_div{{ comment.id }}" class="comment_div">
+      <p class=comment_topic>
+	on <a href="/{{ comment.ntopic_id }}/" {% if newwin %}target="_blank"{% endif %}>{{ comment.ntopic.title }}</a>
+      </p>
+      <span id= "comment_info{{ comment.id }}" class="comment_info"> by <a href="/users/u/{{ comment.user }}/profile/">{{ comment.user }}</a> {{ comment.get_elapsed }} ago   
+      <div id="commentp_div{{ comment.id }}">
+	{{ comment.comment_html|safe }}
+      </div>
+      <div class="topic-actions">
+	<button id="approve" onclick="decide({{ comment.id }}, 'comment', 0); return false;">Approve</button>
+	<button id="reject" onclick="decide({{ comment.id }}, 'topic', 2); return false;">Reject</button>
+	<button id="markspam" onclick="decide({{ comment.id }}, 'comment', 1); return false;">Spam</button>
+      </div>
+    </div>
+  </li>
+  {% endfor %}
+</ol>
+{% else %}
+<p>No comments to review</p>
+{% endif %}
+{% endifequal %}
 
 {# pagination #}
 <div class="pages">

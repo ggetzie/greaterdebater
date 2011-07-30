@@ -1,6 +1,6 @@
-{% extends "registration/profile/profile_base.html" %}
+{% extends "base.html" %}
 
-{% block title %}{{ username }}'s messages{% endblock %}
+{% block title %}{{ request.user.username }}'s messages{% endblock %}
 
 
 {% block content %}
@@ -31,7 +31,7 @@
 	{{ msg.user }}
       </td>
       <td>
-	<a href="/users/u/{{ user.username }}/messages/{{ msg.comment_ptr_id }}">
+	<a href="/users/u/{{ request.user.username }}/messages/{{ msg.comment_ptr_id }}">
 	  {{ msg.subject }}
 	</a>
       </td>
@@ -50,13 +50,5 @@
     {% endif %}
 </table>
 
-<div class="pages">
-  {% if has_previous %}
-  <a id="prev" href="/users/u/{{ username }}/messages/page/{{ previous }}/">prev</a>
-  {% endif %}
-
-  {% if has_next %}
-  <a id="next" href="/users/u/{{ username }}/messages/page/{{ next }}/">next</a>
-  {% endif %}
-</div>
+{% include "pagediv.html" %}
 {% endblock %}

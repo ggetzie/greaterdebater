@@ -248,3 +248,16 @@ p button {
     color: #FFF;
     text-decoration: underline;
 }
+
+div.pages {
+    margin: 30px 0px 30px 20px;
+    width: 40%;
+}
+
+div.pages a#prev {
+    float: left;
+}
+
+div.pages a#next {
+    float: right;
+}

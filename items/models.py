@@ -120,3 +120,7 @@ class Tags(models.Model):
     def display_tags(self):
         return self.tags.split(',')
 
+    def __unicode__(self):
+        return self.tags
+
+    

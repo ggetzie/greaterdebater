@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import loader, Context, RequestContext
-from django.views.generic import list_detail
+from django.views.generic.list import ListView
 
 from tcd.blog.models import Blog, Post, PostComment
 from tcd.blog.forms import PostEdit, PostCommentForm, PostNew
@@ -83,18 +83,17 @@ def addcomment(request, username):
         messages.info(request, "Thank you! Your comment will appear after a brief review.")
     return HttpResponseRedirect(redirect_to)
 
-def archive(request, username, page=1):
-    paginate_by = 15
-    blog = get_object_or_404(Blog, author__username=username)
-    posts = Post.objects.filter(blog=blog, draft=False).order_by('-pub_date')
+class ArchiveView(ListView):
+    
+    def get_queryset(self):
+        self.blog = get_object_or_404(Blog, author__username=self.kwargs['username'])
+        posts = self.blog.post_set.filter(draft=False).order_by('-pub_date')
+        return posts
 
-    return list_detail.object_list(request=request, 
-                                   queryset=posts,
-                                   paginate_by = paginate_by,
-                                   page=page,
-                                   template_name="blogtemplates/archive.html",
-                                   template_object_name="post",
-                                   extra_context={'blog': blog})
+    def get_context_data(self, **kwargs):
+        context = super(ArchiveView, self).get_context_data(**kwargs)
+        context.update({'blog': self.blog})
+        return context
 
 def about(request, username):
     return render_to_response('blogtemplates/about.html',

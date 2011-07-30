@@ -337,20 +337,20 @@ class ViewTest(TestCase):
 
     def test_review(self):
         # not logged in
-        response = self.client.get('/review/topic/')
-        self.assertContains(response, "Unauthorized", status_code=403)
+        response = self.client.get('/review/topic/', follow=True)
+        self.assertRedirects(response, '/users/login/?next=/review/topic/')
 
-        response = self.client.get('/review/comment/')
-        self.assertContains(response, "Unauthorized", status_code=403)
+        response = self.client.get('/review/comment/', follow=True)
+        self.assertRedirects(response, '/users/login/?next=/review/comment/')
 
         # non-staff user
         baduser = User.objects.filter(is_staff=False)[0]
         self.client.login(username=baduser.username, password='password')
-        response = self.client.get('/review/topic/')
-        self.assertContains(response, "Unauthorized", status_code=403)
+        response = self.client.get('/review/topic/', follow=True)
+        self.assertRedirects(response, '/users/login/?next=/review/topic/')
 
-        response = self.client.get('/review/comment/')
-        self.assertContains(response, "Unauthorized", status_code=403)
+        response = self.client.get('/review/comment/', follow=True)
+        self.assertRedirects(response, '/users/login/?next=/review/comment/')
 
         # staff user
         gooduser = User.objects.filter(is_staff=True)[0]

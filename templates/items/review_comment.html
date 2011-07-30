@@ -13,7 +13,7 @@
 
 {% if comment_list %}
 
-<ol start={{ start }} class="topic-list">
+<ol start={{ page_obj.start_index }} class="topic-list">
   {% for comment in comment_list %}
   <li>
     <div id="comment_div{{ comment.id }}" class="comment_div">
@@ -26,7 +26,7 @@
       </div>
       <div class="topic-actions">
 	<button id="approve" onclick="decide({{ comment.id }}, 'comment', 0); return false;">Approve</button>
-	<button id="reject" onclick="decide({{ object.id }}, 'topic', 2); return false;">Reject</button>
+	<button id="reject" onclick="decide({{ comment.id }}, 'topic', 2); return false;">Reject</button>
 	<button id="markspam" onclick="decide({{ comment.id }}, 'comment', 1); return false;">Spam</button>
       </div>
     </div>
@@ -39,11 +39,11 @@
 
 {# pagination #}
 <div class="pages">
-  {% if has_previous %}
-  <a id="prev" href="{{ previous }}/">Previous</a>
+  {% if page_obj.has_previous %}
+  <a id="prev" href="{{ page_obj.previous_page_number }}/">Previous</a>
   {% endif %}
-  {% if has_next %}
-  <a id="next" href="{{ next }}/">Next</a>
+  {% if page_obj.has_next %}
+  <a id="next" href="{{ page_obj.next_page_number }}/">Next</a>
   {% endif %}
 </div>
 

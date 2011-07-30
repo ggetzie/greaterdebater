@@ -5,8 +5,8 @@
 {% if post_list %}
 {% for post in post_list %}
 <div id="post{{ post.id }}" class="postsummary">
-  <a href="/blog/{{ blog.author }}/post/{{ post.id }}"><H1>{{ post.title }}</H1></a>
-  <DIV class="descr">by {{ blog.author }} on {{ post.pub_date|date }}</DIV>
+  <a href="/blog/{{ blog.author.username }}/post/{{ post.id }}"><H1>{{ post.title }}</H1></a>
+  <DIV class="descr">by {{ blog.author.username }} on {{ post.pub_date|date }}</DIV>
   {{ post.html|truncatewords_html:100|safe }}
   <a href="/blog/{{ blog.author }}/post/{{ post.id }}">more...</a>
 
@@ -21,6 +21,16 @@
 {% else %}
 Hi {{ request.user.username }}! Nothing in the archive yet.
 {% endif %}
+
+<div class="pages">
+  {% if page_obj.has_previous %}
+  <a id="prev" href="/blog/{{ blog.author.username }}/archive/{{ page_obj.previous_page_number }}/">Previous</a>
+  {% endif %}
+  {% if page_obj.has_next %}
+  <a id="next" href="/blog/{{ blog.author.username }}/archive/{{ page_obj.next_page_number }}/">Next</a>
+  {% endif %}
+</div>
+
 {% endblock %}
 
 {% block ads %}

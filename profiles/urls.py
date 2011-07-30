@@ -4,7 +4,7 @@ from django.conf.urls.defaults import *
 from django.contrib.auth.views import logout
 from django.views.generic.base import TemplateView
 
-
+from profiles.views import MessageList
 
 
 
@@ -38,6 +38,12 @@ urlpatterns = patterns('',
 
                        # Mark reply as read
                        (r'^mark_read/$', 'tcd.profiles.views.mark_read'),
+
+                       # Display messages
+                       (r'^messages/?(page/(?P<page>(\d+|last))/?)?$', 
+                        MessageList.as_view(paginate_by=25,
+                                            template_name="registration/profile/profile_msgs.html",
+                                            context_object_name='messages_list')),
 
                        # Urls for displaying differnt parts of users' profiles
                        (r'^u/(?P<value>[A-Za-z\d]+)/', include('tcd.profiles.user_urls')),

@@ -1,4 +1,5 @@
 from django.conf.urls.defaults import patterns
+from blog.views import ArchiveView
 
 # This url file included from tcd.urls with the prefix  ^blog/(?P<username>[A-Za-z\d]+)/
 
@@ -20,11 +21,10 @@ urlpatterns = patterns('',
                        # author only
                        (r'^drafts/?$', 'tcd.blog.views.show_drafts'),
 
-                       # Show all prevous posts by date
-                       (r'^archive/?$', 'tcd.blog.views.archive'),
-
                        # Show all prevous posts by date, pages
-                       (r'^archive/(?P<page>\d+)/?$', 'tcd.blog.views.archive'),
+                       (r'^archive/?(?P<page>\d+)?/?$', ArchiveView.as_view(paginate_by = 15,
+                                                                            template_name="blogtemplates/archive.html",
+                                                                            context_object_name='post_list')),
 
                        # Show all prevous posts by date, pages
                        (r'^about/?$', 'tcd.blog.views.about'),

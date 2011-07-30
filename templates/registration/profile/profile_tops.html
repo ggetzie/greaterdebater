@@ -5,7 +5,7 @@
 {% block content %}
 <h3 class="prof-head">Topics</h3>
 {% if topics_list %}
-<ol class="topic-list" start={{ start }}>
+<ol class="topic-list" start={{ page_obj.start_index }}>
   {% for object in topics_list %}
   <li> 
     <div id="topic_div{{ object.id }}">
@@ -32,15 +32,7 @@
   {% endfor %}
 </ul>
 
-<div class="pages">
-  {% if has_previous %}
-  <a id="prev" href="/users/u/{{ username }}/submissions/{{ previous }}/">prev</a>
-  {% endif %}
-
-  {% if has_next %}
-  <a id="next" href="/users/u/{{ username }}/submissions/{{ next }}/">next</a>
-  {% endif %}
-</div>
+{% include "pagediv.html"%}
 
 {% else %}
 <p>No topics are available</p>

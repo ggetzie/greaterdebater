@@ -7,14 +7,6 @@
 <h3 class="prof-head">{{ title }} Debates</h3>
 {% include "items/arg_list.html" %}
 
-<div class="pages">
-  {% if has_previous %}
-  <a id="prev" href="/users/u/{{ username }}/arguments/{{ aset }}/{{ previous }}/">prev</a>
-  {% endif %}
-
-  {% if has_next %}
-  <a id="next" href="/users/u/{{ username }}/arguments/{{ aset }}/{{ next }}/">next</a>
-  {% endif %}
-</div>
+{% include "pagediv.html" %}
 
 {% endblock %}

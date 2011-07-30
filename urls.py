@@ -46,20 +46,19 @@ urlpatterns = patterns('',
                        (r'^feeds/newtopics/$', NewTopics()),
 
                        # Debate feeds
-                       (r'^feeds/newargs/$', NewArguments()),                       
-                       
+                       (r'^feeds/newargs/$', NewArguments()),
+
                        # Blog feed
-                       (r'^feeds/blog/(?P<blog_id>\d+)/$', BlogFeed()),                       
+                       (r'^feeds/blog/(?P<blog_id>\d+)/$', BlogFeed()),
                        
                        # UserFeed
                        (r'^feeds/user/(?P<username>[A-Za-z\d]+)/$', UserFeed()),
-
                        
                        # Blog system
-                       (r'^blog/(?P<username>[A-Za-z\d]+)/', include('tcd.blog.urls')),
+                       (r'^blog/(?P<username>[A-Za-z\d]+)/', include('blog.urls')),
 
                        # Urls associated with user profiles
-                       (r'^users/', include('tcd.profiles.urls')),
+                       (r'^users/', include('profiles.urls')),
 
-                       (r'', include('tcd.items.urls'))
+                       (r'', include('items.urls'))
                        )

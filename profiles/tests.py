@@ -149,14 +149,17 @@ class ViewTest(TestCase):
     
         tags = Tags.objects.all()[0]
         url = '/users/u/' + tags.user.username + '/saved/'
-
+        
+        # User not logged in
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
+        self.assertRedirects(response, '/users/login/?next=' + url)
 
+        # Legit user
         self.client.login(username=tags.user.username, password='password')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
+        # List filtered by a tag
         sometag = tags.tags.split(',')[0]
         url += sometag + '/'
         response = self.client.get(url)
@@ -206,27 +209,16 @@ class ViewTest(TestCase):
     def test_profile_msgs(self):
         
         user = User.objects.all()[0]
-        bad_user = User.objects.exclude(id=user.id)[0]
-        url = '/users/u/' + user.username + '/messages/'
+        url = '/users/messages/'
         
         # user not logged in
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
-        
-        # wrong user
-        self.client.login(username=bad_user.username, password='password')
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
-        self.client.logout()
+        self.assertRedirects(response, '/users/login/?next=' + url)
         
         # legit user 
         self.client.login(username=user.username, password='password')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-
-        # nonexistent user
-        response = self.client.get('/users/u/nosuchuser/messages/')
-        self.assertEqual(response.status_code, 404)
         
     def test_message_detail(self):
         msg = tcdMessage.objects.all()[0]
@@ -256,22 +248,12 @@ class ViewTest(TestCase):
 
         # user not logged in
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
-        
-        # wrong user
-        self.client.login(username=bad_user.username, password='password')
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
-        self.client.logout()
+        self.assertRedirects(response, '/users/login/?next=' + url)
         
         # legit user 
         self.client.login(username=user.username, password='password')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-
-        # nonexistent user
-        response = self.client.get('/users/u/nosuchuser/replies/')
-        self.assertEqual(response.status_code, 404)
 
     def test_mark_read(self):
         url = '/users/mark_read/'
@@ -479,7 +461,6 @@ class ViewTest(TestCase):
         # User not logged in
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 403)
-
         self.client.login(username=bad_user.username, password='password')        
 
         # GET request

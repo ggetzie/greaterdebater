@@ -12,11 +12,15 @@
 <h4>Debates for this comment</h4>
 {% include "items/arg_list.html" %}
 
-{% if has_previous %}
-<a href="/comments/{{ comment.id}}/arguments/{{ previous }}">Previous</a>
-{% endif %}
-{% if has_next %}
-<a href="/comments/{{ comment.id}}/arguments/{{ next }}">Next</a>
-{% endif %}
+
+<div class="pages">
+  {% if page_obj.has_previous %}
+  <a id="prev" href="/comments/{{ comment.id}}/arguments/{{ page_obj.previous_page_number }}">Previous</a>
+  {% endif %}
+  {% if page_obj.has_next %}
+  <a id="next" href="/comments/{{ comment.id}}/arguments/{{ page_obj.next_page_number }}">Next</a>
+  {% endif %}
+</div>
+
 
 {% endblock %}

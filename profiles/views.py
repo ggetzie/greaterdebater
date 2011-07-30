@@ -1,25 +1,26 @@
 from django.contrib import auth
 from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.mail import send_mail
 from django.contrib import messages
 from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
+from django.utils.decorators import method_decorator
 from django.template import loader, RequestContext, Context
-from django.views.generic import list_detail
+from django.views.generic.list import ListView
 
-from tcd.comments.models import TopicComment, ArgComment, Debate, tcdMessage, \
+from comments.models import TopicComment, ArgComment, Debate, tcdMessage, \
     fcomMessage
 
-from tcd.items.models import Topic, Tags
-from tcd.items.views import object_list_field, object_list_foreign_field, calc_start
+from items.models import Topic, Tags
 
-from tcd.profiles.forms import tcdUserCreationForm, tcdPasswordResetForm, tcdLoginForm, \
+from profiles.forms import tcdUserCreationForm, tcdPasswordResetForm, tcdLoginForm, \
     forgotForm, FeedbackForm, SettingsForm
-from tcd.profiles.models import Profile, Forgotten
+from profiles.models import Profile, Forgotten
 
-from tcd.settings import HOSTNAME
-from tcd.utils import random_string, tag_dict, tag_string, render_to_AJAX, render_message
+from settings import HOSTNAME
+from utils import random_string, tag_dict, tag_string, render_to_AJAX, render_message
 
 import datetime
 import MySQLdb
@@ -114,60 +115,90 @@ def profile(request, value):
                                'user_info': user_info,},
                               context_instance=RequestContext(request))
 
-def profile_topics(request, value, page=1):
-    paginate_by = 25
-    user = get_object_or_404(User, username=value)
-    topics = Topic.objects.filter(user=user).order_by('-sub_date')
+class ProfileTopicView(ListView):
 
-    if request.user.is_authenticated():        
-        prof = get_object_or_404(Profile, user=request.user)
-        newwin = prof.newwin
-    else:
-        newwin = False
+    def get_queryset(self):
+        self.user = get_object_or_404(User, username=self.kwargs['value'])
+        topics = Topic.objects.filter(user=self.user).order_by('-sub_date')
+        return topics
 
-    return list_detail.object_list(request=request,
-                                   queryset=topics,
-                                   paginate_by=paginate_by,
-                                   page=page,
-                                   template_name="registration/profile/profile_tops.html",
-                                   template_object_name='topics',
-                                   extra_context={'username': user,
-                                                  'start': calc_start(page, paginate_by, topics.count()),
-                                                  'newwin': newwin})
+    def get_context_data(self, **kwargs):
+        context = super(ProfileTopicView, self).get_context_data(**kwargs)
+        if self.request.user.is_authenticated():
+            prof = get_object_or_404(Profile, user=self.request.user)
+            newwin = prof.newwin
+        else:
+            newwin = False
+            
+        page_root = '/users/u/' + self.user.username +'/submissions'
+        context.update({'username': self.user,
+                        'newwin': newwin,
+                        'page_root': page_root})
+        return context
 
-def profile_saved(request, value, tag=None, page=1):
-    paginate_by = 25
-    user = get_object_or_404(User, username=value)
+class ProfileCommentView(ListView):
+    
+    def get_queryset(self):
+        self.user = get_object_or_404(User, username=self.kwargs['value'])
+        comments = TopicComment.objects.filter(user=self.user).order_by('-pub_date')
+        return comments
 
-    if user == request.user:
-        prof = get_object_or_404(Profile, user=request.user)
-        user_tags = Tags.objects.filter(user=user)
-        if tag:
+    def get_context_data(self, **kwargs):
+        context = super(ProfileCommentView, self).get_context_data(**kwargs)
+        if self.request.user.is_authenticated():
+            prof = get_object_or_404(Profile, user=self.request.user)
+            newwin = prof.newwin
+        else:
+            newwin = False
+            
+        page_root = '/users/u/' + self.user.username +'/comments'
+        context.update({'username': self.user,
+                        'newwin': newwin,
+                        'page_root': page_root})
+        return context
+
+class ProfileSavedView(ListView):
+
+    @method_decorator(login_required(login_url='/users/login/'))
+    def dispatch(self, *args, **kwargs):
+        return super(ProfileSavedView, self).dispatch(*args, **kwargs)
+    
+    def get_queryset(self):
+        self.prof = get_object_or_404(Profile, user=self.request.user)
+        self.user_tags = Tags.objects.filter(user=self.request.user)
+        self.tag = self.kwargs.get('tag', None)
+        if self.tag:
             # escape regex meta characters allowed in tags
-            safetag = tag.replace("?", "\?")
+            safetag = self.tag.replace("?", "\?")
             safetag = safetag.replace("$", "\$")
             safetag = safetag.replace("'", "\'")
             
-            user_tags = user_tags.filter(tags__regex="(^|,)" + safetag + "(,|$)")
+            self.user_tags = self.user_tags.filter(tags__regex="(^|,)" + safetag + "(,|$)")
 
-        utags = tag_dict(prof.tags)
-        utl = utags.keys()
-        utl.sort()
-        return list_detail.object_list(request=request,
-                                       queryset=user_tags.order_by('-topic__sub_date'),
-                                       paginate_by=paginate_by,
-                                       page=page,
-                                       template_name="registration/profile/profile_savd.html",
-                                       template_object_name='user_tags',
-                                       extra_context={'username': user,
-                                                      'start': calc_start(page, paginate_by, user_tags.count()),
-                                                      'newwin': prof.newwin,
-                                                      'utags': utl,
-                                                      'filter_tag': tag,
-                                                      'source': 1
-                                                      })
-    else:
-        return HttpResponseForbidden("<h1>Unauthorized</h1>")
+
+
+        return self.user_tags.order_by('-topic__sub_date')
+        
+    def get_context_data(self, **kwargs):
+        context = super(ProfileSavedView, self).get_context_data(**kwargs)
+
+        self.utags = tag_dict(self.prof.tags)
+        self.utl = self.utags.keys()
+        self.utl.sort()
+        if self.tag:
+            page_root = '/users/u/%s/saved/%s/page' % (self.request.user.username, self.tag)
+        else:
+            page_root = '/users/u/%s/saved/page' % self.request.user.username
+        
+        
+        context.update({'newwin': self.prof.newwin,
+                        'username': self.request.user,
+                        'utags': self.utl,
+                        'filter_tag': self.kwargs.get('tag', None),
+                        'source': 1,
+                        'page_root': page_root})
+        return context
+
 
 def tagedit(request, value, topic_id):
     topic = get_object_or_404(Topic, pk=topic_id)
@@ -210,65 +241,52 @@ def profile_args(request, value):
                                },
                               context_instance=RequestContext(request))
 
-def profile_all_args(request, value, aset, page=1):
-
-    paginate_by = 10
-
-    user = get_object_or_404(User, username=value)
+class ProfileAllArgs(ListView):
     
-    if request.user.is_authenticated():
-        prof = get_object_or_404(Profile, user=request.user)
-        newwin = prof.newwin
-    else:
-        newwin = False
-    
-    if aset == "pending":
-        status = (0,0)
-        title = "Pending"
-    elif aset == "current":
-        status = (1,2)
-        title = "Active"
-    elif aset == "complete":
-        status = (3,6)
-        title = "Completed"
+    def get_queryset(self):
+        self.user = get_object_or_404(User, username=self.kwargs['value'])
+        self.aset_dict = {"pending":((0,0), "Pending"),
+                          "current":((1,2), "Active"),
+                          "complete":((3,6), "Completed")}
+
+        self.status, self.title = self.aset_dict[self.kwargs['aset']]
         
-
-    args = user.defendant_set.filter(status__range=status) |  user.plaintiff_set.filter(status__range=status)
-
-    return list_detail.object_list(request=request,
-                                   queryset=args.order_by('-start_date'),
-                                   paginate_by=paginate_by,
-                                   page=page,
-                                   template_name="registration/profile/all_args.html",
-                                   template_object_name='args',
-                                   extra_context={'username': user,
-                                                  'start': calc_start(page, paginate_by, args.count()),
-                                                  'aset': aset,
-                                                  'newwin': newwin,
-                                                  'title': title})
-
-def profile_msgs(request, value, page=1):
-    """ Display a list of all the user's messages. Only display if the user
-    trying to view them is the user they belong to."""
+        args = self.user.defendant_set.filter(status__range=self.status) | \
+        self.user.plaintiff_set.filter(status__range=self.status)
+        return args
     
-    user = get_object_or_404(User, username=value)
-    if request.user == user:
-        args = {'request': request,
-                'value': value,
-                'model': tcdMessage,
-                'field': 'recipient',
-                'fv_dict': {'is_msg': True},
-                'foreign_model': User,
-                'foreign_field': 'username',
-                'template_name': "registration/profile/profile_msgs.html",
-                'template_object_name': 'messages',
-                'paginate_by': 25,
-                'page': page,
-                'extra_context': {'username': user}
-                }
-        return object_list_foreign_field(**args)
-    else:
-        return HttpResponseForbidden("<h1>Unauthorized</h1>")
+    def get_context_data(self, **kwargs):
+        context = super(ProfileAllArgs, self).get_context_data(**kwargs)
+        
+        if self.request.user.is_authenticated():
+            prof = get_object_or_404(Profile, user=self.request.user)
+            newwin = prof.newwin
+        else:
+            newwin = False
+
+        page_root = '/users/u/' + self.user.username + '/arguments/' + self.kwargs['aset']
+        context.update({'newwin': newwin,
+                        'title': self.title,
+                        'aset': self.kwargs['aset'],
+                        'username': self.user,
+                        'page_root': page_root})
+        return context
+
+class MessageList(ListView):
+    
+    @method_decorator(login_required(login_url='/users/login/'))
+    def dispatch(self, *args, **kwargs):
+        return super(MessageList, self).dispatch(*args, **kwargs)
+    
+    def get_queryset(self):
+        return tcdMessage.objects.filter(recipient=self.request.user)
+    
+    def get_context_data(self, **kwargs):
+        context = super(MessageList, self).get_context_data(**kwargs)
+        page_root = '/users/messages/page'
+        context.update({'page_root': page_root})
+        return context
+
 
 def message_detail(request, value, object_id):
     user = get_object_or_404(User, username=value)
@@ -294,17 +312,21 @@ def message_detail(request, value, object_id):
                                'prev': str(prev)},
                               context_instance=RequestContext(request))
 
-def replies(request, value, page=1):
-    user = get_object_or_404(User, username=value)
-    if user != request.user: return HttpResponseForbidden("<h1>Unauthorized</h1>")
-    new_replies = fcomMessage.objects.filter(recipient=user)
-    return list_detail.object_list(request=request,
-                                   queryset=new_replies,
-                                   page=page,
-                                   paginate_by=25,
-                                   template_name="registration/profile/replies.html",
-                                   template_object_name="replies",
-                                   extra_context={'username': user})
+class RepliesView(ListView):
+    
+    @method_decorator(login_required(login_url='/users/login/'))
+    def dispatch(self, *args, **kwargs):
+        return super(RepliesView, self).dispatch(*args, **kwargs)
+
+    def get_queryset(self):
+        new_replies = fcomMessage.objects.filter(recipient=self.request.user)
+        return new_replies
+    
+    def get_context_data(self, **kwargs):
+        context = super(RepliesView, self).get_context_data(**kwargs)
+        context.update({'username': self.request.user,
+                        'page_root': '/users/u/%s/replies' % self.request.user.username})
+        return context
 
 def mark_read(request):
     status="error"
@@ -511,7 +533,7 @@ def delete_current_message(request):
     if not request.user.is_authenticated():
         return HttpResponseForbidden("<h1>Unauthorized</h1>")
 
-    redirect = '/users/u/' + request.user.username + '/messages/'
+    redirect = '/users/messages/'
     if not request.POST:
         messages.error(request, "Not a POST")
         return HttpResponseRedirect(redirect)

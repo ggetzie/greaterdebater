@@ -1,5 +1,6 @@
 from django.contrib import auth
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import user_passes_test
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.contrib import messages
@@ -8,7 +9,7 @@ from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden, Ht
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import loader, RequestContext, Context
 from django.utils.datastructures import MultiValueDictKeyError
-from django.views.generic import list_detail
+from django.utils.decorators import method_decorator
 from django.views.generic.list import ListView
 
 from comments.forms import ArgueForm, CommentForm, RebutForm
@@ -37,8 +38,8 @@ models={'comment': TopicComment,
 
 class CommentListView(ListView):
     def get_queryset(self):
-        top = get_object_or_404(Topic, pk=self.kwargs['topic_id'])
-        comments = top.topiccomment_set.filter(first=False,
+        self.top = get_object_or_404(Topic, pk=self.kwargs['topic_id'])
+        comments = self.top.topiccomment_set.filter(first=False,
                                               needs_review=False,
                                               spam=False)
         rest_c = build_list(comments.order_by('-pub_date'), 0)
@@ -51,20 +52,26 @@ class CommentListView(ListView):
             newwin = prof.newwin
         else:
             newwin = False
-        top = get_object_or_404(Topic, pk=self.kwargs['topic_id'])
-        if top.tags:
-            keywords = ", ".join(top.tags.split('\n')[0].split(','))
+        if self.top.tags:
+            keywords = ", ".join(self.top.tags.split('\n')[0].split(','))
         else:
             keywords = "greaterdebater, debate, comment, topic"
 
         context.update({'newwin': newwin,
                         'form_comment': CommentForm(),
                         'keywords': keywords,
-                        'object': top,
-                        'redirect': '/' + str(top.id) + '/'})
+                        'object': self.top,
+                        'redirect': '/' + str(self.top.id) + '/'})
         return context
 
 class TopicListView(ListView):
+
+    def get_queryset(self):
+        queryset = Topic.objects.filter(needs_review=False, spam=False)
+        if self.kwargs['sort'] == 'new':
+            return queryset.order_by('-sub_date')
+        else:
+            return queryset.order_by('-score', '-sub_date')
 
     def get_context_data(self, **kwargs):
         context = super(TopicListView, self).get_context_data(**kwargs)
@@ -83,14 +90,6 @@ class TopicListView(ListView):
                         'newwin': newwin,
                         'source': 0})
         return context
-
-    def get_queryset(self):
-        queryset = Topic.objects.filter(needs_review=False, spam=False)
-        if self.kwargs['sort'] == 'new':
-            return queryset.order_by('-sub_date')
-        else:
-            return queryset.order_by('-score', '-sub_date')
-
 
 def front_page(request):
     """Display the home page of GreaterDebater.com, show five hottest arguments and 25 hottest topics"""
@@ -1015,24 +1014,30 @@ class DebateListView(ListView):
         
         return context
 
+class ReviewListView(ListView):
+    
+    @method_decorator(user_passes_test(lambda u: u.is_staff, login_url='/users/login/'))
+    def dispatch(self, *args, **kwargs):
+        return super(ReviewListView, self).dispatch(*args, **kwargs)
+    
+    def get_queryset(self):
+        self.model = self.kwargs['model']
+        self.context_object_name = self.model + "_list"
+        item = models[self.model]
+        
+        return item.objects.filter(needs_review=True,
+                                   spam=False)
 
-def review(request, model, page=1):
-    if not (request.user.is_authenticated() and request.user.is_staff):
-        return HttpResponseForbidden("<h1>Unauthorized</h1>")
-
-    paginate_by=50
-
-    item=models[model]
-
-    queryset = item.objects.filter(needs_review=True,
-                                  spam=False)
-    prof = get_object_or_404(Profile, user=request.user)
-    return list_detail.object_list(request=request, queryset=queryset,
-                                   paginate_by=paginate_by, page=page,
-                                   template_object_name = model,
-                                   template_name="items/review_" + model +".html",
-                                   extra_context={'newwin': prof.newwin,
-                                                  'start': calc_start(page, paginate_by, queryset.count())})
+    def get_context_data(self, **kwargs):
+        if self.request.user.is_authenticated():
+            prof = get_object_or_404(Profile, user=self.request.user)
+            newwin = prof.newwin
+        else:
+            newwin = False
+        context = super(ReviewListView, self).get_context_data(**kwargs)
+        context.update({'newwin': newwin,
+                        'model': self.model})
+        return context
 
 def decide(request, model):
     if not (request.user.is_authenticated() and request.user.is_staff):
@@ -1094,76 +1099,3 @@ def decide(request, model):
         message = render_message(model + " rejected.", 10)
 
     return render_to_AJAX(status="ok", messages=[message])
-        
-    
-def object_list_field(request, model, field, value, sort=None, paginate_by=None, page=None,
-                      fv_dict=None, allow_empty=True, template_name=None, 
-                      template_loader=loader, extra_context=None, context_processors=None,
-                      template_object_name='object', mimetype=None):
-    """Extends generic view object_list to display a list of objects filtered 
-    by an arbitrary field.
-    Works only for fields that are not ForeignKey or ManyToMany. 
-    See object_list_foreign_field for ForeignKey fields"""
-
-    if not fv_dict:
-        fv_dict = {}
-    fv_dict[field] = value
-    obj_list = model.objects.filter(**fv_dict)
-
-    if sort:
-        obj_list = obj_list.order_by(sort)
-
-    # calculate the number of the first object on this page
-    # in case the objects are paginated and want to be displayed as 
-    # a numbered list
-    extra_context = {'start': calc_start(page, paginate_by, obj_list.count())}
-
-    return list_detail.object_list(request=request, queryset=obj_list, 
-                                   paginate_by=paginate_by, page=page, 
-                                   allow_empty=allow_empty, template_name=template_name,
-                                   template_loader=template_loader, extra_context=extra_context,
-                                   context_processors=context_processors,
-                                   template_object_name=template_object_name,
-                                   mimetype=mimetype)
-
-def object_list_foreign_field(request, model, field, value, foreign_model,
-                              foreign_field, fv_dict=None,
-                              paginate_by=None, page=None, allow_empty=True,
-                              template_name=None, template_loader=loader,
-                              extra_context=None, context_processors=None,
-                              template_object_name='object', mimetype=None):
-    """Generic view to display a list of objects filtered by an arbitary foreign key field"""
-
-    if not fv_dict:
-        fv_dict = {}
-    foreign_obj = get_object_or_404(foreign_model, **{foreign_field: value})
-    fv_dict[field] = foreign_obj.id
-    obj_list = model.objects.filter(**fv_dict)
-
-    if request.user.is_authenticated():
-        prof = get_object_or_404(Profile, user=request.user)
-        newwin = prof.newwin
-    else:
-        newwin = False
-
-    # calculate the number of the first object on this page
-    # in case the objects are paginated and want to be displayed as 
-    # a numbered list
-    extra_context = {'start': calc_start(page, paginate_by, obj_list.count()),
-                     'newwin': newwin,
-                     foreign_field: foreign_obj}
-
-
-
-    return list_detail.object_list(request=request, queryset=obj_list, 
-                                   extra_context=extra_context,
-                                   paginate_by=paginate_by, page=page, 
-                                   allow_empty=allow_empty, template_name=template_name,
-                                   template_loader=template_loader, 
-                                   context_processors=context_processors,
-                                   template_object_name=template_object_name,
-                                   mimetype=mimetype)
-
-
-
-

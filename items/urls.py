@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import *
 from django.views.generic.base import TemplateView
 from items.models import Topic
-from items.views import TopicListView, CommentListView
+from items.views import TopicListView, CommentListView, ReviewListView
 
 
 # This file is included in tcd.urls with no prefix
@@ -42,8 +42,8 @@ urlpatterns = patterns('',
                        (r'^argue/', include('tcd.items.argue_urls')),
 
                        # Review topics or comments that might be spam
-                       (r'^review/(?P<model>(topic|comment))/?$', 'items.views.review'),
-                       (r'^review/(?P<model>(topic|comment))/(?P<page>\d+)/?$', 'items.views.review'),
+                       (r'^review/(?P<model>(topic|comment))/(?P<page>\d+)?/?$', ReviewListView.as_view(paginate_by = 100,
+                                                                                                        template_name = 'items/review_list.html')),
 
                        # Decide whether a topic is spam
                        (r'^decide/(?P<model>(topic|comment))/?$', 'items.views.decide'),

@@ -55,15 +55,7 @@
   {% endfor %}
 </ul>
 
-<div class="pages">
-  {% if has_previous %}
-  <a id="prev" href="/users/u/{{ username }}/saved/{% if filter_tag %}filter_tag/{% endif %}page/{{ previous }}/">prev</a>
-  {% endif %}
-
-  {% if has_next %}
-  <a id="next" href="/users/u/{{ username }}/saved/{% if filter_tag %}filter_tag/{% endif %}page/{{ next }}/">next</a>
-  {% endif %}
-</div>
+{% include "pagediv.html" %}
 
 {% else %}
 <p>No saved topics</p>

@@ -4,17 +4,11 @@
 
 from django.conf.urls.defaults import *
 from django.contrib.auth.models import User
-from tcd.comments.models import TopicComment
-from tcd.items.models import Topic
+from comments.models import TopicComment
+from items.models import Topic
+from profiles.views import ProfileTopicView, ProfileAllArgs, MessageList, ProfileSavedView, \
+    RepliesView, ProfileCommentView
 
-comments_dict = {'model': TopicComment,
-                 'field': 'user',
-                 'fv_dict': {'first': False},                             
-                 'foreign_model': User,
-                 'foreign_field': 'username',
-                 'template_name': "registration/profile/profile_coms.html",
-                 'template_object_name': 'comments',
-                 'paginate_by': 10}
 
 urlpatterns = patterns('',
 
@@ -22,48 +16,53 @@ urlpatterns = patterns('',
                        (r'^$', 'tcd.profiles.views.profile'),
                        (r'^profile/?', 'tcd.profiles.views.profile'),
 
-                       # Display all of the arguments a user has been involved in, paginated
+                       # Display all of the arguments a user has been involved in
                        (r'^arguments/?$', 'tcd.profiles.views.profile_args'),
 
-                       # Display all of the arguments a user has been involved in, paginated
-                       (r'^arguments/(?P<aset>(pending|current|complete))/?$', 
-                        'tcd.profiles.views.profile_all_args'),
-                       (r'^arguments/(?P<aset>(pending|current|complete))/(?P<page>(\d+|last))/?$', 
-                        'tcd.profiles.views.profile_all_args'),
+                       # Display user's arguments for a particular status
+                       (r'^arguments/(?P<aset>(pending|current|complete))/?(?P<page>(\d+|last))?/?$', 
+                        ProfileAllArgs.as_view(paginate_by=10,
+                                               template_name='registration/profile/all_args.html',
+                                               context_object_name='args_list')),
 
                        # Display all of the comments a user has submitted, paginated
-                       (r'^comments/?$', 'tcd.items.views.object_list_foreign_field', 
-                        comments_dict),
-                       (r'^comments/(?P<page>(\d+|last))/?$', 'tcd.items.views.object_list_foreign_field', 
-                        comments_dict),
+                       (r'^comments/?(?P<page>(\d+|last))?/?$', 
+                        ProfileCommentView.as_view(paginate_by=25,
+                                                   template_name="registration/profile/profile_coms.html",
+                                                   context_object_name='comments_list')),
 
                        # Display all the topics a user has submitted, paginated
-                       (r'^submissions/?$', 'tcd.profiles.views.profile_topics'),
-                       (r'^submissions/(?P<page>(\d+|last))/?$', 'tcd.profiles.views.profile_topics'),
+                       (r'^submissions/?(?P<page>(\d+|last))?/?$', 
+                        ProfileTopicView.as_view(paginate_by=25,
+                                                 template_name="registration/profile/profile_tops.html",
+                                                 context_object_name='topics_list')),
 
                        # Display all the topics a user has saved by tagging, paginated
-                       (r'^saved/?$', 'tcd.profiles.views.profile_saved'),
-                       (r'^saved/page/(?P<page>(\d+|last))/?$', 'tcd.profiles.views.profile_saved'),
+                       (r'^saved/?(page/(?P<page>(\d+|last)))?/?$', 
+                        ProfileSavedView.as_view(paginate_by=25,
+                                                 template_name="registration/profile/profile_savd.html",
+                                                 context_object_name="user_tags_list")),
+                                                                                           
 
                        # Display all the topics a user has tagged with
                        # a particular tag, paginated
-                       (r'^saved/(?P<tag>[\w\s\'!@\?\$%#&]+)/?$', 'tcd.profiles.views.profile_saved'),
-                       (r'^saved/(?P<tag>[\w\s\'!@\?\$%#&]+)/page/(?P<page>(\d+|last))/?$', 
-                        'tcd.profiles.views.profile_saved'),
+                       (r'^saved/(?P<tag>[\w\s\'!@\?\$%#&]+)/?(page/(?P<page>(\d+|last)))?/?$', 
+                        ProfileSavedView.as_view(paginate_by=25,
+                                                 template_name="registration/profile/profile_savd.html",
+                                                 context_object_name="user_tags_list")),
+
 
                        # Show all tags associated with a topic for editing
                        (r'^tagedit/(?P<topic_id>\d+)/?$', 'tcd.profiles.views.tagedit'),
-
-                       # Display a list of messages for the user
-                       (r'^messages/?$', 'tcd.profiles.views.profile_msgs'), 
-                       (r'^messages/page/(?P<page>(\d+|last))/?$', 'tcd.profiles.views.profile_msgs'), 
 
                        # Display the body of a message
                        (r'^messages/(?P<object_id>[\d]+)/?$', 'tcd.profiles.views.message_detail'),
 
                        # Display replies to user's followed topics or comments
-                       (r'^replies/?$', 'tcd.profiles.views.replies'),
-                       (r'^replies/(?P<page>(\d+))/?$', 'tcd.profiles.views.replies'),
+                       (r'^replies/?(?P<page>(\d+|last))?/?$', 
+                        RepliesView.as_view(paginate_by=25,
+                                            template_name="registration/profile/replies.html",
+                                            context_object_name="replies_list")),
 
                        # Display the user's current settings and allow them to be modified
                        (r'^settings/?$', 'tcd.profiles.views.profile_stgs'), 

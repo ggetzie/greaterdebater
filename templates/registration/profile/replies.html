@@ -30,14 +30,6 @@
   {% endif %}
 </div>
 
-<div class="pages">
-  {% if has_previous %}
-  <a id="prev" href="/users/u/{{ username }}/replies/{{ previous }}/">prev</a>
-  {% endif %}
-
-  {% if has_next %}
-  <a id="next" href="/users/u/{{ username }}/replies/{{ next }}/">next</a>
-  {% endif %}
-</div>
+{% include "pagediv.html" %}
 
 {% endblock %}

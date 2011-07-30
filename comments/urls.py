@@ -1,21 +1,6 @@
-# -*- coding: utf-8 -*-
-#
-# Copyright (c) 2007 Benoit Chesneau <benoitc@metavers.net>
-#
-# Permission to use, copy, modify, and distribute this software for any
-# purpose with or without fee is hereby granted, provided that the above
-# copyright notice and this permission notice appear in all copies.
-#
-# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-#
 
 from django.conf.urls.defaults import patterns
+from comments.views import CommentDebateList
 
 # This url file is included from items.urls with the prefix /comments/
 
@@ -37,8 +22,10 @@ urlpatterns = patterns('',
                        (r'[delete|undelete]/$', 'comments.views.delete'),
 
                        # View all arguments associated with a comment
-                       (r'^(?P<comment_id>\d+)/arguments/$', 'comments.views.arguments'),                        
-                       (r'^(?P<comment_id>\d+)/arguments/(?P<page>\d+)/?$', 'comments.views.arguments'),                        
+                       (r'^(?P<comment_id>\d+)/arguments/?(?P<page>\d+)?/?$', 
+                        CommentDebateList.as_view(paginate_by=10,
+                                                  template_name='comments/comment_args.html',
+                                                  context_object_name='args_list')),
 
                        # Flag a comment as spam
                        (r'^flag/$', 'comments.views.flag'),

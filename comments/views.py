@@ -1,20 +1,3 @@
-# -*- coding: utf-8 -*-
-#
-# Copyright (c) 2007 Benoit Chesneau <benoitc@metavers.net>
-#
-# Permission to use, copy, modify, and distribute this software for any
-# purpose with or without fee is hereby granted, provided that the above
-# copyright notice and this permission notice appear in all copies.
-#
-# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-#
-
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render_to_response
@@ -27,7 +10,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.template import loader, RequestContext, Context
 from django.utils.http import urlquote_plus, urlquote
-from django.views.generic import list_detail
+from django.views.generic.list import ListView
 
 from forms import CommentForm, DeleteForm, FollowForm
 from models import ArgComment, TopicComment, Debate, fcomMessage
@@ -253,21 +236,19 @@ def comment_detail(request, comment_id):
                                'com': int(comment_id),
                                'rootnest': comtree[0].nnesting},
                               context_instance=RequestContext(request))
-                                    
-def arguments(request, comment_id, page=1):
-    paginate_by = 10
-    comment = get_object_or_404(TopicComment, pk=comment_id)
-    args_list = Debate.objects.filter(incite=comment, status__range=(1,5)).order_by('-start_date')
-    start = calc_start(page, paginate_by, args_list.count())
 
-    return list_detail.object_list(request=request,
-                                   queryset=args_list,
-                                   page=page,
-                                   paginate_by=paginate_by,
-                                   extra_context={'start': start,
-                                                  'comment': comment},
-                                   template_name="comments/comment_args.html",
-                                   template_object_name="args")
+class CommentDebateList(ListView):
+
+    def get_queryset(self):
+        self.comment = get_object_or_404(TopicComment, pk=self.kwargs['comment_id'])
+        args_list = Debate.objects.filter(incite=self.comment, status__range=(1,5)).order_by('-start_date')
+        return args_list
+    
+    def get_context_data(self, **kwargs):
+        context = super(CommentDebateList, self).get_context_data(**kwargs)
+        context.update({'comment': self.comment})
+        return context
+                                    
                                     
 def flag(request):
     if not request.user.is_authenticated():
