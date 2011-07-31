@@ -92,7 +92,8 @@ class ArchiveView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(ArchiveView, self).get_context_data(**kwargs)
-        context.update({'blog': self.blog})
+        context.update({'blog': self.blog,
+                        'page_root': '/blog/%s/archive' % self.blog.author.username})
         return context
 
 def about(request, username):

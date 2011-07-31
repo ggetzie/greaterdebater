@@ -13,14 +13,6 @@
 {% include "items/arg_list.html" %}
 
 
-<div class="pages">
-  {% if page_obj.has_previous %}
-  <a id="prev" href="/comments/{{ comment.id}}/arguments/{{ page_obj.previous_page_number }}">Previous</a>
-  {% endif %}
-  {% if page_obj.has_next %}
-  <a id="next" href="/comments/{{ comment.id}}/arguments/{{ page_obj.next_page_number }}">Next</a>
-  {% endif %}
-</div>
-
+{% include "pagediv.html" %}
 
 {% endblock %}

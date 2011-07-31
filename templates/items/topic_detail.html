@@ -93,14 +93,7 @@
   {% endfor %}
 </div>
 
-<div class="pages">
-  {% if page_obj.has_previous %}
-  <a id="prev" href="/{{ object.id }}/{{ page_obj.previous_page_number }}">Previous</a>
-  {% endif %}
-  {% if page_obj.has_next %}
-  <a id="next" href="/{{ object.id }}/{{ page_obj.next_page_number }}">Next</a>
-  {% endif %}
-</div>
+{% include "pagediv.html" %}
 
 {% else %}
 

@@ -42,8 +42,9 @@ urlpatterns = patterns('',
                        (r'^argue/', include('tcd.items.argue_urls')),
 
                        # Review topics or comments that might be spam
-                       (r'^review/(?P<model>(topic|comment))/(?P<page>\d+)?/?$', ReviewListView.as_view(paginate_by = 100,
-                                                                                                        template_name = 'items/review_list.html')),
+                       (r'^review/(?P<model>(topic|comment))/(?P<page>\d+)?/?$', 
+                        ReviewListView.as_view(paginate_by = 100,
+                                               template_name = 'items/review_list.html')),
 
                        # Decide whether a topic is spam
                        (r'^decide/(?P<model>(topic|comment))/?$', 'items.views.decide'),

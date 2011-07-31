@@ -246,7 +246,8 @@ class CommentDebateList(ListView):
     
     def get_context_data(self, **kwargs):
         context = super(CommentDebateList, self).get_context_data(**kwargs)
-        context.update({'comment': self.comment})
+        context.update({'comment': self.comment,
+                        'page_root': '/comments/%i/arguments' % self.comment.id})
         return context
                                     
                                     

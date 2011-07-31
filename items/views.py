@@ -61,7 +61,8 @@ class CommentListView(ListView):
                         'form_comment': CommentForm(),
                         'keywords': keywords,
                         'object': self.top,
-                        'redirect': '/' + str(self.top.id) + '/'})
+                        'redirect': '/' + str(self.top.id) + '/',
+                        'page_root': '/' + str(self.top.id)})
         return context
 
 class TopicListView(ListView):
@@ -88,7 +89,8 @@ class TopicListView(ListView):
         context.update({'topic_sort': topic_sort,
                         'ttype': ttype,
                         'newwin': newwin,
-                        'source': 0})
+                        'source': 0,
+                        'page_root': '/' + topic_sort})
         return context
 
 def front_page(request):
@@ -1036,7 +1038,8 @@ class ReviewListView(ListView):
             newwin = False
         context = super(ReviewListView, self).get_context_data(**kwargs)
         context.update({'newwin': newwin,
-                        'model': self.model})
+                        'model': self.model,
+                        'page_root': '/review/' + self.model})
         return context
 
 def decide(request, model):
