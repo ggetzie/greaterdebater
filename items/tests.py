@@ -487,7 +487,7 @@ class ViewTest(TestCase):
         # because it still needs review
         self.client.logout()
         self.client.login(username=gu.username, password='password')
-        response = self.client.get('/users/u/' + gu.username + '/replies/')
+        response = self.client.get('/users/replies/')
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'probation follow test')
 
@@ -503,7 +503,7 @@ class ViewTest(TestCase):
         # Now comment should appear when follower checks replies
         self.client.logout()
         self.client.login(username=gu.username, password='password')
-        response = self.client.get('/users/u/' + gu.username + '/replies/')
+        response = self.client.get('/users/replies/')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'probation follow test')
         

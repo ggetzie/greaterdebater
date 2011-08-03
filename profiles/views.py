@@ -64,15 +64,11 @@ def register(request):
 def login(request):
     """Log in a user"""
     message = None
-    form = tcdLoginForm()
-    rform = tcdUserCreationForm()
+
     if request.method == 'POST':
         data = request.POST.copy()
         form = tcdLoginForm(data)
-        if 'next' in request.POST:
-            next = request.POST['next']
-        else:
-            next = '/'
+        next = request.POST.get('next', '/')
         if form.is_valid():
             email = form.cleaned_data['email']
             try:
@@ -94,10 +90,9 @@ account. Please check your email and follow the link provided to reset your pass
             except ObjectDoesNotExist:
                 message = "Sorry, that's not a valid username or password"
     else:
-        if 'next' in request.GET:
-            next = request.GET['next']
-        else:
-            next = "/"
+        form = tcdLoginForm()
+        rform = tcdUserCreationForm()
+        next = request.GET.get('next', '/')
     return render_to_response("registration/login.html",
                               {'form': form,
                                'rform': rform,
@@ -325,7 +320,7 @@ class RepliesView(ListView):
     def get_context_data(self, **kwargs):
         context = super(RepliesView, self).get_context_data(**kwargs)
         context.update({'username': self.request.user,
-                        'page_root': '/users/u/%s/replies' % self.request.user.username})
+                        'page_root': '/users/replies'})
         return context
 
 def mark_read(request):
@@ -376,15 +371,12 @@ def check_messages(request):
     return render_to_AJAX(status=status,
                           messages=[message])
                           
-
-def profile_stgs(request, value):
+@login_required(login_url='/users/login/')
+def profile_stgs(request):
     """ Display the users current settings and allow them to be modified """
-    
-    user = get_object_or_404(User, username=value)
+    user = request.user
     prof = get_object_or_404(Profile, user=user)
-
-    if request.user != user: return HttpResponseForbidden("<h1>Unauthorized</h1>")
-
+    
     if request.POST:
         form = SettingsForm(request.POST)
         if form.is_valid():
@@ -419,7 +411,7 @@ def profile_stgs(request, value):
 def reset_password(request, value, code=None):
     """ Reset a user's password """
     user = get_object_or_404(User, username=value)
-    redirect_to = ''.join(['/users/u/', user.username, '/settings/'])
+    redirect_to = '/users/settings/'
     temp = None    
     if request.POST:
             data = request.POST.copy()
@@ -559,7 +551,7 @@ def delete_current_message(request):
                             '/messages/'])
 
     message.delete()
-    messages.info(request, "Message deleted")
+    GGmessages.info(request, "Message deleted")
     return HttpResponseRedirect(redirect)
 
 def save_forgotten(user):

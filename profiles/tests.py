@@ -244,7 +244,7 @@ class ViewTest(TestCase):
     def test_replies(self):
         user = User.objects.all()[0]
         bad_user = User.objects.exclude(id=user.id)[0]
-        url = '/users/u/' + user.username + '/replies/'
+        url = '/users/replies/'
 
         # user not logged in
         response = self.client.get(url)
@@ -302,26 +302,12 @@ class ViewTest(TestCase):
 
         user = User.objects.all()[0]
         bad_user = User.objects.exclude(id=user.id)[0]
-        url = '/users/u/' + user.username + '/settings/'
+        url = '/users/settings/'
 
         # User not logged in
         self.client.logout()
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
-
-        # wrong user
-        self.client.login(username=bad_user.username, password='password')
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
-        
-        response = self.client.post(url, {'email': 'bademail@bademail.com',
-                                          'newwindows': False,
-                                          'feedcoms': False,
-                                          'feedtops': False,
-                                          'feeddebs': False,
-                                          'followcoms': False,
-                                          'followtops': False})
-        self.assertEqual(response.status_code, 403)
+        self.assertRedirects(response, '/users/login/?next=' + url)
 
         # Invalid Form
         self.client.login(username=user.username, password='password')

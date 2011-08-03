@@ -4,7 +4,7 @@ from django.conf.urls.defaults import *
 from django.contrib.auth.views import logout
 from django.views.generic.base import TemplateView
 
-from profiles.views import MessageList
+from profiles.views import MessageList, RepliesView
 
 
 
@@ -44,6 +44,15 @@ urlpatterns = patterns('',
                         MessageList.as_view(paginate_by=25,
                                             template_name="registration/profile/profile_msgs.html",
                                             context_object_name='messages_list')),
+
+                       # Display replies to user's followed topics or comments
+                       (r'^replies/?(?P<page>(\d+|last))?/?$', 
+                        RepliesView.as_view(paginate_by=25,
+                                            template_name="registration/profile/replies.html",
+                                            context_object_name="replies_list")),
+
+                       # Display the user's current settings and allow them to be modified
+                       (r'^settings/?$', 'tcd.profiles.views.profile_stgs'), 
 
                        # Urls for displaying differnt parts of users' profiles
                        (r'^u/(?P<value>[A-Za-z\d]+)/', include('tcd.profiles.user_urls')),

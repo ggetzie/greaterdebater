@@ -10,7 +10,7 @@
   {% if form.errors %}
   {{ form.errors }}
   {% endif %}
-  <form action="/users/u/{{ request.user }}/settings/" name="settings" method="post">
+  <form action="/users/settings/" name="settings" method="post">
     {% csrf_token %}
     <table>
       <tr>

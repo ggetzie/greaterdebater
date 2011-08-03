@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <title>{% block title %}{% endblock %} | GreaterDebater</title>
+    
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
     <script id="tcdjs" type="text/javascript" charset="utf-8" src="{{ MEDIA_URL}}tcd.js"></script>
     <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}tcdstyle.css" />
@@ -155,8 +156,10 @@
 
 	    {% endif %}
 	  </div>
+
 	  {% block ads %}
 	  {% endblock %}
+
 	</div>
 
 	<div class="clearfooter"></div>

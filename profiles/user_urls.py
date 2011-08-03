@@ -58,15 +58,6 @@ urlpatterns = patterns('',
                        # Display the body of a message
                        (r'^messages/(?P<object_id>[\d]+)/?$', 'tcd.profiles.views.message_detail'),
 
-                       # Display replies to user's followed topics or comments
-                       (r'^replies/?(?P<page>(\d+|last))?/?$', 
-                        RepliesView.as_view(paginate_by=25,
-                                            template_name="registration/profile/replies.html",
-                                            context_object_name="replies_list")),
-
-                       # Display the user's current settings and allow them to be modified
-                       (r'^settings/?$', 'tcd.profiles.views.profile_stgs'), 
-
                        # Reset the user's password
                        (r'^reset/$', 'tcd.profiles.views.reset_password'), 
 
