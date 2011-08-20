@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block htmlhead %}  
+<link rel="alternate" type="application/rss+xml"
+	title="New Topics - GreaterDebater"
+	href="http://feeds.feedburner.com/Greaterdebater-NewTopics" />
+<link rel="alternate" type="application/rss+xml"
+	title="New Debates - GreaterDebater"
+	href="http://feeds.feedburner.com/Greaterdebater-NewArguments"/>
+{% endblock %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<h1>T-Rex Endorsement Generator</h1>
+<p>
+  {{ phrase }}
+</p>
+<p>
+  <a href="">AGAIN!</a>
+</p>
+<p>
+  Endorsements generated from T-Rex's endorsement template in 
+  <a href="http://www.qwantz.com/index.php?comic=2025">Dinosaur Comics</a>
+</p>
+{% endblock %}
+
+{% block sidebar %}
+<h1>RSS Feeds</h1>
+<ul>
+  <li>
+    <div class="rss-link">
+      <a href="http://feeds.feedburner.com/Greaterdebater-NewTopics">
+	<img src="{{ MEDIA_URL}}img/feed-icon-14x14.png" /></a> 
+      <a href="http://feeds.feedburner.com/Greaterdebater-NewTopics">New Topics</a>
+    </div>
+  </li>
+  <li>
+    <div class="rss-link">
+      <a href="http://feeds.feedburner.com/Greaterdebater-NewArguments">
+	<img src="{{ MEDIA_URL }}img/feed-icon-14x14.png" /></a> 
+      <a href="http://feeds.feedburner.com/Greaterdebater-NewArguments">New Debates</a>
+    </div>
+  </li>
+</ul>
+
+{% endblock %}
+
+{% block ads %}
+{% include "ads.html" %}
+{% endblock %}

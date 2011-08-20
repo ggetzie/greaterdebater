@@ -48,6 +48,8 @@ urlpatterns = patterns('',
 
                        # Decide whether a topic is spam
                        (r'^decide/(?P<model>(topic|comment))/?$', 'items.views.decide'),
-
+                       
+                       # Trex endorsements
+                       (r'^trex/?$', 'items.views.trex_endorse')
 
                        )

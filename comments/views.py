@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.template import loader, RequestContext, Context
@@ -36,7 +37,7 @@ try:
 except AttributeError:
     COMMENT_SIGNIN_VIEW=''
     
-    
+
 def add(request, topic_id):
     redirect_to = ''.join(['/', topic_id, '/'])
     # Only logged-in users can comment
@@ -68,7 +69,9 @@ def add(request, topic_id):
     params = {'comment': form.cleaned_data['comment'],
               'user': request.user,
               'ntopic': top,
-              'needs_review': prof.probation}
+              'needs_review': prof.probation, # Comments from probationary users must be reviewed
+              'spam': prof.shadowban # ignore comments from known spammers
+              }
     if form.cleaned_data['toplevel'] == 1:
         params['nparent_id'] = 0
         params['nnesting'] = 10
@@ -86,7 +89,7 @@ def add(request, topic_id):
         c.save()
 
     # alert topic or comment followers of a new reply
-    if not c.needs_review:
+    if not (c.needs_review or c.spam):
         if c.nparent_id == 0:
             followers = top.followers.all()
         else:

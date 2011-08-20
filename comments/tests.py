@@ -20,9 +20,12 @@ class ViewTest(TestCase):
             self.assertContains(response, msg)
 
     def test_toggle_follow(self):
-        top = Topic.objects.all().order_by('sub_date')[0]
+        top = Topic.objects.filter(spam=False,
+                                   needs_review=False)[0]
         tcom = TopicComment.objects.filter(first=False,
-                                           needs_review=False)[0]
+                                           needs_review=False,
+                                           spam=False)[0]
+        followers = set(top.followers.all()) | set(tcom.followers.all())
 
         # user not logged in
         response = self.client.post('/comments/follow/',
@@ -32,7 +35,9 @@ class ViewTest(TestCase):
                                       'Not logged in'])
 
         # success Topic
-        self.client.login(username='user2', password='password')
+        prof = Profile.objects.filter(probation=False,
+                                      shadowban=False).exclude(user__in=followers)[0]
+        self.client.login(username=prof.user.username, password='password')
         response = self.client.post('/comments/follow/',
                                     {'item': 'Topic',
                                      'id': top.id})
@@ -99,10 +104,8 @@ class ViewTest(TestCase):
             prof.last_post = datetime.datetime(month=1, day=1, year=1970)
             prof.save()
 
-        top = Topic.objects.get(title="Topic 2")
-        parent = TopicComment.objects.filter(ntopic=top,
-                                             needs_review=False,
-                                             first=False)[0]
+        top = Topic.objects.filter(needs_review=False, spam=False)[0]
+
         url = '/comments/' + str(top.id) + '/add/'
 
         redirect1 = '/users/login/?next=/' + str(top.id) + '/'
@@ -111,18 +114,14 @@ class ViewTest(TestCase):
         topcomment = {'comment': "test top comment",
                       'toplevel': 1}
 
-        replycomment = {'comment': "test reply comment",
-                        'toplevel': 0,
-                        'parent_id': parent.id,
-                        'nesting': parent.nnesting}
-
         # User not logged in
         response = self.client.post(url, {'comment': "test comment",
                                           'toplevel': 1})
         self.assertRedirects(response, redirect1)
 
-        self.client.login(username='user1', password='password')
-        prof = Profile.objects.get(user__username='user1')
+        # normal user
+        prof = Profile.objects.filter(probation=False, shadowban=False, user__is_staff=False)[0]
+        self.client.login(username=prof.user.username, password='password')
 
         #  GET Request
         response = self.client.get(url)
@@ -134,6 +133,15 @@ class ViewTest(TestCase):
         self.assertRedirects(response, redirect2)
         self.assertContains(response, "test top comment")
         reset_postlimit(prof)
+
+        parent = TopicComment.objects.filter(ntopic=top,
+                                             needs_review=False,
+                                             first=False)[0]
+
+        replycomment = {'comment': "test reply comment",
+                        'toplevel': 0,
+                        'parent_id': parent.id,
+                        'nesting': parent.nnesting}
 
         # Valid comment, reply
         response = self.client.post(url, replycomment, follow=True)
@@ -163,7 +171,27 @@ class ViewTest(TestCase):
         self.assertRedirects(response, redirect2)
         self.assertContains(response, "Thank you. Your comment will appear after a brief review.")
         self.assertNotContains(response, "some kind of crap")
+
+        # Shadowbanned user
+        prof = Profile.objects.filter(probation=False, shadowban=True)[0]
+        reset_postlimit(prof)
+        self.client.login(username=prof.user.username, password='password')
+        response = self.client.post(url, {'comment': "some spammy remark",
+                                          'toplevel': 1}, follow=True)
+        self.assertRedirects(response, redirect2)
+        self.assertContains(response, "some spammy remark")
+        newcom = TopicComment.objects.get(comment="some spammy remark")
+        self.assertEqual(newcom.spam, True)
         
+        self.client.logout()
+        response = self.client.get(redirect2)
+        self.assertNotContains(response, "some spammy remark")
+        
+        other = User.objects.exclude(id=prof.user.id)[0]
+        self.client.login(username=other.username, password='password')
+        self.client.get(redirect2)
+        self.assertNotContains(response, "some spammy remark")
+
     def test_edit(self):
         
         com = TopicComment.objects.filter(nparent_id=0, first=False, needs_review=False)[0]
@@ -226,8 +254,12 @@ class ViewTest(TestCase):
         self.assertContains(response, "Invalid Form")
         
         # Comment with debates associated
-        response = self.client.post(url, {'comment_id': com.id})
-        self.assertContains(response, "t delete a comment that has debates")
+        deb = Debate.objects.all()[0]
+        self.client.logout()
+        self.client.login(username=deb.incite.user.username,
+                          password='password')
+        response = self.client.post(url, {'comment_id': deb.incite.id})
+        self.assertContains(response, "comment that has debates")
 
         # Valid delete
         coms = TopicComment.objects.filter(first=False, needs_review=False)

@@ -107,12 +107,11 @@ function follow(id, item) {
 	   })
 }		  
 
-function vote(argument, voter, voted_for){
+function vote(argument, voted_for){
     var votediv = $("#vote").html();
     $("#vote").html("Loading...");
     
     $.post("/argue/vote/", {argument: argument,
-			    voter: voter,
 			    voted_for: voted_for},
 	   function(xml) {
 	       var pvotefor
@@ -124,8 +123,6 @@ function vote(argument, voter, voted_for){
 		   alert($('message', xml).text());
 
 	       } else {
-
-		   // $("#vote").html( $("message",xml).text());
 		   window.location.reload();
 	       }
 	   });

@@ -96,7 +96,6 @@ class ViewTest(TestCase):
         # Invalid Form
         response = self.client.post(url, {'email': '',
                                           'password': ''})
-
         self.assertFormError(response, 'form', 'email', "This field is required.")
         self.assertFormError(response, 'form', 'password', "This field is required.")
 

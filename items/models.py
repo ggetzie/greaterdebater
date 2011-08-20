@@ -74,9 +74,10 @@ class Topic(models.Model):
             return False
 
     def com_count(self):
-        num = self.topiccomment_set.filter(removed=False,
-                                           needs_review=False).count()
-        return num
+        return self.topiccomment_set.filter(removed=False,
+                                            needs_review=False,
+                                            spam=False).count()
+        
 
     def resum(self):
         clen = 0

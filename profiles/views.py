@@ -64,7 +64,8 @@ def register(request):
 def login(request):
     """Log in a user"""
     message = None
-
+    form = tcdLoginForm()
+    rform = tcdUserCreationForm()
     if request.method == 'POST':
         data = request.POST.copy()
         form = tcdLoginForm(data)
@@ -90,8 +91,6 @@ account. Please check your email and follow the link provided to reset your pass
             except ObjectDoesNotExist:
                 message = "Sorry, that's not a valid username or password"
     else:
-        form = tcdLoginForm()
-        rform = tcdUserCreationForm()
         next = request.GET.get('next', '/')
     return render_to_response("registration/login.html",
                               {'form': form,
@@ -551,7 +550,7 @@ def delete_current_message(request):
                             '/messages/'])
 
     message.delete()
-    GGmessages.info(request, "Message deleted")
+    messages.info(request, "Message deleted")
     return HttpResponseRedirect(redirect)
 
 def save_forgotten(user):

@@ -65,7 +65,6 @@ class Flag(forms.Form):
 
 class Ballot(forms.Form):
     argument = forms.IntegerField(widget=forms.widgets.HiddenInput())
-    voter = forms.IntegerField(widget=forms.widgets.HiddenInput())
     voted_for = forms.CharField(widget=forms.widgets.HiddenInput(), required=False)
     
     def clean_voted_for(self):

@@ -8,62 +8,132 @@ from utils import update_tags
 
 from settings import HOSTNAME
 
+import random
+import string
+
+
+TAGSCHAR = string.ascii_letters + "'_@?$%#& "
+TLDS = ['.com', '.net', '.org', '.gov']
+
+def random_words(chars, wordlen, numwords):
+    # produce a list of numwords random words
+    # each word is up to wordlen long and contains
+    # allowed characters from chars
+    return [''.join([random.choice(chars) for x in range(random.randint(1,wordlen))])
+            for y in range(random.randint(1,numwords))]
+
 def testsetup():
     # Create some users
     users = []
     profiles = []
-    for i in range(10):
+    for i in range(20):
         username="user"+str(i)
         u, p = create_user(username=username, password="password",
                            email=username+"@test.com")
-        if i < 8: 
+        
+        if i == 0: # First users is superuser
+            u.superuser = True
+        if i < 5: # First 5 users are staff
+            u.is_staff = True
+        if not (i > 4 and i < 10): # users 5-9 are on probation
             p.probation = False
-            p.save()
+        if i > 9 and i < 15: # users 10-14 are shadowbanned
+            p.shadowban = True
         users.append(u)
         profiles.append(p)
+        u.save()
+        p.save()
 
-    users[0].is_staff=True
-    users[0].save()
+    good_users = [p.user for p in profiles if (not p.shadowban) and (not p.probation)]
+    spam_users = [p.user for p in profiles if p.shadowban]
+    prob_users = [p.user for p in profiles if p.probation]
 
-    # Create some topics
-    topic1 = create_topic(users[0], "Topic 1", "tag1", comment="First topic outside link",
-                          url="http://google.com")
-    topic2 = create_topic(users[1], "Topic 2", "tag2", comment="Second topic self link")
-    topic3 = create_topic(users[2], "Topic 3", "tag3") # No first comment
-    topic4 = create_topic(users[3], "Topic 4") # No first comment, no tags
-    topic5 = create_topic(users[8], "Topic 5") # user on probation
-    topic6 = create_topic(users[9], "Topic 6") # user on probation
+    def add_followers(item, potential_followers):
+        if random.random() < 0.75: # 75% chance of having any followers
+            for i in range(random.randint(1,10)):
+                # choose a random follower from the list of good users without replacement
+                follower = potential_followers.pop(random.choice(range(len(potential_followers))))
+                item.followers.add(follower)
 
-    # Comment on some topics
-    # Topic 2
-    #   -com1
-    #     -com2
-    #       -com4
-    #     -com3
-    com1 = create_tcomment(users[0], topic2, txt="Comment 1")
-    com2 = create_tcomment(users[1], topic2, txt="Comment 2", parent=com1)
-    com3 = create_tcomment(users[2], topic2, txt="Comment 3", parent=com1)
-    com4 = create_tcomment(users[0], topic2, txt="Comment 4", parent=com2)
-    com5 = create_tcomment(users[8], topic1, txt="Comment 5") # user on probation
-    com6 = create_tcomment(users[9], topic1, txt="Comment 6") # user on probation
+    # Create 1 - 5 topics per user
+    topics = []
+    for u in users:
+        for i in range(random.randint(1,5)):
+            title = ' '.join(random_words(string.letters+string.punctuation, 15, 8))
+            if random.random() > 0.25:
+                tags = ','.join(random_words(TAGSCHAR, 15, 15))
+                    
+            else:
+                tags = ''
+                
+            if random.random() > 0.25:
+                comment = ' '.join(random_words(string.ascii_letters, 20, 500))
+            else:
+                comment = ''
 
-    # Follow a topic and a comment
-    com1.followers.add(users[0])
-    com1.save()
-    topic1.followers.add(users[0])
-    topic1.save()
+            if random.random() > 0.1:
+                url = ''.join(['http://', 
+                              random_words(string.ascii_letters, 25, 1)[0], 
+                              random.choice(TLDS)])
+            else:
+                url = ''
+            
+            top = create_topic(u, title, tags=tags, comment=comment, url=url)
+            top.save()
+            topics.append(top)
 
-    # Create a follow message for replies to a topic
-    fmsg = fcomMessage(recipient=topic1.user,
-                       is_read=False,
-                       reply=com1,
-                       pub_date=datetime.datetime.now())
-    fmsg.save()
+            add_followers(top, good_users[:])
+
+            
+
+
+    comments = []
+    
+    for top in topics:
+        potential_parents = [None]
+        if top.id % 3 == 0: continue # 1/3 of topics have no comments
+        for i in range(random.randint(1,10)):
+            if i == 3:
+                user = random.choice(spam_users)
+            elif i == 4:
+                user = random.choice(prob_users)
+            else:
+                user = random.choice(good_users)
+            parent = random.choice(potential_parents)
+            new_tcom = create_tcomment(user, 
+                                       top, 
+                                       txt=' '.join(random_words(string.ascii_letters, 20, 1000)),
+                                       parent=parent)
+            
+            # add  another None to keep the chance
+            # of a new tcom being toplevel at 50%
+            potential_parents += [new_tcom, None]
+            comments += [new_tcom]
+            add_followers(new_tcom, good_users[:])
+            new_tcom.save()
+
+            # alert follower of the parent comment (or the topic if it is top level) 
+            # that a new reply has been made
+            if parent: 
+                followers=parent.followers.all()
+            else: 
+                followers=top.followers.all()
+                
+            for foll in followers:
+                fmsg = fcomMessage(recipient=foll,
+                                   is_read=False,
+                                   reply=new_tcom,
+                                   pub_date=datetime.datetime.now())
+                fmsg.save()
+
+
 
     ##  Create some debates
-
+    good_comments = [c for c in comments if not (c.spam or c.needs_review)]
+    com1 = comments[1]
+    debaters = [u for u in good_users if not u == com1.user]
     # Pending debate, status=0
-    deb_pending = Debate(plaintiff=users[1],
+    deb_pending = Debate(plaintiff=debaters[1],
                          defendant=com1.user,
                          status=0,
                          incite=com1,
@@ -87,13 +157,13 @@ def testsetup():
     deb_pending_com1.save()
 
     # Debate, plaintiff's turn status=1
-    deb_pturn = Debate(plaintiff=users[2],
-                         defendant=com1.user,
-                         status=1,
-                         incite=com1,
-                         title="Debate - Plaintiff turn",
-                         start_date=datetime.datetime.now(),
-                         topic=com1.ntopic)
+    deb_pturn = Debate(plaintiff=debaters[2],
+                       defendant=com1.user,
+                       status=1,
+                       incite=com1,
+                       title="Debate - Plaintiff turn",
+                       start_date=datetime.datetime.now(),
+                       topic=com1.ntopic)
     deb_pturn.save()
     deb_pturn_com1 = ArgComment(user=deb_pturn.plaintiff,
                                   ntopic=com1.ntopic,
@@ -111,7 +181,7 @@ def testsetup():
 
     # Debate, plaintiff's turn status = 1
     # with outstanding draw offer
-    deb_drawoffer = Debate(plaintiff=users[6],
+    deb_drawoffer = Debate(plaintiff=debaters[6],
                            defendant = com1.user,
                            status=1,
                            incite=com1,
@@ -141,23 +211,24 @@ def testsetup():
     drawoffer.save()
 
     # Debate, defendant's turn status=2
-    deb_dturn = Debate(plaintiff=users[3],
-                         defendant=com1.user,
-                         status=2,
-                         incite=com1,
-                         title="Debate - Defendent turn",
-                         start_date=datetime.datetime.now(),
-                         topic=com1.ntopic)
+    deb_dturn = Debate(plaintiff=debaters[3],
+                       defendant=com1.user,
+                       status=2,
+                       incite=com1,
+                       title="Debate - Defendent turn",
+                       start_date=datetime.datetime.now(),
+                       topic=com1.ntopic)
     deb_dturn.save()
     deb_dturn_com1 = ArgComment(user=deb_dturn.plaintiff,
-                                  ntopic=com1.ntopic,
-                                  debate=deb_dturn,
-                                  pub_date=datetime.datetime.now(),
-                                  comment="Defendant turn challenge")
+                                ntopic=com1.ntopic,
+                                debate=deb_dturn,
+                                pub_date=datetime.datetime.now(),
+                                comment="Defendant turn challenge")
     deb_dturn_com1.save()
 
     # Some votes for this debate
-    voters = User.objects.exclude(username__in=(deb_dturn.plaintiff, deb_dturn.defendant))
+    voters = [u for u in debaters if not (u == deb_dturn.plaintiff or 
+                                          u == deb_dturn.defendant)]
     vote1 = nVote(argument=deb_dturn,
                   voter=voters[0],
                   voted_for="P")
@@ -170,7 +241,7 @@ def testsetup():
     
 
     # Debate, defendant wins, status = 3
-    deb_dwin = Debate(plaintiff=users[4],
+    deb_dwin = Debate(plaintiff=debaters[4],
                       defendant=com1.user,
                       status=3,
                       incite=com1,
@@ -194,7 +265,7 @@ def testsetup():
     deb_dwin_com2.save()
 
     # Debate, plaintiff wins, status = 4
-    deb_pwin = Debate(plaintiff=users[5],
+    deb_pwin = Debate(plaintiff=debaters[5],
                       defendant=com1.user,
                       status=4,
                       incite=com1,
@@ -204,24 +275,24 @@ def testsetup():
                       topic=com1.ntopic)
     deb_pwin.save()
     deb_pwin_com1 = ArgComment(user=deb_pwin.plaintiff,
-                                  ntopic=com1.ntopic,
-                                  debate=deb_pwin,
-                                  pub_date=datetime.datetime.now(),
-                                  comment="Plaintiff win challenge")
+                               ntopic=com1.ntopic,
+                               debate=deb_pwin,
+                               pub_date=datetime.datetime.now(),
+                               comment="Plaintiff win challenge")
     deb_pwin_com1.save()
 
     deb_pwin_com2 = ArgComment(user=deb_pwin.defendant,
-                                  ntopic=com1.ntopic,
-                                  debate=deb_pwin,
-                                  pub_date=datetime.datetime.now(),
-                                  comment="Plaintiff win 1st rebuttal")
+                               ntopic=com1.ntopic,
+                               debate=deb_pwin,
+                               pub_date=datetime.datetime.now(),
+                               comment="Plaintiff win 1st rebuttal")
     deb_pwin_com2.save()
 
     deb_pwin_com3 = ArgComment(user=deb_pwin.plaintiff,
-                                  ntopic=com1.ntopic,
-                                  debate=deb_pwin,
-                                  pub_date=datetime.datetime.now(),
-                                  comment="Plaintiff win 2nd rebuttal")
+                               ntopic=com1.ntopic,
+                               debate=deb_pwin,
+                               pub_date=datetime.datetime.now(),
+                               comment="Plaintiff win 2nd rebuttal")
     deb_pwin_com3.save()
     
     deb_pwin_vote1 = nVote(argument=deb_pwin,
@@ -240,7 +311,7 @@ def testsetup():
     deb_pwin_vote3.save()
 
     # Debate ends in a draw, status = 5
-    deb_draw = Debate(plaintiff=users[5],
+    deb_draw = Debate(plaintiff=debaters[5],
                       defendant=com1.user,
                       status=5,
                       incite=com1,
@@ -321,7 +392,8 @@ def create_topic(user, title, tags='', url='', comment=''):
                   sub_date=datetime.datetime.now(),
                   comment_length=0,
                   last_calc=datetime.datetime.now(),
-                  needs_review=prof.probation)
+                  needs_review=prof.probation,
+                  spam=prof.shadowban)
     topic.save()
 
     if url:
@@ -373,7 +445,8 @@ def create_tcomment(user, top, txt, parent=None):
     params = {'comment': txt,
               'user': user,
               'ntopic': top,
-              'needs_review': prof.probation}
+              'needs_review': prof.probation,
+              'spam': prof.shadowban}
 
     if parent:
         params['nparent_id'] = parent.id

@@ -23,6 +23,11 @@ def topic_with_comments(tops, with_comments=True):
 
     return None
 
+def reset_rate(prof):
+    prof.rate = 0
+    prof.last_post=datetime.datetime(month=1, day=1, year=1970)
+    prof.save()
+
 class ViewTest(TestCase):
 
     def setUp(self):
@@ -55,8 +60,9 @@ class ViewTest(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
-        # logged in
-        user = User.objects.all()[0]
+        # logged in good user
+        prof = Profile.objects.filter(probation=False, shadowban=False)[0]
+        user = prof.user
         self.client.login(username=user.username, password="password")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -72,7 +78,7 @@ class ViewTest(TestCase):
         self.client.login(username=user.username, password="password")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-    
+
     def test_frontpage(self):
         url = '/'
         # not logged in
@@ -223,6 +229,35 @@ class ViewTest(TestCase):
         self.assertRedirects(response, '/')
         self.assertContains(response, "Your previous topic is still awaiting review. <br />" + \
                                 "Please wait until it has been approved before submitting another topic.")
+
+        # Submission from shadowbanned user
+        prof = Profile.objects.filter(shadowban=True, probation=False)[0]
+        reset_rate(prof)
+        spammer = prof.user
+        self.client.login(username=spammer.username, password='password')
+        response = self.client.post(url, {'title': "Definitely Spam",
+                                          'url': "",
+                                          'comment': "A topic for testing spam",
+                                          'tags': "spammy,spam"}, follow=True)
+        spamtop = Topic.objects.get(title="Definitely Spam")
+        redirect = '/%d/' % spamtop.id
+        self.assertRedirects(response,redirect)
+        self.assertEqual(spamtop.spam, True)
+        self.assertEqual(spamtop.needs_review, False)
+
+        # banned submission should appear to its submitter 
+        response = self.client.get('/new/')
+        self.assertContains(response, "Definitely Spam")
+
+        # banned submission should not appear to anyone else
+        self.client.logout()
+        response = self.client.get('/new/')
+        self.assertNotContains(response, "Definitely Spam")
+
+        other = User.objects.exclude(id=spammer.id)[0]
+        self.client.login(username=other.username, password='password')
+        response = self.client.get('/new/')
+        self.assertNotContains(response, "Definitely Spam")
         
 
     def test_edit_topic(self):
@@ -237,7 +272,7 @@ class ViewTest(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
 
-        # POST request, use does not own the topic
+        # POST request, user does not own the topic
         response = self.client.post(url, {'title': 'bad title',
                                           'comment' : 'bad comment'})
         self.assertEqual(response.status_code, 403)
@@ -425,7 +460,7 @@ class ViewTest(TestCase):
         top = Topic.objects.get(id=top.id)
         self.assertEqual(top.spam, True)
         prof = Profile.objects.get(user=top.user)
-        self.assertEqual(prof.rate, 10)
+        self.assertEqual(prof.shadowban, True)
 
         # Mark Comment as spam and disable user
         response = self.client.post(curl, {'id': com.id, 'decision': 1})
@@ -433,7 +468,7 @@ class ViewTest(TestCase):
         com = TopicComment.objects.get(id=com.id)
         self.assertEqual(com.spam, True)
         prof = Profile.objects.get(user=com.user)
-        self.assertEqual(prof.rate, 10)
+        self.assertEqual(prof.shadowban, True)
 
         # Add a new topic needing review
         prof = Profile.objects.filter(probation=True, rate__lt=10)[0]
@@ -449,7 +484,7 @@ class ViewTest(TestCase):
         top = Topic.objects.get(id=top.id)
         self.assertEqual(top.spam, True)
         prof = Profile.objects.get(user=top.user)
-        self.assertNotEqual(prof.rate, 10)
+        self.assertNotEqual(prof.shadowban, True)
 
         # Reject Comment
         response = self.client.post(curl, {'id': com.id, 'decision': 2})
@@ -517,16 +552,17 @@ class ViewTest(TestCase):
         url = '/argue/challenge/' + str(c.id) + '/'
         postdata = {'title': "test debate", 
                     'argument': "just testing, bro"}
-        
-        # GET request
-        response = self.client.get(url, follow=True)
-        self.assertContains(response, "Not a POST")
 
         # user not logged in
         response = self.client.post(url, postdata, follow=True)
-        self.assertContains(response, "Please log in to start a debate")
-        
+        self.assertRedirects(response, '/users/login/?next=' + url)
+
         self.client.login(username=user.username, password="password")
+
+        # GET request
+        response = self.client.get(url, follow=True)
+        self.assertRedirects(response, '/')
+
         # invalid form
         response = self.client.post(url, {'title': '', 'argument': ''}, follow=True)
         self.assertContains(response, "Oops! A problem occurred.")
@@ -538,6 +574,14 @@ class ViewTest(TestCase):
         # Second challenge on same comment (not allowed)
         response = self.client.post(url, postdata, follow=True)
         self.assertContains(response, "You may only start one debate per comment")
+
+        # Spammy challenge
+        spamdata = {'title': "spam debate", 
+                    'argument': "just spamming, bro"}
+        response = self.client.post(url, spamdata, follow=True)
+        self.assertRedirects(response, '/%d/' % c.ntopic.id)
+        debs = Debate.objects.filter(title="spam debate")
+        self.assertEqual(0, len(debs))
         
 
     def test_vote(self):
@@ -545,7 +589,6 @@ class ViewTest(TestCase):
         deb = Debate.objects.filter(status__in=(1,2))[0]
         user = User.objects.exclude(username__in=(deb.plaintiff, deb.defendant))[0]
         postdata = {'argument': deb.id,
-                    'voter': user.id,
                     'voted_for': 'P'}
         
         # GET request
@@ -556,19 +599,22 @@ class ViewTest(TestCase):
 
         # Invalid form
         response = self.client.post(url, {'argument': '',
-                                          'voter': '',
                                           'voted_for': ''})
         self.assertContains(response, "Invalid Form")
-
-        # Vote from wrong user
-        response = self.client.post(url, {'argument': deb.id,
-                                          'voter': user.id-1,
-                                          'voted_for': 'P'})
-        self.assertContains(response, "Can't cast vote as another user")
 
         # legit vote
         response = self.client.post(url, postdata)
         self.assertContains(response, "ok")
+
+        # spammy vote
+        prof = Profile.objects.filter(shadowban=True)[0]
+        self.client.logout()
+        self.client.login(username=prof.user.username, password='password')
+        response = self.client.post(url, {'argument': deb.id,
+                                          'voted_for': 'P'})
+        self.assertContains(response, "ok")
+        vote = nVote.objects.filter(argument=deb, voter=prof.user)
+        self.assertEquals(len(vote), 0)
 
     def test_unvote(self):
         url = '/argue/unvote/'
@@ -582,14 +628,8 @@ class ViewTest(TestCase):
         self.client.login(username=user.username, password='password')
         
         # invalid form
-        response = self.client.post(url, {'argument': '',
-                                          'voter': ''})
+        response = self.client.post(url, {'argument': ''})
         self.assertContains(response, 'Invalid Form')
-
-        # wrong user id
-        response = self.client.post(url, {'argument': vote.argument.id,
-                                          'voter': user.id + 1})
-        self.assertContains(response, "Can't delete another user's vote")
 
         # successful unvote
         response = self.client.post(url, {'argument': vote.argument.id,

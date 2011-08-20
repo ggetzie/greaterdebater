@@ -1,10 +1,11 @@
 from django.contrib import auth
 from django.contrib.auth.models import User
-from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import user_passes_test, login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.db import models
+from django.db.models import Q
 from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import loader, RequestContext, Context
@@ -39,17 +40,27 @@ models={'comment': TopicComment,
 class CommentListView(ListView):
     def get_queryset(self):
         self.top = get_object_or_404(Topic, pk=self.kwargs['topic_id'])
-        comments = self.top.topiccomment_set.filter(first=False,
-                                              needs_review=False,
-                                              spam=False)
+        if self.request.user.is_authenticated():
+            self.prof = get_object_or_404(Profile, user=self.request.user)
+            comments = self.top.topiccomment_set.filter(Q(first=False,
+                                                          needs_review=False,
+                                                          spam=False) |
+                                                        Q(first=False,
+                                                          needs_review=False,
+                                                          spam=True,
+                                                          user=self.request.user))
+        else:
+            self.prof = None
+            comments = self.top.topiccomment_set.filter(first=False,
+                                                        needs_review=False,
+                                                        spam=False)
         rest_c = build_list(comments.order_by('-pub_date'), 0)
         return rest_c
 
     def get_context_data(self, **kwargs):
         context = super(CommentListView, self).get_context_data(**kwargs)
-        if self.request.user.is_authenticated():
-            prof = get_object_or_404(Profile, user=self.request.user)
-            newwin = prof.newwin
+        if self.prof:
+            newwin = self.prof.newwin
         else:
             newwin = False
         if self.top.tags:
@@ -68,7 +79,14 @@ class CommentListView(ListView):
 class TopicListView(ListView):
 
     def get_queryset(self):
-        queryset = Topic.objects.filter(needs_review=False, spam=False)
+        if self.request.user.is_authenticated():
+            self.prof = get_object_or_404(Profile, user=self.request.user)
+            queryset = Topic.objects.filter(Q(needs_review=False, spam=False) |
+                                            Q(user=self.request.user, spam=True))
+        else:
+            self.prof = None
+            queryset = Topic.objects.filter(needs_review=False,spam=False)
+
         if self.kwargs['sort'] == 'new':
             return queryset.order_by('-sub_date')
         else:
@@ -76,9 +94,8 @@ class TopicListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(TopicListView, self).get_context_data(**kwargs)
-        if self.request.user.is_authenticated():
-            prof = get_object_or_404(Profile, user=self.request.user)
-            newwin = prof.newwin
+        if self.prof:
+            newwin = self.prof.newwin
         else:
             newwin=False
         topic_sort = self.kwargs['sort']
@@ -232,6 +249,8 @@ def submit(request):
 
     prof = get_object_or_404(Profile, user=request.user)
 
+    # If a user is on probation, the last topic they submitted
+    # must be approved before they can submit another
     if prof.probation:
         next = '/'
         prevtop = Topic.objects.filter(user=request.user, needs_review=True, spam=False)
@@ -258,7 +277,8 @@ def submit(request):
                       sub_date=datetime.datetime.now(),
                       comment_length=0,
                       last_calc=datetime.datetime.now(),
-                      needs_review=prof.probation
+                      needs_review=prof.probation, # topics from probationary users must be approved
+                      spam = prof.shadowban # if user is a known spammer, mark as spam right away
                       )
         topic.save()
 
@@ -497,7 +517,7 @@ def remove_tag(request):
         return render_to_AJAX(status="alert",
                               messages=[msg])
 
-
+@login_required(login_url='/users/login/')
 def challenge(request, c_id):
     """Create a pending argument as one user challenges another."""
     redirect = '/'
@@ -505,20 +525,19 @@ def challenge(request, c_id):
         messages.warning(request, "Not a POST")
         return HttpResponseRedirect(redirect)
 
-
     form = ArgueForm(request.POST)
     c = get_object_or_404(TopicComment, pk=c_id)
     defendant = c.user
     redirect = '/' + str(c.ntopic.id) + '/'
+    pl_prof = get_object_or_404(Profile, user=request.user)
+
+    if pl_prof.shadowban:
+        # ignore known spammer
+        return HttpResponseRedirect(redirect)
 
     if not form.is_valid():
         message = "<p>Oops! A problem occurred.</p>"
         messages.error(request, message + str(form.errors))
-        return HttpResponseRedirect(redirect)
-
-
-    if not request.user.is_authenticated():
-        messages.warning(request, "Please log in to start a debate")
         return HttpResponseRedirect(redirect)
 
     if Debate.objects.filter(plaintiff=request.user,
@@ -568,19 +587,16 @@ def vote(request):
         return render_to_AJAX(status="alert", messages=["Invalid Form"])
 
     arg = get_object_or_404(Debate, pk=form.cleaned_data['argument'])
-    voter = get_object_or_404(User, pk=form.cleaned_data['voter'])
     redirect = ''.join(['/argue/', str(arg.id)])
 
-    if not voter == request.user:
-        return render_to_AJAX(status="alert", messages=["Can't cast vote as another user"])
-
-
-    vote = nVote(argument=arg,
-                 voter=voter,
-                 voted_for=form.cleaned_data['voted_for'])
-    vote.save()
-    arg.calculate_score()
-    arg.save()
+    prof = get_object_or_404(Profile, user=request.user)
+    if not prof.shadowban:
+        vote = nVote(argument=arg,
+                     voter=request.user,
+                     voted_for=form.cleaned_data['voted_for'])
+        vote.save()
+        arg.calculate_score()
+        arg.save()
     all_votes = nVote.objects.filter(argument=arg)
     
     return render_to_AJAX(status="ok", messages=[])
@@ -595,13 +611,9 @@ def unvote(request):
         return render_to_AJAX(status="alert", messages=["Invalid Form"])
 
     arg = get_object_or_404(Debate, pk=form.cleaned_data['argument'])
-    voter = get_object_or_404(User, pk=form.cleaned_data['voter'])
     redirect = ''.join(['/argue/', str(arg.id)])
-    if not voter == request.user:
-        return render_to_AJAX(status="alert", messages=["Can't delete another user's vote"])
 
-
-    vote = get_object_or_404(nVote, argument=arg, voter=voter)
+    vote = get_object_or_404(nVote, argument=arg, voter=request.user)
     vote.delete()
     arg.calculate_score()
     return render_to_AJAX(status="ok", messages=[])
@@ -1090,7 +1102,8 @@ def decide(request, model):
         obj.score = 0
         obj.save()
         prof = Profile.objects.get(user=obj.user)
-        prof.rate = 10
+        prof.shadowban = True # future submissions / comments will be ignored
+        prof.probation = False # we know his true colors now
         prof.save()
         message = render_message(model + " marked as spam. User disabled.", 10)
     else:
@@ -1102,3 +1115,25 @@ def decide(request, model):
         message = render_message(model + " rejected.", 10)
 
     return render_to_AJAX(status="ok", messages=[message])
+
+def trex_endorse(request):
+    phrases = [['the', 'this', 'a', 'your', 'you'],
+               ['wonderful', 'amazing', 'valuable', 'free', 'proven'],
+               ['new', 'enhanced', 'improved', 'guaranteed'],
+               ['service', 'product', 'lifestyle'],
+               ['that', 'which'],
+               ['now', 'greatly', 'somehow', 'always'],
+               ['saves', 'simplifies', 'complicates', 'meddles in'],
+               ['every', 'your', "society's", "your children's", "Grandma's"],
+               ['cooking', 'bedroom', 'office', 'cellar', 'beachhouse'],
+               ['performance', 'results', 'love', 'money', 'sex', 'career']]
+
+    choices =  [random.choice(p) for p in phrases]
+    if choices[0] == "you":
+        tail = "you"
+    else:
+        tail = ' '.join(choices)
+    phrase = "I just can't get enough of %s" % tail
+    return render_to_response('items/trex.html',
+                              {'phrase': phrase},
+                               context_instance=RequestContext(request))

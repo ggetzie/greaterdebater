@@ -16,7 +16,7 @@ class Profile(models.Model):
     tags = models.TextField(blank=True)
     last_post = models.DateTimeField(default=datetime.datetime(month=1, day=1, year=1970))
 
-    # Level of infraction into spam protection
+    # Level of infraction into rate limiting
     rate = models.PositiveSmallIntegerField(default=0)
 
     # items to include in the user's personal RSS feed
@@ -31,6 +31,9 @@ class Profile(models.Model):
     # New user still in probationary period, 
     # topics and comments need review
     probation = models.BooleanField(default=True)
+
+    # Send users topics and comment silently to the round file
+    shadowban = models.BooleanField(default=False)
     
     def __unicode__(self):
         return self.user.username
