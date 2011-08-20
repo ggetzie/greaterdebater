@@ -1133,7 +1133,7 @@ def trex_endorse(request):
         tail = "you"
     else:
         tail = ' '.join(choices)
-    phrase = "I just can't get enough of %s" % tail
+    phrase = "I just can't get enough of %s!" % tail
     return render_to_response('items/trex.html',
                               {'phrase': phrase},
                                context_instance=RequestContext(request))
