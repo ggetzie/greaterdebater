@@ -48,3 +48,7 @@ class PostCommentForm(forms.Form):
                                                                     'rows': 5,
                                                                     'cols': 50}))
     post_id = forms.IntegerField(widget=forms.widgets.HiddenInput())
+
+class UploadForm(forms.Form):
+    file = forms.FileField()
+

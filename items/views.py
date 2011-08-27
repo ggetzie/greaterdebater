@@ -334,41 +334,41 @@ def submit(request):
         return HttpResponseRedirect(next)
 
 
-def edit_topic(request, topic_id, page):
+def edit_topic(request, topic_id):
     """Allow the submitter of a topic to edit its title or url"""
     top = get_object_or_404(Topic, pk=topic_id)
     c = TopicComment.objects.filter(ntopic=top, first=True)
-    redirect = '/users/u/' + request.user.username + '/submissions/' + page
+    redirect = '/%d/' % top.id
     if not request.user == top.user:
         return HttpResponseForbidden("<h1>Unauthorized</h1>")
 
     if request.method == 'POST':
-        if request.user == top.user:
-            data = request.POST.copy()
-            form = tcdTopicSubmitForm(data)
-            if form.is_valid():
-                if form.cleaned_data['comment']:
-                    if c:
-                        c = c[0]
-                        oldlen = len(c.comment)
-                        c.comment = form.cleaned_data['comment']
-                    else:
-                        oldlen = 0
-                        c = TopicComment(user=top.user,
-                                         ntopic=top,
-                                         comment = form.cleaned_data['comment'],
-                                         pub_date=datetime.datetime.now(),
-                                         first=True,
-                                         nparent_id=0,
-                                         nnesting=0)                    
-                    c.save()
 
-                    top.comment_length += len(c.comment) - oldlen
-                    top.recalculate()
-                    top.save()
-                top.title = form.cleaned_data['title']            
+        data = request.POST.copy()
+        form = tcdTopicSubmitForm(data)
+        if form.is_valid():
+            if form.cleaned_data['comment']:
+                if c:
+                    c = c[0]
+                    oldlen = len(c.comment)
+                    c.comment = form.cleaned_data['comment']
+                else:
+                    oldlen = 0
+                    c = TopicComment(user=top.user,
+                                     ntopic=top,
+                                     comment = form.cleaned_data['comment'],
+                                     pub_date=datetime.datetime.now(),
+                                     first=True,
+                                     nparent_id=0,
+                                     nnesting=0)                    
+                c.save()
+
+                top.comment_length += len(c.comment) - oldlen
+                top.recalculate()
                 top.save()
-                return HttpResponseRedirect(redirect)
+            top.title = form.cleaned_data['title']            
+            top.save()
+            return HttpResponseRedirect(redirect)
             
     else:
         if top.url[0:4] == 'http':

@@ -9,11 +9,13 @@ from tcd.blog.models import Blog, Post, PostComment
 from tcd.blog.forms import PostEdit, PostCommentForm, PostNew
 from tcd.comments.utils import build_list
 from tcd.profiles.models import Profile
-#from settings import SAVE_PATH
+from settings import UPLOAD_DIR
 from utils import render_to_AJAX, render_message
 
 import pyfo
 import datetime
+import os
+import hashlib
 
 def main(request, username):
     # show five most recent posts
@@ -298,7 +300,28 @@ def delete(request, username):
 #         form = UploadFileForm(request.POST, request.FILES)
 #         if form.is_valid():
 #             filename = handle_uploaded_file(request.FILES['file'])
-#             return HttpResponseRedirect('/success/url/')
+#             return HttpResponseRedirect('/blog/%s/myfiles/' % user.username)
 #     else:
 #         form = UploadFileForm()
 #     return render_to_response('upload.html', {'form': form})
+
+# def handle_uploaded_file(user, ufile):
+
+#     m = hashlib.md5()
+#     m.update(user.username)
+#     section = m.hexdigest()[:4]
+#     userpath = op.path.join(UPLOAD_DIR, section, user.username)
+
+#     if not os.path.isdir(userpath):
+#         os.makedirs(userpath)
+
+#     destination = open(os.path.join(userpath, ufile.name), 'wb+')
+#     for chunk in ufile.chunks:
+#         destination.write(chunk)
+#     destination.close()
+    
+#     return '/static/upload/%s/%s/%s' % (section, user.username, ufile.name)
+
+
+
+        

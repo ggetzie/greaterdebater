@@ -17,7 +17,7 @@
 	<a href="/{{ object.id }}" {% if newwin %}target="_blank"{% endif %}>{{ num }} comment{{ num|pluralize }}</a>
 	{% endwith %}
 	{% ifequal request.user object.user %}
-	| <a href="/edit/{{ object.id }}/{{ page }}">edit</a>
+	| <a href="/edit/{{ object.id }}/">edit</a>
 	<span id="delete_link{{ object.id }}">
 	  | <a href="#" onclick="swap('#delete_link{{ object.id }}', '#confirm_delete{{ object.id }}'); return false;">delete</a>
 	</span>

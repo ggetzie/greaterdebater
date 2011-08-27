@@ -264,7 +264,7 @@ class ViewTest(TestCase):
 
         top = Topic.objects.filter(needs_review=False,
                                    spam=False)[0]
-        url = '/edit/' + str(top.id) + '/1/'
+        url = '/edit/' + str(top.id)
 
         # GET request, user does not own the topic
         baduser = User.objects.exclude(id=top.user.id)[0]
@@ -288,7 +288,7 @@ class ViewTest(TestCase):
                                     follow=True)
         self.assertFormError(response, 'form', 'title', 'This field is required.')
 
-        redirect = '/users/u/' + top.user.username + '/submissions/1'
+        redirect = '/%d/' % top.id
 
         # POST request, valid
         response = self.client.post(url, {'title': 'edited title',

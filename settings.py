@@ -1,12 +1,9 @@
 from local_settings import *
 
-
-
 FIXTURE_DIRS = ['./fixtures/']
-DATA_DIR = '/usr/local/data/'
+UPLOAD_DIR = '/usr/local/upload/'
 
 MANAGERS = ADMINS
-
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -81,3 +78,7 @@ EMAIL_PORT = 587
 # Date and time formats
 DATE_FORMAT = "M d, Y"
 TIME_FORMAT = "g:ia"
+
+
+# File Upload Settins
+FILE_UPLOAD_PERMISSIONS = 0644

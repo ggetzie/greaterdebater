@@ -24,7 +24,7 @@ urlpatterns = patterns('',
                        (r'^iphonebk/?$', TemplateView.as_view(template_name='items/iphonebk.html')),
                        
                        # Edit the title, url or description of a topic
-                       (r'^edit/(?P<topic_id>\d+)/(?P<page>\d+)/?$', 'tcd.items.views.edit_topic'),
+                       (r'^edit/(?P<topic_id>\d+)/?$', 'tcd.items.views.edit_topic'),
 
                        # Flag a topic as spam
                        (r'^tflag/$', 'tcd.items.views.tflag'),
