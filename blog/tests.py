@@ -1,3 +1,4 @@
+
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils.html import escape
@@ -415,5 +416,30 @@ class ViewTest(TestCase):
         self.assertQuerysetEqual(posts, [])
 
 
-
+    def test_myfiles(self):
+        blog = Blog.objects.all()[0]
+        user = blog.author
+        url = "/blog/%s/myfiles/" % user.username
         
+        # not logged in
+        response = self.client.get(url)
+        self.assertRedirects(response, '/users/login/?next=' + url)
+        
+        # logged in
+        self.client.login(username=user.username, password='password')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_upload_file(self):
+        blog = Blog.objects.all()[0]
+        user = blog.author
+        url = "/blog/%s/upload/" % user.username
+        
+        # not logged in
+        response = self.client.get(url)
+        self.assertRedirects(response, '/users/login/?next=' + url)
+
+        # logged in
+        self.client.login(username=user.username, password='password')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)

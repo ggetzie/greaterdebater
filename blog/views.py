@@ -301,7 +301,7 @@ def myfiles(request, username):
     blog = get_object_or_404(Blog, author__username=username)
     userpath = get_user_path(request.user.username)
     if not os.path.isdir(userpath):
-        raise Http404 
+        os.makedirs(userpath, 0777)
     flist = os.listdir(userpath)
     section = os.path.dirname(userpath)[-4:]
     url_path = 'upload/%s/%s/' % (section, username)
@@ -310,7 +310,8 @@ def myfiles(request, username):
                                'userpath': url_path,
                                'blog': blog},
                               context_instance=RequestContext(request))
-    
+
+@login_required(login_url='/users/login/')    
 def upload_file(request, username):
     blog = get_object_or_404(Blog, author__username=username)
     if request.method == 'POST':
@@ -328,7 +329,7 @@ def handle_uploaded_file(user, ufile):
 
     userpath = get_user_path(user.username)
     if not os.path.isdir(userpath):
-        os.makedirs(userpath)
+        os.makedirs(userpath, 0777)
 
     destination = open(os.path.join(userpath, ufile.name), 'wb+')
     for chunk in ufile.chunks():
