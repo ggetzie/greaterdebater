@@ -261,3 +261,7 @@ div.pages a#prev {
 div.pages a#next {
     float: right;
 }
+
+div#upload {
+    height: 500px;
+}

@@ -1,16 +1,18 @@
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden, Http404
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import loader, Context, RequestContext
 from django.views.generic.list import ListView
 
 from tcd.blog.models import Blog, Post, PostComment
-from tcd.blog.forms import PostEdit, PostCommentForm, PostNew
+from tcd.blog.forms import PostEdit, PostCommentForm, PostNew, UploadFileForm
 from tcd.comments.utils import build_list
 from tcd.profiles.models import Profile
 from settings import UPLOAD_DIR
-from utils import render_to_AJAX, render_message
+from tcd.utils import render_to_AJAX, render_message
+from blog.utils import get_user_path
 
 import pyfo
 import datetime
@@ -294,34 +296,44 @@ def delete(request, username):
     msgs = [render_message("Post Deleted", 10)]
     return render_to_AJAX(status="ok", messages=msgs)
 
+@login_required(login_url='/users/login/')
+def myfiles(request, username):
+    blog = get_object_or_404(Blog, author__username=username)
+    userpath = get_user_path(request.user.username)
+    if not os.path.isdir(userpath):
+        raise Http404 
+    flist = os.listdir(userpath)
+    section = os.path.dirname(userpath)[-4:]
+    url_path = 'upload/%s/%s/' % (section, username)
+    return render_to_response('blogtemplates/myfiles.html',
+                              {'file_list': flist,
+                               'userpath': url_path,
+                               'blog': blog},
+                              context_instance=RequestContext(request))
     
-# def upload_file(request):
-#     if request.method == 'POST':
-#         form = UploadFileForm(request.POST, request.FILES)
-#         if form.is_valid():
-#             filename = handle_uploaded_file(request.FILES['file'])
-#             return HttpResponseRedirect('/blog/%s/myfiles/' % user.username)
-#     else:
-#         form = UploadFileForm()
-#     return render_to_response('upload.html', {'form': form})
+def upload_file(request, username):
+    blog = get_object_or_404(Blog, author__username=username)
+    if request.method == 'POST':
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            filename = handle_uploaded_file(request.user, request.FILES['file'])
+            return HttpResponseRedirect('/blog/%s/myfiles/' % request.user.username)
+    else:
+        form = UploadFileForm()
+    return render_to_response('blogtemplates/upload.html', {'form': form,
+                                                            'blog': blog},
+                              context_instance=RequestContext(request))
 
-# def handle_uploaded_file(user, ufile):
+def handle_uploaded_file(user, ufile):
 
-#     m = hashlib.md5()
-#     m.update(user.username)
-#     section = m.hexdigest()[:4]
-#     userpath = op.path.join(UPLOAD_DIR, section, user.username)
+    userpath = get_user_path(user.username)
+    if not os.path.isdir(userpath):
+        os.makedirs(userpath)
 
-#     if not os.path.isdir(userpath):
-#         os.makedirs(userpath)
+    destination = open(os.path.join(userpath, ufile.name), 'wb+')
+    for chunk in ufile.chunks():
+        destination.write(chunk)
+    destination.close()
+    section = os.path.dirname(userpath)[-4:]
+    return '/static/upload/%s/%s/%s' % (section, user.username, ufile.name)
 
-#     destination = open(os.path.join(userpath, ufile.name), 'wb+')
-#     for chunk in ufile.chunks:
-#         destination.write(chunk)
-#     destination.close()
-    
-#     return '/static/upload/%s/%s/%s' % (section, user.username, ufile.name)
-
-
-
-        

@@ -1,0 +1,19 @@
+{% extends "blogtemplates/base.html" %}
+
+{% block title %}Uploaded Files {% endblock %}
+
+{% block content %}
+<h1>Files saved at {{ userpath }}</h1>
+<div>
+  Specify file in post with ||UPLOAD_URL||<i>filename</i>
+</div>
+{% if file_list %}
+{% for filename in file_list %}
+<ul>
+  <li><a href="{{ MEDIA_URL }}{{ userpath }}{{ filename }}">{{ filename }}</a></li>
+</ul>
+{% endfor %}
+{% else %}
+No files uploaded
+{% endif %}
+{% endblock %}

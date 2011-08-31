@@ -46,5 +46,11 @@ urlpatterns = patterns('',
 
                        # Delete a post 
                        # POST only, AJAX method
-                       (r'^delete/?$', 'tcd.blog.views.delete')
+                       (r'^delete/?$', 'tcd.blog.views.delete'),
+
+                       # Upload files
+                       (r'^upload/?$', 'tcd.blog.views.upload_file'),
+                       
+                       # View uploaded files
+                       (r'^myfiles/?$', 'tcd.blog.views.myfiles')
                        )

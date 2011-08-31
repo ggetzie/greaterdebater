@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.db import models
 from django.db.models import Q
-from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponseForbidden, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import loader, RequestContext, Context
 from django.utils.datastructures import MultiValueDictKeyError

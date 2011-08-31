@@ -1,0 +1,14 @@
+{% extends "blogtemplates/base.html" %}
+{% block title %}File Upload{% endblock %}
+{% block content %}
+<div id="upload">
+  <form method="post" id="uploadform", enctype="multipart/form-data" 
+	action="/blog/{{ blog.author.username }}/upload/">
+    {% csrf_token %}
+    <table>
+      {{ form }}
+      <tr><td></td><td></td><td><input type="submit" value="Submit" /></td></tr>
+    </table>
+  </form>
+</div>
+{% endblock %}
