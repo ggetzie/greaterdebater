@@ -15,7 +15,7 @@
   <tr class = "model_command">
     <td colspan=2 id="cmd_row">
 	<button id="approve" onclick="decide_checked('topic', 0); return false;">Approve</button>
-	<button id="reject" onclick="decide_checked('topic, 2); return false;">Reject</button>
+	<button id="reject" onclick="decide_checked('topic', 2); return false;">Reject</button>
 	<button id="markspam" onclick="decide_checked('topic', 1); return false;">Spam</button>
     </td>
   </tr>
@@ -24,7 +24,7 @@
     <th width=500>Topic</th>
   </tr>
   {% for object in topic_list %}
-  <tr>
+  <tr class="topic-menu" id="message_row{{ object.id }}">
     <td>
       <input type="checkbox" id="topic{{ object.id }}" class="message" value="{{ object.id }}" />
     </td>
@@ -66,7 +66,7 @@
     <th width=500>Comment</th>
   </tr>
   {% for comment in comment_list %}
-  <tr>
+  <tr class="topic-menu" id="message_row{{ comment.id }}">
     <td>
       <input type="checkbox" id="comment{{ comment.id }}" class="message" value="{{ comment.id }}" />
     </td>

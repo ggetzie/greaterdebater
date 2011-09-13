@@ -11,6 +11,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import loader, RequestContext, Context
 from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.list import ListView
 
 from comments.forms import ArgueForm, CommentForm, RebutForm
@@ -1054,6 +1055,7 @@ class ReviewListView(ListView):
                         'page_root': '/review/' + self.model})
         return context
 
+@csrf_exempt
 def decide(request, model):
     if not (request.user.is_authenticated() and request.user.is_staff):
         return render_to_AJAX(status="alert", messages=["Unauthorized"])
@@ -1066,7 +1068,7 @@ def decide(request, model):
         return render_to_AJAX(status="alert", messages=["Invalid Form"])
     
     item = models[model]
-    item_list = [int(i) for i in form.cleaned_data['id_list']]
+    item_list = [int(i) for i in form.cleaned_data['id_list'].split(",")]
 
     objs = item.objects.filter(pk__in=item_list, needs_review=True)
 
