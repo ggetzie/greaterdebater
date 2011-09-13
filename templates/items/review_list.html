@@ -9,65 +9,83 @@
 {% block content %}
 {% include "items/review_menu.html" %}
 
-<h3 class="section-title">Topics for review</h3>
-
 {% ifequal model "topic" %}
-{% if topic_list %}
-<ol start={{ page_obj.start_index }} class="topic-list">
+<h3 class="section-title">Topics for review</h3>
+<table class="model_table">
+  <tr class = "model_command">
+    <td colspan=2 id="cmd_row">
+	<button id="approve" onclick="decide_checked('topic', 0); return false;">Approve</button>
+	<button id="reject" onclick="decide_checked('topic, 2); return false;">Reject</button>
+	<button id="markspam" onclick="decide_checked('topic', 1); return false;">Spam</button>
+    </td>
+  </tr>
+  <tr>
+    <th width=25><input type="checkbox" id="check_all" /></th>
+    <th width=500>Topic</th>
+  </tr>
   {% for object in topic_list %}
-  <li>
-    <div id="topic_div{{ object.id }}" class="topic_div">
-      <div class="title">
-	<a href="/{{ object.id }}/" class="title" {% if newwin %}target="_blank"{% endif %}>{{ object.title }}</a><span class="domain">({{ object.get_domain }})</span>
-      </div>
-      <div class="topic-menu">
-	submitted by <a href="/users/u/{{ object.user }}/profile/">{{ object.user }}</a> {{ object.get_elapsed }} ago
-      </div>
-      <div id="tags{{ object.id }}" class="tags">
-	{% with object.display_tags as tags %}
-	Tags: 	{% for tag in tags %}{{ tag }}{% if not forloop.last %}, {% endif %}{% empty %}No tags{% endfor %}
-	{% endwith %}
-      </div>
-      <div class="topic-actions">
-	<button id="approve" onclick="decide({{ object.id }}, 'topic', 0); return false;">Approve</button>
-	<button id="reject" onclick="decide({{ object.id }}, 'topic', 2); return false;">Reject</button>
-	<button id="markspam" onclick="decide({{ object.id }}, 'topic', 1); return false;">Spam</button>
-      </div>
-    </div>
-  </li>
+  <tr>
+    <td>
+      <input type="checkbox" id="topic{{ object.id }}" class="message" value="{{ object.id }}" />
+    </td>
+    <td>
+      <div id="topic_div{{ object.id }}" class="topic_div">
+	<div class="title">
+	  <a href="/{{ object.id }}/" class="title" {% if newwin %}target="_blank"{% endif %}>{{ object.title }}</a><span class="domain">({{ object.get_domain }})</span>
+	</div>
+	<div class="topic-menu">
+	  submitted by <a href="/users/u/{{ object.user }}/profile/">{{ object.user }}</a> {{ object.get_elapsed }} ago
+	</div>
+	<div id="tags{{ object.id }}" class="tags">
+	  {% with object.display_tags as tags %}
+	  Tags: 	{% for tag in tags %}{{ tag }}{% if not forloop.last %}, {% endif %}{% empty %}No tags{% endfor %}
+	  {% endwith %}
+	</div>
+      </div>  
+    </td>
+  </tr>
+  {% empty %}
+  <tr><td colspan=2>No topics to review</td></tr>
   {% endfor %}
-</ol>
-{% else %}
-<p>No topics to review</p>
-{% endif %}
+</table>
 {% endifequal %}
 
-{% ifequal model "comment" %}
-{% if comment_list %}
 
-<ol start={{ page_obj.start_index }} class="topic-list">
+{% ifequal model "comment" %}
+<h3 class="section-title">Comments for review</h3>
+<table class="model_table">
+  <tr class = "model_command">
+    <td colspan=2 id="cmd_row">
+	<button id="approve" onclick="decide_checked('topic', 0); return false;">Approve</button>
+	<button id="reject" onclick="decide_checked('topic, 2); return false;">Reject</button>
+	<button id="markspam" onclick="decide_checked('topic', 1); return false;">Spam</button>
+    </td>
+  </tr>
+  <tr>
+    <th width=25><input type="checkbox" id="check_all" /></th>
+    <th width=500>Comment</th>
+  </tr>
   {% for comment in comment_list %}
-  <li>
-    <div id="comment_div{{ comment.id }}" class="comment_div">
-      <p class=comment_topic>
-	on <a href="/{{ comment.ntopic_id }}/" {% if newwin %}target="_blank"{% endif %}>{{ comment.ntopic.title }}</a>
-      </p>
-      <span id= "comment_info{{ comment.id }}" class="comment_info"> by <a href="/users/u/{{ comment.user }}/profile/">{{ comment.user }}</a> {{ comment.get_elapsed }} ago   
-      <div id="commentp_div{{ comment.id }}">
-	{{ comment.comment_html|safe }}
+  <tr>
+    <td>
+      <input type="checkbox" id="comment{{ comment.id }}" class="message" value="{{ comment.id }}" />
+    </td>
+    <td>
+      <div id="comment_div{{ comment.id }}" class="comment_div">
+	<p class=comment_topic>
+	  on <a href="/{{ comment.ntopic_id }}/" {% if newwin %}target="_blank"{% endif %}>{{ comment.ntopic.title }}</a>
+	</p>
+	<span id= "comment_info{{ comment.id }}" class="comment_info"> by <a href="/users/u/{{ comment.user }}/profile/">{{ comment.user }}</a> {{ comment.get_elapsed }} ago   
+	  <div id="commentp_div{{ comment.id }}">
+	    {{ comment.comment_html|safe }}
+	  </div>
       </div>
-      <div class="topic-actions">
-	<button id="approve" onclick="decide({{ comment.id }}, 'comment', 0); return false;">Approve</button>
-	<button id="reject" onclick="decide({{ comment.id }}, 'topic', 2); return false;">Reject</button>
-	<button id="markspam" onclick="decide({{ comment.id }}, 'comment', 1); return false;">Spam</button>
-      </div>
-    </div>
-  </li>
+    </td>
+  </tr>
+  {% empty %}
+  <tr><td colspan=2>No comments to review</td></tr>
   {% endfor %}
-</ol>
-{% else %}
-<p>No comments to review</p>
-{% endif %}
+</table>
 {% endifequal %}
 
 {# pagination #}

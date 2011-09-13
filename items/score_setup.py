@@ -3,7 +3,6 @@ import os
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'tcd.settings'
 
-# from tcd.imports import *
 from tcd.comments.models import Debate, TopicComment, ArgComment
 from tcd.items.models import Topic, LogItem
 import datetime

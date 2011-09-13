@@ -3,9 +3,9 @@ from django.contrib.auth.models import User
 
 from markdown import markdown
 
-from blog.utils import get_upload_url
-from comments.models import Comment
-from settings import HOSTNAME
+from tcd.blog.utils import get_upload_url
+from tcd.comments.models import Comment
+from tcd.settings import HOSTNAME
 from tcd.utils import autolink
 
 class Blog(models.Model):

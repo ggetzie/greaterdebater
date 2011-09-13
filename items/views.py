@@ -1066,52 +1066,54 @@ def decide(request, model):
         return render_to_AJAX(status="alert", messages=["Invalid Form"])
     
     item = models[model]
-    try:
-        obj = item.objects.get(id=form.cleaned_data['id'], needs_review=True)
-    except item.DoesNotExist:
-        return render_to_AJAX(status="alert", messages=["Object not found"])
+    item_list = [int(i) for i in form.cleaned_data['id_list']]
+
+    objs = item.objects.filter(pk__in=item_list, needs_review=True)
 
     if form.cleaned_data['decision'] == 0:
         # Approved
-        obj.needs_review = False
-        if model == "comment":
-            obj.pub_date = datetime.datetime.now()
-            # Alert followers that a reply has been made
-            top = obj.ntopic
-            if obj.nparent_id == 0:
-                followers = top.followers.all()
-            else:
-                parent = TopicComment.objects.get(id=obj.nparent_id)
-                followers = parent.followers.all()
+        for obj in objs:
+            obj.needs_review = False
+            if model == "comment":
+                obj.pub_date = datetime.datetime.now()
+                # Alert followers that a reply has been made
+                top = obj.ntopic
+                if obj.nparent_id == 0:
+                    followers = top.followers.all()
+                else:
+                    parent = TopicComment.objects.get(id=obj.nparent_id)
+                    followers = parent.followers.all()
 
-            for follower in followers:
-                msg = fcomMessage(recipient=follower,
-                                  is_read=False,
-                                  reply=obj,
-                                  pub_date=datetime.datetime.now())
-                msg.save()
-        elif model == "topic":
-            obj.sub_date = datetime.datetime.now()
-            
-        obj.save()
+                for follower in followers:
+                    msg = fcomMessage(recipient=follower,
+                                      is_read=False,
+                                      reply=obj,
+                                      pub_date=datetime.datetime.now())
+                    msg.save()
+            elif model == "topic":
+                obj.sub_date = datetime.datetime.now()
+
+            obj.save()
         message = render_message(model + " approved", 10)
 
     elif form.cleaned_data['decision'] == 1:
-        # Mark spam, disable user
-        obj.spam = True
-        obj.score = 0
-        obj.save()
-        prof = Profile.objects.get(user=obj.user)
-        prof.shadowban = True # future submissions / comments will be ignored
-        prof.probation = False # we know his true colors now
-        prof.save()
+        for obj in objs:
+            # Mark spam, disable user
+            obj.spam = True
+            obj.score = 0
+            obj.save()
+            prof = Profile.objects.get(user=obj.user)
+            prof.shadowban = True # future submissions / comments will be ignored
+            prof.probation = False # we know his true colors now
+            prof.save()
         message = render_message(model + " marked as spam. User disabled.", 10)
     else:
         # Rejected, marked spam but user not disabled
         # 'decision' == 2, other values will cause an invalid form
-        obj.spam = True
-        obj.score = 0
-        obj.save()
+        for obj in objs:
+            obj.spam = True
+            obj.score = 0
+            obj.save()
         message = render_message(model + " rejected.", 10)
 
     return render_to_AJAX(status="ok", messages=[message])
