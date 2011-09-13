@@ -1,6 +1,6 @@
 import hashlib
 import os.path
-from settings import UPLOAD_DIR, MEDIA_URL
+from tcd.settings import UPLOAD_DIR, MEDIA_URL
 
 
 def get_user_path(username):
