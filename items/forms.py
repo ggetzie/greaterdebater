@@ -90,6 +90,6 @@ class Response(forms.Form):
                                       coerce=int)
 
 class DecideForm(forms.Form):
-    id_list = forms.CharField(widget=forms.widgets.HiddenInput())
-    decision = forms.TypedChoiceField(choices=[(0, 'approve'), (1, 'spam'), (2, 'rejected')], coerce=int)
+    id_list = forms.CharField(widget=forms.widgets.HiddenInput(), initial="")
+    decision = forms.TypedChoiceField(choices=[(0, 'approve'), (1, 'spam'), (2, 'reject')], coerce=int)
     

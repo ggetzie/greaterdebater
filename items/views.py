@@ -1052,20 +1052,20 @@ class ReviewListView(ListView):
         context = super(ReviewListView, self).get_context_data(**kwargs)
         context.update({'newwin': newwin,
                         'model': self.model,
-                        'page_root': '/review/' + self.model})
+                        'page_root': '/review/' + self.model,
+                        'form': DecideForm()})
         return context
 
-@csrf_exempt
+@user_passes_test(lambda u: u.is_staff, login_url='/users/login/')
 def decide(request, model):
-    if not (request.user.is_authenticated() and request.user.is_staff):
-        return render_to_AJAX(status="alert", messages=["Unauthorized"])
-    
+     
     if not request.POST:
-        return render_to_AJAX(status="alert", messages=["Not a POST"])
+        return HttpResponseRedirect('/review/%s/' % model)
     
     form = DecideForm(request.POST)
     if not form.is_valid():
-        return render_to_AJAX(status="alert", messages=["Invalid Form"])
+        messages.error(request, str(form.errors))
+        return HttpResponseRedirect('/review/%s/' % model)
     
     item = models[model]
     item_list = [int(i) for i in form.cleaned_data['id_list'].split(",")]
@@ -1080,7 +1080,7 @@ def decide(request, model):
                 obj.pub_date = datetime.datetime.now()
                 # Alert followers that a reply has been made
                 top = obj.ntopic
-                if obj.nparent_id == 0:
+                if obj.nparent_id == 0: # toplevel comment
                     followers = top.followers.all()
                 else:
                     parent = TopicComment.objects.get(id=obj.nparent_id)
@@ -1118,7 +1118,8 @@ def decide(request, model):
             obj.save()
         message = render_message(model + " rejected.", 10)
 
-    return render_to_AJAX(status="ok", messages=[message])
+#    return render_to_AJAX(status="ok", messages=[message])
+    return HttpResponseRedirect('/review/%s/' % model)
 
 def trex_endorse(request):
     phrases = [['the', 'this', 'a', 'your', 'you'],
