@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Topics needing review{% endblock %}
+{% block title %}{{ model|capfirst }}s needing review{% endblock %}
 
 {% block htmlhead %}
 <script type="text/javascript" charset="utf-8" src="{{ MEDIA_URL}}review.js"></script>
@@ -9,12 +9,12 @@
 {% block content %}
 {% include "items/review_menu.html" %}
 
-{% ifequal model "topic" %}
-<h3 class="section-title">Topics for review</h3>
+
+<h3 class="section-title">{{ model|capfirst }}s for review</h3>
 <table class="model_table">
   <tr class = "model_command">
     <td colspan=2 id="cmd_row">
-      <form id="decide_form" action="/decide/topic/"
+      <form id="decide_form" action="/decide/{{ model }}/"
 	    onSubmit="return add_checked()" method="post">
 	{{ form.errors }}
 	{% csrf_token %}
@@ -29,6 +29,7 @@
     <th width=25><input type="checkbox" id="check_all" /></th>
     <th width=500>Topic</th>
   </tr>
+{% ifequal model "topic" %}
   {% for object in topic_list %}
   <tr class="topic-menu" id="message_row{{ object.id }}">
     <td>
@@ -53,30 +54,9 @@
   {% empty %}
   <tr><td colspan=2>No topics to review</td></tr>
   {% endfor %}
-</table>
 {% endifequal %}
 
-
 {% ifequal model "comment" %}
-<h3 class="section-title">Comments for review</h3>
-<table class="model_table">
-  <tr class = "model_command">
-    <td colspan=2 id="cmd_row">
-      <form id="decide_form" action="/decide/comment/"
-	    onSubmit="return add_checked()" method="post">
-	{{ form.errors }}
-	{% csrf_token %}
-	{{ form.id_list }}
-	<label for="decision">Decision:</label>
-	{{ form.decision }}
-	<input type="submit" value="Submit" />
-      </form>
-    </td>
-  </tr>
-  <tr>
-    <th width=25><input type="checkbox" id="check_all" /></th>
-    <th width=500>Comment</th>
-  </tr>
   {% for comment in comment_list %}
   <tr class="topic-menu" id="message_row{{ comment.id }}">
     <td>
@@ -97,8 +77,8 @@
   {% empty %}
   <tr><td colspan=2>No comments to review</td></tr>
   {% endfor %}
-</table>
 {% endifequal %}
+</table>
 
 {# pagination #}
 {% include "pagediv.html" %}

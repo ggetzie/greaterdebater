@@ -1118,7 +1118,6 @@ def decide(request, model):
             obj.save()
         message = render_message(model + " rejected.", 10)
 
-#    return render_to_AJAX(status="ok", messages=[message])
     return HttpResponseRedirect('/review/%s/' % model)
 
 def trex_endorse(request):
