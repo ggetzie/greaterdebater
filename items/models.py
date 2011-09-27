@@ -30,13 +30,15 @@ class Topic(models.Model):
                                        related_name="tfollow_set",
                                        blank=True)
 
-    
     class Meta:
         ordering = ['-sub_date']
 
-    
     def __unicode__(self):
         return self.title
+    
+    def save(self):
+        self.title = self.fix_title()
+        super(Topic, self).save()
     
     def get_elapsed(self):
         return elapsed_time(self.sub_date)
@@ -78,7 +80,6 @@ class Topic(models.Model):
                                             needs_review=False,
                                             spam=False).count()
         
-
     def resum(self):
         clen = 0
         coms = self.topiccomment_set.filter(removed=False,
@@ -102,6 +103,19 @@ class Topic(models.Model):
 
     def get_title(self):
         return self.title
+
+    def fix_title(self):
+        domain = self.get_domain().lower()
+        tlist = self.title.split('|')
+        if len(tlist) < 2: return self.title
+        tedit = [t.lower().replace(' ', '') for t in tlist]
+        bads = []
+        for (i, t) in enumerate(tedit):
+            if t in domain: bads.append(i)
+        for b in bads:
+            tlist.remove(tlist[b])
+        return ' '.join(tlist).strip()
+        
 
     
 class LogItem(models.Model):

@@ -27,7 +27,7 @@
   </tr>
   <tr>
     <th width=25><input type="checkbox" id="check_all" /></th>
-    <th width=500>Topic</th>
+    <th width=500>{{ model|capfirst }}</th>
   </tr>
 {% ifequal model "topic" %}
   {% for object in topic_list %}
