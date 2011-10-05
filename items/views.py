@@ -83,10 +83,10 @@ class TopicListView(ListView):
         if self.request.user.is_authenticated():
             self.prof = get_object_or_404(Profile, user=self.request.user)
             queryset = Topic.objects.filter(Q(needs_review=False, spam=False) |
-                                            Q(user=self.request.user, spam=True))[:1000]
+                                            Q(user=self.request.user, spam=True))
         else:
             self.prof = None
-            queryset = Topic.objects.filter(needs_review=False,spam=False)[:1000]
+            queryset = Topic.objects.filter(needs_review=False,spam=False)
 
         if self.kwargs['sort'] == 'new':
             return queryset.order_by('-sub_date')
