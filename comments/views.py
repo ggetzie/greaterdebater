@@ -291,10 +291,6 @@ def flag(request):
             top.recalculate()
             top.save()
 
-            # disable this user
-            prof = Profile.objects.get(user=com.user)
-            prof.rate=10
-            prof.save()
         com.save()
         message="Comment flagged"
 
