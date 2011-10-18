@@ -40,7 +40,7 @@ def recalc_all():
         arg.save()
 
     log = LogItem(date=datetime.datetime.now(),
-                  message= "recalc_all success %d update, %d expired" % (tops.count(), old_tops.count()))
+                  message= "recalc_all success %d updated, %d expired" % (tops.count(), old_tops.count()))
     log.save()
 
 def setback():
