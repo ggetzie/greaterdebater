@@ -112,9 +112,12 @@ class Topic(models.Model):
         bads = []
         for (i, t) in enumerate(tedit):
             if t in domain: bads.append(i)
-        if bads:
+        try:
             for b in bads:
                 tlist.remove(tlist[b])
+        except IndexError:
+            pass
+
         return ' '.join(tlist).strip()
         
 
