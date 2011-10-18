@@ -112,8 +112,9 @@ class Topic(models.Model):
         bads = []
         for (i, t) in enumerate(tedit):
             if t in domain: bads.append(i)
-        for b in bads:
-            tlist.remove(tlist[b])
+        if bads:
+            for b in bads:
+                tlist.remove(tlist[b])
         return ' '.join(tlist).strip()
         
 
