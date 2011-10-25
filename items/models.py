@@ -108,18 +108,18 @@ class Topic(models.Model):
         domain = self.get_domain().lower()
         tlist = self.title.split('|')
         if len(tlist) < 2: return self.title
-        tedit = [t.lower().replace(' ', '') for t in tlist]
+        tedit = [t.lower().replace(' ', '').strip() for t in tlist]
         bads = []
-        for (i, t) in enumerate(tedit):
+        for (i,t) in enumerate(tedit):
             if t in domain: bads.append(i)
         try:
             for b in bads:
                 tlist.remove(tlist[b])
+                bads.remove(b)
         except IndexError:
             pass
 
-        return ' '.join(tlist).strip()
-        
+        return '|'.join(tlist).strip()
 
     
 class LogItem(models.Model):
