@@ -34,8 +34,8 @@ def post_detail(request, username, id):
     # show a single post
     blog = get_object_or_404(Blog, author__username=username)
     post = get_object_or_404(Post, id=id)
-    comments = post.postcomment_set.filter(needs_review=False,
-                                           spam=False).order_by('-pub_date')
+    # comments = post.postcomment_set.filter(needs_review=False,
+    #                                     spam=False).order_by('-pub_date')
     
     return render_to_response('blogtemplates/post_detail.html',
                               {'post': post,

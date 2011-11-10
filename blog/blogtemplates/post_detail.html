@@ -39,6 +39,7 @@
 </p>
 {% endifequal %}
 
+{% comment %}
 {% if request.user.is_authenticated %}
 <div id="add-comment">
   <h2>Leave a comment</h2>
@@ -58,6 +59,7 @@
   Don't have an account yet? <a href="/users/login?next={{ request.path }}">Register</a> in just seconds.
 </p>
 {% endif %}
+{% endcomment %}
 
 
 <div class="comments">
