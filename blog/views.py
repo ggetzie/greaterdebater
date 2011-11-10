@@ -41,7 +41,7 @@ def post_detail(request, username, id):
                               {'post': post,
                                'blog': blog,
                                # 'comments': comments,
-                               'comments': []
+                               'comments': [],
                                'pcform': PostCommentForm(initial={'post_id': post.id}),
                                'show_post': not post.draft or request.user == blog.author,
                                },
