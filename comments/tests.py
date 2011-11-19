@@ -368,6 +368,3 @@ class ViewTest(TestCase):
 
         checkcom = TopicComment.objects.get(id=com.id)
         self.assertTrue(staffuser in  checkcom.cflaggers.all())
-                            
-        prof = Profile.objects.get(user=checkcom.user)
-        self.assertEqual(prof.rate, 10)

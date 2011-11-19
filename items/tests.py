@@ -128,8 +128,6 @@ class ViewTest(TestCase):
         self.assertContains(response, "Topic flagged")
         checktop = Topic.objects.get(id=top.id)
         self.assertTrue(staffuser in top.tflaggers.all())
-        prof = Profile.objects.get(user=top.user)
-        self.assertEqual(prof.rate, 10)
 
     def test_delete_topic(self):
         url = '/topics/delete/'
@@ -404,95 +402,101 @@ class ViewTest(TestCase):
         com = TopicComment.objects.filter(needs_review=True, spam=False)[0]
         
         # user not logged in
-        response = self.client.post(turl, {'id': top.id, 'decision': 0})
-        self.assertContains(response, "Unauthorized")
+        response = self.client.post(turl, {'id_list': [top.id], 'decision': 0})
+        self.assertRedirects(response, "/users/login/?next=/decide/topic/")
 
         # non staff user
         baduser = User.objects.filter(is_staff=False)[0]
         self.client.login(username=baduser.username, password='password')
-        response = self.client.post(turl, {'id': top.id, 'decision': 0})
-        self.assertContains(response, "Unauthorized")        
+        response = self.client.post(turl, {'id_list': [top.id], 'decision': 0})
+        self.assertRedirects(response, "/users/login/?next=/decide/topic/")
 
         # Valid user
         gooduser = User.objects.filter(is_staff=True)[0]
         self.client.login(username=gooduser.username, password='password')
         
         # Invalid Form
-        response = self.client.post(turl, {'id': '', 'decision': ''})
-        self.assertContains(response, "Invalid Form")
+        response = self.client.post(turl, {'id_list': '', 'decision': ''},
+                                    follow=True)
+        self.assertRedirects(response, "/review/topic/")
+
 
         # nonexistent topic
-        response = self.client.post(turl, {'id': 9999, 'decision': 0})
-        self.assertContains(response, "Object not found")
+        response = self.client.post(turl, {'id_list': [9999], 'decision': 0},
+                                    follow=True)
+        self.assertRedirects(response, "/review/topic/")
 
         # nonexistent comment
-        response = self.client.post(curl, {'id': 9999, 'decision': 0})
-        self.assertContains(response, "Object not found")
+        response = self.client.post(curl, {'id_list': [9999], 'decision': 0},
+                                    follow=True)
+        self.assertRedirects(response, "/review/comment/")
 
         # Topic that doesn't need review
         goodtop = Topic.objects.filter(needs_review=False)[0]
-        response = self.client.post(turl, {'id': goodtop.id, 'decision': 0})
-        self.assertContains(response, "Object not found")
+        response = self.client.post(turl, {'id_list': [goodtop.id], 'decision': 0},
+                                    follow=True)
+        self.assertRedirects(response, "/review/topic/")
 
         # Comment that doesn't need review
         goodcom = TopicComment.objects.filter(needs_review=False)[0]
-        response = self.client.post(turl, {'id': goodcom.id, 'decision': 0})
-        self.assertContains(response, "Object not found")
+        response = self.client.post(turl, {'id_list': [goodcom.id], 'decision': 0},
+                                    follow=True)
+        self.assertRedirects(response, "/review/topic/")
 
         # Approve Topic
-        response = self.client.post(turl, {'id': top.id, 'decision': 0})
-        self.assertContains(response, "topic approved")
+        response = self.client.post(turl, {'id_list': [top.id], 'decision': 0}, follow=True)
+        self.assertRedirects(response, "/review/topic/")
         top = Topic.objects.get(id=top.id)
         self.assertEqual(top.needs_review, False)
+        self.assertEqual(top.spam, False)
 
         # Approve Comment
-        response = self.client.post(curl, {'id': com.id, 'decision': 0})
-        self.assertContains(response, "comment approved")
+        response = self.client.post(curl, {'id_list': [com.id], 'decision': 0}, follow=True)
         com = TopicComment.objects.get(id=com.id)
         self.assertEqual(com.needs_review, False)
+        self.assertRedirects(response, "/review/comment/")
 
         top = Topic.objects.filter(needs_review=True, spam=False)[0]
         com = TopicComment.objects.filter(needs_review=True, spam=False)[0]
 
         # Mark Topic as spam and disable user
-        response = self.client.post(turl, {'id': top.id, 'decision': 1})
-        self.assertContains(response, "topic marked as spam. User disabled")
+        response = self.client.post(turl, {'id_list': [top.id], 'decision': 1}, follow=True)
+        self.assertRedirects(response, "/review/topic/")
         top = Topic.objects.get(id=top.id)
         self.assertEqual(top.spam, True)
         prof = Profile.objects.get(user=top.user)
         self.assertEqual(prof.shadowban, True)
 
         # Mark Comment as spam and disable user
-        response = self.client.post(curl, {'id': com.id, 'decision': 1})
-        self.assertContains(response, "comment marked as spam. User disabled")
+        response = self.client.post(curl, {'id_list': [com.id], 'decision': 1}, follow=True)
+        self.assertRedirects(response, "/review/comment/")
         com = TopicComment.objects.get(id=com.id)
         self.assertEqual(com.spam, True)
         prof = Profile.objects.get(user=com.user)
         self.assertEqual(prof.shadowban, True)
 
         # Add a new topic needing review
-        prof = Profile.objects.filter(probation=True, rate__lt=10)[0]
-        
+        prof = Profile.objects.filter(probation=True, rate__lt=10, shadowban=False)[0]
         top = create_topic(user=prof.user, title="Not quite spam", comment="test")
         top.save()
         com = create_tcomment(user=prof.user, top=top, txt="some crap")
         com.save()
 
         # Reject Topic
-        response = self.client.post(turl, {'id': top.id, 'decision': 2})
-        self.assertContains(response, "topic rejected")
+        response = self.client.post(turl, {'id_list': [top.id], 'decision': 2}, follow=True)
+        self.assertRedirects(response, "/review/topic/")
         top = Topic.objects.get(id=top.id)
         self.assertEqual(top.spam, True)
         prof = Profile.objects.get(user=top.user)
         self.assertNotEqual(prof.shadowban, True)
 
         # Reject Comment
-        response = self.client.post(curl, {'id': com.id, 'decision': 2})
-        self.assertContains(response, "comment rejected")
+        response = self.client.post(curl, {'id_list': [com.id], 'decision': 2}, follow=True)
+        self.assertRedirects(response, "/review/comment/")
         com = TopicComment.objects.get(id=com.id)
         self.assertEqual(com.spam, True)
         prof = Profile.objects.get(user=com.user)
-        self.assertNotEqual(prof.rate, 10)
+        self.assertNotEqual(prof.shadowban, True)
 
         # When a user on probation makes a comment, don't alert followers
         # until after the comment is approved
@@ -531,9 +535,9 @@ class ViewTest(TestCase):
         admin = User.objects.filter(is_staff=True)[0]
         self.client.login(username=admin.username, password='password')
         com = TopicComment.objects.filter(comment='probation follow test')[0]
-        response = self.client.post(curl, {'id': com.id,
-                                           'decision': 0})
-        self.assertContains(response, "comment approved")
+        response = self.client.post(curl, {'id_list': [com.id],
+                                           'decision': 0}, follow=True)
+        self.assertRedirects(response, "/review/comment/")
         
         # Now comment should appear when follower checks replies
         self.client.logout()

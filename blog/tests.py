@@ -64,65 +64,65 @@ class ViewTest(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
     
-    def test_addcomment(self):
-        blog = Blog.objects.all()[0]
-        user = blog.author
-        bad_prof = Profile.objects.filter(probation=False).exclude(user__id=user.id)[0]
-        bad_user = bad_prof.user
-        url = '/blog/%s/addcomment/' % user.username
-        post = blog.post_set.filter(draft=False)[0]
-        redirect_to = '/blog/%s/' % user.username
+    # def test_addcomment(self):
+    #     blog = Blog.objects.all()[0]
+    #     user = blog.author
+    #     bad_prof = Profile.objects.filter(probation=False).exclude(user__id=user.id)[0]
+    #     bad_user = bad_prof.user
+    #     url = '/blog/%s/addcomment/' % user.username
+    #     post = blog.post_set.filter(draft=False)[0]
+    #     redirect_to = '/blog/%s/' % user.username
         
-        # GET request
-        response = self.client.get(url, follow=True)
-        self.assertRedirects(response, redirect_to)
-        self.assertContains(response, "Not a POST")
+    #     # GET request
+    #     response = self.client.get(url, follow=True)
+    #     self.assertRedirects(response, redirect_to)
+    #     self.assertContains(response, "Not a POST")
 
-        # not logged in
-        response = self.client.post(url, {'post_id': post.id,
-                                          'comment': 'some comment'},
-                                    follow=True)
-        # why does the test server redirect this way?
-        # it doesn't escape the slashes in the next parameter other times
-        redirect_to = '/users/login/?next=%2Fblog%2F'+ user.username + '%2F'
-        self.assertRedirects(response, redirect_to)
+    #     # not logged in
+    #     response = self.client.post(url, {'post_id': post.id,
+    #                                       'comment': 'some comment'},
+    #                                 follow=True)
+    #     # why does the test server redirect this way?
+    #     # it doesn't escape the slashes in the next parameter other times
+    #     redirect_to = '/users/login/?next=%2Fblog%2F'+ user.username + '%2F'
+    #     self.assertRedirects(response, redirect_to)
 
-        # invalid form
-        self.client.login(username=bad_user.username, password='password')
-        response = self.client.post(url, {'post_id': '',
-                                          'comment': ''},
-                                    follow=True)
-        redirect_to = '/blog/%s/' % user.username
-        self.assertRedirects(response, redirect_to)
-        self.assertContains(response, "This field is required.")
-        reset_postlimit(bad_prof)
+    #     # invalid form
+    #     self.client.login(username=bad_user.username, password='password')
+    #     response = self.client.post(url, {'post_id': '',
+    #                                       'comment': ''},
+    #                                 follow=True)
+    #     redirect_to = '/blog/%s/' % user.username
+    #     self.assertRedirects(response, redirect_to)
+    #     self.assertContains(response, "This field is required.")
+    #     reset_postlimit(bad_prof)
 
-        # Legit comment
-        response = self.client.post(url, {'post_id': post.id,
-                                          'comment': 'some comment'},
-                                    follow=True)
-        redirect_to = '/blog/%s/post/%i/' % (user.username, post.id)
-        self.assertRedirects(response, redirect_to)
-        self.assertContains(response, "some comment")
+    #     # Legit comment
+    #     response = self.client.post(url, {'post_id': post.id,
+    #                                       'comment': 'some comment'},
+    #                                 follow=True)
+    #     redirect_to = '/blog/%s/post/%i/' % (user.username, post.id)
+    #     self.assertRedirects(response, redirect_to)
+    #     self.assertContains(response, "some comment")
 
-        # Too fast
-        response = self.client.post(url, {'post_id': post.id,
-                                          'comment': 'AND ANOTHER THING'},
-                                    follow=True)
-        self.assertRedirects(response, redirect_to)
-        self.assertContains(response, "Post rate limit exceeded<br />")
+    #     # Too fast
+    #     response = self.client.post(url, {'post_id': post.id,
+    #                                       'comment': 'AND ANOTHER THING'},
+    #                                 follow=True)
+    #     self.assertRedirects(response, redirect_to)
+    #     self.assertContains(response, "Post rate limit exceeded<br />")
 
-        # some scrub tries to post (user on probation)
-        scrub_prof = Profile.objects.filter(probation=True).exclude(user__id=user.id)[0]
-        scrub = scrub_prof.user
-        reset_postlimit(scrub_prof)
-        self.client.logout()
-        self.client.login(username=scrub.username, password='password')
-        response = self.client.post(url, {'post_id': post.id,
-                                          'comment': "I'm a scrub, yo"},
-                                    follow=True)
-        self.assertRedirects(response, redirect_to)
-        self.assertContains(response, "Thank you! Your comment will appear after a brief review.")
+    #     # some scrub tries to post (user on probation)
+    #     scrub_prof = Profile.objects.filter(probation=True).exclude(user__id=user.id)[0]
+    #     scrub = scrub_prof.user
+    #     reset_postlimit(scrub_prof)
+    #     self.client.logout()
+    #     self.client.login(username=scrub.username, password='password')
+    #     response = self.client.post(url, {'post_id': post.id,
+    #                                       'comment': "I'm a scrub, yo"},
+    #                                 follow=True)
+    #     self.assertRedirects(response, redirect_to)
+    #     self.assertContains(response, "Thank you! Your comment will appear after a brief review.")
     
     def test_archive(self):
         user = Blog.objects.all()[0].author

@@ -200,14 +200,6 @@ def delete_topic(request):
 def submit(request):
     """Add a new topic submitted by the user"""
 
-    # Look for a url being submitted, if there's already
-    # a topic that has it, redirect to that topic
-    try:
-        topic = Topic.objects.get(url=request.GET['url'])
-        return HttpResponseRedirect("/" + str(topic.id) + "/")
-    except (MultiValueDictKeyError, Topic.DoesNotExist):
-        pass
-
     if not request.user.is_authenticated():
         
         try:
@@ -239,6 +231,14 @@ def submit(request):
                                   context_instance=RequestContext(request))
 
     data = request.POST.copy()
+    # If a topic with an identical url exists, redirect to it
+    if data['url']:
+        try:
+            topic = Topic.objects.get(url=data['url'])
+            return HttpResponseRedirect("/" + str(topic.id) + "/")
+        except (MultiValueDictKeyError, Topic.DoesNotExist):
+            pass
+
     form = tcdTopicSubmitForm(data)
     if not form.is_valid():
         return render_to_response("items/submit.html",
@@ -258,78 +258,74 @@ def submit(request):
             messages.info(request, message)
             return HttpResponseRedirect(next)
 
-    try:
-        # If the topic already exists, redirect to it
-        topic = Topic.objects.get(url=form.cleaned_data['url'])
-        return HttpResponseRedirect("/" + str(topic.id) + "/")
-    except ObjectDoesNotExist:
-        # Make sure the user is not submitting too fast
-        ratemsg = prof.check_rate()
-        if ratemsg:
-            messages.info(request, ratemsg)
-            return HttpResponseRedirect(request.path)
 
-        topic = Topic(user=request.user,
-                      title=form.cleaned_data['title'],
-                      score=1,
-                      sub_date=datetime.datetime.now(),
-                      comment_length=0,
-                      last_calc=datetime.datetime.now(),
-                      needs_review=prof.probation, # topics from probationary users must be approved
-                      spam = prof.shadowban # if user is a known spammer, mark as spam right away
-                      )
-        topic.save()
+    # Make sure the user is not submitting too fast
+    ratemsg = prof.check_rate()
+    if ratemsg:
+        messages.info(request, ratemsg)
+        return HttpResponseRedirect(request.path)
 
-        if prof.probation:
-            next = '/'
-            messages.info(request, "Thank you! Your topic will appear after a brief review.")
-        else:
-            next = "/" + str(topic.id) + "/"
+    topic = Topic(user=request.user,
+                  title=form.cleaned_data['title'],
+                  score=1,
+                  sub_date=datetime.datetime.now(),
+                  comment_length=0,
+                  last_calc=datetime.datetime.now(),
+                  needs_review=prof.probation, # topics from probationary users must be approved
+                  spam = prof.shadowban # if user is a known spammer, mark as spam right away
+                  )
+    topic.save()
 
-        if data['url']:
-            topic.url = form.cleaned_data['url']
-        else:
-            topic.url = HOSTNAME + '/' + str(topic.id) + '/'
+    if prof.probation:
+        next = '/'
+        messages.info(request, "Thank you! Your topic will appear after a brief review.")
+    else:
+        next = "/" + str(topic.id) + "/"
 
-        dtags = form.cleaned_data['tags']
-        if dtags:
-            # create the count of all tags for the topic
-            tags = '\n'.join([dtags, ','.join(['1']*(dtags.count(',')+1))])
-            topic.tags = tags
+    if data['url']:
+        topic.url = form.cleaned_data['url']
+    else:
+        topic.url = HOSTNAME + '/' + str(topic.id) + '/'
 
-            # create a Tags object to indicate the submitter
-            # added these tags to this topic                        
-            utags = Tags(user=request.user, topic=topic, tags=dtags)
-            utags.save()
+    dtags = form.cleaned_data['tags']
+    if dtags:
+        # create the count of all tags for the topic
+        tags = '\n'.join([dtags, ','.join(['1']*(dtags.count(',')+1))])
+        topic.tags = tags
 
-            # update the count of all tags used by the submitter
-            prof = Profile.objects.get(user=request.user)
-            prof.tags = update_tags(prof.tags, dtags.split(','))
-            prof.save()
+        # create a Tags object to indicate the submitter
+        # added these tags to this topic                        
+        utags = Tags(user=request.user, topic=topic, tags=dtags)
+        utags.save()
 
-        topic.save()
-
-        prof.last_post = topic.sub_date
+        # update the count of all tags used by the submitter
+        prof = Profile.objects.get(user=request.user)
+        prof.tags = update_tags(prof.tags, dtags.split(','))
         prof.save()
 
-        if prof.followtops:
-            topic.followers.add(request.user)
-            topic.save()
+    topic.save()
 
-        if form.cleaned_data['comment']:
-            comment = TopicComment(user=request.user,
-                                   ntopic=topic,
-                                   pub_date=datetime.datetime.now(),
-                                   comment=form.cleaned_data['comment'],
-                                   first=True,
-                                   nparent_id=0,
-                                   nnesting=0)
-            comment.save()
+    prof.last_post = topic.sub_date
+    prof.save()
 
-            topic.comment_length += len(comment.comment)
-            topic.recalculate()
-            topic.save()
-        return HttpResponseRedirect(next)
+    if prof.followtops:
+        topic.followers.add(request.user)
+        topic.save()
+
+    if form.cleaned_data['comment']:
+        comment = TopicComment(user=request.user,
+                               ntopic=topic,
+                               pub_date=datetime.datetime.now(),
+                               comment=form.cleaned_data['comment'],
+                               first=True,
+                               nparent_id=0,
+                               nnesting=0)
+        comment.save()
+
+        topic.comment_length += len(comment.comment)
+        topic.recalculate()
+        topic.save()
+    return HttpResponseRedirect(next)
 
 
 def edit_topic(request, topic_id):
