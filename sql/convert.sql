@@ -1,7 +1,5 @@
 BEGIN;
 
-
-
 ALTER TABLE auth_group CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
 ALTER TABLE auth_group_permissions CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
 ALTER TABLE  auth_message CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;

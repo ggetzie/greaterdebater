@@ -25,7 +25,6 @@ from profiles.models import Profile
 from tcd.utils import calc_start, render_to_AJAX, render_message
 
 import datetime
-import pyfo
 
 try:
     COMMENT_REDIRECT_TO=settings.COMMENT_REDIRECT_TO
