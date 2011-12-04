@@ -14,7 +14,6 @@ from settings import UPLOAD_DIR
 from tcd.utils import render_to_AJAX, render_message
 from blog.utils import get_user_path
 
-import pyfo
 import datetime
 import os
 import hashlib

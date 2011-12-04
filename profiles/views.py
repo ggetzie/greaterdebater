@@ -24,7 +24,6 @@ from utils import random_string, tag_dict, tag_string, render_to_AJAX, render_me
 
 import datetime
 import MySQLdb
-import pyfo
 import urllib
 
 def register(request):
