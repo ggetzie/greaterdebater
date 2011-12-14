@@ -525,8 +525,9 @@ def challenge(request, c_id):
     redirect = '/' + str(c.ntopic.id) + '/'
     pl_prof = get_object_or_404(Profile, user=request.user)
 
-    if pl_prof.shadowban:
-        # ignore known spammer
+    if pl_prof.probation or pl_prof.shadowban:
+        # ignore users on probation
+        messages.info(request, "Your account must be verified before you can participate in debates. Please submit some topics or comments")
         return HttpResponseRedirect(redirect)
 
     if not form.is_valid():

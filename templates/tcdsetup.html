@@ -435,48 +435,17 @@ hg clone http://dev.pocoo.org/hg/pygments-main pygments</pre>
 	  I'll include all the necessary steps for installation below.
 	</p>
 	
-	<p>
-	  Again, you'll want to install this in your python
-	  directory. First download the
-	  file <b>markdown-1.7.tar.gz</b> from <a href="http://pypi.python.org/pypi/Markdown/">this
-	  site</a>. This will probably be saved to a folder
-	  like <b>/home/matt/downloads</b> depending on where firefox
-	  is instructed to save things. Assuming that's the correct
-	  location, entering the following commands at the command
-	  line will extract the files and install the markdown
-	  program.	  
-	</p>
-	
-	<pre class="command">cd /home/matt/python/
-tar -xvvf /home/matt/downloads/markdown-1.7.tar.gz
-cd markdown-1.7
-sudo python setup.py</pre>
+	<pre class="command">
+ sudo apt-get install python-setuptools
+ sudo easy_install ElementTree
+ sudo easy_install Markdown
+	</pre>
 	
 	<p>
 	  And that should do it. Make sure to
 	  replace <b>/home/matt/downloads</b> with the correct
 	  location if necessary.
 	</p>
-      </li>
-
-      <li>
-	<h3>Install Pyfo</h3>
-	<p>
-	  Pyfo is a python library for generating XML from python data
-	  structures. You can download the source
-	  code <a href="http://pypi.python.org/pypi/pyfo">here</a>. Click
-	  on the link for <b>pyfo-0.6.tar.gz</b>. Assuming your
-	  downloads get saved to the folder to <b>~/downloads</b>
-	  enter the following commands in the terminal to install
-	  pyfo.
-	</p>
-
-	<pre class="command">cd ~/python
-tar -zxvvf ~/downloads/pyfo-0.6.tar.gz
-cd pyfo-0.6.tar.gz
-sudo python setup.py build
-sudo python setup.py install</pre>
-
       </li>
 
       <li>
