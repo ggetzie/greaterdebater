@@ -59,7 +59,7 @@
   Don't have an account yet? <a href="/users/login?next={{ request.path }}">Register</a> in just seconds.
 </p>
 {% endif %}
-{% endcomment %}
+
 
 
 <div class="comments">
@@ -75,11 +75,15 @@
   <p>No comments yet</p>
   {% endif %}
 </div>
+{% endcomment %}
+
 {% else %}
 <p>
   This post is not yet published. Check back soon!
 </p>
+
 {% endif %}
+
 
 
 {% endblock %}
