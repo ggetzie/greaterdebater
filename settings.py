@@ -46,6 +46,8 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.cache.FetchFromCacheMiddleware',
 )
 
+CACHE_MIDDLEWARE_ANONYMOUS_ONLY=True
+
 ROOT_URLCONF = 'tcd.urls'
 
 TEMPLATE_CONTEXT_PROCESSORS = (

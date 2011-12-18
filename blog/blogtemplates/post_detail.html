@@ -1,5 +1,13 @@
 {% extends "blogtemplates/base.html" %}
 
+{% block head %}
+<meta property="og:title" content="{{ post.title }}">
+<meta property="og:description" content="{{ post.html|truncatewords_html:100|safe }}">
+<meta property="og:image" content="{{ MEDIA_URL }}gd-small.png" />
+<meta property="og:site_name" content="{{ blog.title }}" />
+<meta property="og:url" content="{{ post.get_absolute_url }}" />
+{% endblock %}
+
 {% block title %}{{ post.title }} | {{ blog.title }}{% endblock %}
 
 {% block content %}
@@ -19,24 +27,41 @@
 {{ post.html|safe }}
 
 <div class="share">
-  <ul>
-    <li>
+
+    <div class="submitgd">
       <a href="http://www.greaterdebater.com/submit" onclick="window.location =
 							      'http://www.greaterdebater.com/submit?url=' +
 							      encodeURIComponent(window.location)
 							      + '&title=' + encodeURIComponent(document.title); return false;">
-	<img src="{{MEDIA_URL}}/gd-small.png" title="Submit to GreaterDebater"></img></a>
-    </li>
-    <li>
-      <g:plusone size="small"></g:plusone>
-    </li>
-  </ul>
+	<img src="{{MEDIA_URL}}/gd-small.png" title="Submit to GreaterDebater"/></a>
+    </div>
+    <div class="gplusone">
+      <g:plusone size="medium"></g:plusone>
+    </div>
+
+    <div class="tweet">
+      <a href="https://twitter.com/share" 
+	 class="twitter-share-button" 
+	 data-lang="en"
+	 data-url="{{ post.get_absolute_url }}"
+	 data-via="ggetzie">Tweet</a>
+      <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+    </div>
+
+    <div class="fb-like" data-send="true" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
+    
+
+
 </div>
 
+
+
 {% ifequal request.user blog.author %}
-<p>
-  <a href="/blog/{{ blog.author.username }}/edit/{{ post.id }}">edit</a>
-</p>
+<div>
+  <p>
+    <a href="/blog/{{ blog.author.username }}/edit/{{ post.id }}">edit</a>
+  </p>
+</div>
 {% endifequal %}
 
 {% comment %}

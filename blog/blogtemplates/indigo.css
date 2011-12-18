@@ -188,18 +188,23 @@ div.postsummary {
     margin-bottom: 20px;
 }
 
-div.share {
+.share {
+    display: block;
     margin-top: 30px;
     margin-bottom: 50px;
 }
 
-.share ul {
-    list-style-type: none;
+.share div {
+    display: block;
+    float: left;
+    margin-right: 10px;
+    margin-bottom: 10px;
 }
 
-.share ul li {
-    display: inline;
+.share div.submitgd {
+    margin-right: 20px;
 }
+
 div.comments {
     margin-top: 30px;
 }
