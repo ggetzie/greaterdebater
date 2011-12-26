@@ -11,10 +11,14 @@ def calculate_scores():
     tops = Topic.objects.filter(needs_review=False, spam=False)
     for top in tops:
         top.comment_length = 0
-        coms = top.topiccomment_set.filter(needs_review=False, spam=False) | top.argcomment_set.filter(needs_review=False,
-                                                                                                       spam=False)
-        for com in coms:
+        tcoms = top.topiccomment_set.filter(needs_review=False, spam=False) 
+        acoms = top.argcomment_set.filter(needs_review=False, spam=False)
+
+        for com in tcoms:
             top.comment_length += len(com.comment)
+        for com in acoms:
+            top.comment_length += len(com.comment)
+
         top.recalculate()
         top.save()
     print "fin"
