@@ -1075,6 +1075,10 @@ def decide(request, model):
             obj.needs_review = False
             if model == "comment":
                 obj.pub_date = datetime.datetime.now()
+                obj.ntopic.comment_length += len(obj.comment)
+                obj.ntopic.recalculate()
+                obj.ntopic.save()
+
                 # Alert followers that a reply has been made
                 top = obj.ntopic
                 if obj.nparent_id == 0: # toplevel comment
@@ -1089,6 +1093,7 @@ def decide(request, model):
                                       reply=obj,
                                       pub_date=datetime.datetime.now())
                     msg.save()
+                
             elif model == "topic":
                 obj.sub_date = datetime.datetime.now()
 

@@ -101,10 +101,10 @@ def add(request, topic_id):
                               reply=c,
                               pub_date=datetime.datetime.now())
             msg.save()
-    
-    top.comment_length += len(c.comment)
-    top.recalculate()
-    top.save()
+
+        top.comment_length += len(c.comment)
+        top.recalculate()
+        top.save()
 
     prof.last_post = c.pub_date
     prof.save()
