@@ -8,10 +8,11 @@ from tcd.items.models import Topic, LogItem
 import datetime
 
 def calculate_scores():
-    tops = Topic.objects.all()
+    tops = Topic.objects.filter(needs_review=False, spam=False)
     for top in tops:
         top.comment_length = 0
-        coms = top.topiccomment_set.filter(needs_review=False) | top.argcomment_set.filter(needs_review=False)
+        coms = top.topiccomment_set.filter(needs_review=False, spam=False) | top.argcomment_set.filter(needs_review=False,
+                                                                                                       spam=False)
         for com in coms:
             top.comment_length += len(com.comment)
         top.recalculate()
