@@ -502,7 +502,7 @@ class ViewTest(TestCase):
         # until after the comment is approved
         
         # create a topic with followers
-        gu = Profile.objects.filter(probation=False, user__is_staff=False)[0].user
+        gu = Profile.objects.filter(probation=False, user__is_staff=False,shadowban=False)[0].user
         ftopic = create_topic(gu, "Followed topic", "tag1", 
                               comment="Topic to test proper behavior of following")
         ftopic.followers.add(gu)
