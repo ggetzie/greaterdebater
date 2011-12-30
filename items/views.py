@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.db import models
 from django.db.models import Q
-from django.http import HttpResponseRedirect, HttpResponseForbidden, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponseForbidden, HttpResponse, Http404
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import loader, RequestContext, Context
 from django.utils.datastructures import MultiValueDictKeyError
@@ -50,11 +50,16 @@ class CommentListView(ListView):
                                                           needs_review=False,
                                                           spam=True,
                                                           user=self.request.user))
+            if self.top.spam and not self.prof.shadowban:
+                raise Http404
         else:
             self.prof = None
             comments = self.top.topiccomment_set.filter(first=False,
                                                         needs_review=False,
                                                         spam=False)
+            if self.top.spam:
+                raise Http404
+
         rest_c = build_list(comments.order_by('-pub_date'), 0)
         return rest_c
 
