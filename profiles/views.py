@@ -112,7 +112,7 @@ class ProfileTopicView(ListView):
 
     def get_queryset(self):
         self.user = get_object_or_404(User, username=self.kwargs['value'])
-        topics = Topic.objects.filter(user=self.user).order_by('-sub_date')
+        topics = Topic.objects.filter(user=self.user, spam=False, needs_review=False).order_by('-sub_date')
         return topics
 
     def get_context_data(self, **kwargs):
@@ -133,7 +133,7 @@ class ProfileCommentView(ListView):
     
     def get_queryset(self):
         self.user = get_object_or_404(User, username=self.kwargs['value'])
-        comments = TopicComment.objects.filter(user=self.user).order_by('-pub_date')
+        comments = TopicComment.objects.filter(user=self.user, spam=False, needs_review=False).order_by('-pub_date')
         return comments
 
     def get_context_data(self, **kwargs):
