@@ -324,7 +324,9 @@ def submit(request):
                                comment=form.cleaned_data['comment'],
                                first=True,
                                nparent_id=0,
-                               nnesting=0)
+                               nnesting=0,
+                               spam=prof.shadowban,
+                               needs_review=prof.probation)
         comment.save()
 
         topic.comment_length += len(comment.comment)
