@@ -1103,6 +1103,11 @@ def decide(request, model):
                 
             elif model == "topic":
                 obj.sub_date = datetime.datetime.now()
+                firstcom = obj.get_first_comment()
+                if firstcom:
+                    firstcom.spam = False
+                    firstcom.needs_review=False
+                    firstcom.save()
 
             obj.save()
         message = render_message(model + " approved", 10)
@@ -1117,6 +1122,12 @@ def decide(request, model):
             prof.shadowban = True # future submissions / comments will be ignored
             prof.probation = False # we know his true colors now
             prof.save()
+            if model == "topic":
+                firstcom = obj.get_first_comment()
+                if firstcom:
+                    firstcom.spam = True
+                    firstcom.needs_review = False
+                    firstcom.save()
         message = render_message(model + " marked as spam. User disabled.", 10)
     else:
         # Rejected, marked spam but user not disabled
@@ -1125,6 +1136,12 @@ def decide(request, model):
             obj.spam = True
             obj.score = 0
             obj.save()
+            if model == "topic":
+                firstcom = obj.get_first_comment()
+                if firstcom:
+                    firstcom.spam = True
+                    firstcom.needs_review = False
+                    firstcom.save()
         message = render_message(model + " rejected.", 10)
 
     return HttpResponseRedirect('/review/%s/' % model)
