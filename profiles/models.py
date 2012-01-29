@@ -35,6 +35,9 @@ class Profile(models.Model):
     # Send users topics and comment silently to the round file
     shadowban = models.BooleanField(default=False)
     
+    # Post user's submissions to @GreaterDebater and the Facebook page?
+    socmed = models.BooleanField(default=False)
+    
     def __unicode__(self):
         return self.user.username
 

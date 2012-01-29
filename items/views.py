@@ -269,17 +269,8 @@ def submit(request):
     if ratemsg:
         messages.info(request, ratemsg)
         return HttpResponseRedirect(request.path)
-
-    topic = Topic(user=request.user,
-                  title=form.cleaned_data['title'],
-                  score=1,
-                  sub_date=datetime.datetime.now(),
-                  comment_length=0,
-                  last_calc=datetime.datetime.now(),
-                  needs_review=prof.probation, # topics from probationary users must be approved
-                  spam = prof.shadowban # if user is a known spammer, mark as spam right away
-                  )
-    topic.save()
+        
+    topic = form.save(prof)
 
     if prof.probation:
         next = '/'
@@ -287,51 +278,6 @@ def submit(request):
     else:
         next = "/" + str(topic.id) + "/"
 
-    if data['url']:
-        topic.url = form.cleaned_data['url']
-    else:
-        topic.url = HOSTNAME + '/' + str(topic.id) + '/'
-
-    dtags = form.cleaned_data['tags']
-    if dtags:
-        # create the count of all tags for the topic
-        tags = '\n'.join([dtags, ','.join(['1']*(dtags.count(',')+1))])
-        topic.tags = tags
-
-        # create a Tags object to indicate the submitter
-        # added these tags to this topic                        
-        utags = Tags(user=request.user, topic=topic, tags=dtags)
-        utags.save()
-
-        # update the count of all tags used by the submitter
-        prof = Profile.objects.get(user=request.user)
-        prof.tags = update_tags(prof.tags, dtags.split(','))
-        prof.save()
-
-    topic.save()
-
-    prof.last_post = topic.sub_date
-    prof.save()
-
-    if prof.followtops:
-        topic.followers.add(request.user)
-        topic.save()
-
-    if form.cleaned_data['comment']:
-        comment = TopicComment(user=request.user,
-                               ntopic=topic,
-                               pub_date=datetime.datetime.now(),
-                               comment=form.cleaned_data['comment'],
-                               first=True,
-                               nparent_id=0,
-                               nnesting=0,
-                               spam=prof.shadowban,
-                               needs_review=prof.probation)
-        comment.save()
-
-        topic.comment_length += len(comment.comment)
-        topic.recalculate()
-        topic.save()
     return HttpResponseRedirect(next)
 
 

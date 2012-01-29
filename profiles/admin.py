@@ -6,7 +6,8 @@ class ProfileAdmin(admin.ModelAdmin):
         (None,          {'fields': ['user', 'score', 'newwin', 'mailok']}),
         ('spamatha',    {'fields': ['probation', 'shadowban', 'rate']}),
         ('feedinfo',    {'fields': ['feedcoms', 'feedtops', 'feeddebs']}),
-        ('following',   {'fields': ['followtops', 'followcoms']})
+        ('following',   {'fields': ['followtops', 'followcoms']}),
+        ('social',      {'fields':['socmed']})
         ]
     
     search_fields = ['user__username', 'user__email']

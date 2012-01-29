@@ -1,9 +1,16 @@
+from comments.models import TopicComment
+from items.models import Topic, Tags
+from profiles.models import Profile
+from settings import HOSTNAME
+from tcd.utils import update_tags
+
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib import auth
 from django.shortcuts import get_object_or_404
 
 import re
+import datetime
 
 attrs_dict = {'class': 'required'}
 
@@ -35,8 +42,64 @@ e.g. Politics, Technology, Funny""")
             return ','.join([tag.strip().lower() for tag in tags])
         else:
             return ''
+        
+    def save(self, prof):
 
+        topic = Topic(user=prof.user,
+                      title=self.cleaned_data['title'],
+                      score=1,
+                      sub_date=datetime.datetime.now(),
+                      comment_length=0,
+                      last_calc=datetime.datetime.now(),
+                      needs_review=prof.probation, # topics from probationary users must be approved
+                      spam = prof.shadowban, # if user is a known spammer, mark as spam right away
 
+                      )
+        topic.save()
+        topic.url = self.cleaned_data['url'] and self.cleaned_data['url'] or (HOSTNAME + '/' + str(topic.id) + '/')
+        topic.save()
+
+        dtags = self.cleaned_data['tags']
+        if dtags:
+            # create the count of all tags for the topic
+            tags = '\n'.join([dtags, ','.join(['1']*(dtags.count(',')+1))])
+            topic.tags = tags
+
+            # create a Tags object to indicate the submitter
+            # added these tags to this topic                        
+            utags = Tags(user=prof.user, topic=topic, tags=dtags)
+            utags.save()
+
+            # update the count of all tags used by the submitter
+            prof.tags = update_tags(prof.tags, dtags.split(','))
+            prof.save()
+
+            topic.save()
+
+        prof.last_post = topic.sub_date
+        prof.save()
+
+        if prof.followtops:
+            topic.followers.add(prof.user)
+            topic.save()
+
+        if self.cleaned_data['comment']:
+            comment = TopicComment(user=prof.user,
+                                   ntopic=topic,
+                                   pub_date=datetime.datetime.now(),
+                                   comment=self.cleaned_data['comment'],
+                                   first=True,
+                                   nparent_id=0,
+                                   nnesting=0,
+                                   spam=prof.shadowban,
+                                   needs_review=prof.probation)
+            comment.save()
+
+            topic.comment_length += len(comment.comment)
+            topic.recalculate()
+            topic.save()
+        return topic
+        
 class TagEdit(forms.Form):
     topic_id = forms.IntegerField(widget=forms.widgets.HiddenInput())
     source = forms.IntegerField(widget=forms.widgets.HiddenInput())
