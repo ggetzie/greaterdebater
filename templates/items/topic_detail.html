@@ -4,11 +4,11 @@
 
 {% block htmlhead %}
 <meta name="keywords" content="{{ keywords }}">
+<meta property="fb:app_id" content="5320398" />
 <meta property="og:title" content="{{ object.title }}" />
 <meta property="og:image" content="{{ MEDIA_URL }}gd-small.png" />
 <meta property="og:site_name" content="GreaterDebater" />
-<meta property="og:type" content="website" />
-
+<meta property="og:type" content="article" />
 {% if onecom %}
 <meta property="og:url" content="{{ rest_c.0.get_absolute_url }}" />
 <meta property="og:description" content="{{ rest_c.0.comment }}" />
