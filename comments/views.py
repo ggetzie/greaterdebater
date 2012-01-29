@@ -22,7 +22,7 @@ from items.forms import Flag
 
 from profiles.models import Profile
 
-from tcd.utils import calc_start, render_to_AJAX, render_message
+from base_utils import calc_start, render_to_AJAX, render_message
 
 import datetime
 

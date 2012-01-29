@@ -2,7 +2,7 @@ from comments.models import TopicComment
 from items.models import Topic, Tags
 from profiles.models import Profile
 from settings import HOSTNAME
-from tcd.utils import update_tags
+from base_utils import update_tags
 
 from django import forms
 from django.contrib.auth.models import User

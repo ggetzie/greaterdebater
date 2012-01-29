@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.template import loader, Context
 
 from tcd.profiles.models import Profile
-from tcd.utils import elapsed_time
+from base_utils import elapsed_time
 from tcd.settings import HOSTNAME
 
 import datetime

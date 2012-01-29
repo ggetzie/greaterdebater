@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.db import models
 
 from tcd.settings import HOSTNAME
-from tcd.utils import wordtime
+from base_utils import wordtime
 
 import datetime
 

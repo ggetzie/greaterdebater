@@ -11,7 +11,7 @@ from tcd.blog.forms import PostEdit, PostCommentForm, PostNew, UploadFileForm
 from tcd.comments.utils import build_list
 from tcd.profiles.models import Profile
 from settings import UPLOAD_DIR
-from tcd.utils import render_to_AJAX, render_message
+from base_utils import render_to_AJAX, render_message
 from blog.utils import get_user_path
 
 import datetime

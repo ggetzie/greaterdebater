@@ -14,7 +14,7 @@ from tcd.profiles.models import *
 
 from tcd.feeds import *
 
-from tcd.utils import *
+from base_utils import *
 
 import datetime
 

@@ -5,7 +5,7 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'tcd.settings'
 
 from tcd.profiles.models import Profile
 from tcd.items.models import Tags
-from tcd.utils import tag_string, tag_dict
+from base_utils import tag_string, tag_dict
 
 def utagsetup():
     allprofs = Profile.objects.all()

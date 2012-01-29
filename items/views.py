@@ -28,7 +28,7 @@ from profiles.models import Profile
 
 from settings import HOSTNAME
 
-from tcd.utils import calc_start, tag_dict, tag_string, update_tags, render_to_AJAX, render_message
+from base_utils import calc_start, tag_dict, tag_string, update_tags, render_to_AJAX, render_message
 
 
 import datetime
