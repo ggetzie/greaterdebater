@@ -10,9 +10,16 @@
 <meta property="og:type" content="website" />
 
 {% if onecom %}
-<meta property="og:url" content="{{ com.get_absolute_url }}" />
+<meta property="og:url" content="{{ rest_c.0.get_absolute_url }}" />
+<meta property="og:description" content="{{ rest_c.0.comment }}" />
 {% else %}
 <meta property="og:url" content="{{ object.get_comments_url }}" />
+{% if object.get_first_comment %}
+<meta property="og:description" content="{{ object.get_first_comment.comment }}" />
+{% else %}
+<meta property="og:description" content="{{ object.title }}" />
+{% endif %}
+
 {% endif %}
 {% endblock %}
 
