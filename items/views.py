@@ -33,6 +33,7 @@ from base_utils import calc_start, tag_dict, tag_string, update_tags, render_to_
 
 import datetime
 import random
+import socmed
 import urllib
 
 models={'comment': TopicComment,
@@ -277,6 +278,11 @@ def submit(request):
         messages.info(request, "Thank you! Your topic will appear after a brief review.")
     else:
         next = "/" + str(topic.id) + "/"
+        
+    # if prof.socmed:
+    #     tweeter = socmed.twitter_auth()
+    #     tweet = socmed.tweet_topic(topic)
+    #     tweeter.update_status(tweet)
 
     return HttpResponseRedirect(next)
 
