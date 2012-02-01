@@ -30,7 +30,7 @@ import datetime
 from tcd.comments.forms import ArgueForm
 from tcd.items.models import Topic
 from tcd.settings import HOSTNAME
-from base_utils import autolink, elapsed_time
+from tcd.base_utils import autolink, elapsed_time
 
 """
 We cache lexer aliases to speed parsing. To update them, get lexers_aliases like this :
