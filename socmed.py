@@ -18,7 +18,7 @@ def twitter_auth():
 
 
 def tweet_topic(topic):
-    short_url = shorten.get_short(topic.get_absolute_url())
+    short_url = shorten.get_short(topic.get_comments_url())
     avail = 140 - 4 - len(short_url)
     cutoff = topic.title[:avail].rfind(' ')
     if len(topic.title) <= avail or cutoff == -1:
