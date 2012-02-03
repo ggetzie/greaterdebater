@@ -30,9 +30,9 @@ from settings import HOSTNAME
 
 from base_utils import calc_start, tag_dict, tag_string, update_tags, render_to_AJAX, render_message
 
-
 import datetime
 import random
+import shorten
 import socmed
 import urllib
 
@@ -279,10 +279,11 @@ def submit(request):
     else:
         next = "/" + str(topic.id) + "/"
         
-    # if prof.socmed:
-    #     tweeter = socmed.twitter_auth()
-    #     tweet = socmed.tweet_topic(topic)
-    #     tweeter.update_status(tweet)
+    if prof.socmed:
+        # post to twitter
+        tweeter = socmed.twitter_auth()
+        tweet = tweeter.update_status(socmed.tweet_topic(topic))
+        messages.info(request, "Tweet %i sent" % tweet.id)
 
     return HttpResponseRedirect(next)
 

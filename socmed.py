@@ -1,4 +1,6 @@
+# post to twitter, facebook or other social media
 import tweepy
+import shorten
 
 CONSUMER_KEY = "***REMOVED***"
 CONSUMER_SECRET = "***REMOVED***"
@@ -16,7 +18,7 @@ def twitter_auth():
 
 
 def tweet_topic(topic):
-    short_url = "http://db8.in/" + str(topic.id)
+    short_url = shorten.get_short(topic.get_absolute_url())
     avail = 140 - 4 - len(short_url)
     cutoff = topic.title[:avail].rfind(' ')
     if len(topic.title) <= avail or cutoff == -1:
