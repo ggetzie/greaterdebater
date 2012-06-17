@@ -2,11 +2,13 @@
 {% block title %}{{ object.title }}{% endblock %}
 
 {% block htmlhead %}
+<meta property="fb:app_id" content="5320398" />
 <meta property="og:title" content="{{ object.title }}" />
-<meta property="og:image" content="{{ MEDIA_URL }}gd-small.png" />
+<meta property="og:image" content="{{ MEDIA_URL }}gd180px.png" />
 <meta property="og:site_name" content="GreaterDebater" />
 <meta property="og:url" content="{{ object.get_absolute_url }}" />
-<meta property="og:type" content="website" />
+<meta property="og:type" content="article" />
+<meta property="og:description" content="{{ incite.comment }}" />
 {% endblock %}
 
 {% block content %}

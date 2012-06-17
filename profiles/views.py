@@ -20,7 +20,7 @@ from profiles.forms import tcdUserCreationForm, tcdPasswordResetForm, tcdLoginFo
 from profiles.models import Profile, Forgotten
 
 from settings import HOSTNAME
-from utils import random_string, tag_dict, tag_string, render_to_AJAX, render_message
+from base_utils import random_string, tag_dict, tag_string, render_to_AJAX, render_message
 
 import datetime
 import MySQLdb

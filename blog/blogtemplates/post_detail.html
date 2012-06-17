@@ -19,87 +19,24 @@
 </div>
 {% endif %}
 
-<H1>{{ post.title }}</H1>
+<H2>{{ post.title }}</H2>
 {% if show_post %}
 <DIV class="descr">{{ post.pub_date|date }}</DIV>
-
-{{ post.html|safe }}
-
-<div class="share">
-
-    <div class="submitgd">
-      <a href="http://www.greaterdebater.com/submit" onclick="window.location =
-							      'http://www.greaterdebater.com/submit?url=' +
-							      encodeURIComponent(window.location)
-							      + '&title=' + encodeURIComponent(document.title); return false;">
-	<img src="{{MEDIA_URL}}/gd-small.png" title="Submit to GreaterDebater"/></a>
-    </div>
-    <div class="gplusone">
-      <g:plusone size="medium"></g:plusone>
-    </div>
-
-    <div class="tweet">
-      <a href="https://twitter.com/share" 
-	 class="twitter-share-button" 
-	 data-lang="en"
-	 data-url="{{ post.get_absolute_url }}"
-	 data-via="ggetzie">Tweet</a>
-      <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-    </div>
-
-    <div class="fb-like" data-send="true" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
-    
-
-
+<div class="post">
+  {{ post.html|safe }}
 </div>
+
 
 
 
 {% ifequal request.user blog.author %}
 <div>
   <p>
-    <a href="/blog/{{ blog.author.username }}/edit/{{ post.id }}">edit</a>
+    <a href="/blog/{{ blog.author.username }}/edit/{{ post.id }}"><button name="edit">Edit</button></a>
   </p>
 </div>
 {% endifequal %}
 
-{% comment %}
-{% if request.user.is_authenticated %}
-<div id="add-comment">
-  <h2>Leave a comment</h2>
-  <form action="/blog/{{ blog.author.username }}/addcomment" method="post" accept-charset="utf-8">
-    {% csrf_token %}
-    <label for="id_comment">Posting as {{ request.user.username }} (<a href='http://en.wikipedia.org/wiki/Markdown'>formatting help</a>)</label>
-    <br />
-    {{ pcform.comment }}
-    <div>{{ pcform.post_id }}</div>
-    <div><input type="submit" value="Add Comment" /></div>
-  </form>
-</div>
-{% else %}
-<p>
-  Please <a href="/users/login?next={{ request.path }}">log in</a> to your GreaterDebater account to leave a comment.
-  <br />
-  Don't have an account yet? <a href="/users/login?next={{ request.path }}">Register</a> in just seconds.
-</p>
-{% endif %}
-
-
-
-<div class="comments">
-  <h2>Comments</h2>
-  {% if comments %}
-  {% for comment in comments %}
-  <div class="comment">
-    <span class="comment_info">by {{ comment.user.username }} at {{ comment.pub_date|date }}</span>
-    {{ comment.comment_html|safe }}
-  </div>
-  {% endfor %}
-  {% else %}
-  <p>No comments yet</p>
-  {% endif %}
-</div>
-{% endcomment %}
 
 {% else %}
 <p>
@@ -108,7 +45,30 @@
 
 {% endif %}
 
+<div class="share">
+  <div class="submitgd">
+    <a href="http://www.greaterdebater.com/submit" onclick="window.location =
+							    'http://www.greaterdebater.com/submit?url=' +
+							    encodeURIComponent(window.location)
+							    + '&title=' + encodeURIComponent(document.title); return false;">
+      <img src="{{MEDIA_URL}}/gd-small.png" title="Submit to GreaterDebater"/></a>
+  </div>
+  <div class="gplusone">
+    <g:plusone size="medium"></g:plusone>
+  </div>
 
+  <div class="tweet">
+    <a href="https://twitter.com/share" 
+       class="twitter-share-button" 
+       data-lang="en"
+       data-url="{{ post.get_absolute_url }}"
+       data-via="ggetzie">Tweet</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+
+  <div class="fb-like" data-send="true" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
+
+</div>
 
 {% endblock %}
 
@@ -116,3 +76,7 @@
 {% block ads %}
 {% include "blogtemplates/ads.html" %}
 {% endblock %}
+
+
+
+

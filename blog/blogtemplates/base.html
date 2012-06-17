@@ -6,7 +6,7 @@
     <META name="description" content="GreaterDebater: The blog" />
     <META name="keywords" content="greaterdebater, blog, debate, social news, forum" /> 
     <META name="author" content="Gabriel Getzie" /> 
-    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}indigo.css" />
+    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}zhstyle.css" />
     <link rel="alternate" type="application/rss+xml" href="{{ blog.getrssurl }}"
 	  title="{{ blog.title }}" />
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
@@ -51,26 +51,24 @@
       }(document));
     </script>
     
-    <DIV class="container">
+    <DIV id="container">
 
-      <DIV class="header">
+      <!-- <DIV class="header"> -->
 
-	<DIV class="title">
-	  <a href="/blog/{{ blog.author.username }}/"><H1>{{ blog.title }}</H1></a>
-	  <span id="tagline">{{ blog.tagline_txt }}</span>
-	</DIV>
+      <!-- 	<DIV class="title"> -->
+      <!-- 	  <a href="/blog/{{ blog.author.username }}/"><H1>{{ blog.title }}</H1></a> -->
+      <!-- 	  <span id="tagline">{{ blog.tagline_txt }}</span> -->
+      <!-- 	</DIV> -->
 
-	<DIV class="navigation">
-	  <A href="/">GreaterDebater</A>
-	  <A href="/blog/{{ blog.author.username }}/">Home</A>
-	  <A href="/blog/{{ blog.author.username }}/archive/">Archive</A>
-	  <A href="/blog/{{ blog.author.username }}/about/">About</A>
-	  <DIV class="clearer"><SPAN></SPAN></DIV>
-	</DIV>
+      <!-- 	<DIV class="navigation"> -->
+      <!-- 	  <A href="/">GreaterDebater</A> -->
+      <!-- 	  <A href="/blog/{{ blog.author.username }}/">Home</A> -->
+      <!-- 	  <A href="/blog/{{ blog.author.username }}/archive/">Archive</A> -->
+      <!-- 	  <A href="/blog/{{ blog.author.username }}/about/">About</A> -->
+      <!-- 	  <DIV class="clearer"><SPAN></SPAN></DIV> -->
+      <!-- 	</DIV> -->
 
-      </DIV>
-
-      <DIV class="main">
+      <DIV class="entry">
 	{% if messages %}
 	<div class="messages">
 	  {% for message in messages %}
@@ -78,18 +76,36 @@
 	  {% endfor %}
 	</div>
 	{% endif %}
-	<DIV class="content">
-	  {% block content %}
-	  {% endblock %}
-	</DIV>
 
-	<DIV class="sidenav">
-	  
-	  <a href="{{ blog.getrssurl }}"><img src="{{ MEDIA_URL }}img/feed-icon-14x14.png" /></a>
-	  <a href="{{ blog.getrssurl }}">Subscribe to RSS</a>
+	{% block content %}
+	{% endblock %}
+      </DIV>  <!-- end entry  -->
 
-	  {% ifequal request.user  blog.author %}
-	  <H1>Admin</H1>
+      <section id="sidebar">
+	<h1><a href="/blog/{{ blog.author.username }}/">{{ blog.title }}</a></h1>
+	<br />
+	<p id="tagline">{{ blog.tagline_txt }}</p>
+	<subscribe>
+	  <ul>
+	    <li>
+	      <a href="{{ blog.getrssurl }}"><img src="{{ MEDIA_URL }}img/feed-icon-14x14.png" /></a>
+	      <a href="{{ blog.getrssurl }}">Subscribe to RSS</a>
+	    </li>
+	  </ul>
+	</subscribe>
+	
+	<nav>
+	  <ul>
+	    <li class="first"><a href="/">GreaterDebater</a></li>
+	    <li><a href="/blog/{{ blog.author.username }}/about/">About</a></li>
+	    <li><a href="/blog/{{ blog.author.username }}/archive/">Archive</a></li>
+	  </ul>
+	</nav>
+
+	<br />
+	{% ifequal request.user  blog.author %}
+
+	<nav>
 	  <UL>
 	    <LI>
 	      <a href="/blog/{{ request.user.username }}/new/">New Post</a>
@@ -104,21 +120,20 @@
 	      <a href="/blog/{{ request.user.username }}/myfiles/">View Files</a>
 	    </LI>
 	  </UL>
-	  {% endifequal %}
-	  
-	  {% block ads %}{% endblock %}
-
-
-	</DIV>
+	</nav>
+	{% endifequal %}
 	
-	<DIV class="clearer"><SPAN></SPAN></DIV>
+	{% block ads %}{% endblock %}
 
-      </DIV>
+	{% block share %} {% endblock %}
 
-    </DIV>
 
-    <DIV class="footer">Copyright 2010 <A href="http://www.greaterdebater.com/">
-	GreaterDebater, LLC</A>. Valid <A href="http://jigsaw.w3.org/css-validator/check/referer">CSS</A> &amp; <A href="http://validator.w3.org/check?uri=referer">XHTML</A>. Template design by <A href="http://arcsin.se/">Arcsin</A>
+      </section> <!-- end sidebar -->
+
+      </DIV> <!-- end container -->
+
+    <DIV id="footer">Copyright 2010 <A href="http://www.greaterdebater.com/">
+	GreaterDebater, LLC</A>. Valid <A href="http://jigsaw.w3.org/css-validator/check/referer">CSS</A> &amp; <A href="http://validator.w3.org/check?uri=referer">XHTML</A>. 
     </DIV>
 
 

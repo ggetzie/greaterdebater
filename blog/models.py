@@ -15,7 +15,7 @@ class Blog(models.Model):
     tagline_txt = models.CharField(max_length=140, blank=True)
     about_txt = models.TextField(blank=True)
     about_html = models.TextField(blank=True)
-    altfeedurl = models.URLField(blank=True, verify_exists=False)
+    altfeedurl = models.URLField(blank=True)
 
     def save(self):
         self.about_html = markdown(self.about_txt)
