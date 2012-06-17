@@ -5,7 +5,7 @@
 {% if post_list %}
 {% for post in post_list %}
 <div id="post{{ post.id }}" class="postsummary">
-  <a href="/blog/{{ blog.author.username }}/post/{{ post.id }}"><H1>{{ post.title }}</H1></a>
+  <a href="/blog/{{ blog.author.username }}/post/{{ post.id }}"><H2>{{ post.title }}</H2></a>
   <DIV class="descr">by {{ blog.author.username }} on {{ post.pub_date|date }}</DIV>
   {{ post.html|truncatewords_html:100|safe }}
   <a href="/blog/{{ blog.author }}/post/{{ post.id }}">more...</a>
