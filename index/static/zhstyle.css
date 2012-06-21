@@ -48,8 +48,8 @@
     .post a:visited {color: #303030; text-decoration: none; border-width: 0 0 1px 0; border-style: none none solid none; border-color: #C0C0C0;}
     .post a:hover {color: #999; border-width: 0 0 1px 0; border-style: none none solid none; border-color: #C0C0C0; text-decoration: none;}
 
-    .post ul{padding: .1em 0em 1em 1.3em; font: 1.25em 'Gentium Book Basic', Hoefler Text, Georgia, bodyfont, serif;}
-    .post ol{padding: .1em 0em 1em 1.3em; font: 1.25em 'Gentium Book Basic', Hoefler Text, Georgia, bodyfont, serif;}
+    .post ul{padding: .1em 0em 1em 1.3em; font: 0.9em 'Gentium Book Basic', Hoefler Text, Georgia, bodyfont, serif;}
+    .post ol{padding: .1em 0em 1em 1.3em; font: 0.9em 'Gentium Book Basic', Hoefler Text, Georgia, bodyfont, serif;}
     .post li{line-height: 1.5em; padding: .2em 0 0 0; color: #333;}
 
     .post blockquote{border-left:2px solid #A5ABAB; margin: 1.8em .8em; padding:0 1em 0 1em; color: #666; font-family: Open Sans, Helvetica, sans-serif;}
