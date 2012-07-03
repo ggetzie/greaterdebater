@@ -69,7 +69,7 @@
     section#sidebar {float: right; width: 24.291498%;}
 
     subscribe ul {float: left; list-style: none inside; font-size: 1em; padding: 0px; margin: 0 0 20px 0;}
-    subscribe ul li {padding: 0px; line-height: 18px;}
+    subscribe ul li {padding: 9px 0 0 0; line-height: 18px;}
     subscribe a:link {color: #56A49F;}
     subscribe a:visited {color: #56A49F;}
     subscribe a:hover {color: #999;}
