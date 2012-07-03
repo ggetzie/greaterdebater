@@ -99,12 +99,13 @@
 	    <li class="first"><a href="/">GreaterDebater</a></li>
 	    <li><a href="/blog/{{ blog.author.username }}/about/">About</a></li>
 	    <li><a href="/blog/{{ blog.author.username }}/archive/">Archive</a></li>
+	    <li><a href="https://twitter.com/ggetzie" class="twitter-follow-button" data-show-count="false">Follow @ggetzie</a>
+	      <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script></li>
 	  </ul>
 	</nav>
 
 	<br />
 	{% ifequal request.user  blog.author %}
-
 	<nav>
 	  <UL>
 	    <LI>
@@ -122,7 +123,7 @@
 	  </UL>
 	</nav>
 	{% endifequal %}
-	
+
 	{% block ads %}{% endblock %}
 
 	{% block share %} {% endblock %}
@@ -133,7 +134,7 @@
       </DIV> <!-- end container -->
 
     <DIV id="footer">Copyright 2010 <A href="http://www.greaterdebater.com/">
-	GreaterDebater, LLC</A>. 
+	GreaterDebater, LLC</A>. CSS borrowed from <a href="http://zenhabits.net/theme/">zenhabits.net</a>
     </DIV>
 
   </BODY>

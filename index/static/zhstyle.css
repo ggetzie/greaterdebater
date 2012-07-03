@@ -78,7 +78,7 @@
     nav ul li {padding: 0px; line-height: 1.7em;}
     nav ul li a {color: #666;}
 
-    #footer {overflow: hidden;  padding: 0 1em; max-width: 59.375em; margin: 40px auto;}
+    #footer {overflow: hidden;  padding: 0 1em; max-width: 59.375em; margin: 40px auto; font-size: .6em;}
     #footer p{padding:4px 0;margin: 0; color: #c0c0c0; font-size: .8em; font-family: Open Sans, Helvetica, sans-serif; letter-spacing:.2em;}
     #footer a{color: #c0c0c0;}
     #footer a:hover{color: #999;}
