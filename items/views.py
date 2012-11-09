@@ -280,7 +280,7 @@ def submit(request):
         next = "/" + str(topic.id) + "/"
         
     if prof.socmed:
-        # post to twitter
+        # user has social media privileges, post to twitter
         tweeter = socmed.twitter_auth()
         tweet = tweeter.update_status(socmed.tweet_topic(topic))
         messages.info(request, "Tweet %i sent" % tweet.id)
