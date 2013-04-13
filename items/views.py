@@ -283,7 +283,12 @@ def submit(request):
         # user has social media privileges, post to twitter
         tweeter = socmed.twitter_auth()
         tweet = tweeter.update_status(socmed.tweet_topic(topic))
+
+        # and to facebook
+        fbid = socmed.fb_post(topic)
+
         messages.info(request, "Tweet %i sent" % tweet.id)
+        messages.info(request, "FB post id: %s" % fbid.json['id'])
 
     return HttpResponseRedirect(next)
 
