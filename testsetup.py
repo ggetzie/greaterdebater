@@ -4,7 +4,7 @@ from blog.models import *
 from comments.models import *
 from items.models import *
 from profiles.models import *
-from utils import update_tags
+from base_utils import update_tags
 
 from settings import HOSTNAME
 

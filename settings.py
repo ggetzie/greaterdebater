@@ -51,13 +51,13 @@ CACHE_MIDDLEWARE_ANONYMOUS_ONLY=True
 ROOT_URLCONF = 'tcd.urls'
 
 TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.core.context_processors.request',
     'django.contrib.auth.context_processors.auth',
     'django.core.context_processors.debug',
     'django.core.context_processors.i18n',
     'django.core.context_processors.media',
     'django.core.context_processors.csrf',
     'django.contrib.messages.context_processors.messages',
+    'django.core.context_processors.request',
 )
 
 INSTALLED_APPS = (

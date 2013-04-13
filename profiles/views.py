@@ -101,7 +101,7 @@ def profile(request, value):
     """Display a users profile"""
     
     # The user whose profile we wish to display (not necessarily the user viewing it)
-    user = get_object_or_404(User, username=value)
+    user = get_object_or_404(User, username=value, is_active=True)
     user_info = get_object_or_404(Profile, user=user)
     return render_to_response("registration/profile/profile_home.html",
                               {'username': user,

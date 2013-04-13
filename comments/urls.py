@@ -6,9 +6,6 @@ from comments.views import CommentDebateList
 
 urlpatterns = patterns('',
 
-                       # Why is this here?
-                       (r'^$', 'comments.views.list'),
-
                        # Add a comment to a topic
                        (r'^(?P<topic_id>\d+)/add/$', 'comments.views.add'),
 
