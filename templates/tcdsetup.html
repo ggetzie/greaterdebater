@@ -254,47 +254,51 @@ sudo ln -s /home/matt/python/</pre>
 	  You'll use this method in the next step when setting up Django.
 	</p>  
       </li>
+      
+      <li>
+	<h3>Install virtualenv</h3>
+	<pre class="command">
+sudo apt-get install python-setuptools
+sudo easy_installl pip 
+sudo pip install virtualenv</pre>
+    </li>
+	
 
       <li>
-	<h3>Download and configure django.</h3>
-	
-	<p>
-	  First you'll need to install subversion. This is the source
-	  control program that the Django project uses.
-	</p>
+	<h3>Set up the virtual environment</h3>
+	<pre class="command">
+cd /usr/local/src
+sudo mkdir env
+sudo chown -R "user" env
+cd env
+sudo virtualenv gd
+source gd/bin/activate
+pip install django
+pip install ElementTree
+pip install Markdown
+pip install Requests
+pip install Tweepy
+pip install pygments
+pip install south
+pip install gunicorn</pre>
 
-	<pre class="command">sudo apt-get install subversion</pre>
-
-	<p>
-	  Next navigate to <b>/usr/local/src/</b> and checkout the
-	  django code from subversion.
-	</p>
-
-	<pre class="command">sudo svn co http://code.djangoproject.com/svn/django/trunk django-trunk</pre>
-	
-	<p>
-	  Finally, follow the rest of the
-	  directions <a href="http://docs.djangoproject.com/en/dev/topics/install/#installing-development-version">here</a>
-	  to finish getting django set up. In step 3 of the directions
-	  at that link, SITE-PACKAGES-DIR
-	  is <b>/usr/lib/python2.5/site-packages/</b> as mentioned
-	  above. Remember to add <b>sudo</b> in front of commands
-	  executed outside of your home directory.
-	</p>
-
-	<p>
-	  The Django project has some excellent documentation. I
-	  highly recommend checking out the tutorial
-	  starting <a href="http://docs.djangoproject.com/en/dev/intro/tutorial01/#intro-tutorial01">here</a>. This
-	  will walk you through setting up and programming a simple
-	  Django app. It should help the rest of these instructions
-	  make more sense, though I'll do my best to keep them as
-	  simple as possible.
-	</p>
       </li>
+	  
 
       <li>
 	<h3>Setup the tcd database in MySQL</h3>
+	
+	<pre class="command">
+	  sudo apt-get install mysql-server mysql-client libmysqlclient-dev python-dev</pre>
+	
+	<p>
+	  In the virtual-env...
+	</p>
+	
+	<pre class="command">
+source gd/bin/activate
+pip install MySQL-python
+	</pre>
 	
 	<p>
 	  This program depends on having a MySql database set up with a
@@ -377,76 +381,6 @@ merge=meld</pre>
 	  This can go anywhere in the file. If there are already lines
 	  with these variables that have different values, replace
 	  them with the above.
-	</p>
-      </li>
-
-      <li>
-	<h3>Install Pygments</h3>
-	
-	<p>
-	  Pygments is a python program that provides syntax
-	  highlighting for code samples. In theory, someone could
-	  submit a comment with a snippet of code in it to the
-	  website, and it would display properly highlighted, but I
-	  haven't actually tried this yet. You'll need to download and
-	  install it though, or TCD won't run corrently because the
-	  Python interpreter will complain that it has a dependency
-	  that can't be found.  You can find the directions at the
-	  Pygments <a href="http://pygments.org/">website</a>, but
-	  I'll reproduce them here.
-	</p>
-
-	<p>
-	  First, navigate to the python directory that you added to
-	  the PYTHON_PATH, the one at <b>/home/matt/python</b>. It's
-	  important to install this here, so that the interpreter
-	  knows how to find it. So, once there, use mercurial to clone
-	  the source code repository for Pygments.
-	</p>
-	
-	<pre class="command">cd /home/matt/python/
-hg clone http://dev.pocoo.org/hg/pygments-main pygments</pre>
-	
-	<p>
-	  Next, run the included setup script to install Pygments.
-	</p>
-	
-	<pre class="command">sudo python setup.py</pre>
-	
-	<p>
-	  And that's all there is to it!
-	</p>
-      </li>
-	  
-      
-      <li>
-	<h3>Install python Markdown and other python packages</h3>
-	
-	<p>
-	  Markdown is a lightweight syntax that allows users to
-	  provide some formatting to their comments. You can read all
-	  about
-	  it <a href="http://en.wikipedia.org/wiki/Markdown">here</a>. TCD
-	  uses this python script to parse user comments for markdown
-	  syntax and translate it to HTML so it can be displayed
-	  correctly on the page.
-	  The <a href="http://www.freewisdom.org/projects/python-markdown/">python
-	  markdown site</a>, has all the information about it, but
-	  I'll include all the necessary steps for installation below.
-	</p>
-	
-	<pre class="command">
- sudo apt-get install python-setuptools
- sudo pip install ElementTree
- sudo pip install Markdown
- sudo pip install Requests
- sudo pip install Tweepy
-	</pre>
-	
-	<p>
-	  And that should do it. Make sure to
-	  replace <b>/home/matt/downloads</b> with the correct
-	  location if necessary.
 	</p>
       </li>
 

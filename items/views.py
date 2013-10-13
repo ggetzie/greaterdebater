@@ -31,10 +31,12 @@ from settings import HOSTNAME
 from base_utils import calc_start, tag_dict, tag_string, update_tags, render_to_AJAX, render_message
 
 import datetime
+import hashlib
 import random
 import shorten
 import socmed
 import urllib
+import uuid
 
 models={'comment': TopicComment,
         'topic':  Topic}
@@ -225,20 +227,38 @@ def submit(request):
                                   context_instance=RequestContext(request))
 
     user = request.user.username
-    if not request.method == 'POST':
-        try:
-            form = tcdTopicSubmitForm(initial={'title':request.GET['title'],
-                                               'url':request.GET['url']})
-        except MultiValueDictKeyError:
-            form = tcdTopicSubmitForm()
+    if request.method == 'GET':
+        ptitle = request.GET.get('title', '')
+        purl = request.GET.get('url', '')
+        form = tcdTopicSubmitForm(
+            initial={'title' : ptitle,
+                     'url' : purl})
+
+        # If user has social media priveleges, attempt to authorize posting
+        # to the GreaterDebater facebook page
+        # prof = Profile.objects.get(user=request.user)
+        # if prof.socmed and not request.GET.get('code', ''):
+        #     state = hashlib.md5(str(uuid.uuid4())).hexdigest()
+        #     request.session['STATE'] = state
+        #     redirect = ''.join([HOSTNAME, request.path, '?url=', purl, 
+        #                         # re-URLEncode the title
+        #                         '&title=', urllib.quote(ptitle.encode('utf-8'))])
+        #     fburl = "https://www.facebook.com/dialog/oauth?client_id=%s&redirect_uri=%s&state=%s&scope=manage_pages, publish_stream" % (socmed.FB_APP_ID, redirect, state)
+        #     return HttpResponseRedirect(fburl)
+        
+        # if request.session['state'] and (request.session['state'] == request.GET.get('state','')):
+        #     pass
+        # else:
+        #     return HttpResponseForbidden("Possible CSRF!")
 
         return render_to_response("items/submit.html",
                                   {'form': form},
                                   context_instance=RequestContext(request))
+    
 
     data = request.POST.copy()
     # If a topic with an identical url exists, redirect to it
-    if data['url']:
+    if data.get('url', ''):
         try:
             topic = Topic.objects.get(url=data['url'])
             return HttpResponseRedirect("/" + str(topic.id) + "/")
@@ -282,13 +302,14 @@ def submit(request):
     if prof.socmed:
         # user has social media privileges, post to twitter
         tweeter = socmed.twitter_auth()
-        tweet = tweeter.update_status(socmed.tweet_topic(topic))
+        tweet = tweeter.update_status(socmed.tweet_topic(topic)) 
 
         # and to facebook
-        fbid = socmed.fb_post(topic)
+        #fbid = socmed.fb_post(topic)
 
         messages.info(request, "Tweet %i sent" % tweet.id)
-        messages.info(request, "FB post id: %s" % fbid.json['id'])
+        # messages.info(request, "FB post id: %s" % fbid.json['id'])
+        # messages.info(request, "FB response: %s" % fbid.text)
 
     return HttpResponseRedirect(next)
 

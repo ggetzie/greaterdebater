@@ -35,13 +35,15 @@ def tweet_topic(topic):
     tweet = topic.title[:cutoff] + "... " + short_url
     return tweet
 
+
 def fb_post(topic):
     r1 = req.get(FB_URL, params = {'access_token': FB_TOKEN})
     gd = find_gd(r1.json)
-    r2 = req.post(gd_fb_url(gd), params = {'access_token': gd['access_token'],
-                                           'message': topic.get_first_comment().comment,
-                                           'link': topic.url,
-                                           'caption': topic.title})
+    gd_fb_url = "https://graph.facebook.com/%s/feed" % gd['id']
+    r2 = req.post(gd_fb_url, params = {'access_token': gd['access_token'],
+                                       'message': topic.get_first_comment().comment,
+                                       'link': topic.url,
+                                       'caption': topic.title})
     return r2
 
 def find_gd(response):
@@ -51,5 +53,3 @@ def find_gd(response):
         else:
             return None
 
-def gd_fb_url(gdpage):
-    return "https://graph.facebook.com/%s/feed" % gdpage['id']
