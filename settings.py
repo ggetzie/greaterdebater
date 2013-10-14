@@ -69,7 +69,8 @@ INSTALLED_APPS = (
     'tcd.items',
     'tcd.comments',
     'tcd.profiles',
-    'tcd.blog'
+    'tcd.blog',
+    'gunicorn'
 )
 
 # Email settings
