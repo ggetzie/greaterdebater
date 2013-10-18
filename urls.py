@@ -30,8 +30,7 @@ urlpatterns = patterns('',
                        (r'^FAQ/$', TemplateView.as_view(template_name='faq.html')),
 
                        # Help page - static
-                       (r'^help/$', 'django.views.generic.simple.direct_to_template', 
-                        {'template': 'help.html'}),                       
+                       (r'^help/$', TemplateView.as_view(template_name='help.html')),
 
                        # Terms of Service - Static
                        (r'^tos/$', TemplateView.as_view(template_name='tos.html')),
