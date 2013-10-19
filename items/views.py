@@ -26,7 +26,7 @@ from items.models import Topic, Tags
 from profiles.forms import tcdLoginForm, tcdUserCreationForm
 from profiles.models import Profile
 
-from settings import HOSTNAME
+from settings import HOSTNAME, DEBUG
 
 from base_utils import calc_start, tag_dict, tag_string, update_tags, render_to_AJAX, render_message
 
@@ -299,7 +299,8 @@ def submit(request):
     else:
         next = "/" + str(topic.id) + "/"
         
-    if prof.socmed:
+    if prof.socmed and not DEBUG:
+        # don't tweet during testing
         # user has social media privileges, post to twitter
         tweeter = socmed.twitter_auth()
         tweet = tweeter.update_status(socmed.tweet_topic(topic)) 
