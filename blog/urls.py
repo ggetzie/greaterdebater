@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import patterns
+from django.conf.urls import patterns
 from blog.views import ArchiveView
 
 # This url file included from tcd.urls with the prefix  ^blog/(?P<username>[A-Za-z\d]+)/

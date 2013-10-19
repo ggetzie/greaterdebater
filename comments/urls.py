@@ -1,5 +1,5 @@
 
-from django.conf.urls.defaults import patterns
+from django.conf.urls import patterns
 from comments.views import CommentDebateList
 
 # This url file is included from items.urls with the prefix /comments/

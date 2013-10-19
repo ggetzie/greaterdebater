@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import *
+from django.conf.urls import *
 from django.contrib import admin
 from django.views.generic.base import TemplateView
 from tcd.feeds import NewTopics, NewArguments, BlogFeed, UserFeed, UserFeedAtom

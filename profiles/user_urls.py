@@ -2,7 +2,7 @@
 # all view functions called below will be passed a parameter named "value" representing
 # a username captured from the url.
 
-from django.conf.urls.defaults import *
+from django.conf.urls import *
 from django.contrib.auth.models import User
 from comments.models import TopicComment
 from items.models import Topic

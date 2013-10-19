@@ -1,6 +1,6 @@
 # This url file is included in tcd.items.urls with the prefix 'argue/'
 
-from django.conf.urls.defaults import *
+from django.conf.urls import *
 from django.contrib.auth.models import User
 from items.views import DebateListView
 
