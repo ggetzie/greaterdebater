@@ -87,3 +87,6 @@ TIME_FORMAT = "g:ia"
 
 # File Upload Settins
 FILE_UPLOAD_PERMISSIONS = 0644
+
+# Logging
+LOGGING_CONFIG = None
