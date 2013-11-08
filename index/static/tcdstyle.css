@@ -337,14 +337,16 @@ div#content-wrapper {
 
 div#sidebar {
     padding: 20px 10px 0px 0px;
-    width: 452px;
+    /* width: 452px; */
+    width: 20%;
     float: right;
     margin-right: -7px;
 }
 
 div#ad-wrapper {
     padding: 0px 10px 0px 0px;
-    width: 160px;
+    /* width: 160px; */
+    width: 20%;
     float: right;
     margin-right: -7px;
 }
