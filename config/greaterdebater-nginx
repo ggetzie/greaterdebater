@@ -173,7 +173,7 @@ server {
 		expires max;
 	}
 
-	location /!(admin|users) {
+	location / {
 		 rewrite (.*) http://greaterdebater.com$1 permanent;
 	}		 
 
