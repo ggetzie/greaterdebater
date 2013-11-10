@@ -57,22 +57,24 @@ server {
 
 
 	location /robots.txt {
-		root /usr/local/src/tcd/index/static/robots.txt;
+		root /usr/local/src/tcd/index/;
 		expires max;
 	}
 
 	location /favicon.ico {
-		root /usr/local/src/tcd/index/static/favicon.ico;
+		root /usr/local/src/tcd/index/;
 		expires max;
 	}
 
 	location /static {
-		root /usr/local/src/tcd/index/static;
-		expires 24h;
+		 root /usr/local/src/tcd/index;
+		 if (-e $request_filename) {
+		 expires 24h;
+		 break;}
 	}
 
 	location /media {
-		root /usr/local/src/tcd/index/static/media;
+		root /usr/local/src/tcd/index/static/;
 		expires max;
 	}
 
