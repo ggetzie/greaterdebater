@@ -131,9 +131,7 @@ server {
 		# proxy_temp_file_write_size 64k;
 	}
 
-	location /^(admin|users) {
- 		 rewrite (.*) http://greaterdebater.com$1 permanent;
-	}				 
+
 
 	# location /users {
 	# 	proxy_set_header X-Forwarded_Proto $scheme;
@@ -173,4 +171,8 @@ server {
 		root /usr/local/src/tcd/index/static/;
 		expires max;
 	}
+
+	location / {
+ 		 rewrite (.*) http://greaterdebater.com$1 permanent;
+	}				 
 }
