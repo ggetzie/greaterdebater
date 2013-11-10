@@ -114,7 +114,7 @@ server {
 	ssl_ciphers ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv3:+EXP;
 	ssl_prefer_server_ciphers on;
 
-	location /(admin|users) {
+	location /admin {
 		proxy_set_header X-Forwarded_Proto $scheme;
 		proxy_pass http://127.0.0.1:8080;
 		# proxy_redirect off;
@@ -133,22 +133,23 @@ server {
 
 
 
-	# location /users {
-	# 	proxy_set_header X-Forwarded_Proto $scheme;
-	# 	proxy_pass http://127.0.0.1:8080;
-	# 	# proxy_redirect off;
-	# 	# proxy_set_header X-Real-IP $host;
-	# 	# proxy_set_header X-Forwarded_For $proxy_add_x_forwarded_for;
-	# 	# client_max_body_size 10m;
-	# 	# client_body_buffer_size 128k;
-	# 	# proxy_connect_timeout 90;
-	# 	# proxy_send_timeout 90;
-	# 	# proxy_read_timeout 90;
-	# 	# proxy_buffer_size 4k;
-	# 	# proxy_buffers 4 32k;
-	# 	# proxy_busy_buffers_size 64k;
-	# 	# proxy_temp_file_write_size 64k;
-	# }
+	location /users {
+	 	proxy_set_header X-Forwarded_Proto $scheme;
+	 	proxy_pass http://127.0.0.1:8080;
+	 	# proxy_redirect off;
+	 	# proxy_set_header X-Real-IP $host;
+	 	# proxy_set_header X-Forwarded_For $proxy_add_x_forwarded_for;
+	 	# client_max_body_size 10m;
+	 	# client_body_buffer_size 128k;
+	 	# proxy_connect_timeout 90;
+	 	# proxy_send_timeout 90;
+	 	# proxy_read_timeout 90;
+	 	# proxy_buffer_size 4k;
+	 	# proxy_buffers 4 32k;
+	 	# proxy_busy_buffers_size 64k;
+	 	# proxy_temp_file_write_size 64k;
+	 }
+
 
 	location /robots.txt {
 		root /usr/local/src/tcd/index/;
