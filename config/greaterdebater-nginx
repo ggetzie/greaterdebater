@@ -51,7 +51,7 @@ server {
 		 rewrite(.*) https://greaterdebater.com/$1 permanent;
 	}
 
-	location /login {
+	location /users {
 		 rewrite(.*) https://greaterdebater.com/$1 permanent;
 	}
 
@@ -129,7 +129,7 @@ server {
 		proxy_temp_file_write_size 64;
 	}
 
-	location /login {
+	location /users {
 		proxy_set_header X-Forwarded_Proto $scheme;
 		proxy_pass http://192.168.0.180:8080;
 		proxy_redirect off;
