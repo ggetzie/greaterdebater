@@ -48,11 +48,11 @@ server {
 
 	# force admin and login to use https
 	location /admin {
-		 rewrite (.*) https://greaterdebater.com/$1 permanent;
+		 rewrite (.*) https://greaterdebater.com$1 permanent;
 	}
 
 	location /users {
-		 rewrite (.*) https://greaterdebater.com/$1 permanent;
+		 rewrite (.*) https://greaterdebater.com$1 permanent;
 	}
 
 
