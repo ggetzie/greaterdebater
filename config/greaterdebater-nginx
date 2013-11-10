@@ -24,7 +24,7 @@ server {
 	root /usr/share/nginx/www;
 	index index.html index.htm;
 
-	# Make site accessible from http://localhost/
+	# make site accessible from http://localhost/
 	server_name localhost greaterdebater.com www.greaterdebater.com;
 
 	location / {
@@ -96,7 +96,7 @@ server {
 
 
 
-HTTPS server
+# HTTPS server
 
 server {
 	listen 443 ssl spdy;
