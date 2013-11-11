@@ -50,7 +50,7 @@ function displayFormComment(form_id) {
 function check_messages() {
     $("#msgcount").html("Checking for messages...")
     var add = "/users/check_messages/"
-    if (window.location.origin.indexof("greaterdebater") != -1) {
+    if (window.location.origin.indexOf("greaterdebater") != -1) {
 	add = "https://greaterdebater.com/users/check_messages"
     }
     $.get(add,
