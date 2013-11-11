@@ -49,7 +49,11 @@ function displayFormComment(form_id) {
 
 function check_messages() {
     $("#msgcount").html("Checking for messages...")
-    $.get("/users/check_messages/",
+    var add = "/users/check_messages/"
+    if (window.location.origin.indexof("greaterdebater") != -1) {
+	add = "https://greaterdebater.com/users/check_messages"
+    }
+    $.get(add,
 	  function(xml) {
 	      $("#user_msgs").append($("message", xml).html())
 	  });
