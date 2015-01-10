@@ -13,14 +13,14 @@ from django.template import loader, RequestContext, Context
 from django.utils.http import urlquote_plus, urlquote
 from django.views.generic.list import ListView
 
-from forms import CommentForm, DeleteForm, FollowForm
-from models import ArgComment, TopicComment, Debate, fcomMessage
+from tcd.comments.forms import CommentForm, DeleteForm, FollowForm
+from tcd.comments.models import ArgComment, TopicComment, Debate, fcomMessage
 from utils import build_list
 
-from items.models import Topic
-from items.forms import Flag
+from tcd.items.models import Topic
+from tcd.items.forms import Flag
 
-from profiles.models import Profile
+from tcd.profiles.models import Profile
 
 from base_utils import calc_start, render_to_AJAX, render_message
 

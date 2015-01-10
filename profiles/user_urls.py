@@ -4,9 +4,9 @@
 
 from django.conf.urls import *
 from django.contrib.auth.models import User
-from comments.models import TopicComment
-from items.models import Topic
-from profiles.views import ProfileTopicView, ProfileAllArgs, MessageList, ProfileSavedView, \
+from tcd.comments.models import TopicComment
+from tcd.items.models import Topic
+from tcd.profiles.views import ProfileTopicView, ProfileAllArgs, MessageList, ProfileSavedView, \
     RepliesView, ProfileCommentView
 
 

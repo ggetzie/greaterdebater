@@ -1,8 +1,8 @@
-from comments.models import TopicComment
-from items.models import Topic, Tags
-from profiles.models import Profile
-from settings import HOSTNAME
-from base_utils import update_tags
+from tcd.comments.models import TopicComment
+from tcd.items.models import Topic, Tags
+from tcd.profiles.models import Profile
+from tcd.settings import HOSTNAME
+from tcd.base_utils import update_tags
 
 from django import forms
 from django.contrib.auth.models import User

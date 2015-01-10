@@ -14,21 +14,21 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.list import ListView
 
-from comments.forms import ArgueForm, CommentForm, RebutForm
-from comments.models import TopicComment, ArgComment, nVote, Debate, tcdMessage, Draw, \
+from tcd.comments.forms import ArgueForm, CommentForm, RebutForm
+from tcd.comments.models import TopicComment, ArgComment, nVote, Debate, tcdMessage, Draw, \
     fcomMessage
-from comments.utils import build_list
+from tcd.comments.utils import build_list
 
-from items.forms import tcdTopicSubmitForm, Ballot, Flag, Concession, Response, TagEdit, \
+from tcd.items.forms import tcdTopicSubmitForm, Ballot, Flag, Concession, Response, TagEdit, \
     TagRemove, DecideForm
-from items.models import Topic, Tags
+from tcd.items.models import Topic, Tags
 
-from profiles.forms import tcdLoginForm, tcdUserCreationForm
-from profiles.models import Profile
+from tcd.profiles.forms import tcdLoginForm, tcdUserCreationForm
+from tcd.profiles.models import Profile
 
-from settings import HOSTNAME, DEBUG
+from tcd.settings import HOSTNAME, DEBUG
 
-from base_utils import calc_start, tag_dict, tag_string, update_tags, render_to_AJAX, render_message
+from tcd.base_utils import calc_start, tag_dict, tag_string, update_tags, render_to_AJAX, render_message
 
 import datetime
 import hashlib

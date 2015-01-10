@@ -10,17 +10,17 @@ from django.utils.decorators import method_decorator
 from django.template import loader, RequestContext, Context
 from django.views.generic.list import ListView
 
-from comments.models import TopicComment, ArgComment, Debate, tcdMessage, \
+from tcd.comments.models import TopicComment, ArgComment, Debate, tcdMessage, \
     fcomMessage
 
-from items.models import Topic, Tags
+from tcd.items.models import Topic, Tags
 
-from profiles.forms import tcdUserCreationForm, tcdPasswordResetForm, tcdLoginForm, \
+from tcd.profiles.forms import tcdUserCreationForm, tcdPasswordResetForm, tcdLoginForm, \
     forgotForm, FeedbackForm, SettingsForm
-from profiles.models import Profile, Forgotten
+from tcd.profiles.models import Profile, Forgotten
 
-from settings import HOSTNAME
-from base_utils import random_string, tag_dict, tag_string, render_to_AJAX, render_message
+from tcd.settings import HOSTNAME
+from tcd.base_utils import random_string, tag_dict, tag_string, render_to_AJAX, render_message
 
 import datetime
 import MySQLdb
