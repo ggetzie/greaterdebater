@@ -2,9 +2,9 @@
 import requests
 import json
 
-CLIENT_ID = "461061474277.apps.googleusercontent.com"
-CLIENT_SECRET = "AZQD-KdossvXjzFzLU_R_3PX"
-API_KEY = "AIzaSyA39088C2UIk1Af91A6qnSNeEaXt14EKCM"
+CLIENT_ID = "***REMOVED***"
+CLIENT_SECRET = "***REMOVED***"
+API_KEY = "***REMOVED***"
 GOOGL = "https://www.googleapis.com/urlshortener/v1/url"
 
 
